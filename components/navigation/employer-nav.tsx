@@ -95,7 +95,7 @@ export function EmployerNav() {
 
             {/* Logo */}
             <Link href="/" className="">
-              <img src="/JobBriz.svg" alt="Jobbriz" className="h-12 w-auto" />
+              <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}

@@ -166,7 +166,7 @@ export default function LoginPage() {
             Welcome Back
           </CardTitle>
           <CardDescription className="text-lg text-gray-600">
-            Sign in to your JobBriz account
+            Sign in to your B2B account
           </CardDescription>
         </CardHeader>
 

@@ -104,7 +104,7 @@ const Footerbot = () => {
 
       <div className="mt-12 flex flex-col md:flex-row items-center justify-between">
         <Link href="/" className="">
-          <img src="/JobBriz.svg" alt="Jobbriz" className="h-12 w-auto" />
+          <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
         </Link>
         {/* support by Chamber of Industry Morang */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

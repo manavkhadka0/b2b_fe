@@ -8,9 +8,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useRouter, usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "Job search", href: "/job-search" },
-  { label: "Career advice", href: "/career-advice" },
-  { label: "Explore companies", href: "/companies" },
+  { label: "B2B Events", href: "#" },
+  { label: "Wish & Offer", href: "#" },
+  { label: "BDS Services", href: "#" },
+  { label: "Business Registration", href: "#" },
+  { label: "JobBriz", href: "#" },
 ];
 
 export function DefaultNav() {
@@ -51,9 +53,29 @@ export function DefaultNav() {
           isScrolled ? "shadow-md" : "border-b"
         }`}
       >
-        <div className="container mx-auto">
-          <div className="flex h-16 items-center justify-between">
+        <div className="container mx-auto max-w-[1280px]">
+          <div className="flex h-20 items-center justify-between">
+            {/* Logo Section */}
+            <Link href="/" className="">
+              <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
+            </Link>
+
+            {/* Nav and Membership Section */}
             <div className="flex items-center gap-8">
+              <nav className="hidden lg:flex items-center gap-6">
+                {navItems.map((item) => (
+                  <NavLink key={item.href} {...item} />
+                ))}
+              </nav>
+              <Button
+                variant="outline"
+                onClick={() => router.push("/login")}
+                className="hidden md:block text-sm font-medium bg-blue-500 text-white hover:bg-blue-400"
+              >
+                Sign-Up
+              </Button>
+
+              {/* Mobile Menu */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="lg:hidden">
@@ -68,33 +90,6 @@ export function DefaultNav() {
                   </nav>
                 </SheetContent>
               </Sheet>
-
-              <Link href="/" className="">
-                <img src="/JobBriz.svg" alt="Jobbriz" className="h-12 w-auto" />
-              </Link>
-
-              <nav className="hidden lg:flex items-center gap-6">
-                {navItems.map((item) => (
-                  <NavLink key={item.href} {...item} />
-                ))}
-              </nav>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => router.push("/login")}
-                className="text-sm font-medium text-gray-600 hover:text-blue-800"
-              >
-                Sign in
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => router.push("/employer-site")}
-                className="hidden md:block text-sm font-medium border-blue-800 text-blue-800 hover:bg-blue-50"
-              >
-                Employer site
-              </Button>
             </div>
           </div>
         </div>
