@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { FaAngleDoubleRight } from "react-icons/fa";
 import WishOfferCard from "@/components/wish-offer-card";
+import { SlOptions } from "react-icons/sl";
 
 export const WISH_DATA = [
   {
@@ -9,30 +9,35 @@ export const WISH_DATA = [
     title: "Marketing Advice",
     description: "Looking for tips on Digital Marketing Strategies and Advices",
     product_or_service: "Product",
+    hCode: "#f29807",
   },
   {
     id: 2,
     title: "Tech Mentor",
     description: "Looking for a tech mentor to help me learn new technologies",
     product_or_service: "Service",
+    hCode: "#f29807",
   },
   {
     id: 3,
     title: "Funding Opportunities",
     description: "Looking for funding opportunities to start my own business",
     product_or_service: "Product",
+    hCode: "#f29807",
   },
   {
     id: 4,
     title: "Marketing Advice",
     description: "Looking for tips on Digital Marketing Strategies and Advices",
     product_or_service: "Product",
+    hCode: "#f29807",
   },
   {
     id: 5,
     title: "Marketing Advice",
     description: "Looking for tips on Digital Marketing Strategies and Advices",
     product_or_service: "Product",
+    hCode: "#f29807",
   },
 ];
 
@@ -55,7 +60,12 @@ const Page = () => {
         {/* Wishes Section */}
         <div className="p-4 bg-white rounded-lg border">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Wishes</h2>
+            <h2 className="text-xl font-bold hover:text-blue-500">
+              <Link href={"/wishOffer/wishes"} className="hover:text-blue-500">
+                Wishes
+              </Link>
+            </h2>
+
             <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
               Create Wish
             </button>
@@ -68,6 +78,7 @@ const Page = () => {
                 title={wish.title}
                 description={wish.description}
                 tags={[wish.product_or_service]}
+                hCode={[wish.hCode]}
               />
             ))}
           </div>
@@ -84,7 +95,11 @@ const Page = () => {
         {/* Offers Section */}
         <div className="p-4 bg-white rounded-lg border">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Offers</h2>
+            <h2 className="text-xl font-bold">
+              <Link href={"/wishOffer/offer"} className="hover:text-blue-500">
+                Offers
+              </Link>
+            </h2>
             <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
               Create Offer
             </button>
@@ -97,6 +112,7 @@ const Page = () => {
                 title={offer.title}
                 description={offer.description}
                 tags={[offer.product_or_service]}
+                hCode={[offer.hCode]}
               />
             ))}
           </div>
