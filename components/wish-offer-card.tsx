@@ -5,12 +5,14 @@ interface WishOfferCardProps {
   title: string;
   description: string;
   tags?: string[];
+  hCode: string[];
 }
 
 const WishOfferCard = ({
   title,
   description,
   tags = [],
+  hCode = [],
 }: WishOfferCardProps) => {
   return (
     <div className="p-7 border rounded-lg hover:shadow-md transition group">
@@ -25,11 +27,25 @@ const WishOfferCard = ({
         {tags.map((tag, index) => (
           <span
             key={index}
-            className="text-blue-500 text-sm px-2 py-1 border border-blue-500 rounded-lg"
+            className="text-blue-500 text-sm px-3 pt-1 pb-1 border border-blue-500 rounded-3xl"
           >
             {tag}
           </span>
         ))}
+
+        {/* Conditionally render hCode if tag is 'Product' */}
+        {tags.includes("Product") && (
+          <div className="text-gray-400 mt-1">
+            {hCode.map((code, index) => (
+              <span
+                key={index}
+                className="inline-block text-sm px-2 py-1 rounded"
+              >
+                {code}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Paragraph Text */}

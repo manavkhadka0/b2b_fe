@@ -22,6 +22,7 @@ const page = () => {
               title={wish.title}
               description={wish.description}
               tags={[wish.product_or_service]}
+              hCode={[wish.hCode]}
             />
           ))}
         </div>
