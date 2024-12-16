@@ -1,6 +1,40 @@
 import React from "react";
 import Link from "next/link";
 import { FaAngleDoubleRight } from "react-icons/fa";
+import WishOfferCard from "@/components/wish-offer-card";
+
+export const WISH_DATA = [
+  {
+    id: 1,
+    title: "Marketing Advice",
+    description: "Looking for tips on Digital Marketing Strategies and Advices",
+    product_or_service: "Product",
+  },
+  {
+    id: 2,
+    title: "Tech Mentor",
+    description: "Looking for a tech mentor to help me learn new technologies",
+    product_or_service: "Service",
+  },
+  {
+    id: 3,
+    title: "Funding Opportunities",
+    description: "Looking for funding opportunities to start my own business",
+    product_or_service: "Product",
+  },
+  {
+    id: 4,
+    title: "Marketing Advice",
+    description: "Looking for tips on Digital Marketing Strategies and Advices",
+    product_or_service: "Product",
+  },
+  {
+    id: 5,
+    title: "Marketing Advice",
+    description: "Looking for tips on Digital Marketing Strategies and Advices",
+    product_or_service: "Product",
+  },
+];
 
 const Page = () => {
   return (
@@ -28,35 +62,13 @@ const Page = () => {
           </div>
           {/* Wishes Cards */}
           <div className="space-y-4">
-            {[
-              "Marketing Advice",
-              "Tech Mentor",
-              "Funding Opportunities",
-              "Marketing Advice",
-              "Tech Mentor",
-            ].map((wish, index) => (
-              <div
+            {WISH_DATA.map((wish, index) => (
+              <WishOfferCard
                 key={index}
-                className="p-7 border rounded-lg hover:shadow-md transition group"
-              >
-                {/* Flexbox for Title and Icon */}
-                <div className="flex justify-between items-center">
-                  <h3 className="font-bold">{wish}</h3>
-                  <FaAngleDoubleRight className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-
-                {/* Tags Section */}
-                <div className="flex space-x-3 mt-2">
-                  <span className="text-blue-500 text-sm px-2 py-1 border border-blue-500 rounded-lg">
-                    Product
-                  </span>
-                </div>
-
-                {/* Paragraph Text */}
-                <p className="text-gray-500 text-sm mt-2">
-                  Looking for tips on Digital Marketing Strategies and Advices
-                </p>
-              </div>
+                title={wish.title}
+                description={wish.description}
+                tags={[wish.product_or_service]}
+              />
             ))}
           </div>
           <div className="text-right mt-4">
@@ -79,35 +91,13 @@ const Page = () => {
           </div>
           {/* Offers Cards */}
           <div className="space-y-4">
-            {[
-              "Web Development",
-              "Business Planning",
-              "Networking",
-              "Marketing Advice",
-              "Tech Mentor",
-            ].map((offer, index) => (
-              <div
+            {WISH_DATA.map((offer, index) => (
+              <WishOfferCard
                 key={index}
-                className="p-7 border rounded-lg hover:shadow-md transition group"
-              >
-                {/* Flexbox for Title and Icon */}
-                <div className="flex justify-between items-center">
-                  <h3 className="font-bold">{offer}</h3>
-                  <FaAngleDoubleRight className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-
-                {/* Tags Section */}
-                <div className="flex space-x-3 mt-2">
-                  <span className="text-blue-500 text-sm px-2 py-1 border border-blue-500 rounded-lg">
-                    Services
-                  </span>
-                </div>
-
-                {/* Paragraph Text */}
-                <p className="text-gray-500 text-sm mt-2">
-                  Looking for tips on Digital Marketing Strategies and Advices
-                </p>
-              </div>
+                title={offer.title}
+                description={offer.description}
+                tags={[offer.product_or_service]}
+              />
             ))}
           </div>
           <div className="text-right mt-4">

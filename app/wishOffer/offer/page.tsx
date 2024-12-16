@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { FaAngleDoubleRight } from "react-icons/fa";
+import WishOfferCard from "@/components/wish-offer-card";
+import { WISH_DATA } from "../page";
 
 const page = () => {
   return (
@@ -12,35 +14,15 @@ const page = () => {
         </button>
       </div>
       <div className="p-4 bg-white rounded-lg border max-w-7xl mx-auto px-4 py-10 ">
-        {/* Wishes Cards */}
+        {/* Offers Cards */}
         <div className="grid md:grid-cols-2 grid-cols-1  gap-4">
-          {[
-            "Marketing Advice",
-            "Tech Mentor",
-            "Funding Opportunities",
-            "Marketing Advice",
-            "Tech Mentor",
-            "Marketing Advice",
-            "Tech Mentor",
-            "Funding Opportunities",
-            "Marketing Advice",
-            "Tech Mentor",
-          ].map((wish, index) => (
-            <div
+          {WISH_DATA.map((wish, index) => (
+            <WishOfferCard
               key={index}
-              className="p-7 border rounded-lg hover:shadow-md transition group"
-            >
-              {/* Flexbox for Title and Icon */}
-              <div className="flex justify-between items-center">
-                <h3 className="font-bold">{wish}</h3>
-                <FaAngleDoubleRight className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-
-              {/* Paragraph Text */}
-              <p className="text-gray-500 text-sm">
-                Looking for tips on Digital Marketing Strategies and Advices
-              </p>
-            </div>
+              title={wish.title}
+              description={wish.description}
+              tags={[wish.product_or_service]}
+            />
           ))}
         </div>
       </div>
