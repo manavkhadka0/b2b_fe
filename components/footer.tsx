@@ -74,7 +74,7 @@ export function Footer() {
       <FooterBot />
 
       <p className="py-20 text-center bg-gray-100 text-sm text-muted-foreground">
-        © Copyright 2024 - Job Briz. Designed by Baliyo Ventures
+        © Copyright 2024 - B2B. Designed by Baliyo Ventures
       </p>
     </>
   );

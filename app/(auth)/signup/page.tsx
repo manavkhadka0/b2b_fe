@@ -160,7 +160,7 @@ export default function SignupPage() {
       } else {
         toast.error("Signup failed. Please try again.");
       }
-      console.error('Signup error:', error.response?.data);
+      console.error("Signup error:", error.response?.data);
     } finally {
       setIsLoading(false);
     }
@@ -233,41 +233,14 @@ export default function SignupPage() {
       <Card className="w-full max-w-2xl shadow-xl bg-white/80 backdrop-blur-sm">
         <CardHeader className="text-center space-y-2  pb-7 mb-4">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
-            Create Your Account
+            Elevate Your Business with B2B Today.
           </CardTitle>
-          <CardDescription className="text-lg text-gray-600">
-            Join JobBriz and start your professional journey
+          <CardDescription className="text-lg text-gray-600 mt-10">
+            Get started effortlessly with custom solutions and collaborative
+            opportunities.
           </CardDescription>
 
           {/* Step Indicator */}
-          <div className="flex justify-center items-center gap-4 mt-8">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div
-                  className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors",
-                    currentStep >= step.id
-                      ? "border-primary bg-primary text-white"
-                      : "border-gray-300 text-gray-300"
-                  )}
-                >
-                  {currentStep > step.id ? (
-                    <CheckCircle2 className="w-5 h-5" />
-                  ) : (
-                    step.id
-                  )}
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={cn(
-                      "w-12 h-0.5 mx-2",
-                      currentStep > step.id ? "bg-primary" : "bg-gray-200"
-                    )}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
         </CardHeader>
 
         <Form {...form}>
@@ -282,38 +255,56 @@ export default function SignupPage() {
                 {currentStep === 1 && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Job Seeker Card */}
                       <div
                         className={cn(
-                          "p-6 rounded-lg border-2 cursor-pointer transition-all",
+                          "p-6 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-4",
                           watchUserType === "Job Seeker"
                             ? "border-primary bg-primary/5"
                             : "border-gray-200 hover:border-primary/50"
                         )}
                         onClick={() => form.setValue("user_type", "Job Seeker")}
                       >
-                        <UserCircle className="w-12 h-12 text-primary mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">
-                          Job Seeker
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Find your dream job and connect with top employers
-                        </p>
+                        {/* SVG Image */}
+                        <img
+                          src="/wisher.svg"
+                          alt="Wisher"
+                          className="w-24 h-24 object-contain"
+                        />
+                        {/* Content */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Wisher</h3>
+                          <p className="text-sm text-gray-600">
+                            Find your Dream Job and Connect with top Employers
+                          </p>
+                        </div>
                       </div>
 
+                      {/* Employer Card */}
                       <div
                         className={cn(
-                          "p-6 rounded-lg border-2 cursor-pointer transition-all",
+                          "p-6 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-4",
                           watchUserType === "Employer"
                             ? "border-primary bg-primary/5"
                             : "border-gray-200 hover:border-primary/50"
                         )}
                         onClick={() => form.setValue("user_type", "Employer")}
                       >
-                        <Building className="w-12 h-12 text-primary mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">Employer</h3>
-                        <p className="text-sm text-gray-600">
-                          Post jobs and find the perfect candidates
-                        </p>
+                        {/* SVG Image */}
+                        <img
+                          src="/offer.svg"
+                          alt="Offerer"
+                          className="w-24 h-24 object-contain"
+                        />
+                        {/* Content */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">
+                            Offerer
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Post Job and Find the Perfect Candidates
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -322,6 +313,9 @@ export default function SignupPage() {
                 {/* Step 2: Personal Information */}
                 {currentStep === 2 && (
                   <div className="space-y-4">
+                    <div className="font-bold text-blue-800 text-xl">
+                      Personal Details
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -396,8 +390,11 @@ export default function SignupPage() {
                 )}
 
                 {/* Step 3: Account & Contact Details */}
-                {currentStep === 3 && (
+                {currentStep === 2 && (
                   <div className="space-y-4">
+                    <div className="font-bold text-blue-800 text-xl mt-10">
+                      Account & Contact Details
+                    </div>
                     <FormField
                       control={form.control}
                       name="username"
@@ -533,41 +530,47 @@ export default function SignupPage() {
               </motion.div>
             </CardContent>
 
-            <CardFooter className="flex justify-between px-8 pb-8">
-              {currentStep > 1 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={prevStep}
-                  className="w-32"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
-              )}
-              {currentStep < 3 && (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className={cn(
-                    "w-32 ml-auto",
-                    !isCurrentStepValid() && "opacity-50"
-                  )}
-                  disabled={!isCurrentStepValid()}
-                >
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-              {currentStep === 3 && (
-                <Button
-                  type="submit"
-                  className="w-32 ml-auto"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Creating..." : "Sign Up"}
-                </Button>
-              )}
+            <CardFooter className="flex flex-col gap-2 px-6 pb-6">
+              {/* Step Indicator */}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between w-full mt-2">
+                {currentStep > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={prevStep}
+                    className="w-24 text-lg pl-5 pr-5"
+                  >
+                    <ArrowLeft className="w-3 h-3 mr-1" />
+                    Back
+                  </Button>
+                )}
+
+                {currentStep < 2 && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={nextStep}
+                    className="w-24 mr-2 ml-auto bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
+                  >
+                    Next
+                    <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                )}
+
+                {currentStep === 2 && (
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="w-24 ml-auto mr-2 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Creating..." : "Sign Up"}
+                  </Button>
+                )}
+              </div>
             </CardFooter>
           </form>
         </Form>
@@ -582,6 +585,21 @@ export default function SignupPage() {
               Sign in
             </Link>
           </p>
+          <div className="flex flex-col items-center gap-1 mt-4">
+            {/* Step Indicator */}
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold text-blue-700">{currentStep}</span>{" "}
+              of <span className="font-semibold">2</span>
+            </p>
+
+            {/* Thin Progress Bar */}
+            <div className="w-16 h-0.5 bg-gray-300 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-700 transition-all duration-300"
+                style={{ width: `${(currentStep / 2) * 100}%` }}
+              />
+            </div>
+          </div>
         </div>
       </Card>
     </div>

@@ -20,10 +20,10 @@ import { HeroSearch } from "../hero-search";
 const navItems = [
   { label: "Dashboard", href: "/jobseeker/dashboard" },
   { label: "Profile", href: "/jobseeker/dashboard/profile/me" },
-  { label: "Job Search", href: "/job-search" },
+  { label: "B2B Events", href: "/job-search" },
   { label: "Hire Requests", href: "/jobseeker/hire-requests" },
   { label: "My Applications", href: "/jobseeker/applications" },
-  { label: "Career Advice", href: "/career-advice" },
+  { label: "Wish & Offer", href: "/career-advice" },
   /* { label: "Saved Jobs", href: "/jobseeker/saved-jobs" }, */
 ];
 
@@ -96,7 +96,7 @@ export function JobSeekerNav() {
 
             {/* Logo */}
             <Link href="/" className="">
-              <img src="/JobBriz.svg" alt="Jobbriz" className="h-12 w-auto" />
+              <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}

@@ -16,9 +16,9 @@ export function DefaultNavSkeleton() {
             {/* Desktop nav items skeleton */}
             <div className="hidden lg:flex items-center gap-6">
               {[1, 2, 3].map((item) => (
-                <div 
-                  key={item} 
-                  className="h-4 w-24 bg-gray-200 rounded animate-pulse" 
+                <div
+                  key={item}
+                  className="h-4 w-24 bg-gray-200 rounded animate-pulse"
                 />
               ))}
             </div>
@@ -28,12 +28,12 @@ export function DefaultNavSkeleton() {
           <div className="flex items-center gap-4">
             {/* Sign in button skeleton */}
             <div className="h-9 w-20 bg-gray-200 rounded animate-pulse" />
-            
-            {/* Employer site button skeleton */}
+
+            {/* Membership button skeleton */}
             <div className="hidden md:block h-9 w-28 bg-gray-200 rounded animate-pulse" />
           </div>
         </div>
       </div>
     </header>
   );
-} 
+}
