@@ -1,8 +1,6 @@
 import React from "react";
-import Link from "next/link";
-import { FaAngleDoubleRight } from "react-icons/fa";
 import WishOfferCard from "@/components/wish-offer-card";
-import { WISH_DATA } from "../page";
+import { WISH_DATA } from "@/constants/wish";
 
 const page = () => {
   return (

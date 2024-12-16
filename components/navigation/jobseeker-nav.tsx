@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { HeroSearch } from "../hero-search";
 
 const navItems = [
   { label: "Dashboard", href: "/jobseeker/dashboard" },
