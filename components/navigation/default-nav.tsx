@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useRouter, usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "B2B Events", href: "#" },
+  { label: "B2B Events", href: "/events" },
   { label: "Wish & Offer", href: "/wishOffer" },
   { label: "BDS Services", href: "#" },
   { label: "Business Registration", href: "#" },
@@ -53,7 +53,7 @@ export function DefaultNav() {
           isScrolled ? "shadow-md" : "border-b"
         }`}
       >
-        <div className="container mx-auto max-w-[1280px]">
+        <div className="container mx-auto px-4 md:px-0 py-2">
           <div className="flex h-20 items-center justify-between">
             {/* Logo Section */}
             <Link href="/" className="">
