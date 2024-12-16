@@ -9,7 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 const navItems = [
   { label: "B2B Events", href: "#" },
-  { label: "Wish & Offer", href: "#" },
+  { label: "Wish & Offer", href: "/wishOffer" },
   { label: "BDS Services", href: "#" },
   { label: "Business Registration", href: "#" },
   { label: "JobBriz", href: "#" },

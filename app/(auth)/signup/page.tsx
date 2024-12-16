@@ -255,36 +255,56 @@ export default function SignupPage() {
                 {currentStep === 1 && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Job Seeker Card */}
                       <div
                         className={cn(
-                          "p-6 rounded-lg border-2 cursor-pointer transition-all",
+                          "p-6 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-4",
                           watchUserType === "Job Seeker"
                             ? "border-primary bg-primary/5"
                             : "border-gray-200 hover:border-primary/50"
                         )}
                         onClick={() => form.setValue("user_type", "Job Seeker")}
                       >
-                        <UserCircle className="w-12 h-12 text-primary mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">Wisher</h3>
-                        <p className="text-sm text-gray-600">
-                          Find your Dream Job and Connect with top Employers
-                        </p>
+                        {/* SVG Image */}
+                        <img
+                          src="/wisher.svg"
+                          alt="Wisher"
+                          className="w-24 h-24 object-contain"
+                        />
+                        {/* Content */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Wisher</h3>
+                          <p className="text-sm text-gray-600">
+                            Find your Dream Job and Connect with top Employers
+                          </p>
+                        </div>
                       </div>
 
+                      {/* Employer Card */}
                       <div
                         className={cn(
-                          "p-6 rounded-lg border-2 cursor-pointer transition-all",
+                          "p-6 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-4",
                           watchUserType === "Employer"
                             ? "border-primary bg-primary/5"
                             : "border-gray-200 hover:border-primary/50"
                         )}
                         onClick={() => form.setValue("user_type", "Employer")}
                       >
-                        <Building className="w-12 h-12 text-primary mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">Offerer</h3>
-                        <p className="text-sm text-gray-600">
-                          Post Job and Find the Perfect Candidates
-                        </p>
+                        {/* SVG Image */}
+                        <img
+                          src="/offer.svg"
+                          alt="Offerer"
+                          className="w-24 h-24 object-contain"
+                        />
+                        {/* Content */}
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">
+                            Offerer
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Post Job and Find the Perfect Candidates
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -521,7 +541,7 @@ export default function SignupPage() {
                     variant="outline"
                     size="sm"
                     onClick={prevStep}
-                    className="w-24"
+                    className="w-24 text-lg pl-5 pr-5"
                   >
                     <ArrowLeft className="w-3 h-3 mr-1" />
                     Back
@@ -533,7 +553,7 @@ export default function SignupPage() {
                     type="button"
                     size="sm"
                     onClick={nextStep}
-                    className="w-24 ml-auto"
+                    className="w-24 mr-2 ml-auto bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
                   >
                     Next
                     <ArrowRight className="w-3 h-3 ml-1" />
@@ -544,7 +564,7 @@ export default function SignupPage() {
                   <Button
                     type="submit"
                     size="sm"
-                    className="w-24 ml-auto"
+                    className="w-24 ml-auto mr-2 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating..." : "Sign Up"}
