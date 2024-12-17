@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 import type { Event } from "@/types/events";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import Link from "next/link";
 
 interface EventCardProps {
   event: Event;
@@ -84,9 +85,11 @@ const EventCard = ({ event }: EventCardProps) => {
               </span>
             )}
           </div>
-          <button className="w-full sm:w-auto bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-            Attend
-          </button>
+          <Link href={"/events/event-details"}>
+            <button className="w-full sm:w-auto bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+              Attend
+            </button>
+          </Link>
         </div>
       </div>
     </div>
