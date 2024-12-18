@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { FaMapMarkerAlt, FaPhoneAlt, FaRegClock } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
@@ -62,9 +63,11 @@ const EventPage = () => {
             <div className="text-3xl font-bold text-blue-600">
               B2B birat bazaar
             </div>
-            <button className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700">
-              Apply Now →
-            </button>
+            <Link href={"/events/create-event"}>
+              <button className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700">
+                Apply Now →
+              </button>
+            </Link>
           </div>
         </div>
       </div>

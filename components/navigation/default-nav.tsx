@@ -13,6 +13,7 @@ const navItems = [
   { label: "BDS Services", href: "#" },
   { label: "Business Registration", href: "#" },
   { label: "JobBriz", href: "#" },
+  { label: "Contacts", href: "/contacts" },
 ];
 
 export function DefaultNav() {
