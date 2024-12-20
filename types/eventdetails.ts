@@ -1,22 +1,9 @@
-export interface Tag {
-  name: string;
-}
-
-export interface Attendee {
-  name: string;
-  image: string;
-}
-
-export interface Organizer {
+export interface Sponsor {
   id: number;
-  email: string;
-  username: string;
-  bio: string;
-  date_of_birth: string | null;
-  phone_number: string;
-  address: string;
-  designation: string;
-  alternate_no: string | null;
+  name: string;
+  logo: string; // URL to the sponsor's logo
+  website: string;
+  location: string | null; // Sponsor's location (optional)
 }
 
 export interface AgendaItem {
@@ -33,18 +20,10 @@ export interface Event {
   slug: string;
   title: string;
   description: string;
-  start_date: string; // ISO date string
-  end_date: string; // ISO date string
+  start_date: string;
+  end_date: string;
   location: string;
-  organizer: Organizer;
-  attendees: Attendee[];
+  sponsors: Sponsor[]; // Array of sponsors
+  agenda_items: AgendaItem[]; // Array of agenda items
   attendees_count: number;
-  sponsors: any[]; // Define detailed type if needed
-  agenda_items: AgendaItem[];
-  created_at: string;
-  updated_at: string;
-  thumbnail: string | null;
-  wishes: any[]; // Define detailed type if needed
-  offers: any[]; // Define detailed type if needed
-  tags: Tag[];
 }

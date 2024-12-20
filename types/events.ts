@@ -39,3 +39,10 @@ export interface Event {
   thumbnail: string | null;
   attendees: Attendee[];
 }
+
+interface Sponsor {
+  id: number;
+  name: string;
+  logo: string;
+  website: string;
+}

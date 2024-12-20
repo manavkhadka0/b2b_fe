@@ -12,11 +12,10 @@ type EventResponse = {
   previous: string | null;
 };
 
-// Fetch events asynchronously
 async function getEvents() {
   try {
     const response = await axios.get<EventResponse>(
-      "https://1662-111-119-49-122.ngrok-free.app/api/events/events/",
+      "https://4376-43-231-208-232.ngrok-free.app/api/events/events/",
       {
         headers: {
           Accept: "application/json",
