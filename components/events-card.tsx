@@ -17,7 +17,7 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Image Section */}
         <div className="relative w-full h-48">
           <Image
-            src={event.thumbnail}
+            src={event.thumbnail || ""}
             alt={event.title}
             fill
             className="object-cover rounded-lg"
@@ -48,7 +48,7 @@ const EventCard = ({ event }: EventCardProps) => {
               key={index}
               className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm"
             >
-              {tag}
+              {tag.name}
             </span>
           ))}
         </div>
@@ -56,26 +56,26 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Attendees & Button - Responsive Layout */}
         <div className="mt-3 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
           <div className="flex flex-row gap-2 items-center">
-            {event.attendees.length > 0 ? (
+            {event.attendees_count > 0 ? (
               <>
                 <div className="flex -space-x-2">
-                  {event.attendees.slice(0, 3).map((attendee, index) => (
+                  {/* {event.attendees.slice(0, 3).map((attendee, index) => (
                     <Avatar key={index} className="w-6 h-6">
                       <AvatarImage src={attendee.image} alt={attendee.name} />
                       <AvatarFallback>{attendee.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                  ))}
-                  {event.attendees.length > 3 && (
+                  ))} */}
+                  {event.attendees_count > 3 && (
                     <Avatar className="w-6 h-6">
                       <AvatarFallback>
-                        +{event.attendees.length - 3}
+                        +{event.attendees_count - 3}
                       </AvatarFallback>
                     </Avatar>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600 text-xs">
-                    {event.attendees.length} Peoples Enrolled
+                    {event.attendees_count} Peoples Enrolled
                   </span>
                 </div>
               </>
