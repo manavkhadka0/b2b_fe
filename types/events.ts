@@ -15,6 +15,16 @@ export interface Organizer {
   alternate_no: string | null;
 }
 
+export interface Attendee {
+  id: number;
+  name: string;
+  email: string;
+  image: string;
+  phone: string;
+  website: string;
+  description: string;
+}
+
 export interface Event {
   id: number;
   slug: string;
@@ -25,17 +35,7 @@ export interface Event {
   end_date: string;
   location: string;
   organizer: Organizer;
-  // attendees: Attendee[];
   attendees_count: number;
   thumbnail: string | null;
+  attendees: Attendee[];
 }
-
-type Attendee = {
-  id: number;
-  name: string;
-  email: string;
-  image: string;
-  phone: string;
-  website: string;
-  description: string;
-};

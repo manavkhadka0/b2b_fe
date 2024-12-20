@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import EventCard from "@/components/events-card";
 
-// Move types to types/events.ts if not already there
+// Import types
 import { Event } from "@/types/events";
 
 type EventResponse = {
@@ -12,16 +12,14 @@ type EventResponse = {
   previous: string | null;
 };
 
-// Make the component async
+// Fetch events asynchronously
 async function getEvents() {
   try {
     const response = await axios.get<EventResponse>(
       "https://1662-111-119-49-122.ngrok-free.app/api/events/events/",
       {
-        // Add headers if needed
         headers: {
           Accept: "application/json",
-          mode: "no-cors",
         },
       }
     );
