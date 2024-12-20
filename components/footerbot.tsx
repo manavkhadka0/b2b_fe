@@ -81,16 +81,8 @@ const Footerbot = () => {
               Supported by
             </h4>
             <div className="flex items-center gap-4">
-              <img
-                src="/logo.png"
-                alt="Support Logo 1"
-                className="h-12 w-auto"
-              />
-              <img
-                src="/enssure.jpg"
-                alt="Support Logo 2"
-                className="h-12 w-auto"
-              />
+              <img src="/" alt="Support Logo 1" className="h-12 w-auto" />
+              <img src="/" alt="Support Logo 2" className="h-12 w-auto" />
             </div>
           </div>
         </div>

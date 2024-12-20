@@ -28,9 +28,11 @@ const Page = () => {
               </Link>
             </h2>
 
-            <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
-              Create Wish
-            </button>
+            <Link href={"/wishOffer/wishes/create-wish"}>
+              <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
+                Create Wish
+              </button>
+            </Link>
           </div>
           {/* Wishes Cards */}
           <div className="space-y-4">
@@ -62,9 +64,11 @@ const Page = () => {
                 Offers
               </Link>
             </h2>
-            <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
-              Create Offer
-            </button>
+            <Link href={"/wishOffer/offer/create-offer"}>
+              <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
+                Create Offer
+              </button>
+            </Link>
           </div>
           {/* Offers Cards */}
           <div className="space-y-4">

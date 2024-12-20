@@ -1,15 +1,18 @@
 import React from "react";
 import WishOfferCard from "@/components/wish-offer-card";
 import { WISH_DATA } from "@/constants/wish";
+import Link from "next/link";
 
 const page = () => {
   return (
     <div>
       <div className="flex justify-between items-center  p-4 max-w-7xl mx-auto px-4 ">
         <h2 className="text-xl font-bold">Offers</h2>
-        <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
-          Create Offer
-        </button>
+        <Link href={"/wishOffer/offer/create-offer"}>
+          <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
+            Create Offer
+          </button>
+        </Link>
       </div>
       <div className="p-4 bg-white rounded-lg border max-w-7xl mx-auto px-4 py-10 ">
         {/* Offers Cards */}
