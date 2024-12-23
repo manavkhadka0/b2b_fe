@@ -7,21 +7,119 @@ import { z } from "zod";
 export default function EventForm() {
   const [formData, setFormData] = useState({
     title: "",
-    category: "",
-    productCode: "",
-    location: "",
-    contact: "",
-    description: "",
+    event: "", // Event ID (if needed)
+    product: "", // Product ID (if applicable)
+    service: "", // Service ID (if applicable)
+    status: "Pending", // Default status
+    wish_type: "Product", // Default wish type
+    full_name: "",
+    designation: "",
+    mobile_no: "",
+    alternate_no: "",
+    email: "",
+    company_name: "",
+    address: "",
+    country: "Nepal", // Default value
+    province: "",
+    municipality: "",
+    ward: "",
+    company_website: "",
+    image: null, // File field
   });
 
   const [previews, setPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [designationDropdownOpen, setDesignationDropdownOpen] = useState(false);
+
+  const handleCategorySelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, category: value }));
+    setCategoryDropdownOpen(false);
+    setErrors((prev) => ({ ...prev, category: "" })); // Clear category error
+  };
+
+  const handleDesignationSelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, designation: value }));
+    setDesignationDropdownOpen(false);
+    setErrors((prev) => ({ ...prev, designation: "" })); // Clear designation error
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Validate the form data
+      formSchema.parse(formData);
+      console.log("Validation successful!");
+
+      // Prepare data for backend submission
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("event", formData.event || ""); // Optional field
+      formDataToSend.append("product", formData.product || ""); // Optional field
+      formDataToSend.append("service", formData.service || ""); // Optional field
+      formDataToSend.append("status", formData.status);
+      formDataToSend.append("wish_type", formData.wish_type);
+      formDataToSend.append("full_name", formData.full_name);
+      formDataToSend.append("designation", formData.designation);
+      formDataToSend.append("mobile_no", formData.mobile_no);
+      formDataToSend.append("alternate_no", formData.alternate_no || ""); // Optional field
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("company_name", formData.company_name);
+      formDataToSend.append("address", formData.address);
+      formDataToSend.append("country", formData.country || "Nepal");
+      formDataToSend.append("province", formData.province || ""); // Optional field
+      formDataToSend.append("municipality", formData.municipality || ""); // Optional field
+      formDataToSend.append("ward", formData.ward || ""); // Optional field
+      formDataToSend.append("company_website", formData.company_website || ""); // Optional field
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      }
+
+      // Send data to the backend
+      const response = await fetch(
+        `${process.env.BASE_URL}/api/wish_and_offers/wishes/`,
+        {
+          method: "POST",
+          body: formDataToSend,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit data");
+      }
+
+      const result = await response.json();
+      console.log("Wish Created Successfully!", result);
+      alert("Wish Created Successfully!");
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: { [key: string]: string } = {};
+        err.errors.forEach((error) => {
+          if (error.path[0]) {
+            fieldErrors[error.path[0] as string] = error.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        console.error("Submission Error:", err);
+        alert("An error occurred while submitting the form.");
+      }
+    }
+  };
 
   const categories = [
     { value: "products", label: "Products" },
     { value: "service", label: "Service" },
     { value: "other", label: "Other" },
+  ];
+  const designationOptions = [
+    { value: "CEO", label: "Chief Executive Officer" },
+    { value: "CFO", label: "Chief Financial Officer" },
+    { value: "CTO", label: "Chief Technology Officer" },
+    { value: "CMO", label: "Chief Marketing Officer" },
+    { value: "COO", label: "Chief Operating Officer" },
+    { value: "CIO", label: "Chief Information Officer" },
+    { value: "CSO", label: "Chief Security Officer" },
+    { value: "Other", label: "Other" },
   ];
 
   // Zod Schema for validation
@@ -33,14 +131,22 @@ export default function EventForm() {
     productCode: z
       .string()
       .regex(/^#/, "Product code must start with '#'")
-      .optional()
-      .refine(
-        (value) => formData.category !== "service" || !value,
-        "Product code is not allowed for 'service' category."
-      ),
+      .optional(),
     location: z.string().nonempty("Location is required."),
     contact: z.string().nonempty("Contact is required."),
     description: z.string().optional(),
+    name: z.string().nonempty("Name is required."),
+    email: z.string().email("Invalid email address."),
+    phone: z.string().nonempty("Phone number is required."),
+    altPhone: z.string().optional(),
+    address: z.string().nonempty("Address is required."),
+    designation: z.string().nonempty("Designation is required."),
+    company_name: z.string().nonempty("Company name is required."),
+    country: z.string().nonempty("Country is required."),
+    province: z.string().nonempty("Province is required."),
+    municipality: z.string().nonempty("Municipality is required."),
+    ward: z.string().nonempty("Ward is required."),
+    company_website: z.string().url("Invalid website URL."),
   });
 
   const handleInputChange = (
@@ -51,12 +157,6 @@ export default function EventForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error when user types
-  };
-
-  const handleCategorySelect = (value: string) => {
-    setFormData((prev) => ({ ...prev, category: value }));
-    setDropdownOpen(false);
-    setErrors((prev) => ({ ...prev, category: "" })); // Clear category error
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,26 +173,6 @@ export default function EventForm() {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Validate the form data
-      formSchema.parse(formData);
-      console.log("Wish Created Successfully!");
-      console.log("Validated Form Data:", formData);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const fieldErrors: { [key: string]: string } = {};
-        err.errors.forEach((error) => {
-          if (error.path[0]) {
-            fieldErrors[error.path[0] as string] = error.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white shadow-md rounded-lg mt-10">
       <h1 className="text-3xl font-bold text-purple-700 text-center mb-2">
@@ -103,22 +183,286 @@ export default function EventForm() {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Wish Title */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Name */}
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.full_name}
+              onChange={handleInputChange}
+              placeholder="Enter Your Name"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Enter Your Email"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {/* Phone */}
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Phone
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              value={formData.mobile_no}
+              onChange={handleInputChange}
+              placeholder="Enter Your Phone Number"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
+          </div>
+
+          {/* Alternate Phone */}
+          <div>
+            <label
+              htmlFor="altPhone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Alternate Phone
+            </label>
+            <input
+              id="altPhone"
+              name="altPhone"
+              type="text"
+              value={formData.alternate_no}
+              onChange={handleInputChange}
+              placeholder="Enter Alternate Phone Number"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.altPhone && (
+              <p className="text-red-500 text-sm">{errors.altPhone}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {/* Designation */}
+          <div className="relative mt-1">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Designation
+            </label>
+            <div
+              className="border border-gray-300 rounded-md p-3 cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onClick={() => setDesignationDropdownOpen((prev) => !prev)}
+            >
+              {formData.designation
+                ? designationOptions.find(
+                    (option) => option.value === formData.designation
+                  )?.label
+                : "Select a Designation"}
+            </div>
+            {designationDropdownOpen && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                {designationOptions.map((option) => (
+                  <div
+                    key={option.value}
+                    onClick={() => handleDesignationSelect(option.value)}
+                    className="p-3 hover:bg-purple-100 cursor-pointer"
+                  >
+                    {option.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Address */}
+          <div>
+            <label
+              htmlFor="address"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Address
+            </label>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              value={formData.address}
+              onChange={handleInputChange}
+              placeholder="Enter Your Address"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.address && (
+              <p className="text-red-500 text-sm">{errors.address}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="company_name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Company Name
+            </label>
+            <input
+              id="company_name"
+              name="company_name"
+              type="text"
+              value={formData.company_name}
+              onChange={handleInputChange}
+              placeholder="Enter Company Name"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.company_name && (
+              <p className="text-red-500 text-sm">{errors.company_name}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="country"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Country
+              </label>
+              <input
+                id="country"
+                name="country"
+                type="text"
+                value={formData.country}
+                onChange={handleInputChange}
+                placeholder="Enter Country"
+                className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              {errors.country && (
+                <p className="text-red-500 text-sm">{errors.country}</p>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="province"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Province
+              </label>
+              <input
+                id="province"
+                name="province"
+                type="text"
+                value={formData.province}
+                onChange={handleInputChange}
+                placeholder="Enter Province"
+                className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              {errors.province && (
+                <p className="text-red-500 text-sm">{errors.province}</p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="municipality"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Municipality
+              </label>
+              <input
+                id="municipality"
+                name="municipality"
+                type="text"
+                value={formData.municipality}
+                onChange={handleInputChange}
+                placeholder="Enter Municipality"
+                className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              {errors.municipality && (
+                <p className="text-red-500 text-sm">{errors.municipality}</p>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="ward"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Ward
+              </label>
+              <input
+                id="ward"
+                name="ward"
+                type="text"
+                value={formData.ward}
+                onChange={handleInputChange}
+                placeholder="Enter Ward"
+                className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              {errors.ward && (
+                <p className="text-red-500 text-sm">{errors.ward}</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="company_website"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Company Website
+            </label>
+            <input
+              id="company_website"
+              name="company_website"
+              type="url"
+              value={formData.company_website}
+              onChange={handleInputChange}
+              placeholder="Enter Company Website"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.company_website && (
+              <p className="text-red-500 text-sm">{errors.company_website}</p>
+            )}
+          </div>
+        </div>
         <div>
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Wish Title
-          </label>
+          <label>Wish Title</label>
           <input
-            id="title"
             name="title"
-            type="text"
             value={formData.title}
             onChange={handleInputChange}
             placeholder="Enter Wish Title"
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border border-gray-300 rounded-md p-3 mt-1"
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title}</p>
@@ -127,88 +471,61 @@ export default function EventForm() {
 
         {/* Category and Product Code */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          <div className="relative mt-1">
             <label
-              htmlFor="category"
+              htmlFor="phone"
               className="block text-sm font-medium text-gray-700"
             >
-              Wish Category
+              Product Category
             </label>
-            <div className="relative mt-1">
-              <div
-                className="border border-gray-300 rounded-md p-3 cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                onClick={() => setDropdownOpen((prev) => !prev)}
-              >
-                {formData.category
-                  ? categories.find((cat) => cat.value === formData.category)
-                      ?.label
-                  : "Select a Category"}
-              </div>
-              {dropdownOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                  {categories.map((category) => (
-                    <div
-                      key={category.value}
-                      onClick={() => handleCategorySelect(category.value)}
-                      className="p-3 hover:bg-purple-100 cursor-pointer"
-                    >
-                      {category.label}
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div
+              className="border border-gray-300 rounded-md p-3 cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onClick={() => setCategoryDropdownOpen((prev) => !prev)}
+            >
+              {formData.wish_type
+                ? categories.find((cat) => cat.value === formData.wish_type)
+                    ?.label
+                : "Select a Category"}
             </div>
-            {errors.category && (
-              <p className="text-red-500 text-sm">{errors.category}</p>
+            {categoryDropdownOpen && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                {categories.map((category) => (
+                  <div
+                    key={category.value}
+                    onClick={() => handleCategorySelect(category.value)}
+                    className="p-3 hover:bg-purple-100 cursor-pointer"
+                  >
+                    {category.label}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-          <div>
-            <label
-              htmlFor="productCode"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Product Code
-            </label>
-            <input
-              id="productCode"
-              name="productCode"
-              type="text"
-              value={formData.productCode}
-              onChange={handleInputChange}
-              placeholder="Enter Product Code (e.g., #f234647)"
-              disabled={formData.category === "service"}
-              className={`w-full border ${
-                formData.category === "service"
-                  ? "border-gray-300 bg-gray-100"
-                  : "border-gray-300"
-              } rounded-md p-3 mt-1 focus:outline-none focus:ring-2 ${
-                formData.category !== "service" ? "focus:ring-purple-500" : ""
-              }`}
-            />
-            {errors.productCode && (
-              <p className="text-red-500 text-sm">{errors.productCode}</p>
-            )}
-          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          {errors.status && (
+            <p className="text-red-500 text-sm">{errors.status}</p>
+          )}
         </div>
 
         {/* Wish Description */}
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Wish Description (Optional)
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Enter Description about Wish"
-            rows={4}
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          ></textarea>
-        </div>
 
         {/* File Upload */}
         <div>

@@ -5,6 +5,7 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaRegClock } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { notFound } from "next/navigation";
 import axios from "axios";
+import { format } from "date-fns";
 import {
   FaEnvelope,
   FaGlobe,
@@ -21,9 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Event } from "@/types/events";
-import { any } from "zod";
+import { Event, Attendee } from "@/types/events";
 
+// Fetch event data
 async function getEventBySlug(slug: string): Promise<Event | null> {
   if (!slug || slug.includes(".")) {
     console.error("Invalid slug:", slug);
@@ -39,6 +40,15 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
   } catch (error) {
     console.error(`Failed to fetch event with slug ${slug}:`, error);
     return null;
+  }
+}
+
+function formatDateTime(dateString: string, formatString: string): string {
+  try {
+    return format(new Date(dateString), formatString);
+  } catch (error) {
+    console.error("Invalid date format:", error);
+    return "Invalid Date";
   }
 }
 
@@ -58,67 +68,125 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
         style={{ backgroundImage: "url('/event.svg')" }}
       ></div>
 
-      <div className="absolute inset-5 flex items-center justify-center ">
-        <div className="flex flex-col sm:flex-row bg-white rounded-lg shadow-md p-6 max-w-4xl w-full">
-          <div className="flex-1 space-y-4">
+      <div className="absolute inset-5 flex items-center justify-center">
+        <div className="grid grid-cols-3 bg-white rounded-lg shadow-md p-6 max-w-4xl w-full gap-4">
+          {/* Top Right Section: Title, Location, Date, Time */}
+          <div className="col-span-1 space-y-4">
             <h1 className="text-2xl font-bold">{event?.title}</h1>
-            <div className="flex items-center text-gray-600 space-x-2">
-              <FaMapMarkerAlt />
-              <p>{event?.location}</p>
+            <div className="text-gray-600 space-y-2">
+              {/* Location */}
+              <div className="flex items-center space-x-2">
+                <FaMapMarkerAlt className="text-lg" />
+                <p>{event?.location}</p>
+              </div>
+              {/* Start Date */}
+              <div className="flex items-center space-x-2">
+                <BsCalendar2Date className="text-lg" />
+                <p>
+                  {event?.start_date
+                    ? formatDateTime(event.start_date, "EEE, MMM d yyyy")
+                    : "Date not available"}
+                </p>
+              </div>
+              {/* Time */}
+              <div className="flex items-center space-x-2">
+                <FaRegClock className="text-lg" />
+                <p>
+                  {event?.start_date
+                    ? formatDateTime(event.start_date, "hh:mm a")
+                    : "Time not available"}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center text-gray-600 space-x-2">
-              <FaPhoneAlt />
-              <p>01-525252, +977 9800000000</p>
-            </div>
-            <div className="flex items-center text-gray-600 space-x-2">
-              <BsCalendar2Date />
-              <p>{event?.start_date}</p>
-            </div>
-            <div className="flex items-center text-gray-600 space-x-2">
-              <FaRegClock />
-              <p>{event?.end_date}</p>
-            </div>
-            <p className="text-gray-600">
-              <strong>{event?.attendees_count} People Enrolled</strong>
-            </p>
           </div>
 
-          {/* Right Side */}
-          <div className="sm:w-1/3 flex flex-col items-center space-y-4">
-            <p className="text-gray-500">In Association with</p>
-            {event?.sponsors && event.sponsors.length > 0 ? (
-              event.sponsors.map((sponsor: Sponsor) => (
-                <div key={sponsor.id} className="text-center">
-                  <div className="mt-4">
-                    <a
-                      href={sponsor.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center"
-                    >
-                      <img
-                        src={sponsor.logo}
-                        alt={sponsor.name}
-                        className="w-16 h-16 object-cover mx-auto rounded-lg shadow-lg" // Smaller dimensions
-                      />
-                      <p className="text-sm text-gray-700 mt-2 font-semibold">
-                        {sponsor.name}
-                      </p>{" "}
-                      {/* Small sponsor name */}
-                    </a>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">
-                No sponsors available for this event.
+          {/* Middle Section: Contact and End Date */}
+          <div className="col-span-1 space-y-4 mt-11 text-gray-500">
+            {/* Contact */}
+            <div className="flex items-center space-x-2">
+              <FaPhoneAlt className="text-lg" />
+              <p>{event?.organizer?.phone_number || "Contact not available"}</p>
+            </div>
+            {/* End Date */}
+            <div className="flex items-center space-x-2">
+              <BsCalendar2Date className="text-lg" />
+              <p>
+                {event?.end_date
+                  ? formatDateTime(event.start_date, "EEE, MMM d yyyy")
+                  : "Date not available"}
               </p>
+            </div>
+          </div>
+
+          {/* Left Section: Logo, Sponsor, Apply Button */}
+          <div className="col-span-1 flex flex-col items-center space-y-4 text-center">
+            {/* Section Title */}
+            <p className="text-gray-500">In Association with</p>
+
+            {/* Sponsor Section */}
+            {event?.sponsors && event.sponsors.length > 0 ? (
+              <div className="flex flex-col items-center">
+                {/* Sponsor Logo */}
+                <a
+                  href={event.sponsors[0]?.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center"
+                >
+                  <div className="w-24 h-24 flex items-center justify-center bg-gray-100 rounded-full shadow-lg overflow-hidden">
+                    <img
+                      src={event.sponsors[0]?.logo}
+                      alt={event.sponsors[0]?.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  {/* Organizer Name */}
+                  <p className="text-md text-gray-800 mt-3 font-bold">
+                    {event.sponsors[0]?.name}
+                  </p>
+                </a>
+              </div>
+            ) : (
+              <p className="text-gray-500">No sponsors available</p>
             )}
-            <Link href={"/events/create-event"}>
-              <button className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700">
-                Apply Now →
-              </button>
-            </Link>
+          </div>
+
+          {/* Bottom Row: Attendees, Share, Apply Button */}
+          <div className="col-span-3 flex justify-between items-center">
+            {/* Bottom Left: Attendees */}
+            <div className="flex items-center space-x-2">
+              <div className="flex -space-x-2">
+                {event?.attendees?.slice(0, 3).map((attendee: Attendee) => (
+                  <img
+                    key={attendee.user.id}
+                    src={attendee.user.avatar}
+                    alt={attendee.user.username || "Attendee"}
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+                  />
+                ))}
+              </div>
+              <span>
+                <strong>{event?.attendees?.length || 0} People Enrolled</strong>
+              </span>
+            </div>
+
+            {/* Bottom Middle: Share Options */}
+            <div className="flex items-center space-x-8">
+              <p className="text-gray-600">Share with Friends</p>
+              <a href="#" className="text-gray-500 hover:text-blue-500"></a>
+              <a href="#" className="text-gray-500 hover:text-blue-400"></a>
+              <a href="#" className="text-gray-500 hover:text-blue-600"></a>
+              <a href="#" className="text-gray-500 hover:text-pink-600"></a>
+            </div>
+
+            {/* Bottom Right: Apply Button */}
+            <div>
+              <Link href={"/events/create-event"}>
+                <button className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 mr-12">
+                  Apply Now →
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -341,7 +409,80 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
         </div>
       </div>
       <div className=" container mx-auto mt-10">
-        <div className="text-2xl font-bold mb-6">Explore Similar Events</div>
+        {/* Wishes and Offers Section */}
+        <div className="container mx-auto mt-10">
+          {/* Wishes Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Wishes</h2>
+            {event?.wishes && event.wishes.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {event.wishes.map((wish) => (
+                  <div
+                    key={wish.id}
+                    className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                  >
+                    <h3 className="font-bold text-lg mb-2">{wish.title}</h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-blue-600 border border-blue-600 rounded-full px-2 py-1 text-xs font-medium">
+                        {wish.wish_type}
+                      </span>
+                      <span className="text-gray-400 text-xs">
+                        {wish.status}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      {wish.product
+                        ? `Product ID: ${wish.product}`
+                        : wish.service
+                        ? `Service ID: ${wish.service}`
+                        : "No additional details available"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                No wishes available for this event.
+              </p>
+            )}
+          </div>
+
+          {/* Offers Section */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Offers</h2>
+            {event?.offers && event.offers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {event.offers.map((offer) => (
+                  <div
+                    key={offer.id}
+                    className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+                  >
+                    <h3 className="font-bold text-lg mb-2">{offer.title}</h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-blue-600 border border-blue-600 rounded-full px-2 py-1 text-xs font-medium">
+                        {offer.offer_type}
+                      </span>
+                      <span className="text-gray-400 text-xs">
+                        {offer.status}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      {offer.product
+                        ? `Product ID: ${offer.product}`
+                        : offer.service
+                        ? `Service ID: ${offer.service}`
+                        : "No additional details available"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                No offers available for this event.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

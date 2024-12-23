@@ -15,7 +15,7 @@ type EventResponse = {
 async function getEvents() {
   try {
     const response = await axios.get<EventResponse>(
-      "https://4376-43-231-208-232.ngrok-free.app/api/events/events/",
+      `${process.env.BASE_URL}/api/events/events/`,
       {
         headers: {
           Accept: "application/json",
