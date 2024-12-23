@@ -1,76 +1,47 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-// Define the Zod schema
-const contactSchema = z.object({
-  name: z.string().min(1, "Name is required."),
+const formSchema = z.object({
+  name: z.string().min(2, "Name is required."),
   phone: z
     .string()
     .regex(/^\+?[0-9]{10,15}$/, "Invalid phone number.")
     .nonempty("Phone number is required."),
-  email: z
-    .string()
-    .email("Invalid email address.")
-    .nonempty("Email is required."),
+  email: z.string().email("Invalid email address."),
   message: z.string().min(1, "Message is required."),
 });
 
-// Define the error type
-type Errors = {
-  name?: string;
-  phone?: string;
-  email?: string;
-  message?: string;
-};
+type FormValues = z.infer<typeof formSchema>;
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    message: "",
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      message: "",
+    },
   });
 
-  const [errors, setErrors] = useState<Errors>({});
-
-  const validate = () => {
-    try {
-      contactSchema.parse(formData); // Validate the form data
-      setErrors({});
-      return true;
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        // Map Zod errors to state
-        const errorObject: Errors = {};
-        err.errors.forEach((error) => {
-          if (error.path[0] && typeof error.path[0] === "string") {
-            errorObject[error.path[0] as keyof Errors] = error.message;
-          }
-        });
-        setErrors(errorObject);
-      }
-      return false;
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validate()) {
-      alert("Form submitted successfully!");
-      // Perform further actions like sending the form data to an API.
-    }
+  const onSubmit = (data: FormValues) => {
+    console.log(data);
+    // Handle form submission
   };
 
   return (
@@ -84,75 +55,90 @@ const ContactPage = () => {
             We normally respond within 2 business days
           </p>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-gray-600 mb-2">Name</label>
-              <Input
-                type="text"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
                 name="name"
-                placeholder="Pietro Adams"
-                className="p-5"
-                value={formData.name}
-                onChange={handleInputChange}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your name"
+                        className="p-5"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name}</p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-gray-600 mb-2">Phone Number</label>
-              <Input
-                type="text"
+              <FormField
+                control={form.control}
                 name="phone"
-                placeholder="+977 9800000000"
-                className="p-5"
-                value={formData.phone}
-                onChange={handleInputChange}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your phone number"
+                        className="p-5"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.phone && (
-                <p className="text-red-500 text-sm">{errors.phone}</p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-gray-600 mb-2">Email</label>
-              <Input
-                type="email"
+              <FormField
+                control={form.control}
                 name="email"
-                placeholder="johndoel12@gmail.com"
-                className="p-5"
-                value={formData.email}
-                onChange={handleInputChange}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email"
+                        className="p-5"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-gray-600 mb-2">Message</label>
-              <Textarea
+              <FormField
+                control={form.control}
                 name="message"
-                placeholder="Give short Description"
-                rows={4}
-                value={formData.message}
-                onChange={handleInputChange}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter your message"
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.message && (
-                <p className="text-red-500 text-sm">{errors.message}</p>
-              )}
-            </div>
 
-            <div className="py-9">
-              <Button
-                type="submit"
-                className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:opacity-90 transition-transform hover:scale-105"
-              >
-                Send Message →
-              </Button>
-            </div>
-          </form>
+              <div className="py-9">
+                <Button
+                  type="submit"
+                  className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:opacity-90 transition-transform hover:scale-105"
+                >
+                  Send Message →
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
 
         <div className="w-full lg:w-1/2 hidden lg:flex justify-center animate-fade-in">
