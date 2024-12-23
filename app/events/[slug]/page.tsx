@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Event, Attendee } from "@/types/events";
+import { Event, Attendee, Sponsor } from "@/types/eventdetails";
 
 // Fetch event data
 async function getEventBySlug(slug: string): Promise<Event | null> {

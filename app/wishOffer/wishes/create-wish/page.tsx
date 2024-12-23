@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { z } from "zod";
+import ProductServiceSelector from "@/app/ProductServiceSelector";
 
 export default function EventForm() {
   const [formData, setFormData] = useState({
@@ -10,8 +12,8 @@ export default function EventForm() {
     event: "", // Event ID (if needed)
     product: "", // Product ID (if applicable)
     service: "", // Service ID (if applicable)
-    status: "Pending", // Default status
-    wish_type: "Product", // Default wish type
+    status: "", // Default status
+    wish_type: "", // Default wish type
     full_name: "",
     designation: "",
     mobile_no: "",
@@ -24,18 +26,24 @@ export default function EventForm() {
     municipality: "",
     ward: "",
     company_website: "",
-    image: null, // File field
+    image: "", // File field
   });
 
   const [previews, setPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedProductService, setSelectedProductService] = useState("");
   const [designationDropdownOpen, setDesignationDropdownOpen] = useState(false);
+  const handleOpenPopup = () => {
+    setIsPopupOpen(true);
+  };
 
-  const handleCategorySelect = (value: string) => {
-    setFormData((prev) => ({ ...prev, category: value }));
-    setCategoryDropdownOpen(false);
-    setErrors((prev) => ({ ...prev, category: "" })); // Clear category error
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
+  const handleSelect = (selectedItem: string) => {
+    setSelectedProductService(selectedItem);
+    console.log("Selected:", selectedItem);
   };
 
   const handleDesignationSelect = (value: string) => {
@@ -46,52 +54,56 @@ export default function EventForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Validate the form data
+      // Validate the form data using Zod
       formSchema.parse(formData);
+      console.log("mydata ");
       console.log("Validation successful!");
+      setErrors({});
 
-      // Prepare data for backend submission
-      const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("event", formData.event || ""); // Optional field
-      formDataToSend.append("product", formData.product || ""); // Optional field
-      formDataToSend.append("service", formData.service || ""); // Optional field
-      formDataToSend.append("status", formData.status);
-      formDataToSend.append("wish_type", formData.wish_type);
-      formDataToSend.append("full_name", formData.full_name);
-      formDataToSend.append("designation", formData.designation);
-      formDataToSend.append("mobile_no", formData.mobile_no);
-      formDataToSend.append("alternate_no", formData.alternate_no || ""); // Optional field
-      formDataToSend.append("email", formData.email);
-      formDataToSend.append("company_name", formData.company_name);
-      formDataToSend.append("address", formData.address);
-      formDataToSend.append("country", formData.country || "Nepal");
-      formDataToSend.append("province", formData.province || ""); // Optional field
-      formDataToSend.append("municipality", formData.municipality || ""); // Optional field
-      formDataToSend.append("ward", formData.ward || ""); // Optional field
-      formDataToSend.append("company_website", formData.company_website || ""); // Optional field
-      if (formData.image) {
-        formDataToSend.append("image", formData.image);
-      }
+      // Prepare JSON data for backend submission
+      const formDataToSend = {
+        title: formData.title,
+        event: formData.event || "", // Optional field
+        product: formData.product || "", // Optional field
+        service: formData.service || "", // Optional field
+        status: formData.status,
+        wish_type: formData.wish_type,
+        full_name: formData.full_name,
+        designation: formData.designation,
+        mobile_no: formData.mobile_no,
+        alternate_no: formData.alternate_no || "", // Optional field
+        email: formData.email,
+        company_name: formData.company_name,
+        address: formData.address,
+        country: formData.country || "Nepal",
+        province: formData.province || "", // Optional field
+        municipality: formData.municipality || "", // Optional field
+        ward: formData.ward || "", // Optional field
+        company_website: formData.company_website || "", // Optional field
+        image: null, // Convert file to URL if needed
+      };
 
-      // Send data to the backend
-      const response = await fetch(
-        `${process.env.BASE_URL}/api/wish_and_offers/wishes/`,
+      // Send data using Axios
+      const response = await axios.post(
+        `https://22a5-103-156-26-69.ngrok-free.app/api/wish_and_offers/wishes/`,
+        formDataToSend,
         {
-          method: "POST",
-          body: formDataToSend,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to submit data");
-      }
-
-      const result = await response.json();
-      console.log("Wish Created Successfully!", result);
+      console.log("Wish Created Successfully!", response.data);
       alert("Wish Created Successfully!");
-    } catch (err) {
-      if (err instanceof z.ZodError) {
+      window.location.reload();
+    } catch (err: any) {
+      if (err.response) {
+        // Handle backend errors
+        console.error("Backend Error:", err.response.data);
+        alert(`Error: ${err.response.data.message || "Submission failed"}`);
+      } else if (err instanceof z.ZodError) {
+        // Handle validation errors
         const fieldErrors: { [key: string]: string } = {};
         err.errors.forEach((error) => {
           if (error.path[0]) {
@@ -100,17 +112,13 @@ export default function EventForm() {
         });
         setErrors(fieldErrors);
       } else {
+        // Handle other errors
         console.error("Submission Error:", err);
         alert("An error occurred while submitting the form.");
       }
     }
   };
 
-  const categories = [
-    { value: "products", label: "Products" },
-    { value: "service", label: "Service" },
-    { value: "other", label: "Other" },
-  ];
   const designationOptions = [
     { value: "CEO", label: "Chief Executive Officer" },
     { value: "CFO", label: "Chief Financial Officer" },
@@ -124,29 +132,25 @@ export default function EventForm() {
 
   // Zod Schema for validation
   const formSchema = z.object({
-    title: z.string().nonempty("Title is required."),
-    category: z.enum(["products", "service", "other"], {
-      errorMap: () => ({ message: "Category is required." }),
-    }),
-    productCode: z
+    title: z.string().nonempty("Title is required"),
+    full_name: z.string().nonempty("Full name is required"),
+    designation: z.string().nonempty("Designation is required"),
+    mobile_no: z
       .string()
-      .regex(/^#/, "Product code must start with '#'")
-      .optional(),
-    location: z.string().nonempty("Location is required."),
-    contact: z.string().nonempty("Contact is required."),
-    description: z.string().optional(),
-    name: z.string().nonempty("Name is required."),
-    email: z.string().email("Invalid email address."),
-    phone: z.string().nonempty("Phone number is required."),
-    altPhone: z.string().optional(),
-    address: z.string().nonempty("Address is required."),
-    designation: z.string().nonempty("Designation is required."),
-    company_name: z.string().nonempty("Company name is required."),
-    country: z.string().nonempty("Country is required."),
-    province: z.string().nonempty("Province is required."),
-    municipality: z.string().nonempty("Municipality is required."),
-    ward: z.string().nonempty("Ward is required."),
-    company_website: z.string().url("Invalid website URL."),
+      .regex(/^\d{10}$/, "Mobile number must be 10 digits")
+      .nonempty("Mobile number is required"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .nonempty("Email is required"),
+    address: z.string().nonempty("Address is required"),
+    company_name: z.string().nonempty("Company name is required"),
+    country: z.string().nonempty("Country is required"),
+    province: z.string().nonempty("Province is required"),
+    municipality: z.string().nonempty("Municipality is required"),
+    ward: z.string().nonempty("Ward is required"),
+    wish_type: z.string().nonempty("Wish type is required"),
+    status: z.string().nonempty("Status is required"),
   });
 
   const handleInputChange = (
@@ -193,16 +197,16 @@ export default function EventForm() {
               Name
             </label>
             <input
-              id="name"
-              name="name"
+              id="full_name"
+              name="full_name" // Ensure this matches the formData key
               type="text"
               value={formData.full_name}
               onChange={handleInputChange}
               placeholder="Enter Your Name"
               className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
+            {errors.full_name && ( // Update error reference to match schema
+              <p className="text-red-500 text-sm">{errors.full_name}</p>
             )}
           </div>
 
@@ -231,26 +235,18 @@ export default function EventForm() {
 
         <div className="grid grid-cols-2 gap-4 mt-4">
           {/* Phone */}
-          <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Phone
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="text"
-              value={formData.mobile_no}
-              onChange={handleInputChange}
-              placeholder="Enter Your Phone Number"
-              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            {errors.phone && (
-              <p className="text-red-500 text-sm">{errors.phone}</p>
-            )}
-          </div>
+          <input
+            id="mobile_no"
+            name="mobile_no" // Ensure this matches the formData key
+            type="text"
+            value={formData.mobile_no}
+            onChange={handleInputChange}
+            placeholder="Enter Your Phone Number"
+            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          {errors.mobile_no && ( // Update error reference to match schema
+            <p className="text-red-500 text-sm">{errors.mobile_no}</p>
+          )}
 
           {/* Alternate Phone */}
           <div>
@@ -262,7 +258,7 @@ export default function EventForm() {
             </label>
             <input
               id="altPhone"
-              name="altPhone"
+              name="alternate_no"
               type="text"
               value={formData.alternate_no}
               onChange={handleInputChange}
@@ -471,33 +467,58 @@ export default function EventForm() {
 
         {/* Category and Product Code */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="relative mt-1">
+          <div>
             <label
-              htmlFor="phone"
+              htmlFor="wish_type"
               className="block text-sm font-medium text-gray-700"
             >
-              Product Category
+              Wish Type
             </label>
-            <div
-              className="border border-gray-300 rounded-md p-3 cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              onClick={() => setCategoryDropdownOpen((prev) => !prev)}
+            <select
+              id="wish_type"
+              name="wish_type"
+              value={formData.wish_type}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              {formData.wish_type
-                ? categories.find((cat) => cat.value === formData.wish_type)
-                    ?.label
-                : "Select a Category"}
-            </div>
-            {categoryDropdownOpen && (
-              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                {categories.map((category) => (
-                  <div
-                    key={category.value}
-                    onClick={() => handleCategorySelect(category.value)}
-                    className="p-3 hover:bg-purple-100 cursor-pointer"
-                  >
-                    {category.label}
-                  </div>
-                ))}
+              <option value="">Select Wish Type</option>
+              <option value="Product">Product</option>
+              <option value="Service">Service</option>
+              <option value="Other">Other</option>
+            </select>
+            {errors.wish_type && (
+              <p className="text-red-500 text-sm">{errors.wish_type}</p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="wish_type"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {" "}
+              Choose product
+            </label>
+            <button
+              className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onClick={handleOpenPopup}
+            >
+              Click product...
+            </button>
+
+            {isPopupOpen && (
+              <ProductServiceSelector
+                wishType={formData.wish_type}
+                onClose={handleClosePopup}
+                onSelect={handleSelect}
+              />
+            )}
+
+            {selectedProductService && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-700">
+                  Selected: <strong>{selectedProductService}</strong>
+                </p>
               </div>
             )}
           </div>
@@ -516,6 +537,7 @@ export default function EventForm() {
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
+            <option value="">Select Status</option>
             <option value="Pending">Pending</option>
             <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>

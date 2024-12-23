@@ -6,7 +6,7 @@ const nextConfig = {
       "127.0.0.1",
       "shark-app-jfgip.ondigitalocean.app",
       "usercontent.one",
-      "79fa-103-163-182-23.ngrok-free.app",
+      "22a5-103-156-26-69.ngrok-free.app",
     ],
   },
 };

@@ -1,6 +1,7 @@
 export type Wish = {
   id: number;
   title: string;
+  wish_type: string;
   product?: {
     name: string;
     description: string;
@@ -17,6 +18,7 @@ export type Wish = {
 
 export type Offer = {
   id: number;
+  
   title: string;
   product?: {
     name: string;
