@@ -43,7 +43,12 @@ export default function EventForm() {
   };
   const handleSelect = (selectedItem: string) => {
     setSelectedProductService(selectedItem);
-    console.log("Selected:", selectedItem);
+
+    setFormData((prev) => ({
+      ...prev,
+      product: formData.wish_type === "Product" ? selectedItem : prev.product,
+      service: formData.wish_type === "Service" ? selectedItem : prev.service,
+    }));
   };
 
   const handleDesignationSelect = (value: string) => {
@@ -64,8 +69,8 @@ export default function EventForm() {
       const formDataToSend = {
         title: formData.title,
         event: formData.event || "", // Optional field
-        product: formData.product || "", // Optional field
-        service: formData.service || "", // Optional field
+        product: formData.product || null,
+        service: formData.service || null,
         status: formData.status,
         wish_type: formData.wish_type,
         full_name: formData.full_name,
@@ -79,13 +84,14 @@ export default function EventForm() {
         province: formData.province || "", // Optional field
         municipality: formData.municipality || "", // Optional field
         ward: formData.ward || "", // Optional field
-        company_website: formData.company_website || "", // Optional field
+        company_website: formData.company_website || "",
+        // Optional field
         image: null, // Convert file to URL if needed
       };
 
       // Send data using Axios
       const response = await axios.post(
-        `https://22a5-103-156-26-69.ngrok-free.app/api/wish_and_offers/wishes/`,
+        `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/wishes/`,
         formDataToSend,
         {
           headers: {
@@ -235,18 +241,26 @@ export default function EventForm() {
 
         <div className="grid grid-cols-2 gap-4 mt-4">
           {/* Phone */}
-          <input
-            id="mobile_no"
-            name="mobile_no" // Ensure this matches the formData key
-            type="text"
-            value={formData.mobile_no}
-            onChange={handleInputChange}
-            placeholder="Enter Your Phone Number"
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          {errors.mobile_no && ( // Update error reference to match schema
-            <p className="text-red-500 text-sm">{errors.mobile_no}</p>
-          )}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Contact
+            </label>
+            <input
+              id="mobile_no"
+              name="mobile_no"
+              type="mobile_no"
+              value={formData.mobile_no}
+              onChange={handleInputChange}
+              placeholder="Enter Your mobile_no"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
+          </div>
 
           {/* Alternate Phone */}
           <div>
@@ -496,21 +510,23 @@ export default function EventForm() {
               htmlFor="wish_type"
               className="block text-sm font-medium text-gray-700"
             >
-              {" "}
-              Choose product
+              Choose {formData.wish_type === "Product" ? "Product" : "Service"}
             </label>
             <button
+              type="button"
               className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
               onClick={handleOpenPopup}
             >
-              Click product...
+              Click to select...
             </button>
 
             {isPopupOpen && (
               <ProductServiceSelector
                 wishType={formData.wish_type}
                 onClose={handleClosePopup}
-                onSelect={handleSelect}
+                onSelect={(selectedItem) => {
+                  handleSelect(selectedItem); // Pass the selected item to the handler
+                }}
               />
             )}
 
