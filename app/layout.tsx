@@ -3,10 +3,11 @@ import "./globals.css";
 import { Bricolage_Grotesque } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
-import { NavWrapper } from "@/components/navigation/nav-wrapper";
+import { NavWrapper } from "@/components/sections/layout/navigation/nav-wrapper";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from "nextjs-toploader";
 import Footer from "@/components/sections/layout/footer/footer";
+import { DefaultNav } from "@/components/sections/layout/navigation/default-nav";
 
 export const metadata: Metadata = {
   title: "B2B Marketplace",
@@ -28,7 +29,7 @@ export default function RootLayout({
         <NextTopLoader height={3} color="#002B49" />
         <AuthProvider>
           <TooltipProvider>
-            <NavWrapper />
+            <DefaultNav />
             {children}
             <Footer />
             <Toaster />

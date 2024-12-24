@@ -3,59 +3,59 @@ import { MapPin } from "lucide-react";
 const districts = [
   {
     name: "Taplejung",
-    image: "taplejung.jpg", // Kanchenjunga
+    image: "/taplejung.jpg", // Kanchenjunga
   },
   {
     name: "Panchthar",
-    image: "panchthar.jpg", // Panchthar
+    image: "/panchthar.jpg", // Panchthar
   },
   {
     name: "Ilam",
-    image: "ilam.jpg", // Ilam Tea Garden
+    image: "/ilam.jpg", // Ilam Tea Garden
   },
   {
     name: "Jhapa",
-    image: "jhapa.jpg", // Jhapa
+    image: "/jhapa.jpg", // Jhapa
   },
   {
     name: "Morang",
-    image: "morang.jpeg", // Morang
+    image: "/morang.jpeg", // Morang
   },
   {
     name: "Sunsari",
-    image: "sunsari.jpg", // Koshi Barrage
+    image: "/sunsari.jpg", // Koshi Barrage
   },
   {
     name: "Dhankuta",
-    image: "dhankuta.jpg", // Dhankuta
+    image: "/dhankuta.jpg", // Dhankuta
   },
   {
     name: "Terhathum",
-    image: "ilam.jpg", // Terhathum
+    image: "/ilam.jpg", // Terhathum
   },
   {
     name: "Sankhuwasabha",
-    image: "morang.jpeg", // Makalu Base Camp
+    image: "/morang.jpeg", // Makalu Base Camp
   },
   {
     name: "Bhojpur",
-    image: "sunsari.jpg", // Bhojpur Village
+    image: "/sunsari.jpg", // Bhojpur Village
   },
   {
     name: "Solukhumbu",
-    image: "panchthar.jpg", // Mount Everest
+    image: "/panchthar.jpg", // Mount Everest
   },
   {
     name: "Okhaldhunga",
-    image: "jhapa.jpg", // Okhaldhunga Hills
+    image: "/jhapa.jpg", // Okhaldhunga Hills
   },
   {
     name: "Khotang",
-    image: "dhankuta.jpg", // Khotang
+    image: "/dhankuta.jpg", // Khotang
   },
   {
     name: "Udayapur",
-    image: "panchthar.jpg", // Udayapur
+    image: "/panchthar.jpg", // Udayapur
   },
 ];
 
@@ -74,19 +74,21 @@ export function B2BNetworking() {
         {/* District Images */}
         <div
           id="districts-scroll"
-          className="flex overflow-x-auto gap-4 scroll-smooth no-scrollbar"
+          className="flex cursor-pointer overflow-x-auto gap-4 scroll-smooth no-scrollbar"
         >
           {districts.map((district) => (
             <div
               key={district.name}
-              className="relative shrink-0 w-36 h-44 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
+              className="relative shrink-0 w-36 h-44 rounded-lg overflow-hidden shadow-md"
             >
-              {/* Image */}
-              <img
-                src={district.image}
-                alt={district.name}
-                className="w-full h-full object-cover"
-              />
+              {/* Image wrapper div with hover effect */}
+              <div className="w-full h-full overflow-hidden">
+                <img
+                  src={district.image}
+                  alt={district.name}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
+              </div>
               {/* Overlay Text with Icon */}
               <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent text-white text-center p-2 flex items-center justify-center gap-1">
                 <MapPin size={16} className="inline-block text-white" />

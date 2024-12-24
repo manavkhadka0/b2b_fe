@@ -22,7 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Event, Attendee, Sponsor } from "@/types/eventdetails";
+import { Event, Attendee, Sponsor } from "@/types/events";
+import { formatDateTime } from "@/lib/utils";
 
 // Fetch event data
 async function getEventBySlug(slug: string): Promise<Event | null> {
@@ -33,22 +34,13 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 
   try {
     const response = await axios.get<Event>(
-      `${process.env.BASE_URL}/api/events/events/${slug}/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/events/events/${slug}/`,
       { headers: { Accept: "application/json" } }
     );
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch event with slug ${slug}:`, error);
     return null;
-  }
-}
-
-function formatDateTime(dateString: string, formatString: string): string {
-  try {
-    return format(new Date(dateString), formatString);
-  } catch (error) {
-    console.error("Invalid date format:", error);
-    return "Invalid Date";
   }
 }
 
