@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { headers } from "next/headers";
-import { api } from "@/lib/api";
+import { z } from "zod";
 
 // Define the types for the product response
 export type Product = {
@@ -66,25 +65,29 @@ async function getCategories(): Promise<Category[]> {
   }
 }
 
-async function createProduct(newProduct: {
-  name: string;
-  hs_code: string;
-  description: string;
-  category: number;
-}): Promise<void> {
-  const url =
-    "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/products/";
-
+async function createProduct(
+  newProduct: {
+    name: string;
+    hs_code: string;
+    description: string;
+    category: number;
+  },
+  apiUrl: string
+): Promise<void> {
   try {
-    await axios.post(url, newProduct, {
+    await axios.post(apiUrl, newProduct, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    alert("Product created successfully!");
-  } catch (error) {
-    console.error("Failed to create product:", error);
-    alert("Failed to create product. Please try again.");
+    alert("Created successfully!");
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw error.response.data;
+    } else {
+      console.error("Failed to create:", error);
+      throw { message: "Failed to create. Please try again." };
+    }
   }
 }
 
@@ -104,6 +107,7 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
   const [selectedItem, setSelectedItem] = useState("");
   const [customInput, setCustomInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -132,14 +136,20 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
   ) => {
     setSelectedItem(event.target.value);
     setCustomInput("");
+    setErrors({});
   };
-
-  const handleCustomInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCustomInput(event.target.value);
-    setSelectedItem("");
-  };
+  const productSchema = z.object({
+    name: z.string().min(1, { message: "Name is required." }),
+    hs_code: z
+      .string()
+      .min(1, { message: "HS Code is required for products." })
+      .optional()
+      .refine((hs_code) => /^[0-9]+$/.test(hs_code || ""), {
+        message: "HS Code must be numeric.",
+      }),
+    description: z.string().min(1, { message: "Description is required." }),
+    category: z.string().min(1, { message: "Category is required." }),
+  });
 
   const handleNewProductChange = (
     event: React.ChangeEvent<
@@ -148,141 +158,196 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
   ) => {
     const { name, value } = event.target;
     setNewProduct({ ...newProduct, [name]: value });
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleNewProductSubmit = async () => {
-    if (
-      !newProduct.name ||
-      !newProduct.hs_code ||
-      !newProduct.description ||
-      !newProduct.category
-    ) {
-      alert("Please fill out all fields.");
-      return;
-    }
+    const apiUrl =
+      wishType === "Product"
+        ? "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/products/"
+        : "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/services/";
 
-    await createProduct({
-      name: newProduct.name,
-      hs_code: newProduct.hs_code,
-      description: newProduct.description,
-      category: parseInt(newProduct.category, 10),
-    });
-    onClose();
+    try {
+      if (
+        !newProduct.name ||
+        (!newProduct.hs_code && wishType === "Product") ||
+        !newProduct.description ||
+        !newProduct.category
+      ) {
+        const newErrors: Record<string, string> = {};
+        if (!newProduct.name) newErrors.name = "Name is required.";
+        if (!newProduct.hs_code && wishType === "Product")
+          newErrors.hs_code = "HS Code is required for products.";
+        if (!newProduct.description)
+          newErrors.description = "Description is required.";
+        if (!newProduct.category) newErrors.category = "Category is required.";
+        setErrors(newErrors);
+        return;
+      }
+
+      await createProduct(
+        {
+          name: newProduct.name,
+          hs_code: newProduct.hs_code,
+          description: newProduct.description,
+          category: parseInt(newProduct.category, 10),
+        },
+        apiUrl
+      );
+      onClose();
+    } catch (error) {
+      if (error.hs_code) {
+        setErrors((prev) => ({ ...prev, hs_code: error.hs_code[0] }));
+      }
+      if (error.name) {
+        setErrors((prev) => ({ ...prev, name: error.name[0] }));
+      }
+      if (error.description) {
+        setErrors((prev) => ({ ...prev, description: error.description[0] }));
+      }
+      if (error.category) {
+        setErrors((prev) => ({ ...prev, category: error.category[0] }));
+      }
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
-        <h2 className="text-xl font-bold mb-4">
-          {wishType === "Product" ? "Product Form" : "Service Form"}
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-xl w-full">
+        <h2 className="text-2xl font-extrabold text-purple-700 mb-6 text-center">
+          {wishType === "Product" ? "Create Product" : "Create Service"}
         </h2>
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : (
           <div>
-            {/* Instructional Message */}
-            <p className="text-gray-700 mb-4">
-              If you have a wished {wishType.toLowerCase()}, please select it
-              from the dropdown below. Otherwise, you can create your own{" "}
-              {wishType.toLowerCase()} by filling out the form.
+            <p className="text-gray-600 mb-6 text-center">
+              {`Have a ${wishType.toLowerCase()} in mind? Select it below or create a new one.`}
             </p>
 
-            {/* Dropdown to Select Product/Service */}
-            <div>
+            {/* Dropdown */}
+            <div className="mb-6">
               <select
-                className="w-full p-2 border rounded-md mb-2"
+                className="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-purple-300"
                 onChange={handleDropdownChange}
                 value={selectedItem}
+                disabled={items.length === 0}
               >
                 <option value="" disabled>
-                  Select a {wishType}
+                  {items.length > 0
+                    ? `Select a ${wishType}`
+                    : `No ${wishType.toLowerCase()} available`}
                 </option>
-                {items.length > 0 ? (
-                  items.map((item) => (
-                    <option key={item.id} value={item.name}>
-                      {item.name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="" disabled>
-                    No {wishType.toLowerCase()} available
+                {items.map((item) => (
+                  <option key={item.id} value={item.name}>
+                    {item.name}
                   </option>
-                )}
+                ))}
               </select>
             </div>
 
-            {/* Form Fields */}
-            <input
-              type="text"
-              name="name"
-              className="w-full p-2 border rounded-md mb-2"
-              placeholder="Product Name or Custom Input"
-              value={selectedItem || customInput}
-              onChange={(e) => {
-                if (!selectedItem) {
-                  setCustomInput(e.target.value);
-                  handleNewProductChange(e);
-                }
-              }}
-              disabled={!!selectedItem} // Disable if a product is selected
-            />
-            <select
-              name="category"
-              className="w-full p-2 border rounded-md mb-2"
-              value={newProduct.category}
-              onChange={handleNewProductChange}
-              disabled={!!selectedItem} // Disable if a product is selected
-            >
-              <option value="" disabled>
-                Select a Category
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+            {/* Name Input */}
+            <div className="mb-6">
+              <input
+                type="text"
+                name="name"
+                className="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-purple-300"
+                placeholder={`${wishType} Name or Custom Input`}
+                value={selectedItem || customInput}
+                onChange={(e) => {
+                  if (!selectedItem) {
+                    setCustomInput(e.target.value);
+                    handleNewProductChange(e);
+                  }
+                }}
+                disabled={!!selectedItem}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-2">{errors.name}</p>
+              )}
+            </div>
+
+            {/* Category Dropdown */}
+            <div className="mb-6">
+              <select
+                name="category"
+                className="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-purple-300"
+                value={newProduct.category}
+                onChange={handleNewProductChange}
+                disabled={!!selectedItem}
+              >
+                <option value="" disabled>
+                  Select a Category
                 </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              name="hs_code"
-              className="w-full p-2 border rounded-md mb-2"
-              placeholder="HS Code"
-              value={newProduct.hs_code}
-              onChange={handleNewProductChange}
-              disabled={!!selectedItem} // Disable if a product is selected
-            />
-            <textarea
-              name="description"
-              className="w-full p-2 border rounded-md mb-2"
-              placeholder="Description"
-              value={newProduct.description}
-              onChange={handleNewProductChange}
-              disabled={!!selectedItem} // Disable if a product is selected
-            />
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-2">{errors.category}</p>
+              )}
+            </div>
+
+            {/* HS Code Input (if Product) */}
+            {wishType === "Product" && (
+              <div className="mb-6">
+                <input
+                  type="text"
+                  name="hs_code"
+                  className="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-purple-300"
+                  placeholder="HS Code"
+                  value={newProduct.hs_code}
+                  onChange={handleNewProductChange}
+                  disabled={!!selectedItem}
+                />
+                {errors.hs_code && (
+                  <p className="text-red-500 text-sm mt-2">{errors.hs_code}</p>
+                )}
+              </div>
+            )}
+
+            {/* Description Textarea */}
+            <div className="mb-6">
+              <textarea
+                name="description"
+                className="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-purple-300"
+                placeholder="Description"
+                value={newProduct.description}
+                onChange={handleNewProductChange}
+                disabled={!!selectedItem}
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-2">
+                  {errors.description}
+                </p>
+              )}
+            </div>
 
             {/* Action Buttons */}
-            <div className="mt-4 flex justify-end space-x-4">
+            <div className="flex justify-between items-center">
               <button
-                className="py-2 px-4 bg-gray-300 rounded-md hover:bg-gray-400"
+                className="w-1/3 py-3 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300"
                 onClick={onClose}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+                className="w-2/3 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                 onClick={() => {
                   if (selectedItem) {
-                    onSelect(selectedItem); // Trigger selection callback
+                    onSelect(selectedItem);
                     onClose();
                   } else {
-                    handleNewProductSubmit(); // Submit new product form
+                    handleNewProductSubmit();
                   }
                 }}
                 disabled={
                   !selectedItem &&
                   (!newProduct.name ||
-                    !newProduct.hs_code ||
+                    (!newProduct.hs_code && wishType === "Product") ||
                     !newProduct.description ||
                     !newProduct.category)
                 }

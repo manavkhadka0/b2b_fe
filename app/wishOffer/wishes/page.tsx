@@ -21,7 +21,7 @@ export default async function WishPage() {
       <div className="p-4 bg-white rounded-lg border max-w-7xl mx-auto px-4 py-10">
         {/* Wishes Cards */}
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-          {/* {wishes.map((wish) => (
+          {wishes.map((wish) => (
             <WishOfferCard
               key={wish.id}
               title={wish.title}
@@ -31,7 +31,7 @@ export default async function WishPage() {
               tags={[wish.product?.name || wish.service?.name || ""]}
               hCode={[wish.product?.hs_code || ""]}
             />
-          ))} */}
+          ))}
         </div>
       </div>
     </div>

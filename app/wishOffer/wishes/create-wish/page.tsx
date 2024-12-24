@@ -8,7 +8,6 @@ import ProductServiceSelector, {
   Product,
   ProductResponse,
 } from "@/app/ProductServiceSelector";
-import { api } from "@/lib/api";
 
 export default function EventForm() {
   const [formData, setFormData] = useState({
@@ -502,7 +501,6 @@ export default function EventForm() {
               <option value="">Select Wish Type</option>
               <option value="Product">Product</option>
               <option value="Service">Service</option>
-              <option value="Other">Other</option>
             </select>
             {errors.wish_type && (
               <p className="text-red-500 text-sm">{errors.wish_type}</p>
@@ -515,12 +513,15 @@ export default function EventForm() {
               className="block text-sm font-medium text-gray-700"
             >
               {" "}
-              Choose {formData.wish_type}
+              Choose {formData.wish_type || "Option"}
             </label>
             <button
               type="button"
-              className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className={`bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                !formData.wish_type ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               onClick={handleOpenPopup}
+              disabled={!formData.wish_type} // Disable button if wish_type is not selected
             >
               Click to select...
             </button>
@@ -544,6 +545,7 @@ export default function EventForm() {
             )}
           </div>
         </div>
+
         <div>
           <label
             htmlFor="status"

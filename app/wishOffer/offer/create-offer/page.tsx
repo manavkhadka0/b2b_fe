@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { z } from "zod";
+import ProductServiceSelector from "@/app/ProductServiceSelector";
 
 export default function EventForm() {
   const [formData, setFormData] = useState({
@@ -30,8 +31,16 @@ export default function EventForm() {
 
   const [previews, setPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedProductService, setSelectedProductService] = useState("");
   const [designationDropdownOpen, setDesignationDropdownOpen] = useState(false);
+  const handleOpenPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
 
   const handleDesignationSelect = (value: string) => {
     setFormData((prev) => ({ ...prev, designation: value }));
@@ -66,13 +75,13 @@ export default function EventForm() {
         province: formData.province || "", // Optional field
         municipality: formData.municipality || "", // Optional field
         ward: formData.ward || "", // Optional field
-        company_website: formData.company_website || "", // Optional field
-        image: null, // Convert file to URL if needed
+        company_website: formData.company_website || "",
+        image: null,
       };
 
       // Send data using Axios
       const response = await axios.post(
-        `https://22a5-103-156-26-69.ngrok-free.app/api/wish_and_offers/offers/`,
+        `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/offers/`,
         formDataToSend,
         {
           headers: {
@@ -471,10 +480,43 @@ export default function EventForm() {
               <option value="">Select offer Type</option>
               <option value="Product">Product</option>
               <option value="Service">Service</option>
-              <option value="Other">Other</option>
             </select>
             {errors.offer_type && (
               <p className="text-red-500 text-sm">{errors.offer_type}</p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="wish_type"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Choose {formData.offer_type === "Product" ? "Product" : "Service"}
+            </label>
+            <button
+              type="button"
+              className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onClick={handleOpenPopup}
+              disabled={!formData.offer_type}
+            >
+              Click to select...
+            </button>
+
+            {isPopupOpen && (
+              <ProductServiceSelector
+                wishType={formData.offer_type}
+                onClose={handleClosePopup}
+                onSelect={(selectedItem) => {
+                  // Pass the selected item to the handler
+                }}
+              />
+            )}
+
+            {selectedProductService && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-700">
+                  Selected: <strong>{selectedProductService}</strong>
+                </p>
+              </div>
             )}
           </div>
         </div>

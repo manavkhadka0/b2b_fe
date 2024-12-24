@@ -1,4 +1,62 @@
+"use client";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const emailSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
 export function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission
+
+    // Validate email with Zod
+    const result = emailSchema.safeParse({ email });
+
+    if (!result.success) {
+      toast.error(result.error.errors[0]?.message || "Invalid email address.");
+      return;
+    }
+
+    setLoading(true); // Set loading to true while submitting
+    try {
+      const response = await fetch(
+        "https://ratishshakya.pythonanywhere.com/api/contact/newsletter/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.detail || "Failed to subscribe. Please try again."
+        );
+      }
+
+      toast("Subscribed Successfully!", {
+        description: "You have subscribed to our newsletter.",
+      });
+      setEmail(""); // Clear the email field on success
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+      toast.error("An error occurred.", {
+        description: errorMessage,
+      });
+    } finally {
+      setLoading(false); // Stop loading after request completes
+    }
+  };
+
   return (
     <div className="container mx-auto w-full rounded-xl overflow-hidden bg-gradient-to-r from-[#E0F7FF] mt-10">
       <div className="flex flex-col lg:flex-row items-center justify-between px-8 py-12 gap-8">
@@ -11,19 +69,26 @@ export function Newsletter() {
             Sign up now to receive offers and information about us and never
             miss an update from B2B!
           </p>
-          <div className="bg-white flex items-center justify-center lg:justify-start max-w-md rounded-lg shadow-sm">
+          <form
+            onSubmit={handleSubscribe}
+            className="bg-white flex items-center justify-center lg:justify-start max-w-md rounded-lg shadow-sm"
+          >
             <input
               type="email"
               placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="rounded-l-lg px-4 py-3 border-none w-full focus:ring-0 text-gray-700"
+              disabled={loading}
             />
             <button
               type="submit"
               className="bg-gradient-to-r from-[#5C67F2] to-[#A77CFF] text-white font-bold text-xl w-14 h-12 flex items-center justify-center rounded-r-lg shadow-lg hover:scale-105 transition-transform"
+              disabled={loading}
             >
-              →
+              {loading ? "..." : "→"}
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Right Side */}

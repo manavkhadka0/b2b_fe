@@ -16,7 +16,7 @@ type OfferResponse = {
   previous: string | null;
 };
 
-
+// Fetch Wishes with Match Percentage
 export async function getWishes(): Promise<Wish[]> {
   try {
     const response = await axios.get<WishResponse>(
@@ -30,6 +30,7 @@ export async function getWishes(): Promise<Wish[]> {
   }
 }
 
+// Fetch Offers
 export async function getOffers(): Promise<Offer[]> {
   try {
     const response = await axios.get<OfferResponse>(

@@ -1,5 +1,4 @@
 import React from "react";
-import { FaAngleDoubleRight } from "react-icons/fa";
 
 interface WishOfferCardProps {
   title: string;
@@ -14,7 +13,7 @@ const WishOfferCard = ({
   description,
   tags = [],
   hCode = [],
-  matchPercentage = 20,
+  matchPercentage = 80,
 }: WishOfferCardProps) => {
   return (
     <div className="p-7 border rounded-lg hover:shadow-md transition group relative">

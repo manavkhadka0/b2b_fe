@@ -10,9 +10,9 @@ import { useRouter, usePathname } from "next/navigation";
 const navItems = [
   { label: "B2B Events", href: "/events" },
   { label: "Wish & Offer", href: "/wishOffer" },
-  { label: "BDS Services", href: "#" },
-  { label: "Business Registration", href: "#" },
-  { label: "JobBriz", href: "#" },
+  { label: "BDS Services", href: "/bdsService" },
+  { label: "Business Registration", href: "/businessRegister" },
+
   { label: "Contacts", href: "/contacts" },
 ];
 
@@ -68,13 +68,6 @@ export function DefaultNav() {
                   <NavLink key={item.href} {...item} />
                 ))}
               </nav>
-              <Button
-                variant="outline"
-                onClick={() => router.push("/login")}
-                className="hidden md:block text-sm font-medium bg-blue-500 text-white hover:bg-blue-400"
-              >
-                Sign-Up
-              </Button>
 
               {/* Mobile Menu */}
               <Sheet>

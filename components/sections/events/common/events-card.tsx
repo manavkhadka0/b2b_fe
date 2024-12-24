@@ -3,7 +3,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import type { Event } from "@/types/events";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
+import { Avatar, AvatarFallback } from "../../../ui/avatar";
 import Link from "next/link";
 
 interface EventCardProps {

@@ -34,7 +34,7 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 
   try {
     const response = await axios.get<Event>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/events/events/${slug}/`,
+      `${process.env.BASE_URL}/api/events/events/${slug}/`,
       { headers: { Accept: "application/json" } }
     );
     return response.data;

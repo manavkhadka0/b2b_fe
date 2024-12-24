@@ -1,6 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_U || "http://127.0.0.1:8000/api";
 
 export const api = axios.create({
   baseURL: BASE_URL,

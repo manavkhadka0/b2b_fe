@@ -42,15 +42,16 @@ export default async function WishOfferPage() {
           {/* Wishes Cards */}
           <div className="space-y-4">
             {wishes.map((wish) => (
-              <WishOfferCard
-                key={wish.id}
-                title={wish.title}
-                description={
-                  wish.product?.description || wish.service?.description || ""
-                }
-                tags={[wish.product?.name || wish.service?.name || ""]}
-                hCode={[wish.product?.hs_code || ""]}
-              />
+              <Link key={wish.id} href={`/wishOffer/wishes/${wish.id}`}>
+                <WishOfferCard
+                  title={wish.title}
+                  description={
+                    wish.product?.description || wish.service?.description || ""
+                  }
+                  tags={[wish.product?.name || wish.service?.name || ""]}
+                  hCode={[wish.product?.hs_code || ""]}
+                />
+              </Link>
             ))}
           </div>
 
@@ -80,15 +81,28 @@ export default async function WishOfferPage() {
           {/* Offers Cards */}
           <div className="space-y-4">
             {offers.map((offer) => (
-              <WishOfferCard
+              <Link
                 key={offer.id}
-                title={offer.title}
-                description={
-                  offer.product?.description || offer.service?.description || ""
-                }
-                tags={[offer.product?.name || offer.service?.name || ""]}
-                hCode={[offer.product?.hs_code || ""]}
-              />
+                href={`/wishOffer/offer/${offer.id}`}
+                passHref
+              >
+                <div className="cursor-pointer">
+                  <WishOfferCard
+                    title={offer.title}
+                    description={
+                      offer.product?.description ||
+                      offer.service?.description ||
+                      "No description available"
+                    }
+                    tags={[
+                      offer.product?.name ||
+                        offer.service?.name ||
+                        "No tag available",
+                    ]}
+                    hCode={[offer.product?.hs_code || "No HS Code"]}
+                  />
+                </div>
+              </Link>
             ))}
           </div>
 
