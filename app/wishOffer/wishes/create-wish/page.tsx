@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { z } from "zod";
-import ProductServiceSelector from "@/app/ProductServiceSelector";
+import ProductServiceSelector, {
+  Product,
+  ProductResponse,
+} from "@/app/ProductServiceSelector";
+import { api } from "@/lib/api";
 
 export default function EventForm() {
   const [formData, setFormData] = useState({
@@ -510,7 +514,8 @@ export default function EventForm() {
               htmlFor="wish_type"
               className="block text-sm font-medium text-gray-700"
             >
-              Choose {formData.wish_type === "Product" ? "Product" : "Service"}
+              {" "}
+              Choose {formData.wish_type}
             </label>
             <button
               type="button"

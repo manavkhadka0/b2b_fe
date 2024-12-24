@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { headers } from "next/headers";
+import { api } from "@/lib/api";
 
-type Product = {
+// Define the types for the product response
+export type Product = {
   id: number;
   name: string;
   hs_code: string;
@@ -15,7 +18,7 @@ type Product = {
   };
 };
 
-type ProductResponse = {
+export type ProductResponse = {
   results: Product[];
   count: number;
   next: string | null;

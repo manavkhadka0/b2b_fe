@@ -71,12 +71,6 @@ const EventCard = ({ event }: EventCardProps) => {
             {event.attendees_count > 0 ? (
               <>
                 <div className="flex -space-x-2">
-                  {/* {event.attendees.slice(0, 3).map((attendee, index) => (
-                    <Avatar key={index} className="w-6 h-6">
-                      <AvatarImage src={attendee.image} alt={attendee.name} />
-                      <AvatarFallback>{attendee.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  ))} */}
                   {event.attendees_count > 3 && (
                     <Avatar className="w-6 h-6">
                       <AvatarFallback>
