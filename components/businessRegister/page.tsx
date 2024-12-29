@@ -1,8 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import axios from "axios";
-import LoadingComponent from "@/components/businessRegister/loading";
 import { DataNotFound } from "@/components/sections/errors/data-not-found";
 import BusinessCard from "@/components/businessRegister/businesslist/businessGrid";
 import { HeaderSubtitle } from "../sections/common/header-subtitle";

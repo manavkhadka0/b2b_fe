@@ -1,49 +1,20 @@
-import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
-
-interface Service {
-  id: number;
-  category: string;
-  title: string;
-  company: string;
-  address: string;
-  tags: string[];
-  description: string;
-  logo: string | null;
-}
+import { DataNotFound } from "@/components/sections/errors/data-not-found";
+import { BDSService } from "@/types/bds-services";
 
 interface GridSectionProps {
-  services: Service[];
-  activeCategory: string;
-  loading: boolean;
-  error: string | null;
+  services: BDSService[];
 }
 
-export default function BDSGridSection({
-  services,
-  activeCategory,
-  loading,
-  error,
-}: GridSectionProps) {
-  const filteredServices =
-    activeCategory === "All"
-      ? services
-      : services.filter((service) => service.category === activeCategory);
-
-  if (loading) {
-    return <p>Loading services...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500">Error: {error}</p>;
-  }
-
-  if (filteredServices.length === 0) {
-    return <p>No services available for the selected category.</p>;
+export default function BDSGridSection({ services }: GridSectionProps) {
+  if (services.length === 0) {
+    return (
+      <DataNotFound title="No services found" message="No services found" />
+    );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {filteredServices.map((service) => (
+      {services.map((service) => (
         <div
           key={service.id}
           className="p-6 border rounded-lg shadow-md hover:shadow-lg transition"
@@ -52,7 +23,7 @@ export default function BDSGridSection({
             {service.logo ? (
               <img
                 src={service.logo}
-                alt={`${service.company} Logo`}
+                alt={`${service.Company_name} Logo`}
                 className="w-20 h-20 rounded-full border-2 border-gray-200"
               />
             ) : (
@@ -61,11 +32,11 @@ export default function BDSGridSection({
               </div>
             )}
             <div>
-              <h2 className="font-bold text-lg">{service.company}</h2>
+              <h2 className="font-bold text-lg">{service.Company_name}</h2>
               <p className="text-sm text-gray-500">{service.address}</p>
             </div>
           </div>
-          <h3 className="font-semibold text-xl mb-2">{service.title}</h3>
+          <h3 className="font-semibold text-xl mb-2">{service.service}</h3>
           <p className="text-gray-600 text-sm mb-4">{service.description}</p>
           <div className="flex flex-wrap gap-2">
             {service.tags.map((tag, index) => (
@@ -73,10 +44,11 @@ export default function BDSGridSection({
                 key={index}
                 className="px-3 py-1 bg-blue-100 text-blue-500 text-sm rounded-full"
               >
-                {tag}
+                {tag.name}
               </span>
             ))}
           </div>
+          <div className="flex justify-end">{service.category.name}</div>
         </div>
       ))}
     </div>
