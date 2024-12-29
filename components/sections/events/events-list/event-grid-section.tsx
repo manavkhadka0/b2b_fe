@@ -56,7 +56,7 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
   }
 
   return (
-    <div className="space-y-8 container max-w-7xl mx-auto mb-10">
+    <div className="space-y-6 container max-w-7xl mx-auto mb-10">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((event: Event) => (
           <EventCard key={event.id} event={event} />
@@ -70,7 +70,11 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
             <PaginationPrevious
               href={`/events?page=${currentPage - 1}`}
               aria-disabled={!hasPrevious}
-              className={!hasPrevious ? "cursor-not-allowed opacity-50" : ""}
+              className={
+                !hasPrevious
+                  ? "cursor-not-allowed pointer-events-none opacity-50"
+                  : ""
+              }
             />
           </PaginationItem>
 
@@ -98,7 +102,11 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
             <PaginationItem key={pageNum}>
               <PaginationLink
                 href={`/events?page=${pageNum}`}
-                isActive={pageNum === currentPage}
+                className={
+                  pageNum === currentPage
+                    ? "pointer-events-none rounded-full bg-blue-500 text-white"
+                    : "cursor-pointer"
+                }
               >
                 {pageNum}
               </PaginationLink>
@@ -129,7 +137,11 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
             <PaginationNext
               href={`/events?page=${currentPage + 1}`}
               aria-disabled={!hasNext}
-              className={!hasNext ? "cursor-not-allowed opacity-50" : ""}
+              className={
+                !hasNext
+                  ? "cursor-not-allowed pointer-events-none opacity-50"
+                  : ""
+              }
             />
           </PaginationItem>
         </PaginationContent>

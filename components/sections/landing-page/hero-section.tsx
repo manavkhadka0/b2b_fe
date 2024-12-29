@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { ResponsiveContainer } from "../common/responsive-container";
 
 export default function HeroSection() {
   return (
-    <main className="relative bg-gradient-to-br from-gray-100 via-gray-50 to-blue-50 min-h-screen flex items-center justify-center px-6 overflow-hidden">
-      {/* Floating Background Effects */}
+    <main className="relative bg-gradient-to-br from-gray-100 via-gray-50 to-blue-50 min-h-[calc(100vh-100px)] overflow-hidden flex items-center w-full">
       <motion.div
         className="absolute top-10 left-10 w-40 h-40 bg-blue-300 rounded-full opacity-30 blur-lg"
         animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -24,59 +24,62 @@ export default function HeroSection() {
       ></motion.div>
 
       {/* Hero Section */}
-      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl relative z-10">
-        {/* Left Content */}
-        <motion.div
-          className="text-center md:text-left max-w-lg"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-            Accelerate Your <span className="text-blue-500">Business</span>
-          </h1>
-          <p className="text-gray-700 text-lg md:text-xl mb-8 leading-relaxed">
-            Transform your business with cutting-edge solutions. Unlock growth,
-            drive efficiency, and achieve success effortlessly with our
-            expertise.
-          </p>
-          <Link href={"/events/create-event"}>
-            <motion.button
-              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Create Events
-            </motion.button>
-          </Link>
-        </motion.div>
+      <ResponsiveContainer>
+        <div className="grid grid-cols-1 md:grid-cols-2 items-center">
+          {/* Left Content */}
+          <motion.div
+            className="text-center md:text-left max-w-lg px-4 md:px-0 my-8 md:my-0"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+              Accelerate Your <span className="text-blue-500">Business</span>
+            </h1>
+            <p className="text-gray-700 text-lg md:text-xl mb-8 leading-relaxed">
+              Transform your business with cutting-edge solutions. Unlock
+              growth, drive efficiency, and achieve success effortlessly with
+              our expertise.
+            </p>
+            <Link href={"/events/create-event"}>
+              <motion.button
+                className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Create Events
+              </motion.button>
+            </Link>
+          </motion.div>
 
-        {/* Right Visual */}
-        <motion.div
-          className="mt-12 md:mt-0 flex justify-center items-center"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <div className="relative w-80 h-80 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-lg flex items-center justify-center">
-            <motion.div
-              className="absolute w-24 h-24 bg-white rounded-full shadow-lg animate-pulse"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            ></motion.div>
-            <motion.div
-              className="absolute w-16 h-16 bg-blue-100 rounded-full shadow-md bottom-6 left-6"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            ></motion.div>
-            <motion.div
-              className="absolute w-12 h-12 bg-blue-50 rounded-full shadow-sm top-8 right-8"
-              animate={{ rotate: [360, 0] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            ></motion.div>
-          </div>
-        </motion.div>
-      </div>
+          {/* Right Visual */}
+          <motion.div
+            className="hidden md:flex justify-center items-center"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <div className="relative w-64 h-64 md:w-80 md:h-80 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-lg flex items-center justify-center">
+              <motion.div
+                className="absolute w-24 h-24 bg-white rounded-full shadow-lg animate-pulse"
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              ></motion.div>
+              <motion.div
+                className="absolute w-16 h-16 bg-blue-100 rounded-full shadow-md bottom-6 left-6"
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              ></motion.div>
+              <motion.div
+                className="absolute w-12 h-12 bg-blue-50 rounded-full shadow-sm top-8 right-8"
+                animate={{ rotate: [360, 0] }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              ></motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </ResponsiveContainer>
+      {/* Floating Background Effects */}
     </main>
   );
 }

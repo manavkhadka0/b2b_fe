@@ -1,3 +1,4 @@
+import { ResponsiveContainer } from "../../common/responsive-container";
 import { EventGridSection } from "../events-list/event-grid-section";
 import { EventsListHeroSection } from "../events-list/events-list-hero-section";
 import type { Event, EventResponse } from "@/types/events";
@@ -9,11 +10,9 @@ interface EventsListViewProps {
 
 export const EventsListView = ({ eventsResponse }: EventsListViewProps) => {
   return (
-    <div>
-      <View />
-
+    <ResponsiveContainer className="space-y-8">
       <EventsListHeroSection />
       <EventGridSection eventsResponse={eventsResponse} />
-    </div>
+    </ResponsiveContainer>
   );
 };
