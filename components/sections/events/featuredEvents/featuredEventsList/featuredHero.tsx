@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { EventResponse } from "@/types/events";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 interface HeroSectionProps {
   mainEvent: EventResponse["results"][0];
@@ -20,10 +21,12 @@ const HeroSection = ({ mainEvent, hasSideEvents }: HeroSectionProps) => {
           hasSideEvents ? "h-[400px] lg:h-[500px]" : "h-[600px]"
         } rounded-xl overflow-hidden`}
       >
-        <Image
+        <ImageWithFallback
           src={mainEvent.thumbnail || "/placeholder.jpg"}
           alt={mainEvent.title || "Event Image"}
           width={800}
+          placeholder="blur"
+          blurDataURL={"/blur.png"}
           height={600}
           className="w-full h-full object-cover"
           priority

@@ -2,27 +2,14 @@ import HeroSection from "@/components/sections/events/featuredEvents/featuredEve
 import ViewSection from "@/components/sections/events/featuredEvents/featuredEventsList/featuredList";
 import { EventResponse } from "@/types/events";
 
-async function fetchEvents(): Promise<EventResponse["results"]> {
-  try {
-    const response = await fetch(
-      "http://128.199.18.200/api/events/featured-events/",
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.statusText}`);
-    }
-
-    const data: EventResponse = await response.json();
-    return data.results || [];
-  } catch (error) {
-    console.error("Failed to fetch event data:", error);
-    return [];
-  }
+interface EventsFeaturedSectionProps {
+  featuredEvents: EventResponse;
 }
 
-const FeaturedEvents = async () => {
-  const events = await fetchEvents();
+const EventsFeaturedSection = async ({
+  featuredEvents,
+}: EventsFeaturedSectionProps) => {
+  const events = featuredEvents.results;
 
   if (!events.length) {
     return (
@@ -35,7 +22,6 @@ const FeaturedEvents = async () => {
 
   return (
     <div className="py-6 container max-w-7xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">Featured Events</h2>
       <div
         className={`grid grid-cols-1 gap-6 ${
           sideEvents.length > 0 ? "lg:grid-cols-3" : ""
@@ -52,4 +38,4 @@ const FeaturedEvents = async () => {
   );
 };
 
-export default FeaturedEvents;
+export default EventsFeaturedSection;

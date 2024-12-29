@@ -7,7 +7,8 @@ const nextConfig = {
       "shark-app-jfgip.ondigitalocean.app",
       "usercontent.one",
       "128.199.18.200",
-      "ratishshakya.pythonanywhere.com"
+      "ratishshakya.pythonanywhere.com",
+      "128.199.18.200",
     ],
   },
 };
