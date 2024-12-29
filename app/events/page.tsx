@@ -8,7 +8,9 @@ import { EventsListView } from "@/components/sections/events/view/events-list-vi
 async function getEvents(page: string) {
   try {
     const response = await axios.get<EventResponse>(
-      `${process.env.BASE_URL}/api/events/events/?page=${page ? page : 1}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/events/events/?page=${
+        page ? page : 1
+      }`,
       {
         headers: {
           Accept: "application/json",
