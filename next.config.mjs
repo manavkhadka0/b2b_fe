@@ -3,10 +3,11 @@ const nextConfig = {
   images: {
     domains: [
       "localhost",
-      "127.0.0.1",
+      "128.199.18.200",
       "shark-app-jfgip.ondigitalocean.app",
       "usercontent.one",
-      "ratishshakya.pythonanywhere.com",
+      "128.199.18.200",
+      "ratishshakya.pythonanywhere.com"
     ],
   },
 };

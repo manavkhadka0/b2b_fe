@@ -1,9 +1,9 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_U || "http://127.0.0.1:8000/api";
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_U || "http://127.0.0.1:8000/api";
 
 export const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,7 +11,7 @@ export const api = axios.create({
 
 // Create a separate axios instance for refresh token requests
 const refreshApi = axios.create({
-  baseURL: BASE_URL,
+  baseURL: NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
