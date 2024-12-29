@@ -20,7 +20,7 @@ type OfferResponse = {
 export async function getWishes(): Promise<Wish[]> {
   try {
     const response = await axios.get<WishResponse>(
-      `${process.env.BASE_URL}/api/wish_and_offers/wishes/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
       { headers: { Accept: "application/json" } }
     );
     return response.data.results || [];
@@ -34,7 +34,7 @@ export async function getWishes(): Promise<Wish[]> {
 export async function getOffers(): Promise<Offer[]> {
   try {
     const response = await axios.get<OfferResponse>(
-      `${process.env.BASE_URL}/api/wish_and_offers/offers/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
       { headers: { Accept: "application/json" } }
     );
     return response.data.results || [];

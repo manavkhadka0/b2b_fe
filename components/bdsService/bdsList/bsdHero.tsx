@@ -1,11 +1,11 @@
-const HeroSection = () => {
-  return (
-    <div className="mb-8">
-      <h1 className="text-2xl font-bold">
-        BDS Services: Finding the Perfect Service into your Request
-      </h1>
-    </div>
-  );
-};
+import { HeaderSubtitle } from "@/components/sections/common/header-subtitle";
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 
-export default HeroSection;
+export default function BDSHeroSection() {
+  return (
+    <HeaderSubtitle
+      title="BDS Services: Finding the Perfect Service into your Request"
+      subtitle="Explore a wide range of BDS services tailored to your needs."
+    />
+  );
+}

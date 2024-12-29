@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import HeroSection from "@/components/bdsService/bdsList/bsdHero";
 import CategoryTabs from "@/components/bdsService/bdsList/bdsCategory";
 import GridSection from "@/components/bdsService/bdsList/bdsGrid";
+import BDSHeroSection from "@/components/bdsService/bdsList/bsdHero";
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 
 const categories = [
   "All",
@@ -12,7 +14,7 @@ const categories = [
   "Energy/ Environmental Services",
 ];
 
-export default function BDSPage() {
+export default function BDSView() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,9 +52,8 @@ export default function BDSPage() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero Section */}
-      <HeroSection />
+    <ResponsiveContainer className="space-y-8">
+      <BDSHeroSection />
 
       {/* Category Tabs */}
       <CategoryTabs
@@ -68,6 +69,6 @@ export default function BDSPage() {
         loading={loading}
         error={error}
       />
-    </div>
+    </ResponsiveContainer>
   );
 }

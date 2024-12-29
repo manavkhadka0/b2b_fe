@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import { ResponsiveContainer } from "../../common/responsive-container";
 
 const districts = [
   {
@@ -61,7 +62,7 @@ const districts = [
 
 export function B2BNetworking() {
   return (
-    <div className="container px-4 py-12 mx-auto">
+    <ResponsiveContainer>
       {/* District B2B Networking Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-800">
@@ -98,6 +99,6 @@ export function B2BNetworking() {
           ))}
         </div>
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }

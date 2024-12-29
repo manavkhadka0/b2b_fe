@@ -1,7 +1,5 @@
-import BDSPage from "@/components/bdsService/page";
+import BDSView from "@/components/bdsService/view/bds-view";
 
-const ContactPage = () => {
-  return <BDSPage />;
-};
-
-export default ContactPage;
+export default function BDSViewPage() {
+  return <BDSView />;
+}

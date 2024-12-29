@@ -1,3 +1,5 @@
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
+
 interface Service {
   id: number;
   category: string;
@@ -16,12 +18,12 @@ interface GridSectionProps {
   error: string | null;
 }
 
-const GridSection: React.FC<GridSectionProps> = ({
+export default function BDSGridSection({
   services,
   activeCategory,
   loading,
   error,
-}) => {
+}: GridSectionProps) {
   const filteredServices =
     activeCategory === "All"
       ? services
@@ -79,6 +81,4 @@ const GridSection: React.FC<GridSectionProps> = ({
       ))}
     </div>
   );
-};
-
-export default GridSection;
+}

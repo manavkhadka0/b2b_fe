@@ -1,3 +1,5 @@
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
+
 interface CategoryTabsProps {
   categories: string[];
   activeCategory: string;

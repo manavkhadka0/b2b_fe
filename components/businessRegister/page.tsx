@@ -2,49 +2,21 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import HeaderSection from "@/components/businessRegister/businesslist/businesshero";
 import LoadingComponent from "@/components/businessRegister/loading";
 import { DataNotFound } from "@/components/sections/errors/data-not-found";
 import BusinessCard from "@/components/businessRegister/businesslist/businessGrid";
+import { HeaderSubtitle } from "../sections/common/header-subtitle";
+import { ResponsiveContainer } from "../sections/common/responsive-container";
+import { BusinessInfo } from "@/types/business-registration";
 
-type BusinessInfo = {
-  id: number;
-  name: string;
-  description: string;
-  category: number;
+type BusinessInformationPageProps = {
+  businessInformation: BusinessInfo[];
 };
 
-export default function BusinessInformationPage() {
-  const [businessInfo, setBusinessInfo] = useState<BusinessInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchBusinessInfo = async () => {
-      try {
-        const response = await axios.get<{
-          count: number;
-          next: string | null;
-          previous: string | null;
-          results: BusinessInfo[];
-        }>(
-          "https://ratishshakya.pythonanywhere.com/api/business_information/business-information/"
-        );
-        setBusinessInfo(response.data.results);
-      } catch (error) {
-        console.error("Failed to fetch business information:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBusinessInfo();
-  }, []);
-
-  if (loading) {
-    return <LoadingComponent />;
-  }
-
-  if (!businessInfo.length) {
+export default function BusinessInformationPage({
+  businessInformation,
+}: BusinessInformationPageProps) {
+  if (!businessInformation.length) {
     return (
       <DataNotFound
         title="No Business Information Found"
@@ -54,18 +26,16 @@ export default function BusinessInformationPage() {
   }
 
   return (
-    <div className="bg-gray-50 py-16">
-      <div className="container mx-auto px-4">
-        <HeaderSection
-          title="Business Information"
-          subtitle="Explore key business details and insights for informed decision-making."
-        />
-        <div className="space-y-6">
-          {businessInfo.map((info: BusinessInfo) => (
-            <BusinessCard key={info.id} info={info} />
-          ))}
-        </div>
+    <ResponsiveContainer className="space-y-8">
+      <HeaderSubtitle
+        title="Business Information"
+        subtitle="Explore key business details and insights for informed decision-making."
+      />
+      <div className="space-y-6">
+        {businessInformation.map((info: BusinessInfo) => (
+          <BusinessCard key={info.id} info={info} />
+        ))}
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }
