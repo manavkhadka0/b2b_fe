@@ -1,6 +1,8 @@
 import HeroSection from "@/components/sections/events/featuredEvents/featuredEventsList/featuredHero";
 import ViewSection from "@/components/sections/events/featuredEvents/featuredEventsList/featuredList";
 import { EventResponse } from "@/types/events";
+import { ResponsiveContainer } from "../../common/responsive-container";
+import { HeaderSubtitle } from "../../common/header-subtitle";
 
 interface EventsFeaturedSectionProps {
   featuredEvents: EventResponse;
@@ -21,7 +23,11 @@ const EventsFeaturedSection = async ({
   const sideEvents = events.slice(1, 3); // Next two events for side cards
 
   return (
-    <div className="py-6 container max-w-7xl mx-auto">
+    <ResponsiveContainer className="space-y-6">
+      <HeaderSubtitle
+        title="Featured Events"
+        subtitle="Check out our latest events"
+      />
       <div
         className={`grid grid-cols-1 gap-6 ${
           sideEvents.length > 0 ? "lg:grid-cols-3" : ""
@@ -34,7 +40,7 @@ const EventsFeaturedSection = async ({
 
         {sideEvents.length > 0 && <ViewSection sideEvents={sideEvents} />}
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 };
 

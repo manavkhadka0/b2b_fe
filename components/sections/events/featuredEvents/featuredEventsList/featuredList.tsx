@@ -1,6 +1,3 @@
-"use client";
-
-import Image from "next/image";
 import { EventResponse } from "@/types/events";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 

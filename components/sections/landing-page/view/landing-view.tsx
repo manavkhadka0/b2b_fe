@@ -1,11 +1,16 @@
 import HeroSection from "../hero-section";
-import View from "@/components/sections/events/featuredEvents/featured-event-section";
+import EventsFeaturedSection from "@/components/sections/events/featuredEvents/featured-event-section";
+import { EventResponse } from "@/types/events";
 
-export default function LandingView() {
+interface LandingViewProps {
+  featuredEvents: EventResponse;
+}
+
+export default function LandingView({ featuredEvents }: LandingViewProps) {
   return (
     <>
       <HeroSection />
-      <View />
+      <EventsFeaturedSection featuredEvents={featuredEvents} />
     </>
   );
 }
