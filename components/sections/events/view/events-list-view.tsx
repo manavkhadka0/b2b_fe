@@ -14,17 +14,10 @@ export const EventsListView = ({
   featuredEvents,
 }: EventsListViewProps) => {
   return (
-    <ResponsiveContainer className="space-y-8">
-      <HeaderSubtitle
-        title="Featured Events"
-        subtitle="See the latest featured events in your area"
-      />
+    <>
       <EventsFeaturedSection featuredEvents={featuredEvents} />
-      <HeaderSubtitle
-        title="Popular Events"
-        subtitle="Attend the most popular events in your area"
-      />
+
       <EventGridSection eventsResponse={eventsResponse} />
-    </ResponsiveContainer>
+    </>
   );
 };

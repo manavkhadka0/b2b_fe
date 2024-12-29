@@ -13,6 +13,8 @@ import type { Event, EventResponse } from "@/types/events";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { DataNotFound } from "../../errors/data-not-found";
+import { HeaderSubtitle } from "../../common/header-subtitle";
+import { ResponsiveContainer } from "../../common/responsive-container";
 
 type EventGridSectionProps = {
   eventsResponse: EventResponse;
@@ -56,7 +58,11 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
   }
 
   return (
-    <div className="space-y-6 container max-w-7xl mx-auto mb-10">
+    <ResponsiveContainer className="space-y-6">
+      <HeaderSubtitle
+        title="Popular Events"
+        subtitle="Attend the most popular events in your area"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((event: Event) => (
           <EventCard key={event.id} event={event} />
@@ -146,6 +152,6 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-    </div>
+    </ResponsiveContainer>
   );
 };
