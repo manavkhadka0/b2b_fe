@@ -1,5 +1,5 @@
 import { EventResponse } from "@/types/events";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import Image from "next/image";
 
 interface ViewSectionProps {
   sideEvents: EventResponse["results"];
@@ -11,10 +11,9 @@ const ViewSection = ({ sideEvents }: ViewSectionProps) => {
       {sideEvents.map((event) => (
         <div key={event.id} className="relative rounded-xl overflow-hidden">
           <div className="relative w-full h-[230px] rounded-xl">
-            <ImageWithFallback
+            <Image
               src={event.thumbnail}
               alt={event.title || "Event Image"}
-              fallback={"/placeholder.jpg"}
               blurDataURL={"/blur.png"}
               placeholder="blur"
               width={400}

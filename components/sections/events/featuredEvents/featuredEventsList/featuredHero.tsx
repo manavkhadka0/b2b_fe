@@ -1,5 +1,5 @@
 import { EventResponse } from "@/types/events";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import Image from "next/image";
 
 interface HeroSectionProps {
   mainEvent: EventResponse["results"][0];
@@ -18,7 +18,7 @@ const HeroSection = ({ mainEvent, hasSideEvents }: HeroSectionProps) => {
           hasSideEvents ? "h-[400px] lg:h-[500px]" : "h-[600px]"
         } rounded-xl overflow-hidden`}
       >
-        <ImageWithFallback
+        <Image
           src={mainEvent.thumbnail || "/placeholder.jpg"}
           alt={mainEvent.title || "Event Image"}
           width={800}
