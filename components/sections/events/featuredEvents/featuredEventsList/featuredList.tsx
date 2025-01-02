@@ -10,7 +10,7 @@ const ViewSection = ({ sideEvents }: ViewSectionProps) => {
     <div className="flex flex-col gap-6">
       {sideEvents.map((event) => (
         <div key={event.id} className="relative rounded-xl overflow-hidden">
-          <div className="relative w-full h-[230px] rounded-xl">
+          <div className="relative w-full h-[240px] rounded-xl">
             <ImageWithFallback
               src={event.thumbnail}
               alt={event.title || "Event Image"}

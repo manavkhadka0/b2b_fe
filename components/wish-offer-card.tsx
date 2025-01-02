@@ -5,7 +5,10 @@ interface WishOfferCardProps {
   description: string;
   tags?: string[];
   hCode: string[];
-  matchPercentage?: number;
+  matchPercentage: number;
+  location?: string;
+  time?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const WishOfferCard = ({
@@ -13,10 +16,19 @@ const WishOfferCard = ({
   description,
   tags = [],
   hCode = [],
-  matchPercentage = 80,
+  matchPercentage,
+  location = "Unknown Location",
+  time = new Date().toISOString(),
+  onClick,
 }: WishOfferCardProps) => {
   return (
-    <div className="p-7 border rounded-lg hover:shadow-md transition group relative">
+    <div
+      className="p-7 border rounded-lg hover:shadow-md transition group relative cursor-pointer"
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.(e);
+      }}
+    >
       {/* Flexbox for Title and Match Indicator */}
       <div className="flex justify-between items-center">
         <h3 className="font-bold">{title}</h3>
@@ -78,29 +90,13 @@ const WishOfferCard = ({
 
       <hr className="my-3 border-t border-gray-200" />
 
-      {/* Avatars and Text */}
-      <div className="flex items-center mt-2 space-x-2">
-        <div className="flex -space-x-2">
-          <img
-            src="https://via.placeholder.com/32"
-            alt="User 1"
-            className="w-8 h-8 rounded-full border-2 border-white"
-          />
-          <img
-            src="https://via.placeholder.com/32"
-            alt="User 2"
-            className="w-8 h-8 rounded-full border-2 border-white"
-          />
-          <img
-            src="https://via.placeholder.com/32"
-            alt="User 3"
-            className="w-8 h-8 rounded-full border-2 border-white"
-          />
-        </div>
-        <p className="text-gray-500 text-sm">
-          {`Abc from Xys Company and ${45} others have wished this.`}
-        </p>
-      </div>
+      {/* Location and Time */}
+      <p className="text-gray-500 text-sm">
+        <span className="text-gray-400">{`Location: ${location} | `}</span>
+        <span className="text-gray-400">
+          {`Time: ${new Date(time).toLocaleString()}`}
+        </span>
+      </p>
     </div>
   );
 };

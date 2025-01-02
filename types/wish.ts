@@ -46,7 +46,6 @@ export type Wish = {
 
 export type Offer = {
   id: number;
-  
   title: string;
   product?: {
     name: string;
@@ -71,6 +70,8 @@ export type Offer = {
   };
   offer_type: string;
   status: string;
+  match_percentage?: number; // Added to handle high match filtering
   created_at: string;
   updated_at: string;
 };
+

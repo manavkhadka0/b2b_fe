@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { z } from "zod";
@@ -94,7 +94,7 @@ export default function EventForm() {
 
       // Send data using Axios
       const response = await axios.post(
-        `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/wishes/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
         formDataToSend,
         {
           headers: {
@@ -573,56 +573,49 @@ export default function EventForm() {
         {/* Wish Description */}
 
         {/* File Upload */}
-        <div>
-          <label
-            htmlFor="file-upload"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Wish Photos/ Videos
-          </label>
-          <div className="relative mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <IoCloudUploadOutline
-              size={48}
-              className="text-gray-400 mx-auto mb-2"
-            />
-            <p className="text-gray-500 text-sm">Upload Photos</p>
-            <span className="text-gray-400 text-xs mb-2">OR</span>
-            <br />
-            <button
-              type="button"
-              className="py-1 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+        {!isPopupOpen && (
+          <div>
+            <label
+              htmlFor="file-upload"
+              className="block text-sm font-medium text-gray-700"
             >
-              Browse files
-            </button>
+              Wish Photos/ Videos
+            </label>
+            <div className="relative mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+              <input
+                id="file-upload"
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <IoCloudUploadOutline
+                size={48}
+                className="text-gray-400 mx-auto mb-2"
+              />
+              <p className="text-gray-500 text-sm">Upload Photos/Videos</p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-4">
+              {previews.map((src, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={src}
+                    alt={`Preview ${index + 1}`}
+                    className="h-24 w-24 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => discardImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-          {/* Image Previews */}
-          <div className="mt-4 flex flex-wrap gap-4">
-            {previews.map((src, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={src}
-                  alt={`Preview ${index + 1}`}
-                  className="h-24 w-24 object-cover rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => discardImage(index)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end mt-4">

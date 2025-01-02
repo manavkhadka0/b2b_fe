@@ -63,7 +63,7 @@ export default function OfferDetailPage() {
       const fetchOffer = async () => {
         try {
           const response = await axios.get<OfferDetail>(
-            `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/offers/${id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/${id}`
           );
           setOffer(response.data);
         } catch (error) {

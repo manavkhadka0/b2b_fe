@@ -24,7 +24,7 @@ const navItems = [
   { label: "Hire Requests", href: "/company/hire-requests" },
   { label: "Manage Jobs", href: "/company/dashboard/manage-jobs" },
   { label: "Applications", href: "/company/applications" },
-  { label: "Contacts", href: "/contacts" },
+  { label: "Contact", href: "/contacts" },
 ];
 
 export function EmployerNav() {

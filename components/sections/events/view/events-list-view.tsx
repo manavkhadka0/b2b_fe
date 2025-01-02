@@ -15,7 +15,7 @@ export const EventsListView = ({
 }: EventsListViewProps) => {
   return (
     <>
-      <EventsFeaturedSection featuredEvents={featuredEvents} />
+      {/* <EventsFeaturedSection featuredEvents={featuredEvents} /> */}
 
       <EventGridSection eventsResponse={eventsResponse} />
     </>

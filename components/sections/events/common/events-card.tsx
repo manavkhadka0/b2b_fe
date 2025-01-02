@@ -17,9 +17,9 @@ const EventCard = ({ event }: EventCardProps) => {
     : "Date not available";
 
   return (
-    <div className="bg-white rounded-lg flex flex-col justify-between overflow-hidden border hover:shadow-lg transition-shadow">
-      {/* Content Section */}
-      <div className="p-4">
+    <div className="bg-white p-4 rounded-lg flex flex-col justify-between overflow-hidden border hover:shadow-lg transition-shadow">
+      <Link href={`/events/${event.slug}`}>
+        {/* Content Section */}
         {/* Image Section */}
         <div className="relative w-full h-48">
           <Image
@@ -31,31 +31,38 @@ const EventCard = ({ event }: EventCardProps) => {
         </div>
 
         {/* Location & Date */}
-        <div className="flex flex-col gap-0 mt-4">
-          <div className="flex items-center gap-2 text-blue-600">
+        <div className="flex flex-col  mt-2">
+          {/* Location */}
+          <div className="flex items-center  text-blue-600">
             <MapPin className="w-4 h-4" />
             <span className="text-sm">
-              {event.location || "Location not specified"}
+              <p className="text-sm">
+                {" "}
+                {event.location
+                  ? event.location.split(" ").slice(0, 3).join(" ")
+                  : "Unknown Location"}
+              </p>
             </span>
           </div>
-          <p className="text-gray-600 text-sm mt-[6px]">{formattedDate}</p>
+          {/* Date */}
+          <p className="text-gray-600 text-sm ">{formattedDate}</p>
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold mt-[12px]">{event.title}</h3>
+        <h3 className="text-lg font-bold mt-3">{event.title}</h3>
 
         {/* Description */}
-        <p className="text-gray-600 mt-[12px] line-clamp-2">
+        <p className="text-gray-600  text-sm line-clamp-2">
           {event.description}
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap  mt-4 gap-1">
           {event.tags.length > 0 ? (
             event.tags.map((tag, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm"
+                className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs"
               >
                 {tag.name}
               </span>
@@ -65,25 +72,23 @@ const EventCard = ({ event }: EventCardProps) => {
           )}
         </div>
 
-        {/* Attendees & Button - Responsive Layout */}
-        <div className="mt-3 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
-          <div className="flex flex-row gap-2 items-center">
+        {/* Attendees & Button */}
+        <div className="mt-2 flex flex-col sm:flex-row gap-2 sm:gap-1 sm:items-center justify-between">
+          <div className="flex flex-row gap-1 items-center">
             {event.attendees_count > 0 ? (
               <>
-                <div className="flex -space-x-2">
+                <div className="flex -space-x-1">
                   {event.attendees_count > 3 && (
-                    <Avatar className="w-6 h-6">
+                    <Avatar className="w-5 h-5">
                       <AvatarFallback>
                         +{event.attendees_count - 3}
                       </AvatarFallback>
                     </Avatar>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-xs">
-                    {event.attendees_count} People Enrolled
-                  </span>
-                </div>
+                <span className="text-gray-600 text-xs">
+                  {event.attendees_count} People Enrolled
+                </span>
               </>
             ) : (
               <span className="text-gray-600 text-sm">
@@ -91,13 +96,12 @@ const EventCard = ({ event }: EventCardProps) => {
               </span>
             )}
           </div>
-          <Link href={`/events/${event.slug}`}>
-            <button className="w-full sm:w-auto bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-              Attend
-            </button>
-          </Link>
+
+          <button className="w-full sm:w-auto bg-blue-600 text-white py-1 px-4 text-sm rounded-lg hover:bg-blue-700 transition-colors">
+            Attend
+          </button>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

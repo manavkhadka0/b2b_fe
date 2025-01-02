@@ -33,11 +33,17 @@ const HeroSection = ({ mainEvent, hasSideEvents }: HeroSectionProps) => {
 
       {/* Event Details */}
       <div className="absolute bottom-8 left-0 w-full text-white p-4 rounded-b-xl">
-        <p className="text-sm">📍 {mainEvent.location || "Unknown Location"}</p>
+        <p className="text-sm">
+          📍{" "}
+          {mainEvent.location
+            ? mainEvent.location.split(" ").slice(0, 3).join(" ")
+            : "Unknown Location"}
+        </p>
+
         <h3 className="text-xl font-semibold mt-1">
           {mainEvent.title || "Event Title"}
         </h3>
-        <p className="text-sm mt-1">
+        <p className="text-sm mt-1 line-clamp-2">
           {mainEvent.description || "Event Description"}
         </p>
         <div className="flex gap-2 mt-2">

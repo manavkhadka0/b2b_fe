@@ -23,8 +23,8 @@ const navItems = [
   { label: "Hire Requests", href: "/jobseeker/hire-requests" },
   { label: "My Applications", href: "/jobseeker/applications" },
   { label: "Wish & Offer", href: "/career-advice" },
-  { label: "Contacts", href: "/contacts" },
-  
+  { label: "Contact", href: "/contacts" },
+
   /* { label: "Saved Jobs", href: "/jobseeker/saved-jobs" }, */
 ];
 

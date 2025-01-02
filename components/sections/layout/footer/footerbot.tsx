@@ -80,13 +80,16 @@ const Footerbot = () => {
             </div>
 
             {/* Supported By */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-4 text-center">
               <h4 className="text-lg font-semibold text-[#1E40AF]">
                 Supported by
               </h4>
-              <div className="flex items-center gap-4">
-                <img src="/" alt="Support Logo 1" className="h-12 w-auto" />
-                <img src="/" alt="Support Logo 2" className="h-12 w-auto" />
+              <div className="flex justify-center items-center">
+                <img
+                  src="/logo.png"
+                  alt="Support Logo"
+                  className="h-12 w-auto mx-auto"
+                />
               </div>
             </div>
           </div>
@@ -96,7 +99,7 @@ const Footerbot = () => {
         <div className="mt-8 border-t border-gray-200 pt-4 container mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
           {/* Left - Copyright */}
           <p className="text-gray-500 text-sm">
-            © 2024 Nepal Business Hub. All rights reserved.
+            © 2025 B2B Birat Bazaar. All rights reserved.
           </p>
 
           {/* Right - Social Icons */}
