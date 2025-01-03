@@ -10,7 +10,7 @@ export default function LandingView({ featuredEvents }: LandingViewProps) {
   return (
     <>
       <HeroSection />
-      <EventsFeaturedSection featuredEvents={featuredEvents} />
+      {/* <EventsFeaturedSection featuredEvents={featuredEvents} /> */}
     </>
   );
 }

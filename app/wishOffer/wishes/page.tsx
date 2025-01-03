@@ -30,6 +30,7 @@ export default async function WishPage() {
               }
               tags={[wish.product?.name || wish.service?.name || ""]}
               hCode={[wish.product?.hs_code || ""]}
+              matchPercentage={wish.match_percentage}
             />
           ))}
         </div>

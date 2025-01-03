@@ -1,6 +1,8 @@
 import { EventsListView } from "@/components/sections/events/view/events-list-view";
 import { fetchFeaturedEvents, getEvents } from "@/api-calls/events";
 
+export const revalidate = 10;
+
 export default async function EventsPage({
   searchParams,
 }: {

@@ -53,7 +53,7 @@ export default function WishDetailPage() {
       const fetchWish = async () => {
         try {
           const response = await axios.get<WishDetail>(
-            `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/wishes/${id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/${id}`
           );
           setWish(response.data);
           setOffers(response.data.offers || []);

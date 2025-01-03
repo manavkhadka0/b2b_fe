@@ -92,7 +92,8 @@ export interface Event {
   slug: string;
   tags: Tag[];
   wishes?: Wish[]; // Added property
-  offers?: Offer[]; // Added property
+  offers?: Offer[];
+  url?: string; // Added property
 }
 
 export interface EventResponse {

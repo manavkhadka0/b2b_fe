@@ -1,11 +1,11 @@
-import React from "react";
-import Link from "next/link";
+import ShareButtons from "@/components/ui/shareButton";
 import Image from "next/image";
 import { FaMapMarkerAlt, FaPhoneAlt, FaRegClock } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { notFound } from "next/navigation";
 import axios from "axios";
 import { format } from "date-fns";
+import ParticipateSection from "@/app/ParticipateModal";
 import {
   FaEnvelope,
   FaGlobe,
@@ -57,7 +57,9 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
       {/* Header Section */}
       <div
         className="relative w-full h-80 bg-no-repeat bg-center bg-cover mb-6 rounded-lg"
-        style={{ backgroundImage: "url('/event.svg')" }}
+        style={{
+          backgroundImage: `url('${event?.thumbnail || "/event.svg"}')`,
+        }}
       ></div>
 
       <div className="absolute inset-5 flex items-center justify-center">
@@ -69,7 +71,7 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
               {/* Location */}
               <div className="flex items-center space-x-2">
                 <FaMapMarkerAlt className="text-lg" />
-                <p>{event?.location}</p>
+                <p>{event?.location?.split(" ").slice(0, 3).join(" ")}</p>
               </div>
               {/* Start Date */}
               <div className="flex items-center space-x-2">
@@ -163,21 +165,21 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
             </div>
 
             {/* Bottom Middle: Share Options */}
-            <div className="flex items-center space-x-8">
+            {/* Bottom Middle: Share Options */}
+            {/* Bottom Middle: Share Options */}
+            <div className="flex flex-col items-center space-y-2">
               <p className="text-gray-600">Share with Friends</p>
-              <a href="#" className="text-gray-500 hover:text-blue-500"></a>
-              <a href="#" className="text-gray-500 hover:text-blue-400"></a>
-              <a href="#" className="text-gray-500 hover:text-blue-600"></a>
-              <a href="#" className="text-gray-500 hover:text-pink-600"></a>
+              <ShareButtons
+                url={event.url || "https://your-default-event-url.com"}
+                title={event.title || "Amazing Event"}
+                description={
+                  event.description || "Join us for an amazing event!"
+                }
+              />
             </div>
 
-            {/* Bottom Right: Apply Button */}
             <div>
-              <Link href={"/events/create-event"}>
-                <button className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 mr-12">
-                  Apply Now →
-                </button>
-              </Link>
+              <ParticipateSection />
             </div>
           </div>
         </div>

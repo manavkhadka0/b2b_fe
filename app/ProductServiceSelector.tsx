@@ -196,18 +196,18 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
       );
       onClose();
     } catch (error) {
-      // if (error.hs_code) {
-      //   setErrors((prev) => ({ ...prev, hs_code: error.hs_code[0] }));
-      // }
-      // if (error.name) {
-      //   setErrors((prev) => ({ ...prev, name: error.name[0] }));
-      // }
-      // if (error.description) {
-      //   setErrors((prev) => ({ ...prev, description: error.description[0] }));
-      // }
-      // if (error.category) {
-      //   setErrors((prev) => ({ ...prev, category: error.category[0] }));
-      // }
+      if (error.hs_code) {
+        setErrors((prev) => ({ ...prev, hs_code: error.hs_code[0] }));
+      }
+      if (error.name) {
+        setErrors((prev) => ({ ...prev, name: error.name[0] }));
+      }
+      if (error.description) {
+        setErrors((prev) => ({ ...prev, description: error.description[0] }));
+      }
+      if (error.category) {
+        setErrors((prev) => ({ ...prev, category: error.category[0] }));
+      }
     }
   };
 

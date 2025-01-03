@@ -1,19 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { z } from "zod";
 import ProductServiceSelector from "@/app/ProductServiceSelector";
 
-export default function EventForm() {
+const formSchema = z.object({
+  title: z.string().nonempty("Title is required"),
+  full_name: z.string().nonempty("Full name is required"),
+  designation: z.string().nonempty("Designation is required"),
+  mobile_no: z
+    .string()
+    .regex(/^\d{10}$/, "Mobile number must be 10 digits")
+    .nonempty("Mobile number is required"),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .nonempty("Email is required"),
+  address: z.string().nonempty("Address is required"),
+  company_name: z.string().nonempty("Company name is required"),
+  country: z.string().nonempty("Country is required"),
+  province: z.string().nonempty("Province is required"),
+  municipality: z.string().nonempty("Municipality is required"),
+  ward: z.string().nonempty("Ward is required"),
+  offer_type: z.string().nonempty("Offer type is required"),
+  status: z.string().nonempty("Status is required"),
+});
+
+const designationOptions = [
+  { value: "CEO", label: "Chief Executive Officer" },
+  { value: "CFO", label: "Chief Financial Officer" },
+  { value: "CTO", label: "Chief Technology Officer" },
+  { value: "CMO", label: "Chief Marketing Officer" },
+  { value: "COO", label: "Chief Operating Officer" },
+  { value: "CIO", label: "Chief Information Officer" },
+  { value: "CSO", label: "Chief Security Officer" },
+  { value: "Other", label: "Other" },
+];
+
+export default function OfferForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
-    event: "", // Event ID (if needed)
-    product: "", // Product ID (if applicable)
-    service: "", // Service ID (if applicable)
-    status: "", // Default status
-    offer_type: "", // Default offer type
+    event: "",
+    product: "",
+    service: "",
+    status: "",
+    offer_type: "",
     full_name: "",
     designation: "",
     mobile_no: "",
@@ -21,12 +56,12 @@ export default function EventForm() {
     email: "",
     company_name: "",
     address: "",
-    country: "Nepal", // Default value
+    country: "Nepal",
     province: "",
     municipality: "",
     ward: "",
     company_website: "",
-    image: "", // File field
+    image: "",
   });
 
   const [previews, setPreviews] = useState<string[]>([]);
@@ -34,120 +69,6 @@ export default function EventForm() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedProductService, setSelectedProductService] = useState("");
   const [designationDropdownOpen, setDesignationDropdownOpen] = useState(false);
-  const handleOpenPopup = () => {
-    setIsPopupOpen(true);
-  };
-
-  const handleClosePopup = () => {
-    setIsPopupOpen(false);
-  };
-
-  const handleDesignationSelect = (value: string) => {
-    setFormData((prev) => ({ ...prev, designation: value }));
-    setDesignationDropdownOpen(false);
-    setErrors((prev) => ({ ...prev, designation: "" })); // Clear designation error
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Validate the form data using Zod
-      formSchema.parse(formData);
-      console.log("mydata ");
-      console.log("Validation successful!");
-      setErrors({});
-
-      // Prepare JSON data for backend submission
-      const formDataToSend = {
-        title: formData.title,
-        event: formData.event || "", // Optional field
-        product: formData.product || "", // Optional field
-        service: formData.service || "", // Optional field
-        status: formData.status,
-        offer_type: formData.offer_type,
-        full_name: formData.full_name,
-        designation: formData.designation,
-        mobile_no: formData.mobile_no,
-        alternate_no: formData.alternate_no || "", // Optional field
-        email: formData.email,
-        company_name: formData.company_name,
-        address: formData.address,
-        country: formData.country || "Nepal",
-        province: formData.province || "", // Optional field
-        municipality: formData.municipality || "", // Optional field
-        ward: formData.ward || "", // Optional field
-        company_website: formData.company_website || "",
-        image: null,
-      };
-
-      // Send data using Axios
-      const response = await axios.post(
-        `https://ratishshakya.pythonanywhere.com/api/wish_and_offers/offers/`,
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("offer Created Successfully!", response.data);
-      alert("offer Created Successfully!");
-      window.location.reload();
-    } catch (err: any) {
-      if (err.response) {
-        // Handle backend errors
-        console.error("Backend Error:", err.response.data);
-        alert(`Error: ${err.response.data.message || "Submission failed"}`);
-      } else if (err instanceof z.ZodError) {
-        // Handle validation errors
-        const fieldErrors: { [key: string]: string } = {};
-        err.errors.forEach((error) => {
-          if (error.path[0]) {
-            fieldErrors[error.path[0] as string] = error.message;
-          }
-        });
-        setErrors(fieldErrors);
-      } else {
-        // Handle other errors
-        console.error("Submission Error:", err);
-        alert("An error occurred while submitting the form.");
-      }
-    }
-  };
-
-  const designationOptions = [
-    { value: "CEO", label: "Chief Executive Officer" },
-    { value: "CFO", label: "Chief Financial Officer" },
-    { value: "CTO", label: "Chief Technology Officer" },
-    { value: "CMO", label: "Chief Marketing Officer" },
-    { value: "COO", label: "Chief Operating Officer" },
-    { value: "CIO", label: "Chief Information Officer" },
-    { value: "CSO", label: "Chief Security Officer" },
-    { value: "Other", label: "Other" },
-  ];
-
-  // Zod Schema for validation
-  const formSchema = z.object({
-    title: z.string().nonempty("Title is required"),
-    full_name: z.string().nonempty("Full name is required"),
-    designation: z.string().nonempty("Designation is required"),
-    mobile_no: z
-      .string()
-      .regex(/^\d{10}$/, "Mobile number must be 10 digits")
-      .nonempty("Mobile number is required"),
-    email: z
-      .string()
-      .email("Invalid email address")
-      .nonempty("Email is required"),
-    address: z.string().nonempty("Address is required"),
-    company_name: z.string().nonempty("Company name is required"),
-    country: z.string().nonempty("Country is required"),
-    province: z.string().nonempty("Province is required"),
-    municipality: z.string().nonempty("Municipality is required"),
-    ward: z.string().nonempty("Ward is required"),
-    offer_type: z.string().nonempty("offer type is required"),
-    status: z.string().nonempty("Status is required"),
-  });
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -156,7 +77,7 @@ export default function EventForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error when user types
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +92,63 @@ export default function EventForm() {
 
   const discardImage = (index: number) => {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSelect = (selectedItem: string) => {
+    setSelectedProductService(selectedItem);
+    setFormData((prev) => ({
+      ...prev,
+      product: formData.offer_type === "Product" ? selectedItem : prev.product,
+      service: formData.offer_type === "Service" ? selectedItem : prev.service,
+    }));
+  };
+
+  const handleDesignationSelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, designation: value }));
+    setDesignationDropdownOpen(false);
+    setErrors((prev) => ({ ...prev, designation: "" }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Validate using Zod
+      formSchema.parse(formData);
+      setErrors({});
+      const formDataToSend = {
+        ...formData,
+        image: null, // Replace with file URL if required
+      };
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
+        formDataToSend,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log("Offer Created Successfully!", response.data);
+      alert("Offer Created Successfully!");
+      window.location.reload();
+      router.push("/wishOffer");
+    } catch (err: any) {
+      if (err.response) {
+        console.error("Backend Error:", err.response.data);
+        alert(`Error: ${err.response.data.message || "Submission failed"}`);
+      } else if (err instanceof z.ZodError) {
+        const fieldErrors: { [key: string]: string } = {};
+        err.errors.forEach((error) => {
+          if (error.path[0]) {
+            fieldErrors[error.path[0] as string] = error.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        console.error("Submission Error:", err);
+        alert("An error occurred while submitting the form.");
+      }
+    }
   };
 
   return (
@@ -230,30 +208,38 @@ export default function EventForm() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-4">
-          {/* Phone */}
-          <input
-            id="mobile_no"
-            name="mobile_no" // Ensure this matches the formData key
-            type="text"
-            value={formData.mobile_no}
-            onChange={handleInputChange}
-            placeholder="Enter Your Phone Number"
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          {errors.mobile_no && ( // Update error reference to match schema
-            <p className="text-red-500 text-sm">{errors.mobile_no}</p>
-          )}
+          {/* Contact No */}
+          <div>
+            <label
+              htmlFor="mobile_no"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Contact No
+            </label>
+            <input
+              id="mobile_no"
+              name="mobile_no"
+              type="text"
+              value={formData.mobile_no}
+              onChange={handleInputChange}
+              placeholder="Enter Your Phone Number"
+              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            {errors.mobile_no && (
+              <p className="text-red-500 text-sm">{errors.mobile_no}</p>
+            )}
+          </div>
 
           {/* Alternate Phone */}
           <div>
             <label
-              htmlFor="altPhone"
+              htmlFor="alternate_no"
               className="block text-sm font-medium text-gray-700"
             >
               Alternate Phone
             </label>
             <input
-              id="altPhone"
+              id="alternate_no"
               name="alternate_no"
               type="text"
               value={formData.alternate_no}
@@ -261,8 +247,8 @@ export default function EventForm() {
               placeholder="Enter Alternate Phone Number"
               className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-            {errors.altPhone && (
-              <p className="text-red-500 text-sm">{errors.altPhone}</p>
+            {errors.alternate_no && (
+              <p className="text-red-500 text-sm">{errors.alternate_no}</p>
             )}
           </div>
         </div>
@@ -494,20 +480,17 @@ export default function EventForm() {
             </label>
             <button
               type="button"
-              className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              onClick={handleOpenPopup}
+              onClick={() => setIsPopupOpen(true)}
               disabled={!formData.offer_type}
+              className="bg-purple-600 text-white py-2 px-4 rounded-md"
             >
-              Click to select...
+              Select {formData.offer_type || "Option"}
             </button>
-
             {isPopupOpen && (
               <ProductServiceSelector
                 wishType={formData.offer_type}
-                onClose={handleClosePopup}
-                onSelect={(selectedItem) => {
-                  // Pass the selected item to the handler
-                }}
+                onClose={() => setIsPopupOpen(false)}
+                onSelect={handleSelect}
               />
             )}
 
@@ -547,56 +530,49 @@ export default function EventForm() {
         {/* offer Description */}
 
         {/* File Upload */}
-        <div>
-          <label
-            htmlFor="file-upload"
-            className="block text-sm font-medium text-gray-700"
-          >
-            offer Photos/ Videos
-          </label>
-          <div className="relative mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <IoCloudUploadOutline
-              size={48}
-              className="text-gray-400 mx-auto mb-2"
-            />
-            <p className="text-gray-500 text-sm">Upload Photos</p>
-            <span className="text-gray-400 text-xs mb-2">OR</span>
-            <br />
-            <button
-              type="button"
-              className="py-1 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+        {!isPopupOpen && (
+          <div>
+            <label
+              htmlFor="file-upload"
+              className="block text-sm font-medium text-gray-700"
             >
-              Browse files
-            </button>
+              Offer Photos/Videos
+            </label>
+            <div className="relative mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+              <input
+                id="file-upload"
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <IoCloudUploadOutline
+                size={48}
+                className="text-gray-400 mx-auto mb-2"
+              />
+              <p className="text-gray-500 text-sm">Upload Photos/Videos</p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-4">
+              {previews.map((src, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={src}
+                    alt={`Preview ${index + 1}`}
+                    className="h-24 w-24 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => discardImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-          {/* Image Previews */}
-          <div className="mt-4 flex flex-wrap gap-4">
-            {previews.map((src, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={src}
-                  alt={`Preview ${index + 1}`}
-                  className="h-24 w-24 object-cover rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => discardImage(index)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end mt-4">

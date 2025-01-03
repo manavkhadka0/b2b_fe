@@ -14,7 +14,7 @@ const navItems = [
   { label: "BDS Services", href: "/bdsService" },
   { label: "Business Registration", href: "/businessRegister" },
 
-  { label: "Contacts", href: "/contacts" },
+  { label: "Contact", href: "/contacts" },
 ];
 
 export function DefaultNav() {
