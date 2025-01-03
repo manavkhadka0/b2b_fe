@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import WishOfferCard from "@/components/wish-offer-card";
 import Link from "next/link";
