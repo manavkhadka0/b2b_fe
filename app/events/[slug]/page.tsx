@@ -3,7 +3,6 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaRegClock } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { notFound } from "next/navigation";
 import axios from "axios";
-import { format } from "date-fns";
 import ParticipateSection from "@/app/ParticipateModal";
 import {
   FaEnvelope,
@@ -23,6 +22,9 @@ import {
 } from "@/components/ui/table";
 import { Event, Attendee, Sponsor } from "@/types/events";
 import { formatDateTime } from "@/lib/utils";
+import { getEvents } from "@/api-calls/events";
+
+export const dynamicParams = true;
 
 // Fetch event data
 async function getEventBySlug(slug: string): Promise<Event | null> {

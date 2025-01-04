@@ -12,7 +12,7 @@ const districts = [
   },
   {
     name: "Ilam",
-    image: "/ilam.jpg", // Ilam Tea Garden
+    image: "/Ilam.jpg", // Ilam Tea Garden
   },
   {
     name: "Jhapa",
@@ -32,7 +32,7 @@ const districts = [
   },
   {
     name: "Terhathum",
-    image: "/ilam.jpg", // Terhathum
+    image: "/Ilam.jpg", // Terhathum
   },
   {
     name: "Sankhuwasabha",
