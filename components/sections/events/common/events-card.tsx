@@ -22,11 +22,10 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Content Section */}
         {/* Image Section */}
         <div className="relative w-full h-48">
-          <Image
+          <img
             src={event.thumbnail || "/placeholder-image.jpg"} // Fallback to placeholder if thumbnail is missing
             alt={event.title}
-            fill
-            className="object-cover rounded-lg"
+            className="object-cover rounded-lg w-full h-full"
           />
         </div>
 

@@ -28,10 +28,6 @@ export interface Sponsor {
   website: string;
   location?: string;
 }
-export interface Event {
-  // Other properties
-  sponsors: Sponsor[]; // Ensure this is part of the Event interface
-}
 
 export interface Offer {
   id: number;
@@ -41,11 +37,6 @@ export interface Offer {
   product?: string;
   service?: string;
 }
-
-export interface Event {
-  // Existing properties
-  offers?: Offer[]; // Add this line
-}
 export interface Wish {
   id: number;
   title: string;
@@ -53,11 +44,6 @@ export interface Wish {
   status: string;
   product?: string;
   service?: string;
-}
-
-export interface Event {
-  // Existing properties
-  wishes?: Wish[]; // Add this line
 }
 
 export interface AgendaItem {

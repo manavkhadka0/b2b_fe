@@ -1,5 +1,4 @@
 import ShareButtons from "@/components/ui/shareButton";
-import Image from "next/image";
 import { FaMapMarkerAlt, FaPhoneAlt, FaRegClock } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { notFound } from "next/navigation";
@@ -164,13 +163,10 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
               </span>
             </div>
 
-            {/* Bottom Middle: Share Options */}
-            {/* Bottom Middle: Share Options */}
-            {/* Bottom Middle: Share Options */}
             <div className="flex flex-col items-center space-y-2">
               <p className="text-gray-600">Share with Friends</p>
               <ShareButtons
-                url={event.url || "https://your-default-event-url.com"}
+                url={event.url || ""}
                 title={event.title || "Amazing Event"}
                 description={
                   event.description || "Join us for an amazing event!"
@@ -357,13 +353,10 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
           {/* Large Main Image */}
           {event?.thumbnail && (
             <div className="md:col-span-2 rounded-lg overflow-hidden">
-              <Image
+              <img
                 src={event.thumbnail} // Dynamic thumbnail from API
                 alt="Main Event"
-                layout="responsive"
-                width={700}
-                height={450}
-                className="object-cover"
+                className="object-cover w-full h-full"
               />
             </div>
           )}
@@ -374,13 +367,10 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
             {event?.sponsors &&
               event.sponsors.map((sponsor) => (
                 <div key={sponsor.id} className="rounded-lg overflow-hidden">
-                  <Image
+                  <img
                     src={sponsor.logo}
                     alt={sponsor.name}
-                    layout="responsive"
-                    width={150}
-                    height={100}
-                    className="object-cover"
+                    className="object-cover w-full h-full"
                   />
                 </div>
               ))}
@@ -389,13 +379,10 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
             {event?.attendees &&
               event.attendees.map((attendee) => (
                 <div key={attendee.id} className="rounded-lg overflow-hidden">
-                  <Image
+                  <img
                     src={attendee.user.avatar}
                     alt={attendee.user.username}
-                    layout="responsive"
-                    width={150}
-                    height={100}
-                    className="object-cover"
+                    className="object-cover w-full h-full"
                   />
                 </div>
               ))}
