@@ -7,6 +7,7 @@ import { useWishes, useOffers } from "@/app/utils/wishOffer";
 import { Wish, Offer } from "@/types/wish";
 import { useRouter } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
+import { Loader2 } from "lucide-react";
 
 export default function WishOfferPage() {
   const { wishes, isLoading: wishLoading, error: wishError } = useWishes();
@@ -23,11 +24,12 @@ export default function WishOfferPage() {
     (offer) => offer.match_percentage && offer.match_percentage >= 80
   );
 
-  if (wishLoading || offerLoading) return <div>Loading...</div>;
-  if (wishError || offerError) {
-    console.error(wishError || offerError);
-    return <div>Failed to load data. Please try again later.</div>;
-  }
+  if (wishLoading || offerLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
 
   return (
     <ResponsiveContainer className="py-10">
@@ -58,24 +60,19 @@ export default function WishOfferPage() {
           {/* Wishes Cards */}
           <div className="grid grid-cols-1 gap-y-6">
             {wishes.map((wish) => (
-              <Link
+              <WishOfferCard
                 key={wish.id}
-                href={`/wishOffer/wishes/${wish.id}`}
-                scroll={false}
-              >
-                <WishOfferCard
-                  title={wish.title}
-                  description={""}
-                  tags={[
-                    wish.product?.name ||
-                      wish.service?.name ||
-                      "No tag available",
-                  ]}
-                  hCode={[wish.product?.hs_code || ""]}
-                  matchPercentage={wish.match_percentage}
-                  onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
-                />
-              </Link>
+                title={wish.title}
+                description={""}
+                tags={[
+                  wish.product?.category?.name ||
+                    wish.service?.name ||
+                    "No tag available",
+                ]}
+                hCode={[wish.product?.hs_code || ""]}
+                matchPercentage={wish.match_percentage}
+                onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
+              />
             ))}
           </div>
         </div>
@@ -94,19 +91,18 @@ export default function WishOfferPage() {
           {/* Offers Cards */}
           <div className="grid grid-cols-1 gap-y-6">
             {offers.map((offer) => (
-              <Link key={offer.id} href={`/wishOffer/offer/${offer.id}`}>
-                <WishOfferCard
-                  title={offer.title}
-                  description={""}
-                  tags={[
-                    offer.product?.name ||
-                      offer.service?.name ||
-                      "No tag available",
-                  ]}
-                  hCode={[offer.product?.hs_code || "No HS Code"]}
-                  matchPercentage={offer.match_percentage || 0}
-                />
-              </Link>
+              <WishOfferCard
+                title={offer.title}
+                description={""}
+                tags={[
+                  offer.product?.name ||
+                    offer.service?.name ||
+                    "No tag available",
+                ]}
+                hCode={[offer.product?.hs_code || "No HS Code"]}
+                matchPercentage={offer.match_percentage || 0}
+                onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
+              />
             ))}
           </div>
         </div>

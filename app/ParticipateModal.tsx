@@ -4,8 +4,14 @@ import CreateOffer from "@/app/wishOffer/offer/create-offer/page";
 import EventForm from "@/app/wishOffer/wishes/create-wish/page";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Event } from "@/types/events";
+import { CreateWishForm } from "@/components/sections/create-wish/create-wish-form";
 
-const ParticipateSection = () => {
+interface ParticipateSectionProps {
+  event: Event;
+}
+
+const ParticipateSection = ({ event }: ParticipateSectionProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeForm, setActiveForm] = useState<"wish" | "offer" | null>(null);
 
@@ -41,7 +47,11 @@ const ParticipateSection = () => {
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          {activeForm === "wish" ? <EventForm /> : <CreateOffer />}
+          {activeForm === "wish" ? (
+            <CreateWishForm event={event} />
+          ) : (
+            <CreateOffer />
+          )}
         </DialogContent>
       </Dialog>
     </div>

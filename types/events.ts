@@ -7,6 +7,8 @@ export interface Organizer {
   phone_number: string;
   address: string;
   designation: string;
+  first_name: string;
+  last_name: string;
   alternate_no: string;
   avatar: string;
 }
@@ -26,7 +28,6 @@ export interface Sponsor {
   name: string;
   logo: string;
   website: string;
-  location?: string;
 }
 
 export interface Offer {

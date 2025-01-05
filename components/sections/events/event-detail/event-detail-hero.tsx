@@ -54,7 +54,7 @@ const EventInfoCard = ({ event }: { event: Event }) => (
           <ShareSection event={event} />
         </div>
         <div className="flex justify-start md:justify-end">
-          <ParticipateSection />
+          <ParticipateSection event={event} />
         </div>
       </div>
     </div>

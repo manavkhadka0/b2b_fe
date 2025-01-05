@@ -38,21 +38,6 @@ const EventDetailGallery = ({ event }: { event: Event }) => {
                 />
               </div>
             ))}
-
-          {/* Render Attendee Avatars */}
-          {event?.attendees &&
-            event.attendees.slice(0, 2).map((attendee) => (
-              <div
-                key={attendee.id}
-                className="rounded-lg overflow-hidden h-[140px]"
-              >
-                <img
-                  src={attendee.user.avatar}
-                  alt={attendee.user.username}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))}
         </div>
       </div>
     </div>
