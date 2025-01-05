@@ -3,7 +3,7 @@ import { HeaderSubtitle } from "../common/header-subtitle";
 
 export default function WishOfferDescription() {
   return (
-    <ResponsiveContainer className="py-16">
+    <ResponsiveContainer className="py-10">
       <HeaderSubtitle
         title="Business Collaboration Platform"
         subtitle="Connect, Collaborate, and Grow Together in the B2B Ecosystem"

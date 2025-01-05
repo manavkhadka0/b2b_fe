@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function ContactDetails() {
   return (
-    <div className="p-4 md:p-8 rounded-lg shadow-md">
+    <div className="p-4 md:p-8 rounded-lg shadow-md bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {/* Address */}
         <div className="flex flex-col items-center text-center">

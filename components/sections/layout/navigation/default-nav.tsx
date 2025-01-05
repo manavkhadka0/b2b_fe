@@ -53,7 +53,7 @@ export function DefaultNav() {
         isScrolled ? "shadow-md" : "border-b"
       }`}
     >
-      <ResponsiveContainer className="py-0">
+      <ResponsiveContainer>
         <div className="flex h-20 items-center justify-between">
           {/* Logo Section */}
           <Link href="/" className="">

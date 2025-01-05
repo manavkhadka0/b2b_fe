@@ -11,7 +11,7 @@ import { ResponsiveContainer } from "../../common/responsive-container";
 const Footerbot = () => {
   return (
     <footer className="bg-[#F9FAFB] pt-12">
-      <ResponsiveContainer>
+      <ResponsiveContainer className="py-10">
         {/* Main Container */}
         <div className="">
           <div className="flex flex-col lg:flex-row justify-between items-start gap-8 lg:gap-12 text-gray-700">

@@ -21,7 +21,7 @@ export default function BusinessInformationPage({
   }
 
   return (
-    <ResponsiveContainer className="space-y-8">
+    <ResponsiveContainer className="space-y-8 py-10">
       <HeaderSubtitle
         title="Business Information"
         subtitle="Explore key business details and insights for informed decision-making."

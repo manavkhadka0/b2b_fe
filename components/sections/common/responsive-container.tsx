@@ -18,7 +18,7 @@ export const ResponsiveContainer = ({
   return (
     <div
       className={cn(
-        "mx-auto py-10",
+        "mx-auto",
         // Base max-width and responsive padding
         "max-w-7xl",
         !noPadding && [

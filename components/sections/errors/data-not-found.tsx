@@ -15,7 +15,7 @@ export const DataNotFound = ({ title, message }: DataNotFoundProps) => {
   const router = useRouter();
 
   return (
-    <ResponsiveContainer className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <ResponsiveContainer className="flex items-center justify-center min-h-[calc(100vh-10rem)] py-10">
       <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 w-full">
         {/* Text Content Section */}
         <div className="flex flex-col space-y-6 items-center md:items-start text-center md:text-left max-w-md">

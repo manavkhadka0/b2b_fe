@@ -6,6 +6,7 @@ import WishOfferCard from "@/components/wish-offer-card";
 import { useWishes, useOffers } from "@/app/utils/wishOffer";
 import { Wish, Offer } from "@/types/wish";
 import { useRouter } from "next/navigation";
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 
 export default function WishOfferPage() {
   const { wishes, isLoading: wishLoading, error: wishError } = useWishes();
@@ -29,7 +30,7 @@ export default function WishOfferPage() {
   }
 
   return (
-    <div className="max-w-7xl space-y-4 mx-auto px-4 py-10">
+    <ResponsiveContainer className="py-10">
       {/* Heading */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
@@ -44,7 +45,7 @@ export default function WishOfferPage() {
       {/* Wishes and Offers Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Wishes Section */}
-        <div className="p-4 bg-white rounded-lg">
+        <div className=" bg-white rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold hover:text-blue-500">Wishes</h2>
             <Link href="/wishOffer/wishes/create-wish">
@@ -80,7 +81,7 @@ export default function WishOfferPage() {
         </div>
 
         {/* Offers Section */}
-        <div className="p-4 bg-white rounded-lg">
+        <div className=" bg-white rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold hover:text-blue-500">Offers</h2>
             <Link href="/wishOffer/offer/create-offer">
@@ -190,6 +191,6 @@ export default function WishOfferPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveContainer>
   );
 }

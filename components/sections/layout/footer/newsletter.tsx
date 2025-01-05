@@ -59,7 +59,7 @@ export function Newsletter() {
   };
 
   return (
-    <ResponsiveContainer>
+    <ResponsiveContainer className="py-10">
       <div className="bg-gradient-to-r from-[#E0F7FF] p-4 rounded-xl overflow-hidden ">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
           {/* Left Side */}

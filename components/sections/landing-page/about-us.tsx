@@ -66,28 +66,32 @@ export default function AboutUs() {
   ];
 
   return (
-    <ResponsiveContainer className="py-16">
-      <HeaderSubtitle
-        title="Enterprise Solutions"
-        subtitle="Transforming Business Partnerships Through Innovation"
-      />
+    <div className="bg-gradient-to-br from-blue-50 to-purple-50">
+      <ResponsiveContainer className="py-10">
+        <HeaderSubtitle
+          title="Enterprise Solutions"
+          subtitle="Transforming Business Partnerships Through Innovation"
+        />
 
-      <div className="mt-12 grid md:grid-cols-3 gap-8">
-        {steps.map((step, index) => (
-          <div
-            key={index}
-            className="p-8 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
-          >
-            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 mb-4">
-              {step.icon}
+        <div className="mt-12 grid md:grid-cols-3 gap-8">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className="p-8 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+            >
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 mb-4">
+                {step.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {step.title}
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {step.description}
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              {step.title}
-            </h3>
-            <p className="text-gray-600 leading-relaxed">{step.description}</p>
-          </div>
-        ))}
-      </div>
-    </ResponsiveContainer>
+          ))}
+        </div>
+      </ResponsiveContainer>
+    </div>
   );
 }

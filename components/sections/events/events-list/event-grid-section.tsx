@@ -58,7 +58,7 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
   }
 
   return (
-    <ResponsiveContainer className="space-y-6">
+    <ResponsiveContainer className="space-y-6 py-10">
       <HeaderSubtitle
         title="Popular Upcoming  Events"
         subtitle="Attend the most popular events in your area"

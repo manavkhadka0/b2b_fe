@@ -24,7 +24,7 @@ export default function BDSView({ bdsData, bdsCategory }: BDSViewProps) {
   });
 
   return (
-    <ResponsiveContainer className="space-y-8">
+    <ResponsiveContainer className="space-y-8 py-10">
       <HeaderSubtitle
         title="BDS Services: Finding the Perfect Service into your Request"
         subtitle="Explore a wide range of BDS services tailored to your needs."
