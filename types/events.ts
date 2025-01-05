@@ -69,7 +69,6 @@ export interface Event {
   location: string;
   organizer: Organizer;
   attendees_count: number;
-  attendees: Attendee[];
   sponsors: Sponsor[];
   agenda_items: AgendaItem[];
   created_at: string;

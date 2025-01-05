@@ -48,8 +48,8 @@ const EventInfoCard = ({ event }: { event: Event }) => (
       </div>
 
       {/* Bottom Section */}
-      <div className="mt-4 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
-        <AttendeesList attendees={event?.attendees} />
+      <div className="mt-4 sm:mt-6 md:mt-3 pt-3 sm:pt-3 border-t grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
+        <AttendeesList attendees_count={event?.attendees_count} />
         <div className="flex justify-start md:justify-center">
           <ShareSection event={event} />
         </div>
@@ -127,7 +127,7 @@ const SponsorSection = ({ sponsors }: { sponsors?: Event["sponsors"] }) => (
             <img
               src={sponsors[0]?.logo}
               alt={sponsors[0]?.name}
-              className="w-12 h-12 md:w-14 md:h-14 object-contain"
+              className="w-12 h-12 md:w-16 md:h-16 object-contain"
             />
           </div>
           <p className="text-center mt-2 md:mt-3 text-sm md:text-base font-semibold text-gray-900">
@@ -144,22 +144,14 @@ const SponsorSection = ({ sponsors }: { sponsors?: Event["sponsors"] }) => (
 );
 
 // Attendees List Component
-const AttendeesList = ({ attendees }: { attendees?: Attendee[] }) => (
-  <div className="flex items-center space-x-2 md:space-x-3">
-    <div className="flex -space-x-2">
-      {attendees?.slice(0, 3).map((attendee: Attendee) => (
-        <img
-          key={attendee.user.id}
-          src={attendee.user.avatar}
-          alt={attendee.user.username || "Attendee"}
-          className="inline-block h-6 w-6 md:h-8 md:w-8 rounded-full ring-2 ring-white"
-        />
-      ))}
-    </div>
-    <span className="text-xs md:text-sm font-medium text-gray-900">
-      {attendees?.length || 0} People Enrolled
-    </span>
-  </div>
+const AttendeesList = ({
+  attendees_count,
+}: {
+  attendees_count?: Event["attendees_count"];
+}) => (
+  <span className="text-xs md:text-sm font-medium text-gray-900">
+    {attendees_count || 0} People Enrolled
+  </span>
 );
 
 // Share Section Component
