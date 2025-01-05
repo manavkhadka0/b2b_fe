@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useRouter, usePathname } from "next/navigation";
@@ -13,7 +13,6 @@ const navItems = [
   { label: "Wish & Offer", href: "/wishOffer" },
   { label: "BDS Services", href: "/bdsService" },
   { label: "Business Registration", href: "/businessRegister" },
-
   { label: "Contact", href: "/contacts" },
 ];
 
@@ -61,13 +60,34 @@ export function DefaultNav() {
             <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
           </Link>
 
-          {/* Nav and Membership Section */}
+          {/* Nav and CTA Section */}
           <div className="flex items-center gap-8">
             <nav className="hidden lg:flex items-center gap-6">
               {navItems.map((item) => (
                 <NavLink key={item.href} {...item} />
               ))}
             </nav>
+
+            {/* CTA Buttons - Hidden on mobile */}
+            <div className="hidden lg:flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 text-blue-800 border-blue-800 hover:bg-blue-50"
+                onClick={() => router.push("/wishOffer/wish/create")}
+              >
+                <PlusCircle className="w-4 h-4" />
+                Make a Wish
+              </Button>
+              <Button
+                size="sm"
+                className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900"
+                onClick={() => router.push("/wishOffer/offer/create")}
+              >
+                <PlusCircle className="w-4 h-4" />
+                Make an Offer
+              </Button>
+            </div>
 
             {/* Mobile Menu */}
             <Sheet>
@@ -81,6 +101,28 @@ export function DefaultNav() {
                   {navItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                   ))}
+                  {/* Mobile CTA Buttons */}
+                  <div className="flex flex-col gap-3 mt-4">
+                    <Button
+                      variant="outline"
+                      asChild
+                      className="flex items-center gap-2 text-blue-800 border-blue-800"
+                    >
+                      <Link href="/wishOffer/wishes/create-wish">
+                        <PlusCircle className="w-4 h-4" />
+                        Make a Wish
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="flex items-center gap-2 bg-blue-800"
+                    >
+                      <Link href="/wishOffer/offer/create-offer">
+                        <PlusCircle className="w-4 h-4" />
+                        Make an Offer
+                      </Link>
+                    </Button>
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>

@@ -64,16 +64,58 @@ const Footerbot = () => {
                 Contact Us
               </h3>
               <ul className="space-y-2 text-gray-500">
-                <li>123 Business Street</li>
-                <li>Kathmandu, Nepal</li>
-                <li>Phone: +977 1 234 5678</li>
+                <li>Sahid Marga Biratnagar - 2</li>
+                <li>Province No. 1, Nepal</li>
+                <li>
+                  Phone:{" "}
+                  <Link
+                    href="tel:021515712"
+                    className="text-blue-500 hover:underline"
+                  >
+                    021-515712
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="tel:021574426"
+                    className="text-blue-500 hover:underline"
+                  >
+                    021-574426
+                  </Link>
+                </li>
+                <li>
+                  Phone:{" "}
+                  <Link
+                    href="tel:021577646"
+                    className="text-blue-500 hover:underline"
+                  >
+                    021-577646
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="tel:021511449"
+                    className="text-blue-500 hover:underline"
+                  >
+                    021-511449
+                  </Link>
+                </li>
                 <li>
                   Email:{" "}
                   <Link
-                    href="mailto:info@nepalbusinesshub.com"
+                    href="mailto:cim.biratnagar@gmail.com"
                     className="text-blue-500 hover:underline"
                   >
-                    info@nepalbusinesshub.com
+                    cim.biratnagar@gmail.com
+                  </Link>
+                </li>
+                <li>
+                  Website:{" "}
+                  <Link
+                    href="http://www.cim.org.np"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    www.cim.org.np
                   </Link>
                 </li>
               </ul>

@@ -1,32 +1,87 @@
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Globe } from "lucide-react";
+import Link from "next/link";
 
 export default function ContactDetails() {
   return (
-    <div className="p-8 rounded-lg shadow-md py-16">
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-10">
-        <div className="flex flex-col items-start sm:items-center text-center lg:flex-col lg:items-center w-full sm:w-1/3">
-          <MapPin className="text-blue-500 w-10 h-10 mb-4 lg:mb-2" />
-          <div className="text-left sm:text-center lg:text-center">
-            <h3 className="font-semibold text-lg mb-2">Address</h3>
-            <p>Naxal-19, Kathmandu, Nepal</p>
-            <p>Lorem Ipsum Street 85486</p>
+    <div className="p-4 md:p-8 rounded-lg shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* Address */}
+        <div className="flex flex-col items-center text-center">
+          <MapPin className="text-blue-500 w-8 h-8 md:w-10 md:h-10 mb-3" />
+          <div>
+            <h3 className="font-semibold text-base md:text-lg mb-2">Address</h3>
+            <p className="text-sm md:text-base">
+              Sahid Marga Biratnagar - 2,
+              <br />
+              Province No. 1, Nepal
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col items-center text-center w-full sm:w-1/3">
-          <Phone className="text-blue-500 w-10 h-10 mb-4" />
-          <h3 className="font-semibold text-lg mb-2">Contact Number</h3>
-          <p>+01-123456, 561657</p>
-          <p>+977 9800000001</p>
+        {/* Phone Numbers */}
+        <div className="flex flex-col items-center text-center">
+          <Phone className="text-blue-500 w-8 h-8 md:w-10 md:h-10 mb-3" />
+          <h3 className="font-semibold text-base md:text-lg mb-2">
+            Contact Numbers
+          </h3>
+          <div className="text-sm md:text-base space-y-1">
+            <p>
+              <Link
+                href="tel:021515712"
+                className="text-blue-500 hover:underline"
+              >
+                021-515712
+              </Link>
+              ,{" "}
+              <Link
+                href="tel:021574426"
+                className="text-blue-500 hover:underline"
+              >
+                021-574426
+              </Link>
+            </p>
+            <p>
+              <Link
+                href="tel:021577646"
+                className="text-blue-500 hover:underline"
+              >
+                021-577646
+              </Link>
+              ,{" "}
+              <Link
+                href="tel:021511449"
+                className="text-blue-500 hover:underline"
+              >
+                021-511449
+              </Link>
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col items-end sm:items-center text-center lg:flex-col lg:items-center w-full sm:w-1/3">
-          <Mail className="text-blue-500 w-10 h-10 mb-4 lg:mb-2" />
-          <div className="text-right sm:text-center lg:text-center">
-            <h3 className="font-semibold text-lg mb-2">Email</h3>
-            <p>syangdenholidays@gmail.com</p>
-            <p>syangden@gmail.com</p>
-          </div>
+        {/* Email */}
+        <div className="flex flex-col items-center text-center">
+          <Mail className="text-blue-500 w-8 h-8 md:w-10 md:h-10 mb-3" />
+          <h3 className="font-semibold text-base md:text-lg mb-2">Email</h3>
+          <Link
+            href="mailto:cim.biratnagar@gmail.com"
+            className="text-sm md:text-base text-blue-500 hover:underline"
+          >
+            cim.biratnagar@gmail.com
+          </Link>
+        </div>
+
+        {/* Website */}
+        <div className="flex flex-col items-center text-center">
+          <Globe className="text-blue-500 w-8 h-8 md:w-10 md:h-10 mb-3" />
+          <h3 className="font-semibold text-base md:text-lg mb-2">Website</h3>
+          <Link
+            href="http://www.cim.org.np"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm md:text-base text-blue-500 hover:underline"
+          >
+            www.cim.org.np
+          </Link>
         </div>
       </div>
     </div>

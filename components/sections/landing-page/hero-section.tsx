@@ -14,7 +14,7 @@ export default function HeroSection() {
       </div>
 
       <ResponsiveContainer>
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-4 md:px-6 lg:px-8">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
           {/* Left Content */}
           <motion.div
             className="text-center md:text-left max-w-2xl mx-auto md:mx-0"

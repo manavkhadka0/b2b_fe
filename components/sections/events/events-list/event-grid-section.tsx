@@ -69,89 +69,91 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
         ))}
       </div>
 
-      <Pagination>
-        <PaginationContent>
-          {/* Previous button */}
-          <PaginationItem>
-            <PaginationPrevious
-              href={`/events?page=${currentPage - 1}`}
-              aria-disabled={!hasPrevious}
-              className={
-                !hasPrevious
-                  ? "cursor-not-allowed pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-
-          {/* First page if not in view */}
-          {pageNumbers[0] > 1 && (
-            <>
-              <PaginationItem>
-                <PaginationLink
-                  href="/events?page=1"
-                  isActive={currentPage === 1}
-                >
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              {pageNumbers[0] > 2 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-            </>
-          )}
-
-          {/* Page numbers */}
-          {pageNumbers.map((pageNum) => (
-            <PaginationItem key={pageNum}>
-              <PaginationLink
-                href={`/events?page=${pageNum}`}
+      {totalPages > 1 && (
+        <Pagination className="mt-10">
+          <PaginationContent>
+            {/* Previous button */}
+            <PaginationItem>
+              <PaginationPrevious
+                href={`/events?page=${currentPage - 1}`}
+                aria-disabled={!hasPrevious}
                 className={
-                  pageNum === currentPage
-                    ? "pointer-events-none rounded-full bg-blue-500 text-white"
-                    : "cursor-pointer"
+                  !hasPrevious
+                    ? "cursor-not-allowed pointer-events-none opacity-50"
+                    : ""
                 }
-              >
-                {pageNum}
-              </PaginationLink>
+              />
             </PaginationItem>
-          ))}
 
-          {/* Last page if not in view */}
-          {pageNumbers[pageNumbers.length - 1] < totalPages && (
-            <>
-              {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+            {/* First page if not in view */}
+            {pageNumbers[0] > 1 && (
+              <>
                 <PaginationItem>
-                  <PaginationEllipsis />
+                  <PaginationLink
+                    href="/events?page=1"
+                    isActive={currentPage === 1}
+                  >
+                    1
+                  </PaginationLink>
                 </PaginationItem>
-              )}
-              <PaginationItem>
+                {pageNumbers[0] > 2 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+              </>
+            )}
+
+            {/* Page numbers */}
+            {pageNumbers.map((pageNum) => (
+              <PaginationItem key={pageNum}>
                 <PaginationLink
-                  href={`/events?page=${totalPages}`}
-                  isActive={currentPage === totalPages}
+                  href={`/events?page=${pageNum}`}
+                  className={
+                    pageNum === currentPage
+                      ? "pointer-events-none rounded-full bg-blue-500 text-white"
+                      : "cursor-pointer"
+                  }
                 >
-                  {totalPages}
+                  {pageNum}
                 </PaginationLink>
               </PaginationItem>
-            </>
-          )}
+            ))}
 
-          {/* Next button */}
-          <PaginationItem>
-            <PaginationNext
-              href={`/events?page=${currentPage + 1}`}
-              aria-disabled={!hasNext}
-              className={
-                !hasNext
-                  ? "cursor-not-allowed pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {/* Last page if not in view */}
+            {pageNumbers[pageNumbers.length - 1] < totalPages && (
+              <>
+                {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationLink
+                    href={`/events?page=${totalPages}`}
+                    isActive={currentPage === totalPages}
+                  >
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            )}
+
+            {/* Next button */}
+            <PaginationItem>
+              <PaginationNext
+                href={`/events?page=${currentPage + 1}`}
+                aria-disabled={!hasNext}
+                className={
+                  !hasNext
+                    ? "cursor-not-allowed pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </ResponsiveContainer>
   );
 };
