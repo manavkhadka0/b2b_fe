@@ -21,6 +21,8 @@ import { Step2Details } from "./create-wish-steps/step-2-details";
 import { Step3Company } from "./create-wish-steps/step-3-company";
 import { Step4Personal } from "./create-wish-steps/step-4-personal";
 import { Step5Review } from "./create-wish-steps/step-5-review";
+import { cn } from "@/lib/utils";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 interface CreateWishFormProps {
   event?: Event;
@@ -144,7 +146,21 @@ export function CreateWishOfferForm({
       case 4:
         return ["full_name", "designation", "email", "mobile_no"];
       default:
-        return [];
+        return [
+          "title",
+          "type",
+          "product",
+          "service",
+          "company_name",
+          "address",
+          "province",
+          "municipality",
+          "ward",
+          "full_name",
+          "designation",
+          "email",
+          "mobile_no",
+        ];
     }
   };
 
@@ -298,44 +314,75 @@ export function CreateWishOfferForm({
     }
   };
 
+  const isStepCompleted = (stepIndex: number) => {
+    const fields = getFieldsForStep(stepIndex);
+    return fields.every((field) => !!form.getValues(field));
+  };
+
+  const handleStepClick = (stepIndex: number) => {
+    if (stepIndex < currentStep || isStepCompleted(stepIndex)) {
+      setCurrentStep(stepIndex);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {event && (
-          <h1 className="text-2xl font-bold mb-6">
+          <h1 className="text-2xl font-bold mb-4 px-4 md:px-0">
             Create {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} for{" "}
             {event.title}
           </h1>
         )}
 
-        <StepIndicator currentStep={currentStep} steps={STEPS} />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12">
+          {/* Left side - Steps */}
+          <div className="col-span-1 md:col-span-4 shrink-0">
+            <StepIndicator
+              steps={STEPS}
+              currentStep={currentStep}
+              onStepClick={(step) => handleStepClick(step)}
+            />
+          </div>
 
-        <div className="mt-8 min-h-[400px]">{renderStep()}</div>
+          {/* Right side - Form content */}
+          <div className="col-span-1 md:col-span-8">
+            <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border mx-4 md:mx-0">
+              <div className="min-h-[400px]">{renderStep()}</div>
 
-        <div className="flex justify-between mt-8">
-          {currentStep > 1 && (
-            <Button type="button" variant="outline" onClick={prevStep}>
-              Previous
-            </Button>
-          )}
+              <div className="flex justify-between mt-8 gap-4">
+                {currentStep > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-blue-500 text-blue-500 hover:bg-blue-50 hover:text-blue-600"
+                    onClick={prevStep}
+                  >
+                    Previous
+                  </Button>
+                )}
 
-          <Button
-            type="button"
-            onClick={async () => {
-              if (currentStep === STEPS.length) {
-                form.handleSubmit(onSubmit)();
-              } else {
-                await nextStep();
-              }
-            }}
-            disabled={isSubmitting}
-          >
-            {currentStep === STEPS.length
-              ? isSubmitting
-                ? "Creating..."
-                : "Create Wish"
-              : "Next"}
-          </Button>
+                <Button
+                  type="button"
+                  className="bg-blue-500 ml-auto hover:bg-blue-600"
+                  onClick={async () => {
+                    if (currentStep === STEPS.length) {
+                      form.handleSubmit(onSubmit)();
+                    } else {
+                      await nextStep();
+                    }
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {currentStep === STEPS.length
+                    ? isSubmitting
+                      ? "Creating..."
+                      : "Create Wish"
+                    : "Next"}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </Form>

@@ -1,12 +1,25 @@
+"use client";
+
+import { HeaderSubtitle } from "@/components/sections/common/header-subtitle";
+import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { CreateWishOfferForm } from "@/components/sections/create-wish/create-wish-form";
+import { useRouter } from "next/navigation";
 
 export default function CreateWishPage() {
+  const router = useRouter();
   return (
-    <div className="container mx-auto py-10">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Create a Wish</h1>
-        <CreateWishOfferForm is_wish_or_offer="wishes" />
-      </div>
-    </div>
+    <ResponsiveContainer className="py-10 space-y-8">
+      <HeaderSubtitle
+        title="Create a Wish"
+        subtitle="Create a Wish to get help from the community"
+        className="mb-8"
+      />
+      <CreateWishOfferForm
+        is_wish_or_offer="wishes"
+        // onClose={() => {
+        //   // router.push("/wishOffer/wishes");
+        // }}
+      />
+    </ResponsiveContainer>
   );
 }

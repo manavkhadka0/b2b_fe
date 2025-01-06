@@ -74,7 +74,7 @@ export function DefaultNav() {
                 variant="outline"
                 size="sm"
                 className="flex items-center gap-2 text-blue-800 border-blue-800 hover:bg-blue-50"
-                onClick={() => router.push("/wishOffer/wish/create")}
+                onClick={() => router.push("/wishOffer/wishes/create-wish")}
               >
                 <PlusCircle className="w-4 h-4" />
                 Make a Wish
@@ -82,7 +82,7 @@ export function DefaultNav() {
               <Button
                 size="sm"
                 className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900"
-                onClick={() => router.push("/wishOffer/offer/create")}
+                onClick={() => router.push("/wishOffer/offer/create-offer")}
               >
                 <PlusCircle className="w-4 h-4" />
                 Make an Offer
