@@ -37,7 +37,7 @@ export interface Service {
   id: number;
   name: string;
   image: string | null;
-  category: Category;
+  category: Category | null;
 }
 
 export interface ServiceResponse {
@@ -52,9 +52,4 @@ export interface CategoryResponse {
   next: string | null;
   previous: string | null;
   results: Category[];
-}
-
-export interface NewService {
-  name: string;
-  category_id: string;
 }

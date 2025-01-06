@@ -48,7 +48,7 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
           {activeForm === "wish" ? (
-            <CreateWishForm event={event} />
+            <CreateWishForm event={event} onClose={handleDialogClose} />
           ) : (
             <CreateOffer />
           )}

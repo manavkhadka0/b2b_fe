@@ -16,32 +16,49 @@ export const wishTypeOptions = [
   { value: "Service", label: "Service" },
 ] as const;
 
-export const createWishSchema = z.object({
-  full_name: z.string().min(2, "Full name is required"),
-  designation: z
-    .string()
-    .min(1, "Designation is required")
-    .refine(
-      (data) => designationOptions.some((option) => option.value === data),
-      {
-        message: "Invalid designation",
+export const createWishSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    wish_type: z.enum(["Product", "Service"], {
+      required_error: "Please select a wish type",
+    }),
+    // Conditional validation for product/service
+    product: z.string().optional(),
+    service: z.string().optional(),
+    full_name: z.string().min(2, "Full name is required"),
+    designation: z
+      .string()
+      .min(1, "Designation is required")
+      .refine(
+        (data) => designationOptions.some((option) => option.value === data),
+        {
+          message: "Invalid designation",
+        }
+      ),
+    email: z.string().email("Invalid email address"),
+    mobile_no: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
+    alternate_no: z.string().optional(),
+    company_name: z.string().min(1, "Company name is required"),
+    address: z.string().min(1, "Address is required"),
+    province: z.string().min(1, "Province is required"),
+    municipality: z.string().min(1, "Municipality is required"),
+    ward: z.string().min(1, "Ward is required"),
+    company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
+    images: z.array(z.string()).optional(),
+    event_id: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.wish_type === "Product") {
+        return !!data.product;
       }
-    ),
-  mobile_no: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  alternate_no: z.string().optional(),
-  email: z.string().email("Invalid email address"),
-  company_name: z.string().min(1, "Company name is required"),
-  address: z.string().min(1, "Address is required"),
-  province: z.string().min(1, "Province is required"),
-  municipality: z.string().min(1, "Municipality is required"),
-  ward: z.string().min(1, "Ward is required"),
-  company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
-  images: z.array(z.string()).optional(),
-  title: z.string().min(1, "Title is required"),
-  wish_type: z.enum(["Product", "Service"], {
-    required_error: "Please select a wish type",
-  }),
-  product: z.string().optional(),
-  service: z.string().optional(),
-  event_id: z.string().optional(),
-});
+      if (data.wish_type === "Service") {
+        return !!data.service;
+      }
+      return false;
+    },
+    {
+      message: "Please select a product or service based on your wish type",
+      path: ["product", "service"], // This will show the error on both fields
+    }
+  );
