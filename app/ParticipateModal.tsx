@@ -1,11 +1,10 @@
 "use client";
+
 import React, { useState } from "react";
-import CreateOffer from "@/app/wishOffer/offer/create-offer/page";
-import EventForm from "@/app/wishOffer/wishes/create-wish/page";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/types/events";
-import { CreateWishForm } from "@/components/sections/create-wish/create-wish-form";
+import { CreateWishOfferForm } from "@/components/sections/create-wish/create-wish-form";
 
 interface ParticipateSectionProps {
   event: Event;
@@ -48,9 +47,17 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
           {activeForm === "wish" ? (
-            <CreateWishForm event={event} onClose={handleDialogClose} />
+            <CreateWishOfferForm
+              event={event}
+              onClose={handleDialogClose}
+              is_wish_or_offer="wishes"
+            />
           ) : (
-            <CreateOffer />
+            <CreateWishOfferForm
+              event={event}
+              onClose={handleDialogClose}
+              is_wish_or_offer="offers"
+            />
           )}
         </DialogContent>
       </Dialog>

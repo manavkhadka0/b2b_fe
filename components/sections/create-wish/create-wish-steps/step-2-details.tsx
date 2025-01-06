@@ -87,15 +87,15 @@ export function Step2Details({
   images,
   setImages,
 }: Step2DetailsProps) {
-  const wishType = form.watch("wish_type");
+  const type = form.watch("type");
 
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">
-        {wishType === "Product" ? "Select Product" : "Select Service"}
+        {type === "Product" ? "Select Product" : "Select Service"}
       </h2>
 
-      {wishType === "Product" ? (
+      {type === "Product" ? (
         <FormField
           control={form.control}
           name="product"

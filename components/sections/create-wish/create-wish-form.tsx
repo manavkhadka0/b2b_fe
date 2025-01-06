@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { createWishSchema } from "@/types/schemas/create-wish-schemas";
+import { createWishOfferSchema } from "@/types/schemas/create-wish-schemas";
 import type {
   CreateWishFormValues,
   ImageUpload,
@@ -25,34 +25,41 @@ import { Step5Review } from "./create-wish-steps/step-5-review";
 interface CreateWishFormProps {
   event?: Event;
   onClose?: () => void;
+  is_wish_or_offer: "wishes" | "offers";
 }
 
-const STEPS = [
-  {
-    title: "Type",
-    description: "Choose wish type",
-  },
-  {
-    title: "Details",
-    description: "Product/Service details",
-  },
-  {
-    title: "Company",
-    description: "Company information",
-  },
-  {
-    title: "Personal",
-    description: "Personal details",
-  },
-  {
-    title: "Review",
-    description: "Review and submit",
-  },
-];
-
-export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
+export function CreateWishOfferForm({
+  event,
+  onClose,
+  is_wish_or_offer,
+}: CreateWishFormProps) {
   const [images, setImages] = useState<ImageUpload[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const STEPS = [
+    {
+      title: "Type",
+      description: `Choose ${
+        is_wish_or_offer === "wishes" ? "wish" : "offer"
+      } type`,
+    },
+    {
+      title: "Details",
+      description: "Product/Service details",
+    },
+    {
+      title: "Company",
+      description: "Company information",
+    },
+    {
+      title: "Personal",
+      description: "Personal details",
+    },
+    {
+      title: "Review",
+      description: "Review and submit",
+    },
+  ];
 
   const [designationPopoverOpen, setDesignationPopoverOpen] = useState(false);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
@@ -69,7 +76,7 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
 
   const form = useForm<CreateWishFormValues>({
-    resolver: zodResolver(createWishSchema),
+    resolver: zodResolver(createWishOfferSchema),
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -88,7 +95,7 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
       province: "",
       municipality: "",
       ward: "",
-      wish_type: "Product",
+      type: "Product",
       event_id: event?.id?.toString() || "",
     },
   });
@@ -105,7 +112,6 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
       if (!response.ok) throw new Error("Failed to fetch products");
 
       const data = await response.json();
-      console.log("Products data:", data);
       setProducts(data.results || []);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -127,9 +133,9 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
   const getFieldsForStep = (step: number): (keyof CreateWishFormValues)[] => {
     switch (step) {
       case 1:
-        return ["title", "wish_type"];
+        return ["title", "type"];
       case 2: {
-        const wishType = form.getValues("wish_type");
+        const wishType = form.getValues("type");
         if (!wishType) return [];
         return wishType === "Product" ? ["product"] : ["service"];
       }
@@ -146,7 +152,7 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
     const currentFields = getFieldsForStep(currentStep);
 
     if (currentStep === 2) {
-      const wishType = form.getValues("wish_type");
+      const wishType = form.getValues("type");
       const fieldToCheck = wishType === "Product" ? "product" : "service";
       const value = form.getValues(fieldToCheck);
 
@@ -191,7 +197,7 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`,
         {
           method: "POST",
           body: formData,
@@ -230,17 +236,17 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
       }
     };
 
-    if (form.watch("wish_type") === "Service") {
+    if (form.watch("type") === "Service") {
       fetchServices();
     }
-  }, [form.watch("wish_type")]);
+  }, [form.watch("type")]);
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <Step1Type form={form} />;
+        return <Step1Type form={form} is_wish_or_offer={is_wish_or_offer} />;
       case 2:
         return (
           <Step2Details
@@ -297,7 +303,8 @@ export function CreateWishForm({ event, onClose }: CreateWishFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {event && (
           <h1 className="text-2xl font-bold mb-6">
-            Create Wish for {event.title}
+            Create {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} for{" "}
+            {event.title}
           </h1>
         )}
 

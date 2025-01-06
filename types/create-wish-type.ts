@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { createWishSchema } from "./schemas/create-wish-schemas";
+import { createWishOfferSchema } from "./schemas/create-wish-schemas";
 
-export type CreateWishFormValues = z.infer<typeof createWishSchema>;
+export type CreateWishFormValues = z.infer<typeof createWishOfferSchema>;
 
 export type DesignationOption = {
   value: string;

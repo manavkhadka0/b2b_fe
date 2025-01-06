@@ -16,10 +16,10 @@ export const wishTypeOptions = [
   { value: "Service", label: "Service" },
 ] as const;
 
-export const createWishSchema = z
+export const createWishOfferSchema = z
   .object({
     title: z.string().min(1, "Title is required"),
-    wish_type: z.enum(["Product", "Service"], {
+    type: z.enum(["Product", "Service"], {
       required_error: "Please select a wish type",
     }),
     // Conditional validation for product/service
@@ -49,10 +49,10 @@ export const createWishSchema = z
   })
   .refine(
     (data) => {
-      if (data.wish_type === "Product") {
+      if (data.type === "Product") {
         return !!data.product;
       }
-      if (data.wish_type === "Service") {
+      if (data.type === "Service") {
         return !!data.service;
       }
       return false;

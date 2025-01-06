@@ -15,9 +15,10 @@ import { Input } from "@/components/ui/input";
 
 interface Step1TypeProps {
   form: UseFormReturn<CreateWishFormValues>;
+  is_wish_or_offer: "wishes" | "offers";
 }
 
-export function Step1Type({ form }: Step1TypeProps) {
+export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
   return (
     <div className="space-y-4">
       <FormField
@@ -25,9 +26,16 @@ export function Step1Type({ form }: Step1TypeProps) {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Wish Title</FormLabel>
+            <FormLabel>
+              {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} Title
+            </FormLabel>
             <FormControl>
-              <Input placeholder="Enter wish title" {...field} />
+              <Input
+                placeholder={`Enter ${
+                  is_wish_or_offer === "wishes" ? "wish" : "offer"
+                } title`}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -36,7 +44,7 @@ export function Step1Type({ form }: Step1TypeProps) {
 
       <FormField
         control={form.control}
-        name="wish_type"
+        name="type"
         render={({ field }) => (
           <FormItem>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">

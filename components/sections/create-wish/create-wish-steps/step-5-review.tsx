@@ -37,9 +37,9 @@ export function Step5Review({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
             <div>
               <span className="text-sm text-gray-500">Type:</span>
-              <p className="font-medium">{values.wish_type}</p>
+              <p className="font-medium">{values.type}</p>
             </div>
-            {values.wish_type === "Product" && selectedProduct && (
+            {values.type === "Product" && selectedProduct && (
               <div>
                 <span className="text-sm text-gray-500">Product:</span>
                 <p className="font-medium">
@@ -47,7 +47,7 @@ export function Step5Review({
                 </p>
               </div>
             )}
-            {values.wish_type === "Service" && selectedService && (
+            {values.type === "Service" && selectedService && (
               <div>
                 <span className="text-sm text-gray-500">Service:</span>
                 <p className="font-medium">
