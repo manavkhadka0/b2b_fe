@@ -35,7 +35,7 @@ export function CreateWishOfferForm({
   onClose,
   is_wish_or_offer,
 }: CreateWishFormProps) {
-  const [images, setImages] = useState<ImageUpload[]>([]);
+  const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const STEPS = [
@@ -207,10 +207,10 @@ export function CreateWishOfferForm({
         }
       });
 
-      // Append files
-      images.forEach((image) => {
-        formData.append(`images`, image.file);
-      });
+      // Append single image if it exists
+      if (image) {
+        formData.append("image", image.file);
+      }
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`,
@@ -224,7 +224,7 @@ export function CreateWishOfferForm({
 
       toast.success("Wish created successfully!");
       form.reset();
-      setImages([]);
+      setImage(null);
       onClose?.();
     } catch (error) {
       console.error("Failed to create wish:", error);
@@ -286,8 +286,8 @@ export function CreateWishOfferForm({
             setSelectedProduct={setSelectedProduct}
             setSelectedService={setSelectedService}
             setServices={setServices}
-            images={images}
-            setImages={setImages}
+            image={image}
+            setImage={setImage}
           />
         );
       case 3:
@@ -306,7 +306,7 @@ export function CreateWishOfferForm({
             form={form}
             selectedProduct={selectedProduct}
             selectedService={selectedService}
-            images={images}
+            image={image}
           />
         );
       default:

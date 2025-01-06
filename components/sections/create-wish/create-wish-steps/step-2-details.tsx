@@ -59,8 +59,8 @@ interface Step2DetailsProps {
   setSelectedProduct: (product: HSCode | null) => void;
   setSelectedService: (service: Service | null) => void;
   setServices: React.Dispatch<React.SetStateAction<Service[]>>;
-  images: ImageUpload[];
-  setImages: (images: ImageUpload[]) => void;
+  image: ImageUpload | null;
+  setImage: (image: ImageUpload | null) => void;
 }
 
 export function Step2Details({
@@ -84,8 +84,8 @@ export function Step2Details({
   setSelectedProduct,
   setSelectedService,
   setServices,
-  images,
-  setImages,
+  image,
+  setImage,
 }: Step2DetailsProps) {
   const type = form.watch("type");
 
@@ -301,7 +301,7 @@ export function Step2Details({
         <h3 className="text-lg font-semibold mb-4">
           Additional Images (Optional)
         </h3>
-        <ImageUploadSection images={images} setImages={setImages} />
+        <ImageUploadSection image={image} setImage={setImage} />
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { Wish, Offer } from "@/types/wish";
 import { useRouter } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export default function WishOfferPage() {
   const { wishes, isLoading: wishLoading, error: wishError } = useWishes();
@@ -42,6 +43,24 @@ export default function WishOfferPage() {
           Share your wish, discover offers, and seize the best opportunities
           with ease.
         </p>
+      </div>
+
+      {/* New Image Grid Section */}
+      <div className="flex justify-between items-center mb-10">
+        <Image
+          src="/wishes.svg"
+          alt="Wisher"
+          width={136}
+          height={108}
+          className="w-fit h-[200px]"
+        />
+        <Image
+          src="/offers.svg"
+          alt="Offers"
+          width={454}
+          height={316}
+          className="w-fit h-[200px]"
+        />
       </div>
 
       {/* Wishes and Offers Section */}

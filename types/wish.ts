@@ -34,15 +34,12 @@ export type Wish = {
     description: string;
   };
   status: string;
-  wish_type: string;
+  type: string;
   match_percentage: number; // Reflects `match_percentage` from API
   created_at: string;
   updated_at: string;
+  matches: Offer[];
 };
-
-
-
-
 
 export type Offer = {
   id: number;
@@ -68,10 +65,10 @@ export type Offer = {
       image?: string | null;
     };
   };
-  offer_type: string;
+  type: string;
   status: string;
   match_percentage?: number; // Added to handle high match filtering
   created_at: string;
   updated_at: string;
+  matches: Wish[];
 };
-

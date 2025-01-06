@@ -16,9 +16,9 @@ export default function CreateWishPage() {
       />
       <CreateWishOfferForm
         is_wish_or_offer="wishes"
-        // onClose={() => {
-        //   // router.push("/wishOffer/wishes");
-        // }}
+        onClose={() => {
+          router.push("/wishOffer");
+        }}
       />
     </ResponsiveContainer>
   );

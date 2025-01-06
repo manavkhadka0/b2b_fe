@@ -12,14 +12,14 @@ interface Step5ReviewProps {
   form: UseFormReturn<CreateWishFormValues>;
   selectedProduct: HSCode | null;
   selectedService: Service | null;
-  images: { url: string }[];
+  image: { url: string } | null;
 }
 
 export function Step5Review({
   form,
   selectedProduct,
   selectedService,
-  images,
+  image,
 }: Step5ReviewProps) {
   const values = form.getValues();
   const designation = designationOptions.find(
@@ -121,18 +121,15 @@ export function Step5Review({
         </div>
 
         {/* Images */}
-        {images.length > 0 && (
+        {image && (
           <div className="space-y-2">
             <h3 className="font-medium">Uploaded Images</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.url}
-                  alt={`Upload ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-              ))}
+              <img
+                src={image.url}
+                alt="Uploaded Image"
+                className="w-full h-32 object-cover rounded-lg"
+              />
             </div>
           </div>
         )}
