@@ -64,6 +64,14 @@ export default function WishesOffers() {
     if (selectedWish !== null && selectedOffer !== null) {
       setIsMatching(true);
 
+      // Reset state after animation
+      setTimeout(() => {
+        setIsMatching(false);
+        setSelectedWish(null);
+        setSelectedOffer(null);
+        setAnimationComplete(false);
+      }, 2500); // Increased timeout to allow for heart animation
+
       // Show confetti after cards come together
       setTimeout(() => {
         confetti({
@@ -71,23 +79,8 @@ export default function WishesOffers() {
           spread: 100,
           origin: { y: 0.5 },
         });
-
-        // Reset state after animation
-        setTimeout(() => {
-          setIsMatching(false);
-          setSelectedWish(null);
-          setSelectedOffer(null);
-          setAnimationComplete(false);
-        }, 1500);
       }, 1000);
     }
-  };
-
-  const resetState = () => {
-    setIsMatching(false);
-    setShowMatchedText(false);
-    setSelectedWish(null);
-    setSelectedOffer(null);
   };
 
   if (wishLoading || offerLoading) {
@@ -120,13 +113,15 @@ export default function WishesOffers() {
                     animate={
                       isMatching && selectedWish === wish.id
                         ? {
-                            x: window.innerWidth / 2 - 200,
+                            x: window.innerWidth / 2 - 150,
                             y: window.innerHeight / 2 - 100,
-                            rotate: -10,
-                            scale: 1,
-                            zIndex: 10,
-                            filter: "blur(2px)",
-                            transition: { duration: 0.8, ease: "easeInOut" },
+                            rotate: -180,
+                            scale: 0.5,
+                            opacity: 0,
+                            transition: {
+                              duration: 1,
+                              ease: "easeInOut",
+                            },
                           }
                         : { x: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }
                     }
@@ -199,13 +194,15 @@ export default function WishesOffers() {
                     animate={
                       isMatching && selectedOffer === offer.id
                         ? {
-                            x: window.innerWidth / 2 - 200,
+                            x: window.innerWidth / 2 - 250,
                             y: window.innerHeight / 2 - 100,
-                            rotate: 10,
-                            scale: 1,
-                            zIndex: 11,
-                            filter: "blur(2px)",
-                            transition: { duration: 0.8, ease: "easeInOut" },
+                            rotate: 180,
+                            scale: 0.5,
+                            opacity: 0,
+                            transition: {
+                              duration: 1,
+                              ease: "easeInOut",
+                            },
                           }
                         : { x: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }
                     }
@@ -287,34 +284,31 @@ export default function WishesOffers() {
 
         {/* Matched Text Modal */}
         <AnimatePresence>
-          {showMatchedText && (
+          {isMatching && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-              onClick={resetState}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              className="fixed inset-0 flex items-center justify-center pointer-events-none z-50"
             >
               <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="bg-white rounded-lg p-8 text-center"
-                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0 }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  rotate: [0, -10, 10, 0],
+                }}
+                transition={{
+                  duration: 1,
+                  times: [0, 0.5, 1],
+                  delay: 0.8,
+                }}
+                className="w-32 h-32 relative"
               >
-                <h3 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent">
-                  Matched!
-                </h3>
-                <p className="text-gray-600">
-                  Your wish and offer have been successfully matched!
-                </p>
-                <button
-                  onClick={resetState}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-teal-400 text-white rounded-full hover:opacity-90 transition-opacity"
-                >
-                  Continue Matching
-                </button>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 transform rotate-45">
+                  <div className="w-full h-full rounded-[100%_100%_0_100%]" />
+                </div>
+                <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
+                <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
               </motion.div>
             </motion.div>
           )}
