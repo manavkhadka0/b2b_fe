@@ -27,29 +27,31 @@ const fetcher = (url: string) =>
 
 // Custom Hook for Wishes
 export function useWishes() {
-  const { data, error, isLoading } = useSWR<WishResponse>(
+  const { data, error, isLoading, mutate } = useSWR<WishResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
     fetcher
   );
 
   return {
-    wishes: data?.results || [],
+    wishes: data?.results.slice(0, 5) || [],
     isLoading,
+    mutate,
     error,
   };
 }
 
 // Custom Hook for Offers
 export function useOffers() {
-  const { data, error, isLoading } = useSWR<OfferResponse>(
+  const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
     fetcher
   );
 
   return {
-    offers: data?.results || [],
+    offers: data?.results.slice(0, 5) || [],
     isLoading,
     error,
+    mutate,
   };
 }
 
