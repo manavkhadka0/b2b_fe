@@ -11,6 +11,11 @@ import Image from "next/image";
 
 import { Offer, Wish } from "@/types/wish";
 
+// Add this function to limit the array to 5 items
+const limitToFive = <T extends unknown>(array: T[]): T[] => {
+  return array.slice(0, 5);
+};
+
 export default function WishesOffers() {
   const { wishes, isLoading: wishLoading, mutate: mutateWishes } = useWishes();
   const { offers, isLoading: offerLoading, mutate: mutateOffers } = useOffers();
@@ -33,7 +38,7 @@ export default function WishesOffers() {
 
   useEffect(() => {
     // Simulate initial data
-    const initialWishes: Wish[] = [
+    const initialWishes: Wish[] = limitToFive([
       {
         id: 1,
         title: "Tech Mentor",
@@ -57,9 +62,9 @@ export default function WishesOffers() {
         updated_at: new Date().toISOString(),
         matches: [], // Will be populated in useEffect
       },
-    ];
+    ]);
 
-    const initialOffers: Offer[] = [
+    const initialOffers: Offer[] = limitToFive([
       {
         id: 2,
         title: "Web Development",
@@ -74,7 +79,7 @@ export default function WishesOffers() {
         },
         matches: [], // Will be populated in useEffect
       },
-    ];
+    ]);
 
     setDummyWishes(initialWishes);
     setDummyOffers(initialOffers);
@@ -113,12 +118,16 @@ export default function WishesOffers() {
             randomWish,
             randomOffer
           );
-          setDummyWishes((prev) => [updatedWish, ...prev]);
+          setDummyWishes((prev) => limitToFive([updatedWish, ...prev]));
           setDummyOffers((prev) =>
-            prev.map((o) => (o.id === randomOffer.id ? updatedOffer : o))
+            limitToFive(
+              prev.map((o) => (o.id === randomOffer.id ? updatedOffer : o))
+            )
           );
         } else {
-          setDummyWishes((prev) => [{ ...randomWish, matches: [] }, ...prev]);
+          setDummyWishes((prev) =>
+            limitToFive([{ ...randomWish, matches: [] }, ...prev])
+          );
         }
       } else if (dummyOffers.length > 0) {
         const randomOffer = {
@@ -135,12 +144,16 @@ export default function WishesOffers() {
             randomWish,
             randomOffer
           );
-          setDummyOffers((prev) => [updatedOffer, ...prev]);
+          setDummyOffers((prev) => limitToFive([updatedOffer, ...prev]));
           setDummyWishes((prev) =>
-            prev.map((w) => (w.id === randomWish.id ? updatedWish : w))
+            limitToFive(
+              prev.map((w) => (w.id === randomWish.id ? updatedWish : w))
+            )
           );
         } else {
-          setDummyOffers((prev) => [{ ...randomOffer, matches: [] }, ...prev]);
+          setDummyOffers((prev) =>
+            limitToFive([{ ...randomOffer, matches: [] }, ...prev])
+          );
         }
       }
     }, 5000);
@@ -307,29 +320,18 @@ export default function WishesOffers() {
                     <div
                       className={`relative h-24 rounded-full overflow-hidden p-1.5 
                         ${
-                          currentMatch.wish?.id === wish.id
+                          currentMatch.wish?.id === wish.id &&
+                          dummyWishes.indexOf(wish) === 0 &&
+                          isShowingMatch
                             ? "ring-4 ring-yellow-400 ring-offset-4 ring-offset-black"
-                            : ""
-                        }
-                        ${
-                          wish.matches?.length > 0
-                            ? "border-4 border-green-500"
                             : ""
                         }
                       `}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-[#5271FF] to-[#C0CCFF] rounded-full">
                         <div className="relative h-full flex items-center">
-                          {/* Percentage Circle - Left */}
-                          <div className="absolute left-0 h-full flex items-center">
-                            <div className="w-[88px] h-[88px] rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center ml-1">
-                              <span className="text-3xl font-bold text-white">
-                                {wish.match_percentage || "68"}%
-                              </span>
-                            </div>
-                          </div>
-                          {/* Content */}
-                          <div className="flex-1 pl-28 pr-8">
+                          {/* Content - Left */}
+                          <div className="flex-1 pl-8 pr-28">
                             <h3 className="font-bold text-2xl text-white">
                               {wish.title}
                             </h3>
@@ -338,6 +340,14 @@ export default function WishesOffers() {
                                 wish.service?.name ||
                                 "No category"}
                             </p>
+                          </div>
+                          {/* Percentage Circle - Right */}
+                          <div className="absolute right-0 h-full flex items-center">
+                            <div className="w-[88px] h-[88px] rounded-full border-4 border-white bg-white/20 flex items-center justify-center mr-1">
+                              <span className="text-3xl font-bold text-white">
+                                {wish.match_percentage || "68"}%
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -378,21 +388,27 @@ export default function WishesOffers() {
                     <div
                       className={`relative h-24 rounded-full overflow-hidden p-1.5 
                         ${
-                          currentMatch.offer?.id === offer.id
+                          currentMatch.offer?.id === offer.id &&
+                          dummyOffers.indexOf(offer) === 0 &&
+                          isShowingMatch
                             ? "ring-4 ring-yellow-400 ring-offset-4 ring-offset-black"
-                            : ""
-                        }
-                        ${
-                          offer.matches?.length > 0
-                            ? "border-4 border-green-500"
                             : ""
                         }
                       `}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-[#B852F4] to-[#8EA1FD] rounded-full">
                         <div className="relative h-full flex items-center">
+                          {/* Percentage Circle - Left */}
+                          <div className="absolute left-0 h-full flex items-center">
+                            <div className="w-[88px] h-[88px] rounded-full border-4 border-white bg-white/20 flex items-center justify-center ml-1">
+                              <span className="text-3xl font-bold text-white">
+                                {offer.match_percentage || "68"}%
+                              </span>
+                            </div>
+                          </div>
                           {/* Content */}
-                          <div className="flex-1 pl-8 pr-28">
+                          <div className="flex-1 flex items-center" />
+                          <div className="  pr-8">
                             <h3 className="font-bold text-2xl text-white">
                               {offer.title}
                             </h3>
@@ -401,14 +417,6 @@ export default function WishesOffers() {
                                 offer.service?.name ||
                                 "No category"}
                             </p>
-                          </div>
-                          {/* Percentage Circle - Right */}
-                          <div className="absolute right-0 h-full flex items-center">
-                            <div className="w-[88px] h-[88px] rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center mr-1">
-                              <span className="text-3xl font-bold text-white">
-                                {offer.match_percentage || "68"}%
-                              </span>
-                            </div>
                           </div>
                         </div>
                       </div>
