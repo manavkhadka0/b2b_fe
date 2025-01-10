@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import WishSvg from "@/public/wishes.svg";
 import OfferSvg from "@/public/offers.svg";
 import Image from "next/image";
+import useSound from "use-sound";
 
 import { Offer, Wish } from "@/types/wish";
 
@@ -29,6 +30,9 @@ export default function WishesOffers() {
   const [confetti, setConfetti] = useState<any>(null);
   const [Lottie, setLottie] = useState<any>(null);
   const [matchedAnimation, setMatchedAnimation] = useState<any>(null);
+  const [playMatchSound] = useSound(
+    "/positive-notification-digital-strum-fast-gamemaster-audio-1-1-00-03.mp3"
+  );
 
   useEffect(() => {
     import("canvas-confetti").then((confettiModule) => {
@@ -168,6 +172,9 @@ export default function WishesOffers() {
       const latestOffer = dummyOffers[0];
 
       if (latestWish?.matches?.length > 0 || latestOffer?.matches?.length > 0) {
+        // Play sound when match is found
+        playMatchSound();
+
         // If it's a matched wish, find its corresponding offer
         if (latestWish?.matches?.length > 0) {
           const matchedOffer = latestWish.matches[0];
@@ -264,7 +271,14 @@ export default function WishesOffers() {
     };
 
     checkForNewMatches();
-  }, [dummyWishes, dummyOffers, confetti, Lottie, matchedAnimation]);
+  }, [
+    dummyWishes,
+    dummyOffers,
+    confetti,
+    Lottie,
+    matchedAnimation,
+    playMatchSound,
+  ]);
 
   useEffect(() => {
     // Import Lottie
