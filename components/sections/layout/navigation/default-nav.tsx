@@ -12,7 +12,6 @@ const navItems = [
   { label: "B2B Events", href: "/events" },
   { label: "Wish & Offer", href: "/wishOffer" },
   { label: "BDS Services", href: "/bdsService" },
-  { label: "Business Registration", href: "/businessRegister" },
   { label: "Contact", href: "/contacts" },
 ];
 

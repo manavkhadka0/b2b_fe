@@ -67,14 +67,7 @@ export default function WishOfferPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Wishes Section */}
         <div className=" bg-white rounded-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold hover:text-blue-500">Wishes</h2>
-            <Link href="/wishOffer/wishes/create-wish">
-              <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
-                Create Wish
-              </button>
-            </Link>
-          </div>
+          
 
           {/* Wishes Cards */}
           <div className="grid grid-cols-1 gap-y-6">
@@ -98,14 +91,7 @@ export default function WishOfferPage() {
 
         {/* Offers Section */}
         <div className=" bg-white rounded-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold hover:text-blue-500">Offers</h2>
-            <Link href="/wishOffer/offer/create-offer">
-              <button className="px-4 py-2 text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-500 hover:text-white">
-                Create Offer
-              </button>
-            </Link>
-          </div>
+          
 
           {/* Offers Cards */}
           <div className="grid grid-cols-1 gap-y-6">

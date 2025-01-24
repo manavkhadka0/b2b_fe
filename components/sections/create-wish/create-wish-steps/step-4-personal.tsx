@@ -9,7 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { FloatingInput } from "@/components/ui/floatingInput";
+import { FloatingLabel } from "@/components/ui/floatingInput";
 import {
   Popover,
   PopoverContent,
@@ -48,9 +49,11 @@ export function Step4Personal({
           name="full_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your full name" {...field} />
+                <div className="relative">
+                  <FloatingInput id="full-name" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="full-name">Full Name</FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -62,7 +65,7 @@ export function Step4Personal({
           name="designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Designation</FormLabel>
+              
               <Popover
                 open={designationPopoverOpen}
                 onOpenChange={setDesignationPopoverOpen}
@@ -125,13 +128,16 @@ export function Step4Personal({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="Enter your email address"
-                  {...field}
-                />
+                <div className="relative">
+                  <FloatingInput
+                    type="email"
+                    id="email"
+                    placeholder=" "
+                    {...field}
+                  />
+                  <FloatingLabel htmlFor="email">Email Address</FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -143,9 +149,13 @@ export function Step4Personal({
           name="mobile_no"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mobile Number</FormLabel>
               <FormControl>
-                <Input placeholder="Enter mobile number" {...field} />
+                <div className="relative">
+                  <FloatingInput id="mobile-no" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="mobile-no">
+                    Mobile Number
+                  </FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -157,9 +167,13 @@ export function Step4Personal({
           name="alternate_no"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Alternate Number (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Enter alternate number" {...field} />
+                <div className="relative">
+                  <FloatingInput id="alternate-no" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="alternate-no">
+                    Alternate Number (Optional)
+                  </FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

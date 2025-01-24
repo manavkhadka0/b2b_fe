@@ -9,7 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { FloatingInput } from "@/components/ui/floatingInput";
+import { FloatingLabel } from "@/components/ui/floatingInput";
 
 interface Step3CompanyProps {
   form: UseFormReturn<CreateWishFormValues>;
@@ -26,9 +27,13 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="company_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter company name" {...field} />
+                <div className="relative">
+                  <FloatingInput id="company-name" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="company-name">
+                    Company Name
+                  </FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -40,13 +45,18 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="company_website"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Website</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="https://example.com"
-                  type="url"
-                  {...field}
-                />
+                <div className="relative">
+                  <FloatingInput
+                    id="company-website"
+                    placeholder=" "
+                    type="url"
+                    {...field}
+                  />
+                  <FloatingLabel htmlFor="company-website">
+                    Company Website
+                  </FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -58,9 +68,11 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="address"
           render={({ field }) => (
             <FormItem className="col-span-full">
-              <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input placeholder="Enter company address" {...field} />
+                <div className="relative">
+                  <FloatingInput id="address" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="address">Address</FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,9 +84,11 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="province"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Province</FormLabel>
               <FormControl>
-                <Input placeholder="Enter province" {...field} />
+                <div className="relative">
+                  <FloatingInput id="province" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="province">Province</FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,9 +100,13 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="municipality"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Municipality</FormLabel>
               <FormControl>
-                <Input placeholder="Enter municipality" {...field} />
+                <div className="relative">
+                  <FloatingInput id="municipality" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="municipality">
+                    Municipality
+                  </FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,9 +118,11 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="ward"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Ward</FormLabel>
               <FormControl>
-                <Input placeholder="Enter ward number" {...field} />
+                <div className="relative">
+                  <FloatingInput id="ward" placeholder=" " {...field} />
+                  <FloatingLabel htmlFor="ward">Ward</FloatingLabel>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

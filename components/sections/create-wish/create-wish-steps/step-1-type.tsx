@@ -12,6 +12,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { FloatingInput } from "@/components/ui/floatingInput";
+import { FloatingLabel } from "@/components/ui/floatingInput";
 
 interface Step1TypeProps {
   form: UseFormReturn<CreateWishFormValues>;
@@ -20,22 +22,19 @@ interface Step1TypeProps {
 
 export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-5">
       <FormField
         control={form.control}
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} Title
-            </FormLabel>
             <FormControl>
-              <Input
-                placeholder={`Enter ${
-                  is_wish_or_offer === "wishes" ? "wish" : "offer"
-                } title`}
-                {...field}
-              />
+              <div className="relative py-3">
+                <FloatingInput id="issue-title" placeholder=" " {...field} />
+                <FloatingLabel htmlFor="issue-title">
+                  {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} Title
+                </FloatingLabel>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
