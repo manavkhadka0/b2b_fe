@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import axios from "axios";
-import { Wish, Offer } from "@/types/wish";
+import { Wish, Offer, WishAndOffer } from "@/types/wish";
 
 // API Response Types
 type WishResponse = {
@@ -49,6 +49,19 @@ export function useOffers() {
 
   return {
     offers: data?.results.slice(0, 5) || [],
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
+export function useWishAndOffer() {
+  const { data, isLoading, error, mutate } = useSWR<WishAndOffer>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wish-offers/`,
+    fetcher
+  );
+  return {
+    wish_and_offers: data,
     isLoading,
     error,
     mutate,

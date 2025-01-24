@@ -38,7 +38,7 @@ export type Wish = {
   match_percentage: number; // Reflects `match_percentage` from API
   created_at: string;
   updated_at: string;
-  matches: Offer[];
+  offers: Offer[];
 };
 
 export type Offer = {
@@ -70,5 +70,10 @@ export type Offer = {
   match_percentage?: number; // Added to handle high match filtering
   created_at: string;
   updated_at: string;
-  matches: Wish[];
+  wishes: Wish[];
+};
+
+export type WishAndOffer = {
+  wishes: Wish[];
+  offers: Offer[];
 };

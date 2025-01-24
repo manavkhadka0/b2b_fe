@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useOffers } from "../utils/wishOffer";
+import { useOffers, useWishAndOffer } from "../utils/wishOffer";
 import { useWishes } from "../utils/wishOffer";
 import { Loader2 } from "lucide-react";
 import WishSvg from "@/public/wishes.svg";
@@ -12,16 +12,14 @@ import useSound from "use-sound";
 
 import { Offer, Wish } from "@/types/wish";
 
-// Add this function to limit the array to 5 items
-const limitToFive = <T extends unknown>(array: T[]): T[] => {
-  return array.slice(0, 5);
-};
-
 export default function WishesOffers() {
-  const { wishes, isLoading: wishLoading, mutate: mutateWishes } = useWishes();
-  const { offers, isLoading: offerLoading, mutate: mutateOffers } = useOffers();
-  const [dummyWishes, setDummyWishes] = useState<Wish[]>([]);
-  const [dummyOffers, setDummyOffers] = useState<Offer[]>([]);
+  const {
+    wish_and_offers,
+    isLoading: wishLoading,
+    mutate: mutateWishes,
+  } = useWishAndOffer();
+  const [wishes, setWishes] = useState<Wish[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [isShowingMatch, setIsShowingMatch] = useState(false);
   const [currentMatch, setCurrentMatch] = useState<{
     wish: Wish | null;
@@ -41,151 +39,40 @@ export default function WishesOffers() {
   }, []);
 
   useEffect(() => {
-    // Simulate initial data
-    const initialWishes: Wish[] = limitToFive([
-      {
-        id: 1,
-        title: "Tech Mentor",
-        full_name: "John Doe",
-        designation: "Software Engineer",
-        mobile_no: "9876543210",
-        email: "john.doe@example.com",
-        company_name: "Tech Solutions",
-        address: "123 Main St, City, Country",
-        country: "USA",
-        event: 1,
-        province: "California",
-        municipality: "San Francisco",
-        ward: "1",
-        company_website: "https://www.techsolutions.com",
-        image: "https://via.placeholder.com/150",
-        match_percentage: 87,
-        type: "service",
-        status: "active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        matches: [], // Will be populated in useEffect
-      },
-    ]);
+    if (wish_and_offers) {
+      setWishes(wish_and_offers.wishes || []);
+      setOffers(wish_and_offers.offers || []);
+    }
+  }, [wish_and_offers]);
 
-    const initialOffers: Offer[] = limitToFive([
-      {
-        id: 2,
-        title: "Web Development",
-        type: "service",
-        status: "active",
-        match_percentage: 87,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        service: {
-          name: "Web Development",
-          description: "Description 1",
-        },
-        matches: [], // Will be populated in useEffect
-      },
-    ]);
-
-    setDummyWishes(initialWishes);
-    setDummyOffers(initialOffers);
-  }, []);
-
-  // Add this function to simulate matches
-  const simulateMatch = (wish: Wish, offer: Offer) => {
-    const updatedWish = {
-      ...wish,
-      matches: [offer],
-    };
-    const updatedOffer = {
-      ...offer,
-      matches: [wish],
-    };
-    return { updatedWish, updatedOffer };
-  };
-
-  // Update random items effect
   useEffect(() => {
     const interval = setInterval(() => {
-      const updateWishes = Math.random() > 0.5;
-
-      if (updateWishes && dummyWishes.length > 0) {
-        const randomWish = {
-          ...dummyWishes[Math.floor(Math.random() * dummyWishes.length)],
-          id: Math.random(),
-          title: `New Wish ${Math.floor(Math.random() * 100)}`,
-        };
-
-        // Simulate a match with 30% probability
-        if (Math.random() < 0.3 && dummyOffers.length > 0) {
-          const randomOffer =
-            dummyOffers[Math.floor(Math.random() * dummyOffers.length)];
-          const { updatedWish, updatedOffer } = simulateMatch(
-            randomWish,
-            randomOffer
-          );
-          setDummyWishes((prev) => limitToFive([updatedWish, ...prev]));
-          setDummyOffers((prev) =>
-            limitToFive(
-              prev.map((o) => (o.id === randomOffer.id ? updatedOffer : o))
-            )
-          );
-        } else {
-          setDummyWishes((prev) =>
-            limitToFive([{ ...randomWish, matches: [] }, ...prev])
-          );
-        }
-      } else if (dummyOffers.length > 0) {
-        const randomOffer = {
-          ...dummyOffers[Math.floor(Math.random() * dummyOffers.length)],
-          id: Math.random(),
-          title: `New Offer ${Math.floor(Math.random() * 100)}`,
-        };
-
-        // Simulate a match with 30% probability
-        if (Math.random() < 0.3 && dummyWishes.length > 0) {
-          const randomWish =
-            dummyWishes[Math.floor(Math.random() * dummyWishes.length)];
-          const { updatedWish, updatedOffer } = simulateMatch(
-            randomWish,
-            randomOffer
-          );
-          setDummyOffers((prev) => limitToFive([updatedOffer, ...prev]));
-          setDummyWishes((prev) =>
-            limitToFive(
-              prev.map((w) => (w.id === randomWish.id ? updatedWish : w))
-            )
-          );
-        } else {
-          setDummyOffers((prev) =>
-            limitToFive([{ ...randomOffer, matches: [] }, ...prev])
-          );
-        }
-      }
-    }, 5000);
+      mutateWishes();
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [dummyWishes, dummyOffers]);
+  }, [mutateWishes]);
 
-  // Update match checking effect
   useEffect(() => {
     const checkForNewMatches = () => {
-      const latestWish = dummyWishes[0];
-      const latestOffer = dummyOffers[0];
+      const latestWish = wishes[0];
+      const latestOffer = offers[0];
 
-      if (latestWish?.matches?.length > 0 || latestOffer?.matches?.length > 0) {
+      if (latestWish?.offers?.length > 0 || latestOffer?.wishes?.length > 0) {
         // Play sound when match is found
         playMatchSound();
 
         // If it's a matched wish, find its corresponding offer
-        if (latestWish?.matches?.length > 0) {
-          const matchedOffer = latestWish.matches[0];
+        if (latestWish?.offers?.length > 0) {
+          const matchedOffer = latestWish.offers[0];
           setCurrentMatch({
             wish: latestWish,
             offer: matchedOffer,
           });
         }
         // If it's a matched offer, find its corresponding wish
-        else if (latestOffer?.matches?.length > 0) {
-          const matchedWish = latestOffer.matches[0];
+        else if (latestOffer?.wishes?.length > 0) {
+          const matchedWish = latestOffer.wishes[0];
           setCurrentMatch({
             wish: matchedWish,
             offer: latestOffer,
@@ -271,14 +158,7 @@ export default function WishesOffers() {
     };
 
     checkForNewMatches();
-  }, [
-    dummyWishes,
-    dummyOffers,
-    confetti,
-    Lottie,
-    matchedAnimation,
-    playMatchSound,
-  ]);
+  }, [wishes, offers, confetti, playMatchSound]);
 
   useEffect(() => {
     // Import Lottie
@@ -292,7 +172,7 @@ export default function WishesOffers() {
     });
   }, []);
 
-  if (wishLoading || offerLoading) {
+  if (wishLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -321,7 +201,7 @@ export default function WishesOffers() {
 
             <div className="space-y-6">
               <AnimatePresence mode="popLayout">
-                {dummyWishes.map((wish) => (
+                {wishes.map((wish) => (
                   <motion.div
                     key={`wish-${wish.id}`}
                     initial={{ x: -100, opacity: 0 }}
@@ -335,7 +215,7 @@ export default function WishesOffers() {
                       className={`relative h-24 rounded-full overflow-hidden p-1.5 
                         ${
                           currentMatch.wish?.id === wish.id &&
-                          dummyWishes.indexOf(wish) === 0 &&
+                          wishes.indexOf(wish) === 0 &&
                           isShowingMatch
                             ? "ring-4 ring-yellow-400 ring-offset-4 ring-offset-black"
                             : ""
@@ -345,11 +225,11 @@ export default function WishesOffers() {
                       <div className="absolute inset-0 bg-gradient-to-r from-[#5271FF] to-[#C0CCFF] rounded-full">
                         <div className="relative h-full flex items-center">
                           {/* Content - Left */}
-                          <div className="flex-1 pl-8 pr-28">
-                            <h3 className="font-bold text-2xl text-white">
+                          <div className="flex-1 pl-8 pr-28 truncate">
+                            <h3 className="font-bold text-2xl text-white truncate">
                               {wish.title}
                             </h3>
-                            <p className="text-lg text-white/80">
+                            <p className="text-lg text-white/80 truncate">
                               {wish.product?.category?.name ||
                                 wish.service?.name ||
                                 "No category"}
@@ -389,7 +269,7 @@ export default function WishesOffers() {
 
             <div className="space-y-6">
               <AnimatePresence mode="popLayout">
-                {dummyOffers.map((offer) => (
+                {offers.map((offer) => (
                   <motion.div
                     key={`offer-${offer.id}`}
                     initial={{ x: 100, opacity: 0 }}
@@ -403,7 +283,7 @@ export default function WishesOffers() {
                       className={`relative h-24 rounded-full overflow-hidden p-1.5 
                         ${
                           currentMatch.offer?.id === offer.id &&
-                          dummyOffers.indexOf(offer) === 0 &&
+                          offers.indexOf(offer) === 0 &&
                           isShowingMatch
                             ? "ring-4 ring-yellow-400 ring-offset-4 ring-offset-black"
                             : ""
@@ -421,12 +301,11 @@ export default function WishesOffers() {
                             </div>
                           </div>
                           {/* Content */}
-                          <div className="flex-1 flex items-center" />
-                          <div className="  pr-8">
-                            <h3 className="font-bold text-2xl text-white">
+                          <div className="flex-1 pl-24 pr-8 truncate">
+                            <h3 className="font-bold text-2xl text-white truncate">
                               {offer.title}
                             </h3>
-                            <p className="text-lg text-white/80">
+                            <p className="text-lg text-white/80 truncate">
                               {offer.product?.name ||
                                 offer.service?.name ||
                                 "No category"}
