@@ -6,7 +6,7 @@ import { z } from "zod";
 export type Product = {
   id: number;
   name: string;
-  hs_code: string;
+  hs_code?: string;
   description: string;
   image: string | null;
   category: {
@@ -68,7 +68,7 @@ async function getCategories(): Promise<Category[]> {
 async function createProduct(
   newProduct: {
     name: string;
-    hs_code: string;
+    hs_code?: string;
     description: string;
     category: number;
   },
@@ -142,9 +142,8 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
     name: z.string().min(1, { message: "Name is required." }),
     hs_code: z
       .string()
-      .min(1, { message: "HS Code is required for products." })
       .optional()
-      .refine((hs_code) => /^[0-9]+$/.test(hs_code || ""), {
+      .refine((hs_code) => !hs_code || /^[0-9]+$/.test(hs_code), {
         message: "HS Code must be numeric.",
       }),
     description: z.string().min(1, { message: "Description is required." }),
@@ -168,16 +167,9 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
         : "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/services/";
 
     try {
-      if (
-        !newProduct.name ||
-        (!newProduct.hs_code && wishType === "Product") ||
-        !newProduct.description ||
-        !newProduct.category
-      ) {
+      if (!newProduct.name || !newProduct.description || !newProduct.category) {
         const newErrors: Record<string, string> = {};
         if (!newProduct.name) newErrors.name = "Name is required.";
-        if (!newProduct.hs_code && wishType === "Product")
-          newErrors.hs_code = "HS Code is required for products.";
         if (!newProduct.description)
           newErrors.description = "Description is required.";
         if (!newProduct.category) newErrors.category = "Category is required.";
@@ -188,7 +180,7 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
       await createProduct(
         {
           name: newProduct.name,
-          hs_code: newProduct.hs_code,
+          hs_code: newProduct.hs_code || "",
           description: newProduct.description,
           category: parseInt(newProduct.category, 10),
         },
@@ -336,7 +328,6 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
                 disabled={
                   !selectedItem &&
                   (!newProduct.name ||
-                    (!newProduct.hs_code && wishType === "Product") ||
                     !newProduct.description ||
                     !newProduct.category)
                 }

@@ -18,7 +18,7 @@ export type Wish = {
   product?: {
     id: number;
     name: string;
-    hs_code: string;
+    hs_code?: string;
     description: string;
     image?: string | null;
     category: {

@@ -7,7 +7,7 @@ import axios from "axios";
 type Product = {
   id: number;
   name: string;
-  hs_code: string;
+  hs_code?: string;
   description: string;
   image: string | null;
   category?: {
@@ -122,9 +122,11 @@ export default function OfferDetailPage() {
             <p>
               <strong>Name:</strong> {offer.product.name}
             </p>
-            <p>
-              <strong>HS Code:</strong> {offer.product.hs_code}
-            </p>
+            {offer.product.hs_code && (
+              <p>
+                <strong>HS Code:</strong> {offer.product.hs_code}
+              </p>
+            )}
             <p>
               <strong>Description:</strong> {offer.product.description}
             </p>

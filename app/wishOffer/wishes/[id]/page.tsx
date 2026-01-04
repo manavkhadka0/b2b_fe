@@ -10,7 +10,7 @@ import shuffle from "lodash.shuffle";
 type Product = {
   id: number;
   name: string;
-  hs_code: string;
+  hs_code?: string;
   description: string;
   image: string | null;
 };
