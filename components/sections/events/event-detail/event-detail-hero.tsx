@@ -26,7 +26,7 @@ const EventHeader = ({ thumbnail }: { thumbnail?: string }) => (
 
 // Event Info Card Component
 const EventInfoCard = ({ event }: { event: Event }) => (
-  <div className="relative -mt-6 sm:-mt-12 md:-mt-24 lg:-mt-32 mx-3 md:mx-0">
+  <div className="relative -mt-6 sm:-mt-12 md:-mt-24 lg:-mt-14 mx-3 md:mx-0">
     <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-6 lg:gap-8">
         {/* Event Details */}
