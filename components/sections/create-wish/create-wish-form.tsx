@@ -167,17 +167,6 @@ export function CreateWishOfferForm({
   const nextStep = async () => {
     const currentFields = getFieldsForStep(currentStep);
 
-    if (currentStep === 2) {
-      const wishType = form.getValues("type");
-      const fieldToCheck = wishType === "Product" ? "product" : "service";
-      const value = form.getValues(fieldToCheck);
-
-      if (!value) {
-        toast.error(`Please select a ${wishType.toLowerCase()}`);
-        return;
-      }
-    }
-
     const isValid = await form.trigger(currentFields, {
       shouldFocus: true,
     });
