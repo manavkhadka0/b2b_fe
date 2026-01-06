@@ -32,7 +32,7 @@ export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
               <div className="relative py-3">
                 <FloatingInput id="issue-title" placeholder=" " {...field} />
                 <FloatingLabel htmlFor="issue-title">
-                  {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} Title
+                  Product or Service Name
                 </FloatingLabel>
               </div>
             </FormControl>

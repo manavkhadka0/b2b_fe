@@ -11,12 +11,33 @@ import {
 } from "@/components/ui/form";
 import { FloatingInput } from "@/components/ui/floatingInput";
 import { FloatingLabel } from "@/components/ui/floatingInput";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getProvinces,
+  getDistricts,
+  getMunicipalities,
+} from "@manavkhadka0/nepal-address";
 
 interface Step3CompanyProps {
   form: UseFormReturn<CreateWishFormValues>;
 }
 
 export function Step3Company({ form }: Step3CompanyProps) {
+  const provinces = getProvinces();
+  const selectedProvince = form.watch("province");
+  const selectedDistrict = form.watch("district");
+
+  const districts = selectedProvince ? getDistricts(selectedProvince) : [];
+  const municipalities = selectedDistrict
+    ? getMunicipalities(selectedDistrict)
+    : [];
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">Company Information</h2>
@@ -84,11 +105,67 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="province"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Province</FormLabel>
               <FormControl>
-                <div className="relative">
-                  <FloatingInput id="province" placeholder=" " {...field} />
-                  <FloatingLabel htmlFor="province">Province</FloatingLabel>
-                </div>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Reset dependent fields when province changes
+                    form.setValue("district", "");
+                    form.setValue("municipality", "");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select province" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {provinces.map((province) => (
+                      <SelectItem key={province} value={province}>
+                        {province}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="district"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>District</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Reset municipality when district changes
+                    form.setValue("municipality", "");
+                  }}
+                  disabled={!selectedProvince}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        selectedProvince
+                          ? "Select district"
+                          : "Select province first"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {districts.map((district) => (
+                      <SelectItem key={district} value={district}>
+                        {district}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,13 +177,30 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="municipality"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Municipality</FormLabel>
               <FormControl>
-                <div className="relative">
-                  <FloatingInput id="municipality" placeholder=" " {...field} />
-                  <FloatingLabel htmlFor="municipality">
-                    Municipality
-                  </FloatingLabel>
-                </div>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={!selectedDistrict}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        selectedDistrict
+                          ? "Select municipality"
+                          : "Select district first"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {municipalities.map((municipality) => (
+                      <SelectItem key={municipality} value={municipality}>
+                        {municipality}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -118,10 +212,10 @@ export function Step3Company({ form }: Step3CompanyProps) {
           name="ward"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Ward</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <FloatingInput id="ward" placeholder=" " {...field} />
-                  <FloatingLabel htmlFor="ward">Ward</FloatingLabel>
+                  <FloatingInput id="ward" placeholder="Ward" {...field} />
                 </div>
               </FormControl>
               <FormMessage />

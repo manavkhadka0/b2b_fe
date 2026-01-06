@@ -110,6 +110,10 @@ export function Step5Review({
               <p className="font-medium">{values.province}</p>
             </div>
             <div>
+              <span className="text-sm text-gray-500">District:</span>
+              <p className="font-medium">{values.district}</p>
+            </div>
+            <div>
               <span className="text-sm text-gray-500">Municipality:</span>
               <p className="font-medium">{values.municipality}</p>
             </div>

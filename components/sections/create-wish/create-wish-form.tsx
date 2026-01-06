@@ -95,6 +95,7 @@ export function CreateWishOfferForm({
       images: [],
       address: "",
       province: "",
+      district: "",
       municipality: "",
       ward: "",
       type: "Product",
@@ -142,7 +143,14 @@ export function CreateWishOfferForm({
         return wishType === "Product" ? ["product"] : ["service"];
       }
       case 3:
-        return ["company_name", "address", "province", "municipality", "ward"];
+        return [
+          "company_name",
+          "address",
+          "province",
+          "district",
+          "municipality",
+          "ward",
+        ];
       case 4:
         return ["full_name", "designation", "email", "mobile_no"];
       default:

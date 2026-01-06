@@ -40,6 +40,7 @@ export const createWishOfferSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
   address: z.string().min(1, "Address is required"),
   province: z.string().min(1, "Province is required"),
+  district: z.string().min(1, "District is required"),
   municipality: z.string().min(1, "Municipality is required"),
   ward: z.string().min(1, "Ward is required"),
   company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
