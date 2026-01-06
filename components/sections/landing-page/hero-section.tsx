@@ -23,7 +23,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             {/* Improved typography and spacing */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
@@ -31,12 +31,12 @@ export default function HeroSection() {
               <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-600 text-sm font-medium mb-6">
                 Coming Soon • 2025
               </span>
-            </motion.div>
+            </motion.div> */}
 
             <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold text-gray-900 leading-tight mb-6">
-              Join Us at{" "}
+              B2B{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                Birat Expo 2025
+                Networking Platform
               </span>
             </h1>
 
