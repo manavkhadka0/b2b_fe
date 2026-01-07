@@ -48,14 +48,14 @@ export default function WishOfferPage() {
       {/* New Image Grid Section */}
       <div className="flex justify-between items-center mb-10">
         <Image
-          src="/wishes.svg"
+          src="/wishes1.svg"
           alt="Wisher"
           width={136}
           height={108}
           className="w-fit h-[200px]"
         />
         <Image
-          src="/offers.svg"
+          src="/offers1.svg"
           alt="Offers"
           width={454}
           height={316}
@@ -67,8 +67,6 @@ export default function WishOfferPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Wishes Section */}
         <div className=" bg-white rounded-lg">
-          
-
           {/* Wishes Cards */}
           <div className="grid grid-cols-1 gap-y-6">
             {wishes.map((wish) => (
@@ -91,8 +89,6 @@ export default function WishOfferPage() {
 
         {/* Offers Section */}
         <div className=" bg-white rounded-lg">
-          
-
           {/* Offers Cards */}
           <div className="grid grid-cols-1 gap-y-6">
             {offers.map((offer) => (
