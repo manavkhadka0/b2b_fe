@@ -65,7 +65,7 @@ const Footerbot = () => {
               </h3>
               <ul className="space-y-2 text-gray-500">
                 <li>Sahid Marga Biratnagar - 2</li>
-                <li>Province No. 1, Nepal</li>
+                <li>Khosi, Nepal</li>
                 <li>
                   Phone:{" "}
                   <Link
