@@ -6,72 +6,66 @@ import { ResponsiveContainer } from "../common/responsive-container";
 
 export default function HeroSection() {
   return (
-    <main className="relative bg-gradient-to-br from-blue-50 via-white to-gray-50 min-h-[calc(100vh-100px)] overflow-hidden flex items-center w-full">
+    <main className="relative bg-gradient-to-br from-blue-50 via-white to-gray-50 min-h-[calc(100vh-100px)] overflow-hidden flex items-center w-full px-4 md:px-6 py-10 md:py-16">
       {/* Improved background elements */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-blue-100/40 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-gray-100/40 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-blue-100/30 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-gray-100/20 to-transparent rounded-full blur-3xl" />
       </div>
 
       <ResponsiveContainer>
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-14">
           {/* Left Content */}
           <motion.div
-            className="text-center md:text-left max-w-2xl mx-auto md:mx-0"
+            className="max-w-2xl mx-auto md:mx-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            {/* Improved typography and spacing */}
-            {/* <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-600 text-sm font-medium mb-6">
-                Coming Soon • 2025
-              </span>
-            </motion.div> */}
+            <div className=" px-5 py-6 ">
+              <div className="text-center md:text-left">
+                <h1 className="text-3xl md:text-5xl font-semibold md:font-bold text-gray-900 leading-snug md:leading-tight mb-4 md:mb-6 tracking-tight">
+                  Join us at Birat Bazaar{" "}
+                  <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
+                    B2B Networking Platform
+                  </span>
+                </h1>
 
-            <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold text-gray-900 leading-tight mb-6">
-              B2B{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                Networking Platform
-              </span>
-            </h1>
+                <p className="text-gray-700 text-base md:text-lg mb-7 md:mb-8 leading-relaxed md:leading-relaxed">
+                  The Birat Bazaar B2B Networking Platform is a flagship digital
+                  service of the Chamber of Industries Morang (CIM). It
+                  institutionalizes business-to-business (B2B) connections
+                  across Koshi Province and beyond, creating a permanent,
+                  digital-first hub where businesses of all sizes — from
+                  startups and women-led enterprises to MSMEs, farmers, and
+                  service providers — can connect, collaborate, and grow.
+                </p>
 
-            <p className="text-gray-600 text-lg md:text-xl mb-10 leading-relaxed max-w-xl">
-              Discover endless opportunities to connect, collaborate, and grow.
-              Share your{" "}
-              <span className="text-blue-600 font-semibold">Wishes</span>,
-              explore exciting{" "}
-              <span className="text-blue-600 font-semibold">Offers</span>, and
-              unlock new possibilities for your business journey.
-            </p>
-
-            {/* Improved CTA section */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-              <Link href="/events">
-                <motion.button
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-full shadow-lg hover:shadow-blue-200/50 transition-all duration-300 w-full sm:w-auto"
-                  whileHover={{
-                    scale: 1.02,
-                    boxShadow: "0 20px 25px -5px rgb(59 130 246 / 0.25)",
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Explore Events
-                </motion.button>
-              </Link>
-              <Link href="/contact">
-                <motion.button
-                  className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-full shadow-md hover:shadow-lg border border-blue-100 transition-all duration-300 w-full sm:w-auto"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Contact Us
-                </motion.button>
-              </Link>
+                {/* Improved CTA section */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center md:justify-start">
+                  <Link href="/events" className="w-full sm:w-auto">
+                    <motion.button
+                      className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-full shadow-lg hover:shadow-blue-200/60 transition-all duration-300"
+                      whileHover={{
+                        scale: 1.02,
+                        boxShadow: "0 20px 30px -10px rgb(59 130 246 / 0.35)",
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Explore Events
+                    </motion.button>
+                  </Link>
+                  <Link href="/contact" className="w-full sm:w-auto">
+                    <motion.button
+                      className="w-full sm:w-auto px-7 py-3.5 bg-white text-blue-700 font-semibold rounded-full shadow-md hover:shadow-lg border border-blue-100/80 transition-all duration-300"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Contact Us
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </motion.div>
 

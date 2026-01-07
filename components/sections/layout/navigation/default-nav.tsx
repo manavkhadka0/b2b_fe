@@ -56,9 +56,14 @@ export function DefaultNav() {
       <ResponsiveContainer>
         <div className="flex h-20 items-center justify-between">
           {/* Logo Section */}
-          <Link href="/" className="">
-            <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="">
+              <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
+            </Link>
+            <Link href="/" className="">
+              <img src="/cim-logo.webp" alt="cim" className="h-16 w-auto" />
+            </Link>
+          </div>
 
           {/* Nav and CTA Section */}
           <div className="flex items-center gap-8">
