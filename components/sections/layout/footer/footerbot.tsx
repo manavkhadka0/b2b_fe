@@ -124,13 +124,13 @@ const Footerbot = () => {
             {/* Supported By */}
             <div className="flex-1 space-y-4 text-center">
               <h4 className="text-lg font-semibold text-[#1E40AF]">
-                Supported by
+                Initiated by
               </h4>
               <div className="flex justify-center items-center">
                 <img
                   src="/logo.png"
                   alt="Support Logo"
-                  className="h-12 w-auto mx-auto"
+                  className="h-24 w-auto mx-auto"
                 />
               </div>
             </div>
