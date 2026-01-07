@@ -3,6 +3,7 @@
 import { ResponsiveContainer } from "../common/responsive-container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 const scrollToId = (id: string) => {
   if (typeof document === "undefined") return;
@@ -14,6 +15,14 @@ export default function HowToContent() {
   return (
     <div className="min-h-screen bg-white">
       <ResponsiveContainer className="py-12 md:py-16 space-y-12">
+        <div className="flex items-center justify-center gap-6 mx-auto">
+          <Link href="/" className="">
+            <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
+          </Link>
+          <Link href="/" className="">
+            <img src="/cim-logo.webp" alt="cim" className="h-16 w-auto" />
+          </Link>
+        </div>
         {/* Hero Section */}
         <div className="text-center space-y-6 max-w-4xl mx-auto">
           <div className="space-y-3">
