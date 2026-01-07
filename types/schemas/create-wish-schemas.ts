@@ -25,15 +25,7 @@ export const createWishOfferSchema = z.object({
   product: z.string().optional(),
   service: z.string().optional(),
   full_name: z.string().min(2, "Full name is required"),
-  designation: z
-    .string()
-    .min(1, "Designation is required")
-    .refine(
-      (data) => designationOptions.some((option) => option.value === data),
-      {
-        message: "Invalid designation",
-      }
-    ),
+  designation: z.string().min(1, "Designation is required"),
   email: z.string().email("Invalid email address"),
   mobile_no: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
   alternate_no: z.string().optional(),

@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Download } from "lucide-react";
 import { createWishOfferSchema } from "@/types/schemas/create-wish-schemas";
 import type {
   CreateWishFormValues,
@@ -24,6 +27,113 @@ import { Step5Review } from "./create-wish-steps/step-5-review";
 import { cn } from "@/lib/utils";
 import { CheckIcon } from "@radix-ui/react-icons";
 
+type SuccessPayload = {
+  message?: string;
+  fileUrl?: string;
+};
+
+function ThankYouSection({ message, fileUrl }: SuccessPayload) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8"
+        >
+          <div className="text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+                delay: 0.2,
+              }}
+              className="mb-6"
+            >
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                <motion.svg
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </motion.svg>
+              </div>
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"
+            >
+              Application Submitted Successfully
+            </motion.h2>
+
+            {message && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-gray-600 mb-6"
+              >
+                {message}
+              </motion.p>
+            )}
+
+            {fileUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-6"
+              >
+                <Button
+                  asChild
+                  className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+                >
+                  <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="w-4 h-4" />
+                    Download Application PDF
+                  </a>
+                </Button>
+              </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mt-8"
+            >
+              <Button
+                variant="outline"
+                asChild
+                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
+              >
+                <Link href="/wishOffer">Return to Wish/Offer</Link>
+              </Button>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 interface CreateWishFormProps {
   event?: Event;
   onClose?: () => void;
@@ -37,6 +147,9 @@ export function CreateWishOfferForm({
 }: CreateWishFormProps) {
   const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
+    null
+  );
 
   const STEPS = [
     {
@@ -219,10 +332,19 @@ export function CreateWishOfferForm({
 
       if (!response.ok) throw new Error("Failed to create wish");
 
+      const result = await response.json().catch(() => null);
+      const message =
+        result?.message ||
+        result?.detail ||
+        `Your ${
+          is_wish_or_offer === "wishes" ? "wish" : "offer"
+        } was created successfully.`;
+      const fileUrl = result?.file_url || result?.fileUrl;
+
       toast.success("Wish created successfully!");
       form.reset();
       setImage(null);
-      onClose?.();
+      setSuccessPayload({ message, fileUrl });
     } catch (error) {
       console.error("Failed to create wish:", error);
       toast.error("Failed to create wish");
@@ -255,6 +377,15 @@ export function CreateWishOfferForm({
   }, [form.watch("type")]);
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+
+  if (successPayload) {
+    return (
+      <ThankYouSection
+        message={successPayload.message}
+        fileUrl={successPayload.fileUrl}
+      />
+    );
+  }
 
   const renderStep = () => {
     switch (currentStep) {
