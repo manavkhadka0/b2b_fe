@@ -35,7 +35,7 @@ const EventDetailOrganizer = ({ event }: { event: Event }) => {
       {/* Sponsors Section */}
       <div>
         <h2 className="text-xl font-bold mb-4">Event Sponsors</h2>
-        {event?.sponsors && event.sponsors.length > 0 ? (
+        {/* {event?.sponsors && event.sponsors.length > 0 ? (
           <div className="grid gap-6">
             {event.sponsors.map((sponsor: Sponsor) => (
               <div
@@ -72,7 +72,10 @@ const EventDetailOrganizer = ({ event }: { event: Event }) => {
           <p className="text-gray-500 italic">
             No sponsors are currently listed for this event.
           </p>
-        )}
+        )} */}
+        <p className="text-gray-500 italic">
+          No sponsors are currently listed for this event.
+        </p>
       </div>
 
       {/* Share Section */}
