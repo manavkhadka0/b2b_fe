@@ -80,6 +80,8 @@ export interface Event {
   wishes?: Wish[]; // Added property
   offers?: Offer[];
   url?: string; // Added property
+  contact_person: string;
+  contact_number: string;
 }
 
 export interface EventResponse {

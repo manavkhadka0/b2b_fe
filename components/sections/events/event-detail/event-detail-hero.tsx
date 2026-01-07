@@ -92,7 +92,8 @@ const ContactInfo = ({ event }: { event: Event }) => (
   <div className="flex items-center space-x-2 md:space-x-3 text-gray-600">
     <Phone className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
     <p className="text-sm md:text-base">
-      {event?.organizer?.phone_number || "Contact not available"}
+      {event?.contact_person || "Contact not available"} -{" "}
+      {event?.contact_number || "Contact not available"}
     </p>
   </div>
 );
