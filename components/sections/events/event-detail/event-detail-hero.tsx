@@ -179,19 +179,19 @@ const EventDetailHero = ({ event }: { event: Event }) => {
         <EventHeader thumbnail={event?.thumbnail} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start max-w-6xl mx-auto">
           {/* Left Column - Event Info Card */}
-          <div className="md:col-span-2 space-y-6 md:space-y-10">
+          <div className="md:col-span-2 space-y-6 md:space-y-20">
             <EventInfoCard event={event} />
             <EventDetailAbout event={event} />
             <EventDetailAgenda event={event} />
             <EventDetailGallery event={event} />
-            <EventWishesSection event={event} />
-            <EventOffersSection event={event} />
+            <EventWishesSection  />
+            <EventOffersSection  />
           </div>
 
           {/* Right Column - Sticky Organizer and Participate Section */}
           <div className="sticky top-24 space-y-6">
             <EventDetailOrganizer event={event} />
-            <ParticipateSection event={event} />
+            <ParticipateSection />
           </div>
         </div>
       </div>

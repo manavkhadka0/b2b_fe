@@ -3,14 +3,10 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Event } from "@/types/events";
 import { CreateWishOfferForm } from "@/components/sections/create-wish/create-wish-form";
+import { Plus } from "lucide-react";
 
-interface ParticipateSectionProps {
-  event: Event;
-}
-
-const ParticipateSection = ({ event }: ParticipateSectionProps) => {
+const ParticipateSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeForm, setActiveForm] = useState<"wish" | "offer" | null>(null);
 
@@ -31,16 +27,16 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
         <Button
           onClick={() => handleFormSelect("wish")}
           variant="default"
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-blue-500 hover:bg-blue-600 text-xs"
         >
-          Wish →
+          Create a Wish(क्रेता) <Plus />
         </Button>
         <Button
           onClick={() => handleFormSelect("offer")}
           variant="default"
-          className="bg-green-500 hover:bg-green-600"
+          className="bg-green-500 hover:bg-green-600 text-xs"
         >
-          Offer →
+          Create a Offer(बिक्रेता) <Plus />
         </Button>
       </div>
 
@@ -48,13 +44,11 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
           {activeForm === "wish" ? (
             <CreateWishOfferForm
-              event={event}
               onClose={handleDialogClose}
               is_wish_or_offer="wishes"
             />
           ) : (
             <CreateWishOfferForm
-              event={event}
               onClose={handleDialogClose}
               is_wish_or_offer="offers"
             />

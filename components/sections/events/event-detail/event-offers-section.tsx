@@ -1,7 +1,22 @@
-import { Event } from "@/types/events";
+"use client";
 import { HeaderSubtitle } from "../../common/header-subtitle";
+import { useOffers } from "@/app/utils/wishOffer";
+import WishOfferCard from "@/components/wish-offer-card";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-const EventOffersSection = ({ event }: { event: Event }) => {
+const EventOffersSection = () => {
+  const { offers, isLoading: offerLoading, error: offerError } = useOffers();
+  const router = useRouter();
+
+  if (offerLoading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <HeaderSubtitle
@@ -9,28 +24,22 @@ const EventOffersSection = ({ event }: { event: Event }) => {
         subtitle="Check out special offers for this event"
       />
 
-      {event?.offers && event.offers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {event.offers.map((offer) => (
-            <div
+      {offers && offers.length > 0 ? (
+        <div className="grid grid-cols-1 gap-y-6">
+          {offers.map((offer) => (
+            <WishOfferCard
               key={offer.id}
-              className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow"
-            >
-              <h3 className="font-bold text-lg mb-2">{offer.title}</h3>
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-blue-600 border border-blue-600 rounded-full px-2 py-1 text-xs font-medium">
-                  {offer.offer_type}
-                </span>
-                <span className="text-gray-400 text-xs">{offer.status}</span>
-              </div>
-              <p className="text-gray-600 text-sm">
-                {offer.product
-                  ? `Product ID: ${offer.product}`
-                  : offer.service
-                  ? `Service ID: ${offer.service}`
-                  : "No additional details available"}
-              </p>
-            </div>
+              title={offer.title}
+              description={""}
+              tags={[
+                offer.product?.name ||
+                  offer.service?.name ||
+                  "No tag available",
+              ]}
+              hCode={[offer.product?.hs_code || "No HS Code"]}
+              matchPercentage={offer.match_percentage || 0}
+              onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
+            />
           ))}
         </div>
       ) : (

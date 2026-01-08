@@ -14,8 +14,8 @@ const EventDetailContent = ({ event }: { event: Event }) => {
         <EventDetailAgenda event={event} />
       </div>
       <EventDetailGallery event={event} />
-      <EventWishesSection event={event} />
-      <EventOffersSection event={event} />
+      <EventWishesSection />
+      <EventOffersSection />
     </ResponsiveContainer>
   );
 };
