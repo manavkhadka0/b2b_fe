@@ -507,7 +507,9 @@ export function CreateWishOfferForm({
                   {currentStep === STEPS.length
                     ? isSubmitting
                       ? "Creating..."
-                      : "Create Wish"
+                      : is_wish_or_offer === "wishes"
+                      ? "Create Wish"
+                      : "Create Offer"
                     : "Next"}
                 </Button>
               </div>
