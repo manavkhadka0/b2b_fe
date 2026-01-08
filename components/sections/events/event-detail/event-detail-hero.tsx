@@ -1,10 +1,24 @@
-import { formatDateTime } from "@/lib/utils";
-import { BsCalendar2Date } from "react-icons/bs";
 import type { Attendee, Event } from "@/types/events";
 import { Calendar, Clock, MapIcon, Phone } from "lucide-react";
 import ShareButtons from "@/components/ui/shareButton";
 import ParticipateSection from "@/app/ParticipateModal";
 import { ResponsiveContainer } from "../../common/responsive-container";
+
+// Helper function to extract date part from "Poush 27, 2082 10:00 AM" format
+const extractDate = (dateTimeString: string): string => {
+  if (!dateTimeString) return "";
+  // Match pattern: date part ends before time (HH:MM AM/PM)
+  const match = dateTimeString.match(/^(.+?)\s+\d{1,2}:\d{2}\s+(AM|PM)$/);
+  return match ? match[1].trim() : dateTimeString;
+};
+
+// Helper function to extract time part from "Poush 27, 2082 10:00 AM" format
+const extractTime = (dateTimeString: string): string => {
+  if (!dateTimeString) return "";
+  // Match pattern: time part (HH:MM AM/PM)
+  const match = dateTimeString.match(/(\d{1,2}:\d{2}\s+(AM|PM))$/);
+  return match ? match[1] : "";
+};
 
 // Event Header Component
 const EventHeader = ({ thumbnail }: { thumbnail?: string }) => (
@@ -50,10 +64,7 @@ const EventInfoCard = ({ event }: { event: Event }) => (
       {/* Bottom Section */}
       <div className="mt-4 sm:mt-6 md:mt-3 pt-3 sm:pt-3 border-t grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
         <AttendeesList attendees_count={event?.attendees_count} />
-        <div className="flex justify-start md:justify-center">
-          <ShareSection event={event} />
-        </div>
-        <div className="flex justify-start md:justify-end">
+        <div className="flex justify-start md:justify-end md:col-start-3 w-full">
           <ParticipateSection event={event} />
         </div>
       </div>
@@ -72,7 +83,7 @@ const EventDetails = ({ event }: { event: Event }) => (
       <Calendar className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
       <p className="text-sm md:text-base">
         {event?.start_date
-          ? formatDateTime(event.start_date, "EEE, MMM d yyyy")
+          ? extractDate(event.start_date)
           : "Date not available"}
       </p>
     </div>
@@ -80,7 +91,7 @@ const EventDetails = ({ event }: { event: Event }) => (
       <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
       <p className="text-sm md:text-base">
         {event?.start_date
-          ? formatDateTime(event.start_date, "hh:mm a")
+          ? extractTime(event.start_date) || "Time not available"
           : "Time not available"}
       </p>
     </div>
@@ -101,10 +112,10 @@ const ContactInfo = ({ event }: { event: Event }) => (
 // Schedule Info Component
 const ScheduleInfo = ({ event }: { event: Event }) => (
   <div className="flex items-center space-x-2 md:space-x-3 text-gray-600">
-    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+    <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
     <p className="text-sm md:text-base">
       {event?.end_date
-        ? formatDateTime(event.end_date, "EEE, MMM d yyyy")
+        ? `Ends: ${extractTime(event.end_date) || extractDate(event.end_date)}`
         : "End date not available"}
     </p>
   </div>

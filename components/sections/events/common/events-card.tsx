@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import { MapPin } from "lucide-react";
-import { format } from "date-fns";
 import type { Event } from "@/types/events";
 import { Avatar, AvatarFallback } from "../../../ui/avatar";
 import Link from "next/link";
@@ -11,11 +10,6 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event }: EventCardProps) => {
-  // Format the event start date using date-fns
-  const formattedDate = event.start_date
-    ? format(new Date(event.start_date), "MMMM dd, yyyy")
-    : "Date not available";
-
   return (
     <div className="bg-white p-4 rounded-lg flex flex-col justify-between overflow-hidden border hover:shadow-lg transition-shadow">
       <Link href={`/events/${event.slug}`}>
@@ -44,7 +38,7 @@ const EventCard = ({ event }: EventCardProps) => {
             </span>
           </div>
           {/* Date */}
-          <p className="text-gray-600 text-sm ">{formattedDate}</p>
+          <p className="text-gray-600 text-sm ">{event.start_date}</p>
         </div>
 
         {/* Title */}

@@ -1,5 +1,7 @@
+"use client";
 import { MapPin } from "lucide-react";
 import { ResponsiveContainer } from "../../common/responsive-container";
+import { useRouter } from "next/navigation";
 
 const districts = [
   {
@@ -41,6 +43,7 @@ const districts = [
   {
     name: "Bhojpur",
     image: "/sunsari.jpg", // Bhojpur Village
+    link: "/events/bhojpur-b2b-event",
   },
   {
     name: "Solukhumbu",
@@ -53,14 +56,17 @@ const districts = [
   {
     name: "Khotang",
     image: "/dhankuta.jpg", // Khotang
+    link: "/events/khotang-b2b-event",
   },
   {
     name: "Udayapur",
     image: "/panchthar.jpg", // Udayapur
+    link: "/events/udayapur-b2b-event",
   },
 ];
 
 export function B2BNetworking() {
+  const router = useRouter();
   return (
     <div className="bg-gradient-to-br from-blue-50 to-purple-50">
       <ResponsiveContainer className="py-10">
@@ -82,6 +88,7 @@ export function B2BNetworking() {
               <div
                 key={district.name}
                 className="relative shrink-0 w-36 h-44 rounded-lg overflow-hidden shadow-md"
+                onClick={() => router.push(district.link || "")}
               >
                 {/* Image wrapper div with hover effect */}
                 <div className="w-full h-full overflow-hidden">
