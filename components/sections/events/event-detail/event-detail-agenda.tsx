@@ -35,9 +35,11 @@ const EventDetailAgenda = ({ event }: { event: Event }) => {
                   <TableCell>
                     <ul className="list-disc list-inside text-gray-600">
                       <p className="font-bold">{item.title}</p>
-                      <div className="ml-3">
-                        <li>{item.description}</li>
-                      </div>
+                      {item.description && (
+                        <div className="ml-3">
+                          <li>{item.description}</li>
+                        </div>
+                      )}
                     </ul>
                   </TableCell>
                   <TableCell className="text-right font-bold">

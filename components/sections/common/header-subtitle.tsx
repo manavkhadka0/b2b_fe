@@ -14,14 +14,14 @@ export const HeaderSubtitle = ({
   isRichtext = false,
 }: HeaderSubtitleProps) => {
   return (
-    <div>
+    <div className="space-y-6">
       <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
         {title}
       </h1>
       <p className="text-gray-600 mt-2">
         {isRichtext ? (
           <div
-            className="text-gray-600 mt-2 space-y-4 text-left prose prose-sm sm:prose md:prose-lg lg:prose-xl "
+            className="text-gray-600 mt-2 space-y-8 text-left prose prose-sm sm:prose md:prose-lg lg:prose-xl  "
             dangerouslySetInnerHTML={{ __html: subtitle }}
           />
         ) : (
