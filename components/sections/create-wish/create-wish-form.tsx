@@ -416,6 +416,8 @@ export function CreateWishOfferForm({
             setServices={setServices}
             image={image}
             setImage={setImage}
+            setProducts={setProducts}
+            setIsLoadingProducts={setIsLoadingProducts}
           />
         );
       case 3:

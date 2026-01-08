@@ -36,23 +36,29 @@ const Footerbot = () => {
               </h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="#" className="hover:text-blue-500">
-                    About Us
+                  <Link href="/events" className="hover:text-blue-500">
+                    B2B Events
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-blue-500">
+                  <Link href="/wishOffer" className="hover:text-blue-500">
+                    Wish & Offer
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/bdsService" className="hover:text-blue-500">
                     Services
                   </Link>
                 </li>
+
                 <li>
-                  <Link href="#" className="hover:text-blue-500">
-                    Events
+                  <Link href="/contacts" className="hover:text-blue-500">
+                    Contact
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-blue-500">
-                    Contact
+                  <Link href="/howto" className="hover:text-blue-500">
+                    How to Apply
                   </Link>
                 </li>
               </ul>
@@ -133,6 +139,18 @@ const Footerbot = () => {
                   className="h-24 w-auto mx-auto"
                 />
               </div>
+              <h4 className="text-lg font-semibold text-[#1E40AF]">
+                Developed by
+              </h4>
+              <Link href="https://baliyotech.com" target="_blank">
+                <div className="flex justify-center items-center bg-black w-32 mx-auto">
+                  <img
+                    src="/baliyotech.svg"
+                    alt="Support Logo"
+                    className="h-16 w-auto "
+                  />
+                </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -147,28 +165,28 @@ const Footerbot = () => {
           {/* Right - Social Icons */}
           <div className="flex space-x-6">
             <Link
-              href="#"
+              href="https://www.facebook.com/ChamberOfIndustriesMorang"
               className="text-gray-700 hover:text-blue-500 transition"
               aria-label="Facebook"
             >
               <FacebookIcon size={24} />
             </Link>
             <Link
-              href="#"
+              href="https://www.linkedin.com/in/chamber-of-industries-morang-cim-24378b378/"
               className="text-gray-700 hover:text-blue-500 transition"
               aria-label="LinkedIn"
             >
               <LinkedinIcon size={24} />
             </Link>
             <Link
-              href="#"
+              href="https://x.com/CIM_Biratnagar"
               className="text-gray-700 hover:text-blue-500 transition"
               aria-label="Twitter"
             >
               <TwitterIcon size={24} />
             </Link>
             <Link
-              href="#"
+              href="https://www.instagram.com/chamberofindustriesmorang"
               className="text-gray-700 hover:text-blue-500 transition"
               aria-label="Instagram"
             >

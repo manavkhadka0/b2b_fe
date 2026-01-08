@@ -58,10 +58,10 @@ export const EventGridSection = ({ eventsResponse }: EventGridSectionProps) => {
   }
 
   return (
-    <ResponsiveContainer className="space-y-6 py-10">
+    <ResponsiveContainer className="space-y-6 py-10 mb-40">
       <HeaderSubtitle
-        title="Popular Upcoming  Events"
-        subtitle="Attend the most popular events in your area"
+        title="Upcoming B2B Networking Events"
+        subtitle="Attend the most popular B2B networking events in your area"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((event: Event) => (

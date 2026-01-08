@@ -68,7 +68,7 @@ const districts = [
 export function B2BNetworking() {
   const router = useRouter();
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="bg-white">
       <ResponsiveContainer className="py-10">
         {/* District B2B Networking Section */}
         <div className="mb-8">

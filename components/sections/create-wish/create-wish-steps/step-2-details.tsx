@@ -1,6 +1,7 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
+import { useEffect, useState } from "react";
 import type {
   CreateWishFormValues,
   HSCode,
@@ -37,6 +38,8 @@ import {
 } from "@/components/ui/dialog";
 import { ServiceForm } from "../service-form";
 import { ImageUploadSection } from "./image-upload";
+import { useDebounce } from "@/hooks/use-debounce";
+import { toast } from "sonner";
 
 interface Step2DetailsProps {
   form: UseFormReturn<CreateWishFormValues>;
@@ -61,6 +64,8 @@ interface Step2DetailsProps {
   setServices: React.Dispatch<React.SetStateAction<Service[]>>;
   image: ImageUpload | null;
   setImage: (image: ImageUpload | null) => void;
+  setProducts: React.Dispatch<React.SetStateAction<HSCode[]>>;
+  setIsLoadingProducts: (loading: boolean) => void;
 }
 
 export function Step2Details({
@@ -86,8 +91,109 @@ export function Step2Details({
   setServices,
   image,
   setImage,
+  setProducts,
+  setIsLoadingProducts,
 }: Step2DetailsProps) {
   const type = form.watch("type");
+  const [localSearchValue, setLocalSearchValue] = useState("");
+  const debouncedSearchValue = useDebounce(localSearchValue, 300);
+  const [hasLoadedInitialProducts, setHasLoadedInitialProducts] =
+    useState(false);
+
+  // Load initial products when popover opens for the first time
+  useEffect(() => {
+    if (
+      type === "Product" &&
+      productSearchOpen &&
+      !hasLoadedInitialProducts &&
+      localSearchValue === "" &&
+      products.length === 0
+    ) {
+      const loadInitialProducts = async () => {
+        setIsLoadingProducts(true);
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`
+          );
+
+          if (!response.ok) throw new Error("Failed to fetch products");
+
+          const data = await response.json();
+          setProducts(data.results || []);
+          setHasLoadedInitialProducts(true);
+        } catch (error) {
+          console.error("Failed to fetch initial products:", error);
+          toast.error("Failed to load products");
+        } finally {
+          setIsLoadingProducts(false);
+        }
+      };
+
+      loadInitialProducts();
+    }
+  }, [
+    productSearchOpen,
+    type,
+    hasLoadedInitialProducts,
+    localSearchValue,
+    products.length,
+    setProducts,
+    setIsLoadingProducts,
+  ]);
+
+  // Handle debounced search - update parent's search value only when >= 3 chars
+  useEffect(() => {
+    if (type === "Product") {
+      if (debouncedSearchValue.length >= 3) {
+        // Update parent's search value to trigger search
+        setProductSearchValue(debouncedSearchValue);
+      } else if (debouncedSearchValue === "" && hasLoadedInitialProducts) {
+        // When search is cleared, reload initial products directly
+        // We don't update productSearchValue here to avoid triggering parent's clear logic
+        const loadInitialProducts = async () => {
+          setIsLoadingProducts(true);
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`
+            );
+
+            if (!response.ok) throw new Error("Failed to fetch products");
+
+            const data = await response.json();
+            setProducts(data.results || []);
+          } catch (error) {
+            console.error("Failed to fetch initial products:", error);
+            toast.error("Failed to load products");
+          } finally {
+            setIsLoadingProducts(false);
+          }
+        };
+        loadInitialProducts();
+      } else if (
+        debouncedSearchValue.length > 0 &&
+        debouncedSearchValue.length < 3
+      ) {
+        // Clear products if search is less than 3 characters
+        setProducts([]);
+      }
+    }
+  }, [
+    debouncedSearchValue,
+    type,
+    setProductSearchValue,
+    hasLoadedInitialProducts,
+    setProducts,
+    setIsLoadingProducts,
+  ]);
+
+  // Reset local search when popover closes
+  useEffect(() => {
+    if (!productSearchOpen) {
+      setLocalSearchValue("");
+      // Reset flag so initial products load again when popover reopens
+      setHasLoadedInitialProducts(false);
+    }
+  }, [productSearchOpen]);
 
   return (
     <div className="space-y-6">
@@ -126,21 +232,30 @@ export function Step2Details({
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
+                <PopoverContent className="w-full p-0 max-h-80" align="start">
                   <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Search HS codes..."
-                      value={productSearchValue}
-                      onValueChange={setProductSearchValue}
+                      value={localSearchValue}
+                      onValueChange={(value) => {
+                        setLocalSearchValue(value);
+                        if (value.length < 3 && value.length > 0) {
+                          // Clear products if search is less than 3 characters
+                          setProducts([]);
+                        }
+                      }}
                     />
                     <CommandEmpty>
-                      {productSearchValue.length < 3
+                      {localSearchValue.length > 0 &&
+                      localSearchValue.length < 3
                         ? "Type at least 3 characters to search..."
                         : isLoadingProducts
                         ? "Loading..."
+                        : products.length === 0 && localSearchValue.length === 0
+                        ? "Start typing to search..."
                         : "No products found."}
                     </CommandEmpty>
-                    <CommandGroup>
+                    <CommandGroup className="max-h-64 overflow-y-auto">
                       {products.map((product) => (
                         <CommandItem
                           key={product.id}
@@ -149,6 +264,7 @@ export function Step2Details({
                             form.setValue("product", product.id.toString());
                             setSelectedProduct(product);
                             setProductSearchOpen(false);
+                            setLocalSearchValue("");
                             setProductSearchValue("");
                           }}
                         >
@@ -234,7 +350,7 @@ export function Step2Details({
                           </div>
                         )}
                       </CommandEmpty>
-                      <CommandGroup>
+                      <CommandGroup className="max-h-64 overflow-y-auto">
                         {services
                           .filter((service) =>
                             service.name

@@ -22,26 +22,19 @@ const extractTime = (dateTimeString: string): string => {
 
 // Event Header Component
 const EventHeader = ({ thumbnail }: { thumbnail?: string }) => (
-  <div className="relative w-full">
-    {/* Aspect ratio container - adjusted for different screen sizes */}
-    <div className="relative w-full aspect-[3/2] sm:aspect-[3/1.5] md:aspect-[4/1.5] lg:aspect-[4/1]">
-      {/* Image container */}
-      <div
-        className="absolute inset-0 bg-no-repeat bg-center bg-cover"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${
-            thumbnail || "/event.svg"
-          }')`,
-        }}
-      />
-    </div>
+  <div className="w-full rounded-xl overflow-hidden bg-gray-100 mt-8">
+    <img
+      src={thumbnail || "/event.svg"}
+      alt="Event banner"
+      className="w-full h-auto max-h-[480px] object-cover"
+    />
   </div>
 );
 
 // Event Info Card Component
 const EventInfoCard = ({ event }: { event: Event }) => (
-  <div className="relative -mt-6 sm:-mt-12 md:-mt-24 lg:-mt-14 mx-3 md:mx-0">
-    <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
+  <div className="relative mx-0">
+    <div className="bg-white rounded-lg md:rounded-xl p-4 sm:p-6 md:p-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-6 lg:gap-8">
         {/* Event Details */}
         <div className="space-y-[10px] md:space-y-4">
@@ -181,12 +174,12 @@ const ShareSection = ({ event }: { event: Event }) => (
 // Main Event Detail View Component
 const EventDetailHero = ({ event }: { event: Event }) => {
   return (
-    <div className="">
-      <EventHeader thumbnail={event?.thumbnail} />
-      <ResponsiveContainer>
+    <ResponsiveContainer>
+      <div className="space-y-6 md:space-y-8">
+        <EventHeader thumbnail={event?.thumbnail} />
         <EventInfoCard event={event} />
-      </ResponsiveContainer>
-    </div>
+      </div>
+    </ResponsiveContainer>
   );
 };
 
