@@ -120,7 +120,7 @@ export default function WishDetailPage() {
         {wish.image && (
           <div className="w-full h-64 overflow-hidden">
             <img
-              src={wish.image}
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${wish.image}`}
               alt={wish.title}
               className="w-full h-full object-cover"
             />
