@@ -9,9 +9,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 
 const navItems = [
+  { label: "Home", href: "/" },
   { label: "B2B Events", href: "/events" },
   { label: "Wish & Offer", href: "/wishOffer" },
-  { label: "BDS Services", href: "/bdsService" },
   { label: "Contact", href: "/contacts" },
   { label: "How to Apply", href: "/howto" },
 ];

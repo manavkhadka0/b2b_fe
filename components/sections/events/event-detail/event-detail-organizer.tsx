@@ -4,7 +4,7 @@ import ShareButtons from "@/components/ui/shareButton";
 
 const EventDetailOrganizer = ({ event }: { event: Event }) => {
   return (
-    <div className="bg-white sticky top-24 rounded-lg shadow-md p-6 space-y-6">
+    <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6 border border-gray-100">
       {/* Organizer Section */}
       <div className="border-b pb-4">
         <h2 className="text-xl font-bold mb-4">Event Organizer</h2>

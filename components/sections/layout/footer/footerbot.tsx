@@ -36,6 +36,11 @@ const Footerbot = () => {
               </h3>
               <ul className="space-y-2">
                 <li>
+                  <Link href="/" className="hover:text-blue-500">
+                    Home
+                  </Link>
+                </li>
+                <li>
                   <Link href="/events" className="hover:text-blue-500">
                     B2B Events
                   </Link>
@@ -43,11 +48,6 @@ const Footerbot = () => {
                 <li>
                   <Link href="/wishOffer" className="hover:text-blue-500">
                     Wish & Offer
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/bdsService" className="hover:text-blue-500">
-                    Services
                   </Link>
                 </li>
 

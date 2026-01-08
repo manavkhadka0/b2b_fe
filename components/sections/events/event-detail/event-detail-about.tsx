@@ -4,7 +4,11 @@ import { HeaderSubtitle } from "../../common/header-subtitle";
 const EventDetailAbout = ({ event }: { event: Event }) => {
   return (
     <div className="">
-      <HeaderSubtitle title="About the Event" subtitle={event?.description} />
+      <HeaderSubtitle
+        title="About the Event"
+        subtitle={event?.description}
+        isRichtext={true}
+      />
     </div>
   );
 };

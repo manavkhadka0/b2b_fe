@@ -2,7 +2,13 @@ import type { Attendee, Event } from "@/types/events";
 import { Calendar, Clock, MapIcon, Phone } from "lucide-react";
 import ShareButtons from "@/components/ui/shareButton";
 import ParticipateSection from "@/app/ParticipateModal";
+import EventDetailOrganizer from "./event-detail-organizer";
 import { ResponsiveContainer } from "../../common/responsive-container";
+import EventDetailAbout from "./event-detail-about";
+import EventDetailAgenda from "./event-detail-agenda";
+import EventDetailGallery from "./event-detail-gallery";
+import EventWishesSection from "./event-wishes-section";
+import EventOffersSection from "./event-offers-section";
 
 // Helper function to extract date part from "Poush 27, 2082 10:00 AM" format
 const extractDate = (dateTimeString: string): string => {
@@ -33,120 +39,114 @@ const EventHeader = ({ thumbnail }: { thumbnail?: string }) => (
 
 // Event Info Card Component
 const EventInfoCard = ({ event }: { event: Event }) => (
-  <div className="relative mx-0">
-    <div className="bg-white rounded-lg md:rounded-xl p-4 sm:p-6 md:p-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-6 lg:gap-8">
-        {/* Event Details */}
-        <div className="space-y-[10px] md:space-y-4">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-            {event?.title}
-          </h1>
-          <EventDetails event={event} />
-        </div>
+  <div className="bg-white rounded-lg md:rounded-xl py-4">
+    <div className="space-y-4 md:space-y-5">
+      {/* Event Title */}
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+        {event?.title}
+      </h1>
 
-        {/* Contact & Schedule */}
-        <div className="space-y-[10px] md:space-y-4">
-          <ContactInfo event={event} />
-          <ScheduleInfo event={event} />
-        </div>
+      {/* Event Details */}
+      <EventDetails event={event} />
 
-        {/* Sponsor Section */}
-        <SponsorSection sponsors={event?.sponsors} />
-      </div>
+      {/* Contact Info */}
+      <ContactInfo event={event} />
 
-      {/* Bottom Section */}
-      <div className="mt-4 sm:mt-6 md:mt-3 pt-3 sm:pt-3 border-t grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
-        <AttendeesList attendees_count={event?.attendees_count} />
-        <div className="flex justify-start md:justify-end md:col-start-3 w-full">
-          <ParticipateSection event={event} />
-        </div>
-      </div>
+      {/* Sponsor Section */}
+      <SponsorSection sponsors={event?.sponsors} />
+    </div>
+
+    {/* Bottom Section */}
+    <div className="mt-6 pt-4 border-t border-gray-200">
+      <AttendeesList attendees_count={event?.attendees_count} />
     </div>
   </div>
 );
 
 // Event Details Component
 const EventDetails = ({ event }: { event: Event }) => (
-  <div className="text-gray-600 space-y-2 md:space-y-3">
-    <div className="flex items-center space-x-2 md:space-x-3">
-      <MapIcon className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-      <p className="text-sm md:text-base">{event?.location}</p>
-    </div>
-    <div className="flex items-center space-x-2 md:space-x-3">
-      <Calendar className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-      <p className="text-sm md:text-base">
-        {event?.start_date
-          ? extractDate(event.start_date)
-          : "Date not available"}
-      </p>
-    </div>
-    <div className="flex items-center space-x-2 md:space-x-3">
-      <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-      <p className="text-sm md:text-base">
-        {event?.start_date
-          ? extractTime(event.start_date) || "Time not available"
-          : "Time not available"}
-      </p>
-    </div>
+  <div className="space-y-3 text-gray-700">
+    {event?.location && (
+      <div className="flex items-start gap-3">
+        <MapIcon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <p className="text-sm md:text-base leading-relaxed">{event.location}</p>
+      </div>
+    )}
+    {event?.start_date && (
+      <div className="flex items-start gap-3">
+        <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <p className="text-sm md:text-base leading-relaxed">
+          {extractDate(event.start_date)}
+        </p>
+      </div>
+    )}
+    {(event?.start_date || event?.end_date) && (
+      <div className="flex items-start gap-3">
+        <Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <p className="text-sm md:text-base leading-relaxed">
+          {event?.start_date
+            ? extractTime(event.start_date) || "Time not available"
+            : "Time not available"}
+          {event?.end_date
+            ? ` - ${extractTime(event.end_date) || extractDate(event.end_date)}`
+            : ""}
+        </p>
+      </div>
+    )}
   </div>
 );
 
 // Contact Info Component
-const ContactInfo = ({ event }: { event: Event }) => (
-  <div className="flex items-center space-x-2 md:space-x-3 text-gray-600">
-    <Phone className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-    <p className="text-sm md:text-base">
-      {event?.contact_person || "Contact not available"} -{" "}
-      {event?.contact_number || "Contact not available"}
-    </p>
-  </div>
-);
+const ContactInfo = ({ event }: { event: Event }) => {
+  if (!event?.contact_person && !event?.contact_number) return null;
 
-// Schedule Info Component
-const ScheduleInfo = ({ event }: { event: Event }) => (
-  <div className="flex items-center space-x-2 md:space-x-3 text-gray-600">
-    <Clock className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-    <p className="text-sm md:text-base">
-      {event?.end_date
-        ? `Ends: ${extractTime(event.end_date) || extractDate(event.end_date)}`
-        : "End date not available"}
-    </p>
-  </div>
-);
+  return (
+    <div className="flex items-start gap-3 text-gray-700">
+      <Phone className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+      <p className="text-sm md:text-base leading-relaxed">
+        {event?.contact_person && (
+          <>
+            {event.contact_person}
+            {event?.contact_number && " - "}
+          </>
+        )}
+        {event?.contact_number}
+      </p>
+    </div>
+  );
+};
 
 // Sponsor Section Component
-const SponsorSection = ({ sponsors }: { sponsors?: Event["sponsors"] }) => (
-  <div className="flex flex-col items-start md:items-end space-y-2 md:space-y-4">
-    <h3 className="text-gray-600 text-sm md:text-base font-medium">
-      In Association with
-    </h3>
-    {sponsors && sponsors.length > 0 ? (
-      <div className="flex flex-col items-start md:items-center">
+const SponsorSection = ({ sponsors }: { sponsors?: Event["sponsors"] }) => {
+  if (!sponsors || sponsors.length === 0) return null;
+
+  return (
+    <div className="flex flex-col space-y-3 pt-2">
+      <h3 className="text-gray-600 text-sm md:text-base font-medium">
+        In Association with
+      </h3>
+      <div className="flex items-center gap-3">
         <a
           href={sponsors[0]?.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex flex-col items-start md:items-center"
+          className="group flex items-center gap-3"
         >
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-lg overflow-hidden bg-white flex items-center justify-center transition-transform group-hover:scale-105">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-md overflow-hidden bg-white flex items-center justify-center transition-transform group-hover:scale-105 flex-shrink-0">
             <img
               src={sponsors[0]?.logo}
               alt={sponsors[0]?.name}
-              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+              className="w-12 h-12 md:w-14 md:h-14 object-contain"
             />
           </div>
-          <p className="text-center mt-2 md:mt-3 text-sm md:text-base font-semibold text-gray-900">
+          <p className="text-sm md:text-base font-semibold text-gray-900">
             {sponsors[0]?.name}
           </p>
         </a>
       </div>
-    ) : (
-      <p className="text-gray-500 text-sm md:text-base">
-        No sponsors available
-      </p>
-    )}
-  </div>
-);
+    </div>
+  );
+};
 
 // Attendees List Component
 const AttendeesList = ({
@@ -177,7 +177,23 @@ const EventDetailHero = ({ event }: { event: Event }) => {
     <ResponsiveContainer>
       <div className="space-y-6 md:space-y-8">
         <EventHeader thumbnail={event?.thumbnail} />
-        <EventInfoCard event={event} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {/* Left Column - Event Info Card */}
+          <div className="md:col-span-2 space-y-6">
+            <EventInfoCard event={event} />
+            <EventDetailAbout event={event} />
+            <EventDetailAgenda event={event} />
+            <EventDetailGallery event={event} />
+            <EventWishesSection event={event} />
+            <EventOffersSection event={event} />
+          </div>
+
+          {/* Right Column - Sticky Organizer and Participate Section */}
+          <div className="sticky top-24 space-y-6">
+            <EventDetailOrganizer event={event} />
+            <ParticipateSection event={event} />
+          </div>
+        </div>
       </div>
     </ResponsiveContainer>
   );

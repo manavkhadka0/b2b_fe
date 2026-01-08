@@ -6,7 +6,7 @@ export default function EventDetailView({ event }: { event: Event }) {
   return (
     <>
       <EventDetailHero event={event} />
-      <EventDetailContent event={event} />
+      {/* <EventDetailContent event={event} /> */}
     </>
   );
 }
