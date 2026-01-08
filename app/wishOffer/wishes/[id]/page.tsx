@@ -38,6 +38,7 @@ type WishDetail = {
   status: string;
   wish_type: string;
   match_percentage: number;
+  image: string | null;
   offers: Offer[];
 };
 
@@ -116,6 +117,15 @@ export default function WishDetailPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header Section */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto border border-gray-200">
+        {wish.image && (
+          <div className="w-full h-64 overflow-hidden">
+            <img
+              src={wish.image}
+              alt={wish.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         <div className="bg-gradient-to-r from-blue-100 to-blue-300 text-blue-800 p-6 text-center">
           <h1 className="text-3xl font-bold">{wish.title}</h1>
           <p className="mt-2 text-lg">
@@ -129,7 +139,7 @@ export default function WishDetailPage() {
         </div>
 
         {/* Details Section */}
-        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+        {/* <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
           <div className="space-y-4">
             <p>
               <strong>🏢 Company:</strong> {wish.company_name}
@@ -152,7 +162,7 @@ export default function WishDetailPage() {
               <strong>📊 Status:</strong> {wish.status}
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Related Offers Section */}

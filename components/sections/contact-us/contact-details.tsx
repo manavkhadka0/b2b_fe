@@ -13,7 +13,7 @@ export default function ContactDetails() {
             <p className="text-sm md:text-base">
               Sahid Marga Biratnagar - 2,
               <br />
-              Khosi, Nepal
+              Koshi Province, Nepal
             </p>
           </div>
         </div>
