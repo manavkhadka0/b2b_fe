@@ -51,22 +51,22 @@ export default function EventForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white shadow-md rounded-lg mt-10">
-      <h1 className="text-3xl font-bold text-purple-700 text-center mb-2">
-        Create Event
-      </h1>
-      <p className="text-gray-500 text-center mb-6">
-        Create a Type of Event you want to host
-      </p>
+    <div className="w-full rounded-xl border bg-white p-8 shadow-sm">
+      <div className="mb-6 text-center">
+        <h1 className="text-2xl font-semibold text-slate-900">Create event</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Create the type of event you want to host.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Event Title */}
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
-            Event Title
+            Event title
           </label>
           <input
             id="title"
@@ -74,21 +74,19 @@ export default function EventForm() {
             type="text"
             value={formData.title}
             onChange={handleInputChange}
-            placeholder="Enter Event Title"
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Enter event title"
+            className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
           />
         </div>
 
-        {/* Date & Time */}
-
         {/* Date & Type of Event */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label
               htmlFor="datetime"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
-              Event Date & Time
+              Event date & time
             </label>
             <input
               id="datetime"
@@ -97,26 +95,26 @@ export default function EventForm() {
               value={formData.datetime}
               onChange={(e) => handleDateTimeChange(e.target.value)}
               onFocus={(e) => e.target.showPicker()}
-              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             />
           </div>
 
           <div>
             <label
               htmlFor="type"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
-              Type of Event
+              Type of event
             </label>
             <select
               id="type"
               name="type"
               value={formData.type}
               onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             >
               <option value="" disabled>
-                Select
+                Select type
               </option>
               <option value="conference">Conference</option>
               <option value="workshop">Workshop</option>
@@ -126,11 +124,11 @@ export default function EventForm() {
         </div>
 
         {/* Location & Contact */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Location
             </label>
@@ -140,16 +138,16 @@ export default function EventForm() {
               type="text"
               value={formData.location}
               onChange={handleInputChange}
-              placeholder="Enter Location"
-              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter location"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             />
           </div>
           <div>
             <label
               htmlFor="contact"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
-              Contact Number
+              Contact number
             </label>
             <input
               id="contact"
@@ -157,8 +155,8 @@ export default function EventForm() {
               type="text"
               value={formData.contact}
               onChange={handleInputChange}
-              placeholder="Enter Contact No."
-              className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter contact number"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             />
           </div>
         </div>
@@ -167,18 +165,18 @@ export default function EventForm() {
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
-            Event Description
+            Event description
           </label>
           <textarea
             id="description"
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            placeholder="Enter Description about Event"
+            placeholder="Enter description about the event"
             rows={4}
-            className="w-full border border-gray-300 rounded-md p-3 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
           ></textarea>
         </div>
 
@@ -186,32 +184,24 @@ export default function EventForm() {
         <div>
           <label
             htmlFor="file-upload"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700"
           >
-            Event Photos/ Videos
+            Event photos / videos
           </label>
-          <div className="relative mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+          <div className="relative mt-2 flex flex-col items-center justify-center rounded-md border-2 border-dashed border-slate-200 bg-slate-50/60 px-4 py-8 text-center">
             <input
               id="file-upload"
               type="file"
               multiple
               accept="image/*"
               onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             />
-            <IoCloudUploadOutline
-              size={48}
-              className="text-gray-400 mx-auto mb-2"
-            />
-            <p className="text-gray-500 text-sm">Upload Photos</p>
-            <span className="text-gray-400 text-xs mb-2">OR</span>
-            <br />
-            <button
-              type="button"
-              className="py-1 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Browse files
-            </button>
+            <IoCloudUploadOutline size={40} className="mb-2 text-slate-400" />
+            <p className="text-sm text-slate-700">Upload photos</p>
+            <p className="mt-1 text-xs text-slate-400">
+              Drag and drop or click to browse files
+            </p>
           </div>
           {/* Image Previews */}
           <div className="mt-4 flex flex-wrap gap-4">
@@ -220,14 +210,14 @@ export default function EventForm() {
                 <img
                   src={src}
                   alt={`Preview ${index + 1}`}
-                  className="h-24 w-24 object-cover rounded-md"
+                  className="h-24 w-24 rounded-md object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => discardImage(index)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
+                  className="absolute right-1 top-1 rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm"
                 >
-                  X
+                  ×
                 </button>
               </div>
             ))}
@@ -235,12 +225,12 @@ export default function EventForm() {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="bg-purple-600 text-white py-3 px-6 rounded-md font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="inline-flex items-center rounded-md bg-sky-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-800"
           >
-            Create Event
+            Create event
           </button>
         </div>
       </form>

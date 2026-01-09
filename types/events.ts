@@ -82,6 +82,9 @@ export interface Event {
   url?: string; // Added property
   contact_person: string;
   contact_number: string;
+  status: string;
+  is_featured: boolean;
+  is_popular: boolean;
 }
 
 export interface EventResponse {
