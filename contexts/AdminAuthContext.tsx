@@ -27,8 +27,8 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
 const ADMIN_STORAGE_KEY = "adminUser";
 
 // Simple, frontend-only admin credentials
-const ADMIN_EMAIL = "b2b@admin.com";
-const ADMIN_PASSWORD = "b2bevent2026@!@";
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
