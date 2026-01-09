@@ -9,6 +9,7 @@ import EventDetailAgenda from "./event-detail-agenda";
 import EventDetailGallery from "./event-detail-gallery";
 import EventWishesSection from "./event-wishes-section";
 import EventOffersSection from "./event-offers-section";
+import AttendeesList from "./attendees-list";
 
 // Helper function to extract date part from "Poush 27, 2082 10:00 AM" format
 const extractDate = (dateTimeString: string): string => {
@@ -58,7 +59,7 @@ const EventInfoCard = ({ event }: { event: Event }) => (
 
     {/* Bottom Section */}
     <div className="mt-6 pt-4 border-t border-gray-200">
-      <AttendeesList attendees_count={event?.attendees_count} />
+      <AttendeesList />
     </div>
   </div>
 );
@@ -147,19 +148,6 @@ const SponsorSection = ({ sponsors }: { sponsors?: Event["sponsors"] }) => {
     </div>
   );
 };
-
-// Attendees List Component
-const AttendeesList = ({
-  attendees_count,
-}: {
-  attendees_count?: Event["attendees_count"];
-}) => (
-  <span className="text-xs md:text-sm font-medium text-gray-900">
-    {attendees_count && attendees_count > 0
-      ? `${attendees_count} People Enrolled`
-      : ""}
-  </span>
-);
 
 // Share Section Component
 const ShareSection = ({ event }: { event: Event }) => (
