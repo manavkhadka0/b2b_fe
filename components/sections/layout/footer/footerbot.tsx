@@ -57,7 +57,7 @@ const Footerbot = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/howto" className="hover:text-blue-500">
+                  <Link href="/howtoapply" className="hover:text-blue-500">
                     How to Apply
                   </Link>
                 </li>

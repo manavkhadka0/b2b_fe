@@ -1,9 +1,12 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useTransition, animated } from "@react-spring/web";
 import axios from "axios";
+import shuffle from "lodash.shuffle";
 
+// Type Definitions
 type Product = {
   id: number;
   name: string;
@@ -48,6 +51,7 @@ type OfferDetail = {
   match_percentage: number;
   created_at: string;
   updated_at: string;
+  image: string | null;
   product?: Product | null;
   service?: string | null;
   wishes: Wish[];
@@ -57,7 +61,9 @@ export default function OfferDetailPage() {
   const { id } = useParams();
   const [offer, setOffer] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [wishes, setWishes] = useState<Wish[]>([]);
 
+  // Fetch offer data
   useEffect(() => {
     if (id) {
       const fetchOffer = async () => {
@@ -66,6 +72,7 @@ export default function OfferDetailPage() {
             `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/${id}`
           );
           setOffer(response.data);
+          setWishes(response.data.wishes || []);
         } catch (error) {
           console.error("Failed to fetch offer details:", error);
         } finally {
@@ -77,14 +84,39 @@ export default function OfferDetailPage() {
     }
   }, [id]);
 
+  // Manage and shuffle wishes
+  const [rows, setRows] = useState<Wish[]>([]);
+
+  useEffect(() => {
+    setRows(wishes); // Initialize rows with wishes
+  }, [wishes]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRows((prevRows) => shuffle(prevRows));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animation hook for wishes
+  const transitions = useTransition(rows, {
+    keys: (wish) => wish.id,
+    from: { opacity: 0, transform: "translateY(20px)" },
+    enter: { opacity: 1, transform: "translateY(0px)" },
+    leave: { opacity: 0, transform: "translateY(-20px)" },
+    config: { tension: 200, friction: 20 },
+  });
+
+  // Loading State
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg font-semibold text-gray-600">Loading...</div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
       </div>
     );
   }
 
+  // No Data Found State
   if (!offer) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -95,74 +127,87 @@ export default function OfferDetailPage() {
     );
   }
 
+  // Main UI
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-lg shadow-lg p-8">
-        <h1 className="text-4xl font-bold">{offer.title}</h1>
-        <p className="mt-4">
-          Match Percentage:{" "}
-          <span className="font-semibold">{offer.match_percentage}%</span>
-        </p>
-        <div className="mt-4 text-lg">
-          <p>
-            <strong>Company:</strong> {offer.company_name}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto border border-gray-200">
+        {offer.image && (
+          <div className="w-full h-64 overflow-hidden">
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${offer.image}`}
+              alt={offer.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="bg-gradient-to-r from-blue-100 to-blue-300 text-blue-800 p-6 text-center">
+          <h1 className="text-3xl font-bold">{offer.title}</h1>
+          <p className="mt-2 text-lg">
+            Match Percentage:{" "}
+            <span className="font-semibold">{offer.match_percentage}%</span>
           </p>
-          <p>
-            <strong>Address:</strong> {offer.address}, {offer.country}
+          <p className="mt-2 text-lg">
+            Related Wishes:{" "}
+            <span className="font-semibold">{wishes.length}</span>
           </p>
         </div>
-      </div>
 
-      {/* Product Section */}
-      {offer.product && (
-        <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800">Product Details</h2>
-          <div className="mt-4">
+        {/* Details Section */}
+        {/* <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+          <div className="space-y-4">
             <p>
-              <strong>Name:</strong> {offer.product.name}
-            </p>
-            {offer.product.hs_code && (
-              <p>
-                <strong>HS Code:</strong> {offer.product.hs_code}
-              </p>
-            )}
-            <p>
-              <strong>Description:</strong> {offer.product.description}
+              <strong>🏢 Company:</strong> {offer.company_name}
             </p>
             <p>
-              <strong>Category:</strong>{" "}
-              {offer.product.category?.name || "No category information"}
+              <strong>📍 Address:</strong> {offer.address}, {offer.country}
+            </p>
+            <p>
+              <strong>📧 Email:</strong> {offer.email}
             </p>
           </div>
-        </div>
-      )}
+          <div className="space-y-4">
+            <p>
+              <strong>👤 Person Name:</strong> {offer.full_name}
+            </p>
+            <p>
+              <strong>🧑‍💼 Designation:</strong> {offer.designation}
+            </p>
+            <p>
+              <strong>📊 Status:</strong> {offer.status}
+            </p>
+          </div>
+        </div> */}
+      </div>
 
-      {/* Related Wishes */}
-      {offer.wishes.length > 0 && (
+      {/* Related Wishes Section */}
+      {wishes.length > 0 && (
         <div className="mt-8 bg-gray-50 shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800">Related Wishes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {offer.wishes.map((wish) => (
-              <div
-                key={wish.id}
-                className="p-4 border rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1"
+          <h2 className="text-2xl font-bold text-gray-800 text-center">
+            Related Wishes
+          </h2>
+          <div className="relative overflow-hidden mt-6">
+            {transitions((style, item) => (
+              <animated.div
+                key={item.id}
+                style={style}
+                className="p-4 border rounded-lg shadow-md hover:shadow-lg transition bg-white mb-4"
               >
-                <h3 className="text-lg font-semibold">{wish.title}</h3>
-                <p className="mt-2">
-                  <strong>Company:</strong> {wish.company_name}
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p>
+                  <strong>Company:</strong> {item.company_name}
                 </p>
                 <p>
-                  <strong>Address:</strong> {wish.address}, {wish.country}
+                  <strong>Address:</strong> {item.address}, {item.country}
                 </p>
                 <p>
                   <strong>Product:</strong>{" "}
-                  {wish.product?.name || "No product information"}
+                  {item.product?.name || "No product information available"}
                 </p>
                 <p className="text-blue-600 font-bold">
-                  Match Percentage: {wish.match_percentage}%
+                  Match Percentage: {item.match_percentage}%
                 </p>
-              </div>
+              </animated.div>
             ))}
           </div>
         </div>

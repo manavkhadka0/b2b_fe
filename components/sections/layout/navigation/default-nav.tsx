@@ -13,7 +13,7 @@ const navItems = [
   { label: "B2B Events", href: "/events" },
   { label: "Wish & Offer", href: "/wishOffer" },
   { label: "Contact", href: "/contacts" },
-  { label: "How to Apply", href: "/howto" },
+  { label: "How to Apply", href: "/howtoapply" },
 ];
 
 export function DefaultNav() {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ResponsiveContainer } from "../common/responsive-container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -8,12 +9,53 @@ import Link from "next/link";
 const scrollToId = (id: string) => {
   if (typeof document === "undefined") return;
   const el = document.getElementById(id);
-  el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!el) return;
+
+  // Get the CardHeader element within the Card to ensure header is visible
+  const cardHeader = el.querySelector(
+    'header, [class*="CardHeader"]'
+  ) as HTMLElement;
+  const targetElement = cardHeader || el;
+
+  // Calculate offset to account for any fixed navigation
+  // Adjust this value (in pixels) based on your navigation bar height
+  const offset = 120;
+
+  const elementPosition = targetElement.getBoundingClientRect().top;
+  const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+  window.scrollTo({
+    top: Math.max(0, offsetPosition), // Ensure we don't scroll to negative position
+    behavior: "smooth",
+  });
 };
 
 export default function HowToContent() {
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button when user scrolls down more than 300px
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
       <ResponsiveContainer className="py-12 md:py-16 space-y-12">
         <div className="flex items-center justify-center gap-6 mx-auto">
           <Link href="/" className="">
@@ -84,7 +126,7 @@ export default function HowToContent() {
         {/* Make a Wish Section */}
         <Card
           id="wish"
-          className="border border-gray-200 shadow-sm bg-white overflow-hidden"
+          className="border border-gray-200 shadow-sm bg-white overflow-hidden scroll-mt-32"
         >
           <CardHeader className="border-b border-gray-100">
             <div className="flex flex-col gap-2 text-left">
@@ -305,7 +347,7 @@ export default function HowToContent() {
         {/* Make an Offer Section */}
         <Card
           id="offer"
-          className="border border-gray-200 shadow-sm bg-white overflow-hidden"
+          className="border border-gray-200 shadow-sm bg-white overflow-hidden scroll-mt-32"
         >
           <CardHeader className="border-b border-gray-100">
             <div className="flex flex-col gap-2 text-left">
@@ -525,7 +567,7 @@ export default function HowToContent() {
         {/* B2B Events Section */}
         <Card
           id="events"
-          className="border border-gray-200 shadow-sm bg-white overflow-hidden"
+          className="border border-gray-200 shadow-sm bg-white overflow-hidden scroll-mt-32"
         >
           <CardHeader className="border-b border-gray-100">
             <div className="flex flex-col gap-2 text-left">
@@ -653,6 +695,30 @@ export default function HowToContent() {
           </CardContent>
         </Card>
       </ResponsiveContainer>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 bg-blue-800 text-white p-4 rounded-full shadow-lg hover:bg-blue-900 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+          aria-label="Back to top"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 10l7-7m0 0l7 7m-7-7v18"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
