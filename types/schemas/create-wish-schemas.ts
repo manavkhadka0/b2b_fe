@@ -24,6 +24,7 @@ export const createWishOfferSchema = z.object({
   // Conditional validation for product/service - now optional
   product: z.string().optional(),
   service: z.string().optional(),
+  description: z.string().optional(),
   full_name: z.string().min(2, "Full name is required"),
   designation: z.string().min(1, "Designation is required"),
   email: z.string().email("Invalid email address"),

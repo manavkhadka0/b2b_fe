@@ -205,6 +205,7 @@ export function CreateWishOfferForm({
       company_website: "",
       product: "",
       service: "",
+      description: "",
       images: [],
       address: "",
       province: "",

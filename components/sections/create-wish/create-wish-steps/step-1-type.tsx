@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FloatingInput } from "@/components/ui/floatingInput";
 import { FloatingLabel } from "@/components/ui/floatingInput";
 
@@ -109,6 +110,23 @@ export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
                 </div>
               </div>
             </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Textarea
+                placeholder="Description (optional)"
+                className="min-h-[100px] resize-none"
+                {...field}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
