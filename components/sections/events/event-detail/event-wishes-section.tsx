@@ -30,14 +30,15 @@ const EventWishesSection = () => {
             <WishOfferCard
               key={wish.id}
               title={wish.title}
-              description={""}
-              tags={[
-                wish.product?.category?.name ||
-                  wish.service?.name ||
-                  "No tag available",
-              ]}
-              hCode={[wish.product?.hs_code || ""]}
+              description={wish.description || null}
+              hCode={wish.product?.hs_code || undefined}
               matchPercentage={wish.match_percentage}
+              province={wish.province}
+              municipality={wish.municipality}
+              ward={wish.ward}
+              image={wish.image || undefined}
+              type={wish.type}
+              time={wish.created_at}
               onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
             />
           ))}

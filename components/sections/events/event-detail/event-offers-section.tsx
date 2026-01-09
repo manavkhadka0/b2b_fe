@@ -30,14 +30,15 @@ const EventOffersSection = () => {
             <WishOfferCard
               key={offer.id}
               title={offer.title}
-              description={""}
-              tags={[
-                offer.product?.name ||
-                  offer.service?.name ||
-                  "No tag available",
-              ]}
-              hCode={[offer.product?.hs_code || "No HS Code"]}
+              description={offer.description || null}
+              hCode={offer.product?.hs_code || undefined}
               matchPercentage={offer.match_percentage || 0}
+              province={offer.province}
+              municipality={offer.municipality}
+              ward={offer.ward}
+              image={offer.image || undefined}
+              type={offer.type}
+              time={offer.created_at}
               onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
             />
           ))}

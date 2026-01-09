@@ -58,12 +58,16 @@ export default function WishesOffers() {
       const latestWish = wishes[0];
       const latestOffer = offers[0];
 
-      if (latestWish?.offers?.length > 0 || latestOffer?.wishes?.length > 0) {
+      const hasWishMatches = latestWish?.offers && latestWish.offers.length > 0;
+      const hasOfferMatches =
+        latestOffer?.wishes && latestOffer.wishes.length > 0;
+
+      if (hasWishMatches || hasOfferMatches) {
         // Play sound when match is found
         playMatchSound();
 
         // If it's a matched wish, find its corresponding offer
-        if (latestWish?.offers?.length > 0) {
+        if (hasWishMatches && latestWish.offers) {
           const matchedOffer = latestWish.offers[0];
           setCurrentMatch({
             wish: latestWish,
@@ -71,7 +75,7 @@ export default function WishesOffers() {
           });
         }
         // If it's a matched offer, find its corresponding wish
-        else if (latestOffer?.wishes?.length > 0) {
+        else if (hasOfferMatches && latestOffer.wishes) {
           const matchedWish = latestOffer.wishes[0];
           setCurrentMatch({
             wish: matchedWish,

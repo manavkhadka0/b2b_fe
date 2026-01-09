@@ -73,14 +73,15 @@ export default function WishOfferPage() {
               <WishOfferCard
                 key={wish.id}
                 title={wish.title}
-                description={""}
-                tags={[
-                  wish.product?.category?.name ||
-                    wish.service?.name ||
-                    "No tag available",
-                ]}
-                hCode={[wish.product?.hs_code || ""]}
+                description={wish.description || null}
+                hCode={wish.product?.hs_code || undefined}
                 matchPercentage={wish.match_percentage}
+                province={wish.province}
+                municipality={wish.municipality}
+                ward={wish.ward}
+                image={wish.image || undefined}
+                type={wish.type}
+                time={wish.created_at}
                 onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
               />
             ))}
@@ -93,15 +94,17 @@ export default function WishOfferPage() {
           <div className="grid grid-cols-1 gap-y-6">
             {offers.map((offer) => (
               <WishOfferCard
+                key={offer.id}
                 title={offer.title}
-                description={""}
-                tags={[
-                  offer.product?.name ||
-                    offer.service?.name ||
-                    "No tag available",
-                ]}
-                hCode={[offer.product?.hs_code || "No HS Code"]}
+                description={offer.description || null}
+                hCode={offer.product?.hs_code || undefined}
                 matchPercentage={offer.match_percentage || 0}
+                province={offer.province}
+                municipality={offer.municipality}
+                ward={offer.ward}
+                image={offer.image || undefined}
+                type={offer.type}
+                time={offer.created_at}
                 onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
               />
             ))}

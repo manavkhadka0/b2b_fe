@@ -9,15 +9,15 @@ import shuffle from "lodash.shuffle";
 // Type Definitions
 type Product = {
   id: number;
-  name: string;
+  name?: string;
   hs_code?: string;
-  description: string;
-  image: string | null;
+  description?: string;
+  image?: string | null;
   category?: {
     id: number;
     name: string;
     description: string;
-    image: string | null;
+    image?: string | null;
   };
 };
 
@@ -30,10 +30,21 @@ type Wish = {
   company_name: string;
   address: string;
   country: string;
+  province?: string | null;
+  municipality?: string | null;
+  ward?: string | null;
   title: string;
-  product: Product | null;
-  service: string | null;
+  description?: string | null;
+  type?: string;
+  product?: Product | null;
+  service?: {
+    id?: number;
+    name?: string;
+    description?: string;
+  } | null;
   match_percentage: number;
+  image?: string | null;
+  created_at?: string;
 };
 
 type OfferDetail = {
@@ -41,19 +52,30 @@ type OfferDetail = {
   full_name: string;
   designation: string;
   mobile_no: string;
+  alternate_no?: string | null;
   email: string;
   company_name: string;
   address: string;
   country: string;
+  province?: string | null;
+  municipality?: string | null;
+  ward?: string | null;
+  company_website?: string | null;
   title: string;
+  description?: string | null;
   status: string;
-  offer_type: string;
+  type?: string;
+  offer_type?: string;
   match_percentage: number;
   created_at: string;
   updated_at: string;
   image: string | null;
   product?: Product | null;
-  service?: string | null;
+  service?: {
+    id?: number;
+    name?: string;
+    description?: string;
+  } | null;
   wishes: Wish[];
 };
 
@@ -127,86 +149,215 @@ export default function OfferDetailPage() {
     );
   }
 
+  // Format address: province, municipality, ward
+  const formatAddress = () => {
+    const parts: string[] = [];
+    if (offer.province) parts.push(offer.province);
+    if (offer.municipality) parts.push(offer.municipality);
+    if (offer.ward) parts.push(`Ward ${offer.ward}`);
+    return parts.length > 0
+      ? parts.join(", ")
+      : offer.address || "Unknown Location";
+  };
+
   // Main UI
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header Section */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto border border-gray-200">
-        {offer.image && (
-          <div className="w-full h-64 overflow-hidden">
-            <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}/${offer.image}`}
-              alt={offer.title}
-              className="w-full h-full object-cover"
-            />
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      {/* Main Details Card */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 mb-8">
+        {/* Header Section with Image and Title */}
+        <div className="flex gap-6 items-start mb-6">
+          {/* Image Section */}
+          {offer.image && (
+            <div className="flex-shrink-0 rounded-lg overflow-hidden">
+              <img
+                src={
+                  offer.image.startsWith("http")
+                    ? offer.image
+                    : `${process.env.NEXT_PUBLIC_API_URL}/${offer.image}`
+                }
+                alt={offer.title}
+                className="w-48 h-56 object-cover rounded-lg"
+              />
+            </div>
+          )}
+
+          {/* Title and Match Indicator */}
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-3xl font-bold text-gray-800 flex-1 pr-4">
+                {offer.title}
+              </h1>
+              <div className="relative w-24 h-12 flex-shrink-0">
+                {/* Semi-Circle SVG */}
+                <svg className="w-full h-full" viewBox="0 0 100 50">
+                  <path
+                    d="M 10,50 A 40,40 0 0 1 90,50"
+                    fill="none"
+                    stroke="#e6e6e6"
+                    strokeWidth="10"
+                  />
+                  <path
+                    d="M 10,50 A 40,40 0 0 1 90,50"
+                    fill="none"
+                    stroke="#2563eb"
+                    strokeWidth="10"
+                    strokeDasharray="126.5"
+                    strokeDashoffset={`${
+                      126.5 - (126.5 * offer.match_percentage) / 100
+                    }`}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold mt-10">
+                    {offer.match_percentage}%
+                  </span>
+                  <span className="text-xs text-gray-500">Match</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Type Badge */}
+            {(offer.type || offer.offer_type) && (
+              <div className="mb-3">
+                <span className="inline-block text-sm px-3 py-1 rounded bg-blue-100 text-blue-800 font-medium">
+                  {offer.type || offer.offer_type}
+                </span>
+              </div>
+            )}
+
+            {/* HS Code */}
+            {offer.product?.hs_code && (
+              <div className="mb-3">
+                <span className="text-sm font-medium text-gray-700">
+                  HS Code:{" "}
+                </span>
+                <span className="text-sm px-3 py-1 rounded bg-gray-100 text-gray-800">
+                  {offer.product.hs_code}
+                </span>
+              </div>
+            )}
+
+            {/* Description */}
+            {offer.description && (
+              <p className="text-gray-600 text-base mt-3 leading-relaxed">
+                {offer.description}
+              </p>
+            )}
+
+            {/* Location and Time */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500">
+                <span className="font-medium">Location: </span>
+                {formatAddress()}
+              </p>
+              {offer.created_at && (
+                <p className="text-sm text-gray-500 mt-1">
+                  <span className="font-medium">Created: </span>
+                  {new Date(offer.created_at).toLocaleString()}
+                </p>
+              )}
+            </div>
           </div>
-        )}
-        <div className="bg-gradient-to-r from-blue-100 to-blue-300 text-blue-800 p-6 text-center">
-          <h1 className="text-3xl font-bold">{offer.title}</h1>
-          <p className="mt-2 text-lg">
-            Match Percentage:{" "}
-            <span className="font-semibold">{offer.match_percentage}%</span>
-          </p>
-          <p className="mt-2 text-lg">
-            Related Wishes:{" "}
-            <span className="font-semibold">{wishes.length}</span>
-          </p>
         </div>
 
-        {/* Details Section */}
-        {/* <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
-          <div className="space-y-4">
-            <p>
-              <strong>🏢 Company:</strong> {offer.company_name}
-            </p>
-            <p>
-              <strong>📍 Address:</strong> {offer.address}, {offer.country}
-            </p>
-            <p>
-              <strong>📧 Email:</strong> {offer.email}
-            </p>
+        {/* Company and Contact Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              Company Information
+            </h3>
+            <div className="space-y-2 text-gray-700">
+              <p>
+                <span className="font-medium">Company Name:</span>{" "}
+                {offer.company_name}
+              </p>
+              <p>
+                <span className="font-medium">Address:</span> {offer.address},{" "}
+                {offer.country}
+              </p>
+              {offer.company_website && (
+                <p>
+                  <span className="font-medium">Website:</span>{" "}
+                  <a
+                    href={offer.company_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {offer.company_website}
+                  </a>
+                </p>
+              )}
+            </div>
           </div>
-          <div className="space-y-4">
-            <p>
-              <strong>👤 Person Name:</strong> {offer.full_name}
-            </p>
-            <p>
-              <strong>🧑‍💼 Designation:</strong> {offer.designation}
-            </p>
-            <p>
-              <strong>📊 Status:</strong> {offer.status}
-            </p>
-          </div>
-        </div> */}
+        </div>
       </div>
 
       {/* Related Wishes Section */}
       {wishes.length > 0 && (
-        <div className="mt-8 bg-gray-50 shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800 text-center">
-            Related Wishes
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            Related Wishes ({wishes.length})
           </h2>
-          <div className="relative overflow-hidden mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {transitions((style, item) => (
               <animated.div
                 key={item.id}
                 style={style}
-                className="p-4 border rounded-lg shadow-md hover:shadow-lg transition bg-white mb-4"
+                className="p-5 border rounded-lg shadow-sm hover:shadow-md transition bg-white"
               >
-                <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p>
-                  <strong>Company:</strong> {item.company_name}
-                </p>
-                <p>
-                  <strong>Address:</strong> {item.address}, {item.country}
-                </p>
-                <p>
-                  <strong>Product:</strong>{" "}
-                  {item.product?.name || "No product information available"}
-                </p>
-                <p className="text-blue-600 font-bold">
-                  Match Percentage: {item.match_percentage}%
-                </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <div className="flex-shrink-0 rounded-lg overflow-hidden">
+                      <img
+                        src={
+                          item.image.startsWith("http")
+                            ? item.image
+                            : `${process.env.NEXT_PUBLIC_API_URL}/${item.image}`
+                        }
+                        alt={item.title}
+                        className="w-20 h-24 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {item.title}
+                    </h3>
+                    {item.type && (
+                      <span className="inline-block text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 font-medium mb-2">
+                        {item.type}
+                      </span>
+                    )}
+                    {item.product?.hs_code && (
+                      <p className="text-sm text-gray-600 mb-1">
+                        <span className="font-medium">HS Code: </span>
+                        {item.product.hs_code}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-600 mb-1">
+                      <span className="font-medium">Company:</span>{" "}
+                      {item.company_name}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      <span className="font-medium">Location:</span>{" "}
+                      {item.province && item.municipality && item.ward
+                        ? `${item.province}, ${item.municipality}, Ward ${item.ward}`
+                        : `${item.address}, ${item.country}`}
+                    </p>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                      <span className="text-blue-600 font-bold text-sm">
+                        {item.match_percentage}% Match
+                      </span>
+                      {item.created_at && (
+                        <span className="text-xs text-gray-500">
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </animated.div>
             ))}
           </div>

@@ -14,20 +14,21 @@ export type Wish = {
   company_website?: string | null;
   image?: string | null;
   title: string;
+  description?: string | null;
   event: number;
   product?: {
     id: number;
-    name: string;
+    name?: string;
     hs_code?: string;
-    description: string;
+    description?: string;
     image?: string | null;
-    category: {
+    category?: {
       id: number;
       name: string;
       description: string;
       image?: string | null;
     };
-  };
+  } | null;
   service?: {
     id: number;
     name: string;
@@ -43,34 +44,51 @@ export type Wish = {
 
 export type Offer = {
   id: number;
+  full_name?: string;
+  designation?: string;
+  mobile_no?: string;
+  alternate_no?: string | null;
+  email?: string;
+  company_name?: string;
+  address?: string;
+  country?: string;
+  province?: string | null;
+  municipality?: string | null;
+  ward?: string | null;
+  company_website?: string | null;
+  image?: string | null;
   title: string;
+  description?: string | null;
   product?: {
-    name: string;
-    description: string;
+    id?: number;
+    name?: string;
     hs_code?: string;
+    description?: string;
+    image?: string | null;
     category?: {
       id: number;
       name: string;
       description: string;
       image?: string | null;
     };
-  };
+  } | null;
   service?: {
-    name: string;
-    description: string;
+    id?: number;
+    name?: string;
+    description?: string;
     category?: {
       id: number;
       name: string;
       description: string;
       image?: string | null;
     };
-  };
+  } | null;
   type: string;
   status: string;
   match_percentage?: number; // Added to handle high match filtering
   created_at: string;
   updated_at: string;
-  wishes: Wish[];
+  wishes?: Wish[];
 };
 
 export type WishAndOffer = {
