@@ -155,7 +155,9 @@ const AttendeesList = ({
   attendees_count?: Event["attendees_count"];
 }) => (
   <span className="text-xs md:text-sm font-medium text-gray-900">
-    {attendees_count || 0} People Enrolled
+    {attendees_count && attendees_count > 0
+      ? `${attendees_count} People Enrolled`
+      : ""}
   </span>
 );
 
@@ -184,8 +186,8 @@ const EventDetailHero = ({ event }: { event: Event }) => {
             <EventDetailAbout event={event} />
             <EventDetailAgenda event={event} />
             <EventDetailGallery event={event} />
-            <EventWishesSection  />
-            <EventOffersSection  />
+            <EventWishesSection />
+            <EventOffersSection />
           </div>
 
           {/* Right Column - Sticky Organizer and Participate Section */}
