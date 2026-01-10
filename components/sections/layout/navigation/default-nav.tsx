@@ -82,7 +82,7 @@ export function DefaultNav() {
                 onClick={() => router.push("/wishOffer/wishes/create-wish")}
               >
                 <PlusCircle className="w-4 h-4" />
-                Make a Wish
+                Make a Wish (क्रेता)
               </Button>
               <Button
                 size="sm"
@@ -90,7 +90,7 @@ export function DefaultNav() {
                 onClick={() => router.push("/wishOffer/offer/create-offer")}
               >
                 <PlusCircle className="w-4 h-4" />
-                Make an Offer
+                Make an Offer (विक्रेता)
               </Button>
             </div>
 
@@ -115,7 +115,7 @@ export function DefaultNav() {
                     >
                       <Link href="/wishOffer/wishes/create-wish">
                         <PlusCircle className="w-4 h-4" />
-                        Make a Wish
+                        Make a Wish (क्रेता)
                       </Link>
                     </Button>
                     <Button
@@ -124,7 +124,7 @@ export function DefaultNav() {
                     >
                       <Link href="/wishOffer/offer/create-offer">
                         <PlusCircle className="w-4 h-4" />
-                        Make an Offer
+                        Make an Offer (विक्रेता)
                       </Link>
                     </Button>
                   </div>

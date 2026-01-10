@@ -29,7 +29,7 @@ export default function WishOfferDescription() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900">
-              Business Wishes
+              Business Wishes (क्रेता)
             </h3>
           </div>
           <div className="space-y-4">
@@ -71,7 +71,7 @@ export default function WishOfferDescription() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900">
-              Business Offers
+              Business Offers (विक्रेता)
             </h3>
           </div>
           <div className="space-y-4">

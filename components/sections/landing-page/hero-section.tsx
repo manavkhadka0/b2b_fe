@@ -61,7 +61,7 @@ export default function HeroSection() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Contact Us
+                      Register Now
                     </motion.button>
                   </Link>
                 </div>

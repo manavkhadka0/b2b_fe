@@ -37,7 +37,8 @@ export default function WishOfferPage() {
       {/* Heading */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
-          Explore Wishes and Offers to Connect and Collaborate
+          Explore Wishes (क्रेता) and Offers (विक्रेता) to Connect and
+          Collaborate
         </h1>
         <p className="text-gray-600 mt-2">
           Share your wish, discover offers, and seize the best opportunities
