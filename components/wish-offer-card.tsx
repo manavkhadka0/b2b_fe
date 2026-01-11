@@ -39,7 +39,7 @@ const WishOfferCard = ({
 
   return (
     <div
-      className="p-2 sm:p-3 md:p-5 lg:p-7 border rounded-lg hover:shadow-md transition group relative cursor-pointer flex flex-col justify-between min-h-[160px] sm:min-h-[180px] md:min-h-[200px] lg:h-52"
+      className="p-2 sm:p-3 md:p-5 lg:p-7 border rounded-lg hover:shadow-md transition group relative cursor-pointer flex flex-col justify-between min-h-[160px] sm:min-h-[180px] md:min-h-[200px] lg:h-auto"
       onClick={(e) => {
         e.preventDefault();
         onClick?.(e);
@@ -99,7 +99,6 @@ const WishOfferCard = ({
               </div>
             </div>
           </div>
-
           {/* Type Badge */}
           {type && (
             <div className="mb-1 sm:mb-1.5 md:mb-2">
@@ -108,7 +107,6 @@ const WishOfferCard = ({
               </span>
             </div>
           )}
-
           {/* HS Code Section */}
           {hCode && (
             <div className="mb-1 sm:mb-1.5 md:mb-2">
@@ -122,13 +120,10 @@ const WishOfferCard = ({
               </div>
             </div>
           )}
-
-          {/* Description
+          {/* Description */}
           {description && (
-            <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-              {description}
-            </p>
-          )} */}
+            <p className="text-gray-500 text-sm mt-2 truncate">{description}</p>
+          )}
         </div>
       </div>
 
