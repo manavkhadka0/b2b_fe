@@ -33,7 +33,7 @@ export function useWishes() {
   );
 
   return {
-    wishes: data?.results.slice(0, 5) || [],
+    wishes: data?.results || [],
     isLoading,
     mutate,
     error,
@@ -48,7 +48,7 @@ export function useOffers() {
   );
 
   return {
-    offers: data?.results.slice(0, 5) || [],
+    offers: data?.results || [],
     isLoading,
     error,
     mutate,

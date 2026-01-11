@@ -33,43 +33,52 @@ export default function WishOfferPage() {
     );
 
   return (
-    <ResponsiveContainer className="py-10">
+    <ResponsiveContainer className="py-4 sm:py-6 md:py-10">
       {/* Heading */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent break-words p-2">
           Explore Wishes (क्रेता) and Offers (विक्रेता) to Connect and
           Collaborate
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-sm sm:text-base text-gray-600 mt-2 break-words">
           Share your wish, discover offers, and seize the best opportunities
           with ease.
         </p>
       </div>
 
-      {/* New Image Grid Section */}
-      <div className="flex justify-between items-center mb-10">
+      {/* Desktop: Image Grid Section at Top */}
+      <div className="hidden md:flex justify-between items-center gap-4 mb-8 lg:mb-10">
         <Image
           src="/wishes1.svg"
           alt="Wisher"
           width={136}
           height={108}
-          className="w-fit h-[200px]"
+          className="w-auto h-32 lg:h-[200px]"
         />
         <Image
           src="/offers1.svg"
           alt="Offers"
           width={454}
           height={316}
-          className="w-fit h-[200px]"
+          className="w-auto h-32 lg:h-[200px]"
         />
       </div>
 
-      {/* Wishes and Offers Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Mobile Layout: Stacked with Images on Top of Each Section */}
+      <div className="md:hidden space-y-6">
         {/* Wishes Section */}
-        <div className=" bg-white rounded-lg">
-          {/* Wishes Cards */}
-          <div className="grid grid-cols-1 gap-y-6">
+        <div className="bg-white rounded-lg">
+          {/* Wishes SVG at Top */}
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/wishes1.svg"
+              alt="Wisher"
+              width={136}
+              height={108}
+              className="w-auto h-20 max-w-[40%]"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-y-4 sm:gap-y-6">
             {wishes.map((wish) => (
               <WishOfferCard
                 key={wish.id}
@@ -90,9 +99,65 @@ export default function WishOfferPage() {
         </div>
 
         {/* Offers Section */}
-        <div className=" bg-white rounded-lg">
-          {/* Offers Cards */}
-          <div className="grid grid-cols-1 gap-y-6">
+        <div className="bg-white rounded-lg">
+          {/* Offers SVG at Top */}
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/offers1.svg"
+              alt="Offers"
+              width={454}
+              height={316}
+              className="w-auto h-20 max-w-[40%]"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-y-4 sm:gap-y-6">
+            {offers.map((offer) => (
+              <WishOfferCard
+                key={offer.id}
+                title={offer.title}
+                description={offer.description || null}
+                hCode={offer.product?.hs_code || undefined}
+                matchPercentage={offer.match_percentage || 0}
+                province={offer.province}
+                municipality={offer.municipality}
+                ward={offer.ward}
+                image={offer.image || undefined}
+                type={offer.type}
+                time={offer.created_at}
+                onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout: Side by Side */}
+      <div className="hidden md:grid grid-cols-2 gap-4 sm:gap-6">
+        {/* Wishes Section */}
+        <div className="bg-white rounded-lg">
+          <div className="grid grid-cols-1 gap-y-4 sm:gap-y-6">
+            {wishes.map((wish) => (
+              <WishOfferCard
+                key={wish.id}
+                title={wish.title}
+                description={wish.description || null}
+                hCode={wish.product?.hs_code || undefined}
+                matchPercentage={wish.match_percentage}
+                province={wish.province}
+                municipality={wish.municipality}
+                ward={wish.ward}
+                image={wish.image || undefined}
+                type={wish.type}
+                time={wish.created_at}
+                onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Offers Section */}
+        <div className="bg-white rounded-lg">
+          <div className="grid grid-cols-1 gap-y-4 sm:gap-y-6">
             {offers.map((offer) => (
               <WishOfferCard
                 key={offer.id}
@@ -115,15 +180,15 @@ export default function WishOfferPage() {
 
       {/* High Matching Wishes */}
       {matchedWishes.length > 0 && (
-        <div className="p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200 mt-10 shadow-sm">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-            <span className="bg-green-500 w-2 h-8 rounded mr-3"></span>
-            High Matching Wishes
-            <span className="ml-2 text-sm font-normal text-gray-500">
+        <div className="p-4 sm:p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200 mt-6 sm:mt-8 md:mt-10 shadow-sm">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
+            <span className="bg-green-500 w-2 h-6 sm:h-8 rounded mr-2 sm:mr-3"></span>
+            <span className="break-words">High Matching Wishes</span>
+            <span className="text-xs sm:text-sm font-normal text-gray-500">
               (Above 80% Match)
             </span>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {matchedWishes.map((wish) => (
               <div
                 key={wish.id}
