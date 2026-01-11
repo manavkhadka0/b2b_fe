@@ -44,7 +44,7 @@ export default function ContactForm() {
     setLoading(true); // Start loading
     try {
       const response = await fetch(
-        "https://ratishshakya.pythonanywhere.com/api/contact/contact/",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/contact/`,
         {
           method: "POST",
           headers: {

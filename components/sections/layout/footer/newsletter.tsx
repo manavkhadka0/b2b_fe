@@ -26,7 +26,7 @@ export function Newsletter() {
     setLoading(true); // Set loading to true while submitting
     try {
       const response = await fetch(
-        "https://ratishshakya.pythonanywhere.com/api/contact/newsletter/",
+        `${process.env.NEXT_PUBLIC_API_URL}/apis/newsletter/`,
         {
           method: "POST",
           headers: {

@@ -32,8 +32,8 @@ type Category = {
 async function getProducts(wishType: string): Promise<Product[]> {
   const url =
     wishType === "Product"
-      ? "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/products/"
-      : "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/services/";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/products/`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`;
 
   try {
     const response = await axios.get<ProductResponse>(url, {
@@ -49,8 +49,7 @@ async function getProducts(wishType: string): Promise<Product[]> {
 }
 
 async function getCategories(): Promise<Category[]> {
-  const url =
-    "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/categories/";
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/`;
 
   try {
     const response = await axios.get<{ results: Category[] }>(url, {
@@ -163,8 +162,8 @@ const ProductServiceSelector: React.FC<ProductServiceSelectorProps> = ({
   const handleNewProductSubmit = async () => {
     const apiUrl =
       wishType === "Product"
-        ? "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/products/"
-        : "https://ratishshakya.pythonanywhere.com/api/wish_and_offers/services/";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/products/`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`;
 
     try {
       if (!newProduct.name || !newProduct.description || !newProduct.category) {

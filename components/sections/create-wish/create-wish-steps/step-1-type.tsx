@@ -44,6 +44,23 @@ export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
 
       <FormField
         control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Textarea
+                placeholder="Description (optional)"
+                className="min-h-[100px] resize-none"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="type"
         render={({ field }) => (
           <FormItem>
@@ -110,23 +127,6 @@ export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
                 </div>
               </div>
             </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormControl>
-              <Textarea
-                placeholder="Description (optional)"
-                className="min-h-[100px] resize-none"
-                {...field}
-              />
-            </FormControl>
             <FormMessage />
           </FormItem>
         )}
