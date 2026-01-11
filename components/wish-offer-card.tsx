@@ -39,21 +39,21 @@ const WishOfferCard = ({
 
   return (
     <div
-      className="p-3 sm:p-5 md:p-7 border rounded-lg hover:shadow-md transition group relative cursor-pointer flex flex-col justify-between min-h-[180px] sm:min-h-[200px] md:h-52"
+      className="p-2 sm:p-3 md:p-5 lg:p-7 border rounded-lg hover:shadow-md transition group relative cursor-pointer flex flex-col justify-between min-h-[160px] sm:min-h-[180px] md:min-h-[200px] lg:h-52"
       onClick={(e) => {
         e.preventDefault();
         onClick?.(e);
       }}
     >
       {/* Flexbox for Image and All Content */}
-      <div className="flex gap-2 sm:gap-3 md:gap-4 items-start">
+      <div className="flex gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 items-start">
         {/* Image Section - Left Side */}
         {image && (
           <div className="flex-shrink-0 rounded-lg overflow-hidden">
             <img
               src={image}
               alt={title}
-              className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 object-cover rounded-lg"
+              className="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24 lg:w-24 lg:h-28 object-cover rounded-lg"
             />
           </div>
         )}
@@ -61,11 +61,11 @@ const WishOfferCard = ({
         {/* Content Section - Right Side of Image */}
         <div className="flex-1 min-w-0">
           {/* Title and Match Indicator Row */}
-          <div className="flex justify-between items-start gap-2 mb-2">
-            <h3 className="font-bold flex-1 text-sm sm:text-base md:text-lg break-words pr-1 sm:pr-2 md:pr-4">
+          <div className="flex justify-between items-start gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+            <h3 className="font-bold flex-1 text-xs sm:text-sm md:text-base lg:text-lg break-words pr-0.5 sm:pr-1 md:pr-2 lg:pr-4">
               {title}
             </h3>
-            <div className="relative w-16 h-8 sm:w-20 sm:h-10 md:w-24 md:h-12 flex-shrink-0">
+            <div className="relative w-12 h-6 sm:w-16 sm:h-8 md:w-20 md:h-10 lg:w-24 lg:h-12 flex-shrink-0">
               {/* Semi-Circle SVG */}
               <svg className="w-full h-full" viewBox="0 0 100 50">
                 {/* Background Arc */}
@@ -90,10 +90,10 @@ const WishOfferCard = ({
 
               {/* Percentage Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs sm:text-sm md:text-xl font-bold mt-6 sm:mt-8 md:mt-10">
+                <span className="text-[9px] sm:text-xs md:text-sm lg:text-xl font-bold mt-4 sm:mt-6 md:mt-8 lg:mt-10">
                   {matchPercentage}%
                 </span>
-                <span className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">
+                <span className="text-[7px] sm:text-[8px] md:text-[10px] lg:text-xs text-gray-500">
                   Match
                 </span>
               </div>
@@ -102,8 +102,8 @@ const WishOfferCard = ({
 
           {/* Type Badge */}
           {type && (
-            <div className="mb-1 sm:mb-2">
-              <span className="inline-block text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-blue-100 text-blue-800 font-medium">
+            <div className="mb-1 sm:mb-1.5 md:mb-2">
+              <span className="inline-block text-[9px] sm:text-[10px] md:text-xs px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-0.5 md:py-1 rounded bg-blue-100 text-blue-800 font-medium">
                 {type}
               </span>
             </div>
@@ -111,12 +111,12 @@ const WishOfferCard = ({
 
           {/* HS Code Section */}
           {hCode && (
-            <div className="mb-1 sm:mb-2">
-              <div className="text-gray-600 flex flex-wrap items-center gap-1">
-                <span className="text-xs sm:text-sm font-medium">
+            <div className="mb-1 sm:mb-1.5 md:mb-2">
+              <div className="text-gray-600 flex flex-wrap items-center gap-0.5 sm:gap-1">
+                <span className="text-[10px] sm:text-xs md:text-sm font-medium">
                   HS Code:{" "}
                 </span>
-                <span className="text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-gray-100 break-all">
+                <span className="text-[10px] sm:text-xs md:text-sm px-1 sm:px-1.5 md:px-2 py-0.5 rounded bg-gray-100 break-all">
                   {hCode}
                 </span>
               </div>
@@ -132,10 +132,10 @@ const WishOfferCard = ({
         </div>
       </div>
 
-      <hr className="my-2 sm:my-3 border-t border-gray-200" />
+      <hr className="my-1.5 sm:my-2 md:my-3 border-t border-gray-200" />
 
       {/* Location and Time */}
-      <p className="text-gray-500 text-[10px] sm:text-xs md:text-sm break-words">
+      <p className="text-gray-500 text-[9px] sm:text-[10px] md:text-xs lg:text-sm break-words leading-tight sm:leading-normal">
         <span className="text-gray-400">{`Location: ${formatAddress()} | `}</span>
         <span className="text-gray-400">
           {`Time: ${new Date(time).toLocaleString()}`}
