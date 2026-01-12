@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Home } from "lucide-react";
 import { HeaderSubtitle } from "../common/header-subtitle";
 import { ResponsiveContainer } from "../common/responsive-container";
+import { useTranslation } from "react-i18next";
 
 type DataNotFoundProps = {
   title: string;
@@ -12,6 +13,7 @@ type DataNotFoundProps = {
 };
 
 export const DataNotFound = ({ title, message }: DataNotFoundProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   return (
@@ -29,7 +31,7 @@ export const DataNotFound = ({ title, message }: DataNotFoundProps) => {
               className="group w-full sm:w-auto"
             >
               <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              Go Back
+              {t("errors.goBack")}
             </Button>
             <Button
               variant="default"
@@ -37,7 +39,7 @@ export const DataNotFound = ({ title, message }: DataNotFoundProps) => {
               className="group w-full sm:w-auto"
             >
               <Home className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-              Home
+              {t("errors.home")}
             </Button>
           </div>
         </div>

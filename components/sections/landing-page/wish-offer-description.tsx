@@ -1,12 +1,17 @@
+"use client";
+
 import { ResponsiveContainer } from "../common/responsive-container";
 import { HeaderSubtitle } from "../common/header-subtitle";
+import { useTranslation } from "react-i18next";
 
 export default function WishOfferDescription() {
+  const { t } = useTranslation();
+
   return (
     <ResponsiveContainer className="py-10">
       <HeaderSubtitle
-        title="Business Collaboration Platform"
-        subtitle="Connect, Collaborate, and Grow Together in the B2B Ecosystem"
+        title={t("wishOfferDesc.title")}
+        subtitle={t("wishOfferDesc.subtitle")}
       />
 
       <div className="mt-12 grid md:grid-cols-2 gap-8">
@@ -29,25 +34,22 @@ export default function WishOfferDescription() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900">
-              Business Wishes (क्रेता)
+              {t("wishOfferDesc.wishTitle")} ({t("navigation.buyer")})
             </h3>
           </div>
           <div className="space-y-4">
             <p className="text-gray-600">
-              Express your business needs and growth objectives through our
-              structured wish system. Whether you're seeking:
+              {t("wishOfferDesc.wishDescription")}
             </p>
             <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
-              <li>Strategic partnerships for market expansion</li>
-              <li>Technology integration solutions</li>
-              <li>Supply chain optimization opportunities</li>
-              <li>Industry-specific expertise and consulting</li>
-              <li>Investment and funding opportunities</li>
+              <li>{t("wishOfferDesc.wishList1")}</li>
+              <li>{t("wishOfferDesc.wishList2")}</li>
+              <li>{t("wishOfferDesc.wishList3")}</li>
+              <li>{t("wishOfferDesc.wishList4")}</li>
+              <li>{t("wishOfferDesc.wishList5")}</li>
             </ul>
             <p className="text-gray-600">
-              Our intelligent matching system ensures your business requirements
-              reach the right potential partners, accelerating your path to
-              successful collaborations.
+              {t("wishOfferDesc.wishConclusion")}
             </p>
           </div>
         </div>
@@ -71,25 +73,22 @@ export default function WishOfferDescription() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900">
-              Business Offers (विक्रेता)
+              {t("wishOfferDesc.offerTitle")} ({t("navigation.seller")})
             </h3>
           </div>
           <div className="space-y-4">
             <p className="text-gray-600">
-              Showcase your company's unique value propositions and capabilities
-              to potential business partners. Highlight your:
+              {t("wishOfferDesc.offerDescription")}
             </p>
             <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
-              <li>Core products and services portfolio</li>
-              <li>Technical expertise and innovations</li>
-              <li>Industry experience and success stories</li>
-              <li>Partnership models and frameworks</li>
-              <li>Resources and capabilities</li>
+              <li>{t("wishOfferDesc.offerList1")}</li>
+              <li>{t("wishOfferDesc.offerList2")}</li>
+              <li>{t("wishOfferDesc.offerList3")}</li>
+              <li>{t("wishOfferDesc.offerList4")}</li>
+              <li>{t("wishOfferDesc.offerList5")}</li>
             </ul>
             <p className="text-gray-600">
-              Create detailed business offers that demonstrate your
-              organization's strengths and attract quality partnerships aligned
-              with your growth strategy.
+              {t("wishOfferDesc.offerConclusion")}
             </p>
           </div>
         </div>

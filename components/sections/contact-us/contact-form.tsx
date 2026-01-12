@@ -15,21 +15,29 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name is required."),
-  phone_number: z
-    .string()
-    .regex(/^\+?[0-9]{10,15}$/, "Invalid phone number.")
-    .nonempty("Phone number is required."),
-  email: z.string().email("Invalid email address."),
-  message: z.string().min(1, "Message is required."),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  name: string;
+  phone_number: string;
+  email: string;
+  message: string;
+};
 
 export default function ContactForm() {
-  const [loading, setLoading] = useState(false); // State for tracking loading status
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  
+  const formSchema = z.object({
+    name: z.string().min(2, t("contact.name") + " " + t("common.error")),
+    phone_number: z
+      .string()
+      .regex(/^\+?[0-9]{10,15}$/, t("contact.phoneNumber") + " " + t("common.error"))
+      .min(1, t("contact.phoneNumber") + " " + t("common.error")),
+    email: z.string().email(t("contact.email") + " " + t("common.error")),
+    message: z.string().min(1, t("contact.message") + " " + t("common.error")),
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,22 +66,22 @@ export default function ContactForm() {
         const errorData = await response.json();
         const errorMessage =
           errorData.phone_number?.[0] ||
-          "Failed to send the message. Please try again.";
+          t("contact.sendError");
         toast.error(errorMessage, {
-          description: "Please check your input and try again.",
+          description: t("contact.sendErrorDesc"),
         });
       } else {
-        toast("Message sent successfully!", {
-          description: "Your message has been sent.",
+        toast(t("contact.messageSent"), {
+          description: t("contact.messageSentDesc"),
         });
-        form.reset(); // Clear the form fields
+        form.reset();
       }
     } catch (err) {
-      toast.error("An error occurred while sending the message.", {
-        description: "Please try again later.",
+      toast.error(t("contact.sendError"), {
+        description: t("contact.sendErrorDesc"),
       });
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -86,10 +94,10 @@ export default function ContactForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("contact.name")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter your name"
+                    placeholder={t("contact.enterName")}
                     className="p-5"
                     {...field}
                   />
@@ -104,10 +112,10 @@ export default function ContactForm() {
             name="phone_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{t("contact.phoneNumber")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter your phone number"
+                    placeholder={t("contact.enterPhone")}
                     className="p-5"
                     {...field}
                   />
@@ -122,10 +130,10 @@ export default function ContactForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("contact.email")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter your email"
+                    placeholder={t("contact.enterEmail")}
                     className="p-5"
                     {...field}
                   />
@@ -140,10 +148,10 @@ export default function ContactForm() {
             name="message"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Message</FormLabel>
+                <FormLabel>{t("contact.message")}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Enter your message"
+                    placeholder={t("contact.enterMessage")}
                     rows={4}
                     {...field}
                   />
@@ -157,10 +165,9 @@ export default function ContactForm() {
             <Button
               type="submit"
               className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:opacity-90 transition-transform hover:scale-105"
-              disabled={loading} // Disable button while loading
+              disabled={loading}
             >
-              {loading ? "Sending..." : "Send Message →"}{" "}
-              {/* Update button text */}
+              {loading ? t("contact.sending") : t("contact.send")} →
             </Button>
           </div>
         </form>

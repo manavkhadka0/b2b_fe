@@ -1,0 +1,203 @@
+{
+  "common": {
+    "home": "Home",
+    "contact": "Contact",
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "language": "Language",
+    "english": "English",
+    "nepali": "Nepali",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "view": "View",
+    "details": "Details"
+  },
+  "navigation": {
+    "home": "Home",
+    "b2bEvents": "B2B Events",
+    "wishOffer": "Wish & Offer",
+    "contact": "Contact",
+    "howToApply": "How to Apply",
+    "makeAWish": "Make a Wish",
+    "makeAnOffer": "Make an Offer",
+    "buyer": "Buyer",
+    "seller": "Seller"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember Me",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "createAccount": "Create Account"
+  },
+  "footer": {
+    "newsletter": "Newsletter",
+    "subscribe": "Subscribe",
+    "emailPlaceholder": "Enter your email",
+    "followUs": "Follow Us",
+    "quickLinks": "Quick Links",
+    "contactUs": "Contact Us",
+    "aboutUs": "About Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "events": {
+    "title": "B2B Events",
+    "upcomingEvents": "Upcoming Events",
+    "pastEvents": "Past Events",
+    "createEvent": "Create Event",
+    "eventDetails": "Event Details",
+    "participate": "Participate",
+    "date": "Date",
+    "location": "Location",
+    "description": "Description"
+  },
+  "wishOffer": {
+    "wishes": "Wishes",
+    "offers": "Offers",
+    "createWish": "Create Wish",
+    "createOffer": "Create Offer",
+    "myWishes": "My Wishes",
+    "myOffers": "My Offers"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "name": "Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "message": "Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "getInTouch": "Get in Touch",
+    "dropUsALine": "Drop Us A Line",
+    "respondWithin": "We normally respond within 2 business days",
+    "enterName": "Enter your name",
+    "enterEmail": "Enter your email",
+    "enterPhone": "Enter your phone number",
+    "enterMessage": "Enter your message",
+    "messageSent": "Message sent successfully!",
+    "messageSentDesc": "Your message has been sent.",
+    "sendError": "An error occurred while sending the message.",
+    "sendErrorDesc": "Please try again later."
+  },
+  "hero": {
+    "title": "Join us at Birat Bazaar",
+    "subtitle": "B2B Networking Platform",
+    "description": "The Birat Bazaar B2B Networking Platform is a flagship digital service of the Chamber of Industries Morang (CIM). It institutionalizes business-to-business (B2B) connections across Koshi Province and beyond, creating a permanent, digital-first hub where businesses of all sizes — from startups and women-led enterprises to MSMEs, farmers, and service providers — can connect, collaborate, and grow.",
+    "exploreEvents": "Explore Events",
+    "registerNow": "Register Now"
+  },
+  "objectives": {
+    "title": "Platform Objectives",
+    "subtitle": "A focused digital ecosystem designed to enable meaningful B2B connections and inclusive growth",
+    "enhanceNetworking": {
+      "title": "Enhance Networking Opportunities",
+      "description": "Create a structured digital space where entrepreneurs, industrialists, and investors can discover each other and build meaningful connections."
+    },
+    "promoteCollaboration": {
+      "title": "Promote Collaboration",
+      "description": "Match business offers with corresponding needs to encourage partnerships, joint ventures, and impactful business deals."
+    },
+    "supportLocal": {
+      "title": "Support Local Industries",
+      "description": "Provide visibility to district-specific strengths and capabilities, helping local businesses expand their reach across and beyond Koshi Province."
+    },
+    "showcaseInvestment": {
+      "title": "Showcase Investment Potential",
+      "description": "Highlight regional investment-ready opportunities to attract capital, technology, and expertise into high-potential sectors."
+    },
+    "inclusiveGrowth": {
+      "title": "Inclusive Growth",
+      "description": "Ensure startups, women-led enterprises, and small businesses have equal access to networking, visibility, and collaboration opportunities."
+    }
+  },
+  "wishOfferDesc": {
+    "title": "Business Collaboration Platform",
+    "subtitle": "Connect, Collaborate, and Grow Together in the B2B Ecosystem",
+    "wishTitle": "Business Wishes",
+    "wishDescription": "Express your business needs and growth objectives through our structured wish system. Whether you're seeking:",
+    "wishList1": "Strategic partnerships for market expansion",
+    "wishList2": "Technology integration solutions",
+    "wishList3": "Supply chain optimization opportunities",
+    "wishList4": "Industry-specific expertise and consulting",
+    "wishList5": "Investment and funding opportunities",
+    "wishConclusion": "Our intelligent matching system ensures your business requirements reach the right potential partners, accelerating your path to successful collaborations.",
+    "offerTitle": "Business Offers",
+    "offerDescription": "Showcase your company's unique value propositions and capabilities to potential business partners. Highlight your:",
+    "offerList1": "Core products and services portfolio",
+    "offerList2": "Technical expertise and innovations",
+    "offerList3": "Industry experience and success stories",
+    "offerList4": "Partnership models and frameworks",
+    "offerList5": "Resources and capabilities",
+    "offerConclusion": "Create detailed business offers that demonstrate your organization's strengths and attract quality partnerships aligned with your growth strategy."
+  },
+  "about": {
+    "title": "Enterprise Solutions",
+    "subtitle": "Transforming Business Partnerships Through Innovation",
+    "enterpriseSolutions": {
+      "title": "Enterprise Solutions Platform",
+      "description": "We are a comprehensive B2B collaboration platform that facilitates strategic partnerships, technology integrations, and business growth opportunities. Our ecosystem enables companies to find, connect, and collaborate with qualified business partners efficiently."
+    },
+    "streamlinedProcess": {
+      "title": "Streamlined Process",
+      "description": "Our platform employs advanced algorithms and structured workflows to streamline business collaborations. Companies can create detailed business profiles, post specific requirements or offerings, and utilize our smart matching system to identify optimal partnership opportunities."
+    },
+    "partnershipDevelopment": {
+      "title": "Partnership Development",
+      "description": "Once matched, businesses can leverage our secure communication channels, document sharing, and collaboration tools to develop partnerships. Our platform provides structured frameworks for partnership agreements, progress tracking, and relationship management."
+    }
+  },
+  "footer": {
+    "newsletter": "Newsletter",
+    "subscribe": "Subscribe",
+    "subscribeTitle": "Subscribe to our Newsletter",
+    "subscribeDescription": "Sign up now to receive offers and information about us and never miss an update from B2B!",
+    "emailPlaceholder": "Email address",
+    "subscribedSuccess": "Subscribed Successfully!",
+    "subscribedDesc": "You have subscribed to our newsletter.",
+    "subscribeError": "An error occurred.",
+    "followUs": "Follow Us",
+    "quickLinks": "Quick Links",
+    "contactUs": "Contact Us",
+    "aboutUs": "About Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "districtB2B": "District B2B Networking",
+    "districtDescription": "Explore business opportunities in specific districts and regions."
+  },
+  "errors": {
+    "goBack": "Go Back",
+    "home": "Home"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "subcategories": "Subcategories",
+    "events": "Events",
+    "wishesOffers": "Wishes & Offers",
+    "users": "Users",
+    "settings": "Settings"
+  }
+}

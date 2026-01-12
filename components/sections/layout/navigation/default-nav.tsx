@@ -7,19 +7,14 @@ import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useRouter, usePathname } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
-
-const navItems = [
-  { label: "Home", href: "/" },
-  { label: "B2B Events", href: "/events" },
-  { label: "Wish & Offer", href: "/wishOffer" },
-  { label: "Contact", href: "/contacts" },
-  { label: "How to Apply", href: "/howtoapply" },
-];
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/sections/layout/language-switcher";
 
 export function DefaultNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +23,14 @@ export function DefaultNav() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const navItems = [
+    { label: t("navigation.home"), href: "/" },
+    { label: t("navigation.b2bEvents"), href: "/events" },
+    { label: t("navigation.wishOffer"), href: "/wishOffer" },
+    { label: t("navigation.contact"), href: "/contacts" },
+    { label: t("navigation.howToApply"), href: "/howtoapply" },
+  ];
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
@@ -73,6 +76,9 @@ export function DefaultNav() {
               ))}
             </nav>
 
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* CTA Buttons - Hidden on mobile */}
             <div className="hidden lg:flex items-center gap-3">
               <Button
@@ -82,7 +88,7 @@ export function DefaultNav() {
                 onClick={() => router.push("/wishOffer/wishes/create-wish")}
               >
                 <PlusCircle className="w-4 h-4" />
-                Make a Wish (क्रेता)
+                {t("navigation.makeAWish")} ({t("navigation.buyer")})
               </Button>
               <Button
                 size="sm"
@@ -90,7 +96,7 @@ export function DefaultNav() {
                 onClick={() => router.push("/wishOffer/offer/create-offer")}
               >
                 <PlusCircle className="w-4 h-4" />
-                Make an Offer (विक्रेता)
+                {t("navigation.makeAnOffer")} ({t("navigation.seller")})
               </Button>
             </div>
 
@@ -106,6 +112,10 @@ export function DefaultNav() {
                   {navItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                   ))}
+                  {/* Language Switcher - Mobile */}
+                  <div className="mt-4">
+                    <LanguageSwitcher />
+                  </div>
                   {/* Mobile CTA Buttons */}
                   <div className="flex flex-col gap-3 mt-4">
                     <Button
@@ -115,7 +125,7 @@ export function DefaultNav() {
                     >
                       <Link href="/wishOffer/wishes/create-wish">
                         <PlusCircle className="w-4 h-4" />
-                        Make a Wish (क्रेता)
+                        {t("navigation.makeAWish")} ({t("navigation.buyer")})
                       </Link>
                     </Button>
                     <Button
@@ -124,7 +134,7 @@ export function DefaultNav() {
                     >
                       <Link href="/wishOffer/offer/create-offer">
                         <PlusCircle className="w-4 h-4" />
-                        Make an Offer (विक्रेता)
+                        {t("navigation.makeAnOffer")} ({t("navigation.seller")})
                       </Link>
                     </Button>
                   </div>

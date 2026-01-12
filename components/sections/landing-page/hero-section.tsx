@@ -3,8 +3,11 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ResponsiveContainer } from "../common/responsive-container";
+import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <main className="relative bg-gradient-to-br from-blue-50 via-white to-gray-50 min-h-[calc(100vh-100px)] overflow-hidden flex items-center w-full px-4 md:px-6 py-10 md:py-16">
       {/* Improved background elements */}
@@ -25,20 +28,14 @@ export default function HeroSection() {
             <div className=" px-5 py-6 ">
               <div className="text-center md:text-left">
                 <h1 className="text-3xl md:text-5xl font-semibold md:font-bold text-gray-900 leading-snug md:leading-tight mb-4 md:mb-6 tracking-tight">
-                  Join us at Birat Bazaar{" "}
+                  {t("hero.title")}{" "}
                   <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                    B2B Networking Platform
+                    {t("hero.subtitle")}
                   </span>
                 </h1>
 
                 <p className="text-gray-700 text-base md:text-lg mb-7 md:mb-8 leading-relaxed md:leading-relaxed">
-                  The Birat Bazaar B2B Networking Platform is a flagship digital
-                  service of the Chamber of Industries Morang (CIM). It
-                  institutionalizes business-to-business (B2B) connections
-                  across Koshi Province and beyond, creating a permanent,
-                  digital-first hub where businesses of all sizes — from
-                  startups and women-led enterprises to MSMEs, farmers, and
-                  service providers — can connect, collaborate, and grow.
+                  {t("hero.description")}
                 </p>
 
                 {/* Improved CTA section */}
@@ -52,7 +49,7 @@ export default function HeroSection() {
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Explore Events
+                      {t("hero.exploreEvents")}
                     </motion.button>
                   </Link>
                   <Link
@@ -64,7 +61,7 @@ export default function HeroSection() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Register Now
+                      {t("hero.registerNow")}
                     </motion.button>
                   </Link>
                 </div>

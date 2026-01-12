@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ResponsiveContainer } from "../../common/responsive-container";
+import { useTranslation } from "react-i18next";
 
 const emailSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
 export function Newsletter() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -43,14 +45,14 @@ export function Newsletter() {
         );
       }
 
-      toast("Subscribed Successfully!", {
-        description: "You have subscribed to our newsletter.",
+      toast(t("footer.subscribedSuccess"), {
+        description: t("footer.subscribedDesc"),
       });
-      setEmail(""); // Clear the email field on success
+      setEmail("");
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred.";
-      toast.error("An error occurred.", {
+        err instanceof Error ? err.message : t("footer.subscribeError");
+      toast.error(t("footer.subscribeError"), {
         description: errorMessage,
       });
     } finally {
@@ -65,11 +67,10 @@ export function Newsletter() {
           {/* Left Side */}
           <div className="w-full lg:w-1/2 space-y-6 text-center lg:text-left">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Subscribe to our Newsletter
+              {t("footer.subscribeTitle")}
             </h2>
             <p className="text-gray-600 text-lg leading-relaxed">
-              Sign up now to receive offers and information about us and never
-              miss an update from B2B!
+              {t("footer.subscribeDescription")}
             </p>
             <form
               onSubmit={handleSubscribe}
@@ -77,7 +78,7 @@ export function Newsletter() {
             >
               <input
                 type="email"
-                placeholder="Email address"
+                placeholder={t("footer.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="rounded-l-lg px-4 py-3 border-none w-full focus:ring-0 text-gray-700"

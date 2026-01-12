@@ -1,12 +1,16 @@
+"use client";
+
 import { ResponsiveContainer } from "../common/responsive-container";
 import { HeaderSubtitle } from "../common/header-subtitle";
+import { useTranslation } from "react-i18next";
 
 export default function AboutUs() {
+  const { t } = useTranslation();
+
   const steps = [
     {
-      title: "Enterprise Solutions Platform",
-      description:
-        "We are a comprehensive B2B collaboration platform that facilitates strategic partnerships, technology integrations, and business growth opportunities. Our ecosystem enables companies to find, connect, and collaborate with qualified business partners efficiently.",
+      title: t("about.enterpriseSolutions.title"),
+      description: t("about.enterpriseSolutions.description"),
       icon: (
         <svg
           className="w-6 h-6 text-blue-600"
@@ -24,9 +28,8 @@ export default function AboutUs() {
       ),
     },
     {
-      title: "Streamlined Process",
-      description:
-        "Our platform employs advanced algorithms and structured workflows to streamline business collaborations. Companies can create detailed business profiles, post specific requirements or offerings, and utilize our smart matching system to identify optimal partnership opportunities.",
+      title: t("about.streamlinedProcess.title"),
+      description: t("about.streamlinedProcess.description"),
       icon: (
         <svg
           className="w-6 h-6 text-blue-600"
@@ -44,9 +47,8 @@ export default function AboutUs() {
       ),
     },
     {
-      title: "Partnership Development",
-      description:
-        "Once matched, businesses can leverage our secure communication channels, document sharing, and collaboration tools to develop partnerships. Our platform provides structured frameworks for partnership agreements, progress tracking, and relationship management.",
+      title: t("about.partnershipDevelopment.title"),
+      description: t("about.partnershipDevelopment.description"),
       icon: (
         <svg
           className="w-6 h-6 text-blue-600"
@@ -69,8 +71,8 @@ export default function AboutUs() {
     <div className="bg-gradient-to-br from-blue-50 to-purple-50">
       <ResponsiveContainer className="py-10">
         <HeaderSubtitle
-          title="Enterprise Solutions"
-          subtitle="Transforming Business Partnerships Through Innovation"
+          title={t("about.title")}
+          subtitle={t("about.subtitle")}
         />
 
         <div className="mt-12 grid md:grid-cols-3 gap-8">

@@ -2,6 +2,7 @@
 import { MapPin } from "lucide-react";
 import { ResponsiveContainer } from "../../common/responsive-container";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 const districts = [
   {
@@ -66,6 +67,7 @@ const districts = [
 ];
 
 export function B2BNetworking() {
+  const { t } = useTranslation();
   const router = useRouter();
   return (
     <div className="bg-white">
@@ -73,10 +75,10 @@ export function B2BNetworking() {
         {/* District B2B Networking Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-800">
-            District B2B Networking
+            {t("footer.districtB2B")}
           </h2>
           <p className="text-gray-600 mb-4">
-            Explore business opportunities in specific districts and regions.
+            {t("footer.districtDescription")}
           </p>
 
           {/* District Images */}
