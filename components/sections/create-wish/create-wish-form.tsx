@@ -13,6 +13,8 @@ import type {
   ImageUpload,
   HSCode,
   Service,
+  Category,
+  SubCategory,
 } from "@/types/create-wish-type";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -188,6 +190,17 @@ export function CreateWishOfferForm({
   const [serviceSearchOpen, setServiceSearchOpen] = useState(false);
   const [serviceSearchValue, setServiceSearchValue] = useState("");
   const [showServiceForm, setShowServiceForm] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [categorySearchOpen, setCategorySearchOpen] = useState(false);
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
+  const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState<SubCategory | null>(null);
+  const [subcategorySearchOpen, setSubcategorySearchOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
   const form = useForm<CreateWishFormValues>({
@@ -205,6 +218,8 @@ export function CreateWishOfferForm({
       company_website: "",
       product: "",
       service: "",
+      category: "",
+      subcategory: "",
       description: "",
       images: [],
       address: "",
@@ -222,9 +237,11 @@ export function CreateWishOfferForm({
 
     setIsLoadingProducts(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?search=${search}`
-      );
+      // Only use search when no subcategory is selected
+      // If subcategory is selected, products are loaded via the subcategory useEffect
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?search=${search}`;
+
+      const response = await fetch(url);
 
       if (!response.ok) throw new Error("Failed to fetch products");
 
@@ -240,12 +257,18 @@ export function CreateWishOfferForm({
   }, 300);
 
   useEffect(() => {
-    if (productSearchValue.length < 3) {
-      setProducts([]);
-    } else {
-      searchProducts(productSearchValue);
+    const subcategoryId = form.watch("subcategory");
+
+    // Only use search if no subcategory is selected
+    // If subcategory is selected, products are loaded via the subcategory useEffect
+    if (!subcategoryId) {
+      if (productSearchValue.length >= 3) {
+        searchProducts(productSearchValue);
+      } else if (productSearchValue.length < 3) {
+        setProducts([]);
+      }
     }
-  }, [productSearchValue, searchProducts]);
+  }, [productSearchValue, searchProducts, form.watch("subcategory")]);
 
   const getFieldsForStep = (step: number): (keyof CreateWishFormValues)[] => {
     switch (step) {
@@ -358,24 +381,130 @@ export function CreateWishOfferForm({
     const fetchServices = async () => {
       setIsLoadingServices(true);
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`
-        );
+        const subcategoryId = form.watch("subcategory");
+        let url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`;
+
+        // If subcategory is selected, use subcategory_id
+        if (subcategoryId) {
+          url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/?subcategory_id=${subcategoryId}`;
+        }
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch services");
         const data = await response.json();
-        setServices(data.results);
+        setServices(data.results || []);
       } catch (error) {
         console.error("Failed to fetch services:", error);
         toast.error("Failed to fetch services");
+        setServices([]);
       } finally {
         setIsLoadingServices(false);
       }
     };
 
-    if (form.watch("type") === "Service") {
+    const wishType = form.watch("type");
+
+    if (wishType === "Service") {
       fetchServices();
+    } else {
+      // Clear services if type changes away from Service
+      setServices([]);
+    }
+  }, [form.watch("type"), form.watch("subcategory")]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const wishType = form.watch("type");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=${wishType}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch categories");
+        const data = await response.json();
+        setCategories(data.results || []);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        toast.error("Failed to fetch categories");
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    const wishType = form.watch("type");
+    if (wishType === "Product" || wishType === "Service") {
+      fetchCategories();
     }
   }, [form.watch("type")]);
+
+  useEffect(() => {
+    const fetchSubcategories = async (categoryId: string) => {
+      setIsLoadingSubcategories(true);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/?category=${categoryId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch subcategories");
+        const data = await response.json();
+        setSubcategories(data.results || []);
+      } catch (error) {
+        console.error("Failed to fetch subcategories:", error);
+        toast.error("Failed to fetch subcategories");
+        setSubcategories([]);
+      } finally {
+        setIsLoadingSubcategories(false);
+      }
+    };
+
+    const categoryId = form.watch("category");
+    const wishType = form.watch("type");
+    if (categoryId && (wishType === "Product" || wishType === "Service")) {
+      // Clear previous subcategory selection when category changes
+      setSelectedSubcategory(null);
+      form.setValue("subcategory", "");
+      fetchSubcategories(categoryId);
+    } else {
+      // Clear subcategories when category is cleared or type changes
+      setSubcategories([]);
+      setSelectedSubcategory(null);
+      form.setValue("subcategory", "");
+    }
+  }, [form.watch("category"), form.watch("type")]);
+
+  // Load products when subcategory is selected or changes
+  useEffect(() => {
+    const subcategoryId = form.watch("subcategory");
+    const wishType = form.watch("type");
+
+    if (subcategoryId && wishType === "Product") {
+      setIsLoadingProducts(true);
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?subcategory_id=${subcategoryId}`
+      )
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch products");
+          return response.json();
+        })
+        .then((data) => {
+          setProducts(data.results || []);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch products:", error);
+          toast.error("Failed to fetch products");
+          setProducts([]);
+        })
+        .finally(() => {
+          setIsLoadingProducts(false);
+        });
+    } else if (
+      !subcategoryId &&
+      wishType === "Product" &&
+      productSearchValue.length < 3
+    ) {
+      // Clear products if subcategory is cleared and no search is active
+      setProducts([]);
+    }
+  }, [form.watch("subcategory"), form.watch("type"), productSearchValue]);
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
@@ -398,22 +527,34 @@ export function CreateWishOfferForm({
             form={form}
             products={products}
             services={services}
+            categories={categories}
+            subcategories={subcategories}
             isLoadingProducts={isLoadingProducts}
             isLoadingServices={isLoadingServices}
+            isLoadingCategories={isLoadingCategories}
+            isLoadingSubcategories={isLoadingSubcategories}
             selectedProduct={selectedProduct}
             selectedService={selectedService}
+            selectedCategory={selectedCategory}
+            selectedSubcategory={selectedSubcategory}
             productSearchOpen={productSearchOpen}
             serviceSearchOpen={serviceSearchOpen}
+            categorySearchOpen={categorySearchOpen}
+            subcategorySearchOpen={subcategorySearchOpen}
             productSearchValue={productSearchValue}
             serviceSearchValue={serviceSearchValue}
             showServiceForm={showServiceForm}
             setProductSearchOpen={setProductSearchOpen}
             setServiceSearchOpen={setServiceSearchOpen}
+            setCategorySearchOpen={setCategorySearchOpen}
+            setSubcategorySearchOpen={setSubcategorySearchOpen}
             setProductSearchValue={setProductSearchValue}
             setServiceSearchValue={setServiceSearchValue}
             setShowServiceForm={setShowServiceForm}
             setSelectedProduct={setSelectedProduct}
             setSelectedService={setSelectedService}
+            setSelectedCategory={setSelectedCategory}
+            setSelectedSubcategory={setSelectedSubcategory}
             setServices={setServices}
             image={image}
             setImage={setImage}

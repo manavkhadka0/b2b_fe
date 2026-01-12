@@ -7,6 +7,8 @@ import type {
   HSCode,
   Service,
   ImageUpload,
+  Category,
+  SubCategory,
 } from "@/types/create-wish-type";
 import {
   FormControl,
@@ -45,22 +47,34 @@ interface Step2DetailsProps {
   form: UseFormReturn<CreateWishFormValues>;
   products: HSCode[];
   services: Service[];
+  categories: Category[];
+  subcategories: SubCategory[];
   isLoadingProducts: boolean;
   isLoadingServices: boolean;
+  isLoadingCategories: boolean;
+  isLoadingSubcategories: boolean;
   selectedProduct: HSCode | null;
   selectedService: Service | null;
+  selectedCategory: Category | null;
+  selectedSubcategory: SubCategory | null;
   productSearchOpen: boolean;
   serviceSearchOpen: boolean;
+  categorySearchOpen: boolean;
+  subcategorySearchOpen: boolean;
   productSearchValue: string;
   serviceSearchValue: string;
   showServiceForm: boolean;
   setProductSearchOpen: (open: boolean) => void;
   setServiceSearchOpen: (open: boolean) => void;
+  setCategorySearchOpen: (open: boolean) => void;
+  setSubcategorySearchOpen: (open: boolean) => void;
   setProductSearchValue: (value: string) => void;
   setServiceSearchValue: (value: string) => void;
   setShowServiceForm: (show: boolean) => void;
   setSelectedProduct: (product: HSCode | null) => void;
   setSelectedService: (service: Service | null) => void;
+  setSelectedCategory: (category: Category | null) => void;
+  setSelectedSubcategory: (subcategory: SubCategory | null) => void;
   setServices: React.Dispatch<React.SetStateAction<Service[]>>;
   image: ImageUpload | null;
   setImage: (image: ImageUpload | null) => void;
@@ -72,22 +86,34 @@ export function Step2Details({
   form,
   products,
   services,
+  categories,
+  subcategories,
   isLoadingProducts,
   isLoadingServices,
+  isLoadingCategories,
+  isLoadingSubcategories,
   selectedProduct,
   selectedService,
+  selectedCategory,
+  selectedSubcategory,
   productSearchOpen,
   serviceSearchOpen,
+  categorySearchOpen,
+  subcategorySearchOpen,
   productSearchValue,
   serviceSearchValue,
   showServiceForm,
   setProductSearchOpen,
   setServiceSearchOpen,
+  setCategorySearchOpen,
+  setSubcategorySearchOpen,
   setProductSearchValue,
   setServiceSearchValue,
   setShowServiceForm,
   setSelectedProduct,
   setSelectedService,
+  setSelectedCategory,
+  setSelectedSubcategory,
   setServices,
   image,
   setImage,
@@ -112,9 +138,15 @@ export function Step2Details({
       const loadInitialProducts = async () => {
         setIsLoadingProducts(true);
         try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`
-          );
+          const subcategoryId = form.watch("subcategory");
+          let url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`;
+
+          // If subcategory is selected, use subcategory_id
+          if (subcategoryId) {
+            url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?subcategory_id=${subcategoryId}`;
+          }
+
+          const response = await fetch(url);
 
           if (!response.ok) throw new Error("Failed to fetch products");
 
@@ -139,6 +171,7 @@ export function Step2Details({
     products.length,
     setProducts,
     setIsLoadingProducts,
+    form.watch("subcategory"),
   ]);
 
   // Handle debounced search - update parent's search value only when >= 3 chars
@@ -153,9 +186,15 @@ export function Step2Details({
         const loadInitialProducts = async () => {
           setIsLoadingProducts(true);
           try {
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`
-            );
+            const subcategoryId = form.watch("subcategory");
+            let url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?limit=20`;
+
+            // If subcategory is selected, use subcategory_id
+            if (subcategoryId) {
+              url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?subcategory_id=${subcategoryId}`;
+            }
+
+            const response = await fetch(url);
 
             if (!response.ok) throw new Error("Failed to fetch products");
 
@@ -184,6 +223,7 @@ export function Step2Details({
     hasLoadedInitialProducts,
     setProducts,
     setIsLoadingProducts,
+    form.watch("subcategory"),
   ]);
 
   // Reset local search when popover closes
@@ -202,96 +242,444 @@ export function Step2Details({
       </h2>
 
       {type === "Product" ? (
-        <FormField
-          control={form.control}
-          name="product"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Search Product (HS Code)</FormLabel>
-              <Popover
-                open={productSearchOpen}
-                onOpenChange={setProductSearchOpen}
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value
-                        ? selectedProduct?.description ||
-                          products.find((p) => p.id.toString() === field.value)
-                            ?.description ||
-                          "Select a product"
-                        : "Search products..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0 max-h-80" align="start">
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="Search HS codes..."
-                      value={localSearchValue}
-                      onValueChange={(value) => {
-                        setLocalSearchValue(value);
-                        if (value.length < 3 && value.length > 0) {
-                          // Clear products if search is less than 3 characters
-                          setProducts([]);
-                        }
-                      }}
-                    />
-                    <CommandEmpty>
-                      {localSearchValue.length > 0 &&
-                      localSearchValue.length < 3
-                        ? "Type at least 3 characters to search..."
-                        : isLoadingProducts
-                        ? "Loading..."
-                        : products.length === 0 && localSearchValue.length === 0
-                        ? "Start typing to search..."
-                        : "No products found."}
-                    </CommandEmpty>
-                    <CommandGroup className="max-h-64 overflow-y-auto">
-                      {products.map((product) => (
-                        <CommandItem
-                          key={product.id}
-                          value={product.id.toString()}
-                          onSelect={() => {
-                            form.setValue("product", product.id.toString());
-                            setSelectedProduct(product);
-                            setProductSearchOpen(false);
-                            setLocalSearchValue("");
-                            setProductSearchValue("");
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              product.id.toString() === field.value
-                                ? "opacity-100"
-                                : "opacity-0"
+        <>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select Category</FormLabel>
+                <Popover
+                  open={categorySearchOpen}
+                  onOpenChange={setCategorySearchOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? selectedCategory?.name ||
+                            categories.find(
+                              (c) => c.id.toString() === field.value
+                            )?.name ||
+                            "Select a category"
+                          : "Select category..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 max-h-80" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search categories..." />
+                      <CommandEmpty>
+                        {isLoadingCategories
+                          ? "Loading..."
+                          : categories.length === 0
+                          ? "No categories available"
+                          : "No categories found."}
+                      </CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-y-auto">
+                        {categories.map((category) => (
+                          <CommandItem
+                            key={category.id}
+                            value={category.id.toString()}
+                            onSelect={() => {
+                              form.setValue("category", category.id.toString());
+                              setSelectedCategory(category);
+                              setCategorySearchOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                category.id.toString() === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <span className="font-medium">{category.name}</span>
+                            {category.description && (
+                              <span className="ml-2 text-gray-600">
+                                - {category.description}
+                              </span>
                             )}
-                          />
-                          <span className="font-medium">{product.hs_code}</span>
-                          <span className="ml-2 text-gray-600">
-                            - {product.description}
-                          </span>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {selectedCategory && (
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Subcategory</FormLabel>
+                  <Popover
+                    open={subcategorySearchOpen}
+                    onOpenChange={setSubcategorySearchOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? selectedSubcategory?.name ||
+                              subcategories.find(
+                                (sc) => sc.id.toString() === field.value
+                              )?.name ||
+                              "Select a subcategory"
+                            : "Select subcategory..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-full p-0 max-h-80"
+                      align="start"
+                    >
+                      <Command shouldFilter={false}>
+                        <CommandInput placeholder="Search subcategories..." />
+                        <CommandEmpty>
+                          {isLoadingSubcategories
+                            ? "Loading..."
+                            : subcategories.length === 0
+                            ? "No subcategories available"
+                            : "No subcategories found."}
+                        </CommandEmpty>
+                        <CommandGroup className="max-h-64 overflow-y-auto">
+                          {subcategories.map((subcategory) => (
+                            <CommandItem
+                              key={subcategory.id}
+                              value={subcategory.id.toString()}
+                              onSelect={() => {
+                                form.setValue(
+                                  "subcategory",
+                                  subcategory.id.toString()
+                                );
+                                setSelectedSubcategory(subcategory);
+                                setSubcategorySearchOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  subcategory.id.toString() === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {subcategory.name}
+                                </span>
+                                {subcategory.example_items && (
+                                  <span className="text-xs text-gray-500">
+                                    {subcategory.example_items}
+                                  </span>
+                                )}
+                                {subcategory.reference && (
+                                  <span className="text-xs text-gray-400">
+                                    Ref: {subcategory.reference}
+                                  </span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
+
+          <FormField
+            control={form.control}
+            name="product"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Search Product (HS Code)</FormLabel>
+                <Popover
+                  open={productSearchOpen}
+                  onOpenChange={setProductSearchOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? selectedProduct?.description ||
+                            products.find(
+                              (p) => p.id.toString() === field.value
+                            )?.description ||
+                            "Select a product"
+                          : "Search products..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 max-h-80" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Search HS codes..."
+                        value={localSearchValue}
+                        onValueChange={(value) => {
+                          setLocalSearchValue(value);
+                          if (value.length < 3 && value.length > 0) {
+                            // Clear products if search is less than 3 characters
+                            setProducts([]);
+                          }
+                        }}
+                      />
+                      <CommandEmpty>
+                        {localSearchValue.length > 0 &&
+                        localSearchValue.length < 3
+                          ? "Type at least 3 characters to search..."
+                          : isLoadingProducts
+                          ? "Loading..."
+                          : products.length === 0 &&
+                            localSearchValue.length === 0
+                          ? "Start typing to search..."
+                          : "No products found."}
+                      </CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-y-auto">
+                        {products.map((product) => (
+                          <CommandItem
+                            key={product.id}
+                            value={product.id.toString()}
+                            onSelect={() => {
+                              form.setValue("product", product.id.toString());
+                              setSelectedProduct(product);
+                              setProductSearchOpen(false);
+                              setLocalSearchValue("");
+                              setProductSearchValue("");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                product.id.toString() === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <span className="font-medium">
+                              {product.hs_code}
+                            </span>
+                            <span className="ml-2 text-gray-600">
+                              - {product.description}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
       ) : (
         <>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select Category</FormLabel>
+                <Popover
+                  open={categorySearchOpen}
+                  onOpenChange={setCategorySearchOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? selectedCategory?.name ||
+                            categories.find(
+                              (c) => c.id.toString() === field.value
+                            )?.name ||
+                            "Select a category"
+                          : "Select category..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 max-h-80" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search categories..." />
+                      <CommandEmpty>
+                        {isLoadingCategories
+                          ? "Loading..."
+                          : categories.length === 0
+                          ? "No categories available"
+                          : "No categories found."}
+                      </CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-y-auto">
+                        {categories.map((category) => (
+                          <CommandItem
+                            key={category.id}
+                            value={category.id.toString()}
+                            onSelect={() => {
+                              form.setValue("category", category.id.toString());
+                              setSelectedCategory(category);
+                              setCategorySearchOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                category.id.toString() === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <span className="font-medium">{category.name}</span>
+                            {category.description && (
+                              <span className="ml-2 text-gray-600">
+                                - {category.description}
+                              </span>
+                            )}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {selectedCategory && (
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Subcategory</FormLabel>
+                  <Popover
+                    open={subcategorySearchOpen}
+                    onOpenChange={setSubcategorySearchOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? selectedSubcategory?.name ||
+                              subcategories.find(
+                                (sc) => sc.id.toString() === field.value
+                              )?.name ||
+                              "Select a subcategory"
+                            : "Select subcategory..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-full p-0 max-h-80"
+                      align="start"
+                    >
+                      <Command shouldFilter={false}>
+                        <CommandInput placeholder="Search subcategories..." />
+                        <CommandEmpty>
+                          {isLoadingSubcategories
+                            ? "Loading..."
+                            : subcategories.length === 0
+                            ? "No subcategories available"
+                            : "No subcategories found."}
+                        </CommandEmpty>
+                        <CommandGroup className="max-h-64 overflow-y-auto">
+                          {subcategories.map((subcategory) => (
+                            <CommandItem
+                              key={subcategory.id}
+                              value={subcategory.id.toString()}
+                              onSelect={() => {
+                                form.setValue(
+                                  "subcategory",
+                                  subcategory.id.toString()
+                                );
+                                setSelectedSubcategory(subcategory);
+                                setSubcategorySearchOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  subcategory.id.toString() === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {subcategory.name}
+                                </span>
+                                {subcategory.example_items && (
+                                  <span className="text-xs text-gray-500">
+                                    {subcategory.example_items}
+                                  </span>
+                                )}
+                                {subcategory.reference && (
+                                  <span className="text-xs text-gray-400">
+                                    Ref: {subcategory.reference}
+                                  </span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="service"
@@ -351,41 +739,35 @@ export function Step2Details({
                         )}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
-                        {services
-                          .filter((service) =>
-                            service.name
-                              .toLowerCase()
-                              .includes(serviceSearchValue.toLowerCase())
-                          )
-                          .map((service) => (
-                            <CommandItem
-                              key={service.id}
-                              value={service.id.toString()}
-                              onSelect={() => {
-                                form.setValue("service", service.id.toString());
-                                setSelectedService(service);
-                                setServiceSearchOpen(false);
-                                setServiceSearchValue("");
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  service.id.toString() === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span className="font-medium">
-                                  {service.name}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {service.category?.name}
-                                </span>
-                              </div>
-                            </CommandItem>
-                          ))}
+                        {services.map((service) => (
+                          <CommandItem
+                            key={service.id}
+                            value={service.id.toString()}
+                            onSelect={() => {
+                              form.setValue("service", service.id.toString());
+                              setSelectedService(service);
+                              setServiceSearchOpen(false);
+                              setServiceSearchValue("");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                service.id.toString() === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {service.name}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {service.category?.name}
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
                       </CommandGroup>
                     </Command>
                   </PopoverContent>

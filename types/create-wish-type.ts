@@ -31,6 +31,7 @@ export interface Category {
   name: string;
   description: string;
   image: string | null;
+  type: string;
 }
 
 export interface Service {
@@ -52,4 +53,20 @@ export interface CategoryResponse {
   next: string | null;
   previous: string | null;
   results: Category[];
+}
+
+export interface SubCategory {
+  id: number;
+  name: string;
+  example_items: string;
+  reference: string;
+  image: string | null;
+  category: number;
+}
+
+export interface SubCategoryResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: SubCategory[];
 }

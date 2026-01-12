@@ -12,7 +12,7 @@ function AdminHeaderNav() {
     "text-sm font-medium px-3 py-1.5 rounded-md transition-colors";
 
   return (
-    <nav className="flex items-center gap-2">
+    <nav className="flex items-center gap-2 flex-wrap">
       <Link
         href="/admin/events"
         className={`${linkBaseClasses} ${
@@ -33,6 +33,26 @@ function AdminHeaderNav() {
       >
         Wishes &amp; Offers
       </Link>
+      <Link
+        href="/admin/categories"
+        className={`${linkBaseClasses} ${
+          pathname?.startsWith("/admin/categories")
+            ? "bg-sky-100 text-sky-700"
+            : "text-slate-600 hover:bg-slate-100"
+        }`}
+      >
+        Categories
+      </Link>
+      <Link
+        href="/admin/subcategories"
+        className={`${linkBaseClasses} ${
+          pathname?.startsWith("/admin/subcategories")
+            ? "bg-sky-100 text-sky-700"
+            : "text-slate-600 hover:bg-slate-100"
+        }`}
+      >
+        Subcategories
+      </Link>
     </nav>
   );
 }
@@ -48,7 +68,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 Admin Panel
               </h1>
               <p className="text-xs text-slate-500">
-                Internal tools for managing events, wishes &amp; offers
+                Internal tools for managing events, wishes, offers, categories &amp; subcategories
               </p>
             </div>
             <AdminHeaderNav />
