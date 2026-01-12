@@ -55,7 +55,10 @@ export default function HeroSection() {
                       Explore Events
                     </motion.button>
                   </Link>
-                  <Link href="/contacts" className="w-full sm:w-auto">
+                  <Link
+                    href="/wishOffer/wishes/create-wish"
+                    className="w-full sm:w-auto"
+                  >
                     <motion.button
                       className="w-full sm:w-auto px-7 py-3.5 bg-white text-blue-700 font-semibold rounded-full shadow-md hover:shadow-lg border border-blue-100/80 transition-all duration-300"
                       whileHover={{ scale: 1.02 }}
