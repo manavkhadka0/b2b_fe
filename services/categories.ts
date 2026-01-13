@@ -4,6 +4,8 @@ import type {
   CategoryResponse,
   SubCategory,
   SubCategoryResponse,
+  Service,
+  ServiceResponse,
 } from "@/types/create-wish-type";
 
 // Category CRUD operations
@@ -215,6 +217,93 @@ export async function deleteSubCategory(id: number): Promise<void> {
     );
   } catch (error) {
     console.error(`Failed to delete subcategory with id ${id}:`, error);
+    throw error;
+  }
+}
+
+// Service CRUD operations
+export async function getServices(
+  subCategoryId?: number,
+  page?: number
+): Promise<ServiceResponse> {
+  try {
+    const params: Record<string, string | number> = {};
+    if (subCategoryId) params.SubCategory = subCategoryId;
+    if (page) params.page = page;
+
+    const query = new URLSearchParams(
+      params as Record<string, string>
+    ).toString();
+
+    const url = query
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/?${query}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`;
+
+    const response = await api.get<ServiceResponse>(url);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch services:", error);
+    throw error;
+  }
+}
+
+export async function getServiceById(id: number): Promise<Service> {
+  try {
+    const response = await api.get<Service>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch service with id ${id}:`, error);
+    throw error;
+  }
+}
+
+export async function createService(data: {
+  name: string;
+  SubCategory: number;
+}): Promise<Service> {
+  try {
+    const response = await api.post<Service>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`,
+      {
+        name: data.name,
+        SubCategory: data.SubCategory,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to create service:", error);
+    throw error;
+  }
+}
+
+export async function updateService(
+  id: number,
+  data: {
+    name?: string;
+    SubCategory?: number;
+  }
+): Promise<Service> {
+  try {
+    const response = await api.patch<Service>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update service with id ${id}:`, error);
+    throw error;
+  }
+}
+
+export async function deleteService(id: number): Promise<void> {
+  try {
+    await api.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`
+    );
+  } catch (error) {
+    console.error(`Failed to delete service with id ${id}:`, error);
     throw error;
   }
 }

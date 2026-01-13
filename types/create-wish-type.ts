@@ -39,6 +39,9 @@ export interface Service {
   name: string;
   image: string | null;
   category: Category | null;
+  // API returns `subcategory`, but other code may reference `SubCategory`
+  subcategory?: SubCategory | null;
+  SubCategory?: number | SubCategory;
 }
 
 export interface ServiceResponse {
