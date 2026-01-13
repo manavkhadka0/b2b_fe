@@ -6,7 +6,6 @@ import type {
   HSCode,
   Service,
 } from "@/types/create-wish-type";
-import { designationOptions } from "@/types/schemas/create-wish-schemas";
 
 interface Step5ReviewProps {
   form: UseFormReturn<CreateWishFormValues>;
@@ -22,9 +21,6 @@ export function Step5Review({
   image,
 }: Step5ReviewProps) {
   const values = form.getValues();
-  const designation = designationOptions.find(
-    (option) => option.value === values.designation
-  );
 
   return (
     <div className="space-y-8">
@@ -68,7 +64,7 @@ export function Step5Review({
             </div>
             <div>
               <span className="text-sm text-gray-500">Designation:</span>
-              <p className="font-medium">{designation?.label}</p>
+              <p className="font-medium">{values.designation}</p>
             </div>
             <div>
               <span className="text-sm text-gray-500">Email:</span>

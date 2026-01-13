@@ -365,13 +365,22 @@ export function CreateWishOfferForm({
         } was created successfully.`;
       const fileUrl = result?.file_url || result?.fileUrl;
 
-      toast.success("Wish created successfully!");
+      toast.success(
+        `${
+          is_wish_or_offer === "wishes" ? "Wish" : "Offer"
+        } created successfully!`
+      );
       form.reset();
       setImage(null);
       setSuccessPayload({ message, fileUrl });
     } catch (error) {
-      console.error("Failed to create wish:", error);
-      toast.error("Failed to create wish");
+      console.error(
+        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}:`,
+        error
+      );
+      toast.error(
+        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}`
+      );
     } finally {
       setIsSubmitting(false);
     }
