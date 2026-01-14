@@ -74,7 +74,7 @@ export function Step3Company({ form }: Step3CompanyProps) {
                   <FloatingInput
                     id="company-website"
                     placeholder=" "
-                    type="url"
+                    type="text"
                     {...field}
                   />
                   <FloatingLabel htmlFor="company-website">

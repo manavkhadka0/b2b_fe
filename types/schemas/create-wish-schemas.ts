@@ -42,7 +42,7 @@ export const createWishOfferSchema = z
     district: z.string().optional(),
     municipality: z.string().optional(),
     ward: z.string().optional(),
-    company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
+    company_website: z.string().optional().or(z.literal("")),
     images: z.array(z.string()).optional(),
     event_id: z.string().optional(),
   })
