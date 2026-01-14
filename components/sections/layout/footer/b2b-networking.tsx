@@ -72,7 +72,7 @@ export function B2BNetworking() {
   return (
     <div className="bg-white">
       <ResponsiveContainer className="py-10">
-        {/* District B2B Networking Section */}
+        {/* B2B Networking Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-800">
             {t("footer.districtB2B")}

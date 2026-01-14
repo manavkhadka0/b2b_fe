@@ -140,7 +140,7 @@ const Footerbot = () => {
                 />
               </div>
               <h4 className="text-lg font-semibold text-[#1E40AF]">
-                Developed by
+                Technology Partner
               </h4>
               <Link href="https://baliyotech.com" target="_blank">
                 <div className="flex justify-center items-center bg-black w-32 mx-auto">
