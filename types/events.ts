@@ -13,6 +13,15 @@ export interface Organizer {
   avatar: string;
 }
 
+export interface EventOrganizer {
+  id: number;
+  name: string;
+  logo: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+}
+
 export interface Attendee {
   id: number;
   user: {
@@ -68,10 +77,12 @@ export interface Event {
   start_date: string;
   end_date: string;
   location: string;
-  organizer: Organizer;
+  organizer?: Organizer;
+  event_organizer?: EventOrganizer;
   attendees_count: number;
   sponsors: Sponsor[];
   agenda_items: AgendaItem[];
+  event_file?: string | null;
   created_at: string;
   updated_at: string;
   thumbnail: string;

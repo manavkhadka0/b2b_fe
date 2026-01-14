@@ -159,6 +159,45 @@ const ShareSection = ({ event }: { event: Event }) => (
   </div>
 );
 
+const EventFileSection = ({ event }: { event: Event }) => {
+  if (!event?.event_file) return null;
+
+  const fileUrl = event.event_file;
+  const httpsFileUrl = fileUrl.replace(/^http:\/\//i, "https://");
+
+  return (
+    <div className="bg-white rounded-lg md:rounded-xl py-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+          Event File
+        </h2>
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-blue-600 hover:text-blue-700 underline underline-offset-4"
+        >
+          Open PDF
+        </a>
+      </div>
+
+      <details className="group">
+        <summary className="cursor-pointer select-none text-sm text-gray-600 hover:text-gray-800">
+          Preview
+        </summary>
+        <div className="mt-3 rounded-lg overflow-hidden border border-gray-200">
+          <iframe
+            title="Event file preview"
+            src={httpsFileUrl}
+            className="w-full h-[70vh] min-h-[520px]"
+            loading="lazy"
+          />
+        </div>
+      </details>
+    </div>
+  );
+};
+
 // Main Event Detail View Component
 const EventDetailHero = ({ event }: { event: Event }) => {
   return (
@@ -170,6 +209,7 @@ const EventDetailHero = ({ event }: { event: Event }) => {
           <div className="md:col-span-2 space-y-6 md:space-y-20">
             <EventInfoCard event={event} />
             <EventDetailAbout event={event} />
+            <EventFileSection event={event} />
             <EventDetailAgenda event={event} />
             <EventDetailGallery event={event} />
             <EventWishesSection />
