@@ -34,3 +34,21 @@ export async function getAllOffers(): Promise<Offer[]> {
   );
   return response.data.results || [];
 }
+
+export async function deleteWish(id: number): Promise<void> {
+  await axios.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/${id}/`,
+    {
+      headers: { Accept: "application/json" },
+    }
+  );
+}
+
+export async function deleteOffer(id: number): Promise<void> {
+  await axios.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/${id}/`,
+    {
+      headers: { Accept: "application/json" },
+    }
+  );
+}
