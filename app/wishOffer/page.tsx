@@ -238,8 +238,8 @@ export default function WishOfferPage() {
           {/* Desktop Layout: Side by Side */}
           <div className="hidden md:grid grid-cols-2 gap-3 md:gap-4 lg:gap-6">
             {/* Wishes Section */}
-            {wishes.length > 0 && (
-              <div className="bg-white rounded-lg">
+            <div className="bg-white rounded-lg">
+              {wishes.length > 0 ? (
                 <div className="grid grid-cols-1 gap-y-3 md:gap-y-4 lg:gap-y-6">
                   {wishes.map((wish) => (
                     <WishOfferCard
@@ -260,12 +260,18 @@ export default function WishOfferPage() {
                     />
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="py-8 sm:py-12 text-center">
+                  <p className="text-gray-400 text-xs sm:text-sm md:text-base">
+                    No wishes found
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Offers Section */}
-            {offers.length > 0 && (
-              <div className="bg-white rounded-lg">
+            <div className="bg-white rounded-lg">
+              {offers.length > 0 ? (
                 <div className="grid grid-cols-1 gap-y-3 md:gap-y-4 lg:gap-y-6">
                   {offers.map((offer) => (
                     <WishOfferCard
@@ -286,8 +292,14 @@ export default function WishOfferPage() {
                     />
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="py-8 sm:py-12 text-center">
+                  <p className="text-gray-400 text-xs sm:text-sm md:text-base">
+                    No offers found
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
