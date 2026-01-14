@@ -73,27 +73,25 @@ const EventDetails = ({ event }: { event: Event }) => (
         <p className="text-sm md:text-base leading-relaxed">{event.location}</p>
       </div>
     )}
-    {event?.start_date && (
+    {event?.start_date && event?.end_date && (
       <div className="flex items-start gap-3">
         <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-sm md:text-base leading-relaxed">
-          {extractDate(event.start_date)}
+          {extractDate(event.start_date)} - {extractDate(event.end_date)}
         </p>
       </div>
     )}
-    {(event?.start_date || event?.end_date) && (
+    {/* {(event?.start_date || event?.end_date) && (
       <div className="flex items-start gap-3">
         <Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-sm md:text-base leading-relaxed">
-          {event?.start_date
-            ? extractTime(event.start_date) || "Time not available"
-            : "Time not available"}
+          {event?.start_date ? extractTime(event.start_date) || "" : ""}
           {event?.end_date
-            ? ` - ${extractTime(event.end_date) || extractDate(event.end_date)}`
+            ? `  ${extractTime(event.end_date) || extractDate(event.end_date)}`
             : ""}
         </p>
       </div>
-    )}
+    )} */}
   </div>
 );
 
