@@ -279,6 +279,58 @@ export default function WishDetailPage() {
               )}
             </div>
           </div>
+          <div className="space-y-2 sm:space-y-3">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">
+              Personal Information
+            </h3>
+            <div className="space-y-1.5 sm:space-y-2 text-gray-700 text-sm sm:text-base">
+              {wish.full_name && (
+                <p className="break-words">
+                  <span className="font-medium">Full Name:</span>{" "}
+                  {wish.full_name}
+                </p>
+              )}
+              {wish.designation && (
+                <p className="break-words">
+                  <span className="font-medium">Designation:</span>{" "}
+                  {wish.designation}
+                </p>
+              )}
+              {wish.mobile_no && (
+                <p className="break-words">
+                  <span className="font-medium">Mobile:</span>{" "}
+                  <a
+                    href={`tel:${wish.mobile_no}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {wish.mobile_no}
+                  </a>
+                </p>
+              )}
+              {wish.alternate_no && (
+                <p className="break-words">
+                  <span className="font-medium">Alternate Mobile:</span>{" "}
+                  <a
+                    href={`tel:${wish.alternate_no}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {wish.alternate_no}
+                  </a>
+                </p>
+              )}
+              {wish.email && (
+                <p className="break-words">
+                  <span className="font-medium">Email:</span>{" "}
+                  <a
+                    href={`mailto:${wish.email}`}
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {wish.email}
+                  </a>
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Product/Service Information */}
