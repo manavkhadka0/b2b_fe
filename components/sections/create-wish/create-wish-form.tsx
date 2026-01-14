@@ -222,6 +222,7 @@ export function CreateWishOfferForm({
       subcategory: "",
       description: "",
       images: [],
+      country: "Nepal",
       address: "",
       province: "",
       district: "",

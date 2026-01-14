@@ -16,29 +16,55 @@ export const wishTypeOptions = [
   { value: "Service", label: "Service" },
 ] as const;
 
-export const createWishOfferSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  type: z.enum(["Product", "Service"], {
-    required_error: "Please select a wish type",
-  }),
-  // Conditional validation for product/service - now optional
-  product: z.string().optional(),
-  service: z.string().optional(),
-  category: z.string().optional(),
-  subcategory: z.string().optional(),
-  description: z.string().optional(),
-  full_name: z.string().min(2, "Full name is required"),
-  designation: z.string().min(1, "Designation is required"),
-  email: z.string().email("Invalid email address"),
-  mobile_no: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  alternate_no: z.string().optional(),
-  company_name: z.string().min(1, "Company name is required"),
-  address: z.string().min(1, "Address is required"),
-  province: z.string().min(1, "Province is required"),
-  district: z.string().min(1, "District is required"),
-  municipality: z.string().min(1, "Municipality is required"),
-  ward: z.string().min(1, "Ward is required"),
-  company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
-  images: z.array(z.string()).optional(),
-  event_id: z.string().optional(),
-});
+export const createWishOfferSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    type: z.enum(["Product", "Service"], {
+      required_error: "Please select a wish type",
+    }),
+    // Conditional validation for product/service - now optional
+    product: z.string().optional(),
+    service: z.string().optional(),
+    category: z.string().optional(),
+    subcategory: z.string().optional(),
+    description: z.string().optional(),
+    full_name: z.string().min(2, "Full name is required"),
+    designation: z.string().min(1, "Designation is required"),
+    email: z.string().email("Invalid email address"),
+    mobile_no: z.string().regex(/^\d{10}$/, "Mobile number must be 10 digits"),
+    alternate_no: z.string().optional(),
+    company_name: z.string().min(1, "Company name is required"),
+    country: z.enum(["Nepal", "Others"], {
+      required_error: "Please select a country",
+    }),
+    address: z.string().min(1, "Address is required"),
+    province: z.string().optional(),
+    district: z.string().optional(),
+    municipality: z.string().optional(),
+    ward: z.string().optional(),
+    company_website: z.string().url("Invalid URL").optional().or(z.literal("")),
+    images: z.array(z.string()).optional(),
+    event_id: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.country === "Nepal") {
+        return (
+          data.province &&
+          data.province.length > 0 &&
+          data.district &&
+          data.district.length > 0 &&
+          data.municipality &&
+          data.municipality.length > 0 &&
+          data.ward &&
+          data.ward.length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "Province, District, Municipality, and Ward are required for Nepal",
+      path: ["province"],
+    }
+  );

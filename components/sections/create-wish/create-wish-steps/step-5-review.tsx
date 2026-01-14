@@ -97,26 +97,40 @@ export function Step5Review({
                 <p className="font-medium">{values.company_website}</p>
               </div>
             )}
+            {values.country && (
+              <div>
+                <span className="text-sm text-gray-500">Country:</span>
+                <p className="font-medium">{values.country}</p>
+              </div>
+            )}
             <div className="col-span-full">
               <span className="text-sm text-gray-500">Address:</span>
               <p className="font-medium">{values.address}</p>
             </div>
-            <div>
-              <span className="text-sm text-gray-500">Province:</span>
-              <p className="font-medium">{values.province}</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">District:</span>
-              <p className="font-medium">{values.district}</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">Municipality:</span>
-              <p className="font-medium">{values.municipality}</p>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">Ward:</span>
-              <p className="font-medium">{values.ward}</p>
-            </div>
+            {values.province && (
+              <div>
+                <span className="text-sm text-gray-500">Province:</span>
+                <p className="font-medium">{values.province}</p>
+              </div>
+            )}
+            {values.district && (
+              <div>
+                <span className="text-sm text-gray-500">District:</span>
+                <p className="font-medium">{values.district}</p>
+              </div>
+            )}
+            {values.municipality && (
+              <div>
+                <span className="text-sm text-gray-500">Municipality:</span>
+                <p className="font-medium">{values.municipality}</p>
+              </div>
+            )}
+            {values.ward && (
+              <div>
+                <span className="text-sm text-gray-500">Ward:</span>
+                <p className="font-medium">{values.ward}</p>
+              </div>
+            )}
           </div>
         </div>
 
