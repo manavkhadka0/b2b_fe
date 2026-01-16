@@ -220,7 +220,7 @@ const EventDetailHero = ({ event }: { event: Event }) => {
             <ParticipateSection />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-6xl mx-auto mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-6xl mx-auto pt-12">
           <EventWishesSection />
           <EventOffersSection />
         </div>
