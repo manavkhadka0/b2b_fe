@@ -70,6 +70,11 @@ export interface Tag {
   name: string;
 }
 
+export interface EventImage {
+  id: number;
+  image: string;
+}
+
 export interface Event {
   id: number;
   title: string;
@@ -96,6 +101,7 @@ export interface Event {
   status: string;
   is_featured: boolean;
   is_popular: boolean;
+  images?: EventImage[];
 }
 
 export interface EventResponse {
