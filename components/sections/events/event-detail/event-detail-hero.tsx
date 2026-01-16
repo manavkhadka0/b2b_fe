@@ -212,8 +212,6 @@ const EventDetailHero = ({ event }: { event: Event }) => {
             <EventFileSection event={event} />
             <EventDetailAgenda event={event} />
             <EventDetailGallery event={event} />
-            <EventWishesSection />
-            <EventOffersSection />
           </div>
 
           {/* Right Column - Sticky Organizer and Participate Section */}
@@ -221,6 +219,10 @@ const EventDetailHero = ({ event }: { event: Event }) => {
             <EventDetailOrganizer event={event} />
             <ParticipateSection />
           </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-6xl mx-auto mt-10">
+          <EventWishesSection />
+          <EventOffersSection />
         </div>
       </div>
     </ResponsiveContainer>
