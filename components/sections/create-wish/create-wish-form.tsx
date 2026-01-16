@@ -82,7 +82,7 @@ function ThankYouSection({ message, fileUrl }: SuccessPayload) {
               transition={{ delay: 0.3 }}
               className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"
             >
-              Application Submitted Successfully
+              Products Successfully Registered
             </motion.h2>
 
             {message && (
