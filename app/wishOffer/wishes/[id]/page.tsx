@@ -228,7 +228,7 @@ export default function WishDetailPage() {
 
             {/* Description */}
             {wish.description && (
-              <p className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-3 leading-relaxed break-words">
+              <p className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-3 leading-relaxed break-words whitespace-pre-line">
                 {wish.description}
               </p>
             )}
