@@ -8,7 +8,6 @@ import {
   updateEvent,
   getEventOrganizers,
   createEventOrganizer,
-  getTags,
   addEventImages,
   deleteEventImage,
 } from "@/services/events";
@@ -94,12 +93,10 @@ export default function AdminEventForm({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [orgsData, tagsData] = await Promise.all([
+        const [orgsData] = await Promise.all([
           getEventOrganizers(),
-          getTags(),
         ]);
         setOrganizers(orgsData);
-        setTags(tagsData);
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
