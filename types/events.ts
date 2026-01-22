@@ -101,6 +101,7 @@ export interface Event {
   status: string;
   is_featured: boolean;
   is_popular: boolean;
+  order?: number;
   images?: EventImage[];
 }
 
