@@ -5,6 +5,8 @@ import type { Event } from "@/types/events";
 import { Avatar, AvatarFallback } from "../../../ui/avatar";
 import Link from "next/link";
 
+import { formatNepaliDate } from "@/lib/nepali-date";
+
 interface EventCardProps {
   event: Event;
 }
@@ -35,7 +37,7 @@ const EventCard = ({ event }: EventCardProps) => {
             </div>
             {/* Date */}
             <p className="text-gray-600 text-sm font-bold">
-              {event.start_date}
+              {formatNepaliDate(event.start_date || "")}
             </p>
           </div>
 
