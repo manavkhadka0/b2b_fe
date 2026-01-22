@@ -13,6 +13,9 @@ import {
   deleteEventImage,
 } from "@/services/events";
 import Tiptap from "@/components/ui/tip-tap";
+import Calendar from "@sbmdkl/nepali-datepicker-reactjs";
+import "@sbmdkl/nepali-datepicker-reactjs/dist/index.css";
+import { adToBs } from "@sbmdkl/nepali-date-converter";
 import {
   Select,
   SelectContent,
@@ -53,13 +56,18 @@ export default function AdminEventForm({
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  // Store English (AD) date for backend, but show Nepali (BS) in UI
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [startDateBs, setStartDateBs] = useState("");
+  const [endDateBs, setEndDateBs] = useState("");
+  const [calendarKey, setCalendarKey] = useState(Date.now());
+
   const [location, setLocation] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [status, setStatus] = useState<"Published" | "Draft" | "Cancelled">(
-    "Draft"
+    "Published"
   );
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPopular, setIsPopular] = useState(false);
@@ -98,6 +106,25 @@ export default function AdminEventForm({
   const [deletingImageId, setDeletingImageId] = useState<number | null>(null);
 
   const editorRef = useRef<{ getContent: () => string } | null>(null);
+  const calendarInitialized = useRef(false);
+
+  // Helper function to convert Latin numerals to Devanagari numerals
+  const toDevanagariNumerals = (str: string): string => {
+    const latinToDevanagari: { [key: string]: string } = {
+      '0': '०', '1': '१', '2': '२', '3': '३', '4': '४',
+      '5': '५', '6': '६', '7': '७', '8': '८', '9': '९'
+    };
+    return str.replace(/[0-9]/g, (digit) => latinToDevanagari[digit] || digit);
+  };
+
+  // Helper function to convert Devanagari numerals to Latin numerals
+  const toLatinNumerals = (str: string): string => {
+    const devanagariToLatin: { [key: string]: string } = {
+      '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+      '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+    };
+    return str.replace(/[०१२३४५६७८९]/g, (digit) => devanagariToLatin[digit] || digit);
+  };
 
   // Fetch organizers and tags
   useEffect(() => {
@@ -119,20 +146,73 @@ export default function AdminEventForm({
     fetchData();
   }, []);
 
+  // Helper function to extract date from backend format (handles date with or without time)
+  const extractDate = (dateTimeStr: string) => {
+    if (!dateTimeStr) return "";
+    
+    // Handle various formats: "YYYY-MM-DD HH:MM", "YYYY-MM-DDTHH:MM", "YYYY-MM-DD", etc.
+    const dateTime = dateTimeStr.trim();
+    const spaceIndex = dateTime.indexOf(" ");
+    const tIndex = dateTime.indexOf("T");
+    
+    if (spaceIndex > 0) {
+      return dateTime.substring(0, spaceIndex);
+    } else if (tIndex > 0) {
+      return dateTime.substring(0, tIndex);
+    } else {
+      return dateTime;
+    }
+  };
+
   // Initialize form with initial data
   useEffect(() => {
-    if (!initialData) return;
+    if (!initialData || calendarInitialized.current) return;
+
 
     setTitle(initialData.title ?? "");
     setDescription(initialData.description ?? "");
-    // Backend uses CharField for dates; keep exactly what API returns
-    setStartDate(initialData.start_date ?? "");
-    setEndDate(initialData.end_date ?? "");
+    
+    // Extract and convert start date
+    const startDateStr = extractDate(initialData.start_date ?? "");
+    setStartDate(startDateStr);
+    
+    // Convert AD date to BS for display in date picker
+    if (startDateStr) {
+      try {
+        const bsDate = adToBs(startDateStr);
+        const bsDateDevanagari = toDevanagariNumerals(bsDate);
+        setStartDateBs(bsDateDevanagari);
+      } catch (error) {
+        console.error("Error converting start date to BS:", error);
+        setStartDateBs(startDateStr);
+      }
+    } else {
+      setStartDateBs("");
+    }
+    
+    // Extract and convert end date
+    const endDateStr = extractDate(initialData.end_date ?? "");
+    setEndDate(endDateStr);
+    
+    // Convert AD date to BS for display in date picker
+    if (endDateStr) {
+      try {
+        const bsDate = adToBs(endDateStr);
+        const bsDateDevanagari = toDevanagariNumerals(bsDate);
+        setEndDateBs(bsDateDevanagari);
+      } catch (error) {
+        console.error("Error converting end date to BS:", error);
+        setEndDateBs(endDateStr);
+      }
+    } else {
+      setEndDateBs("");
+    }
+  
     setLocation(initialData.location ?? "");
     setContactPerson(initialData.contact_person ?? "");
     setContactNumber(initialData.contact_number ?? "");
     setStatus(
-      (initialData.status as "Published" | "Draft" | "Cancelled") ?? "Draft"
+      (initialData.status as "Published" | "Draft" | "Cancelled") ?? "Published"
     );
     setIsFeatured(initialData.is_featured ?? false);
     setIsPopular(initialData.is_popular ?? false);
@@ -146,7 +226,14 @@ export default function AdminEventForm({
     if (initialData.images) {
       setEventImages(initialData.images);
     }
+    
+    // Force calendar to re-initialize with the correct date
+    setCalendarKey(Date.now());
+    calendarInitialized.current = true;
+    
   }, [initialData]);
+
+
 
   const handleAddImages = async () => {
     if (mode !== "edit" || !initialData?.id) return;
@@ -260,12 +347,19 @@ export default function AdminEventForm({
     setSubmitting(true);
     setError(null);
 
+
+
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      if (startDate) formData.append("start_date", startDate);
-      if (endDate) formData.append("end_date", endDate);
+      // Send only date in YYYY-MM-DD format
+      if (startDate) {
+        formData.append("start_date", startDate);
+      }
+      if (endDate) {
+        formData.append("end_date", endDate);
+      }
       formData.append("location", location);
       formData.append("contact_person", contactPerson);
       formData.append("contact_number", contactNumber);
@@ -310,6 +404,23 @@ export default function AdminEventForm({
       setSubmitting(false);
     }
   };
+
+  // Handle calendar date change
+  const handleStartDateChange = ({ bsDate, adDate }: { bsDate: string; adDate: string }) => {
+   
+    
+    setStartDateBs(bsDate);
+    setStartDate(adDate || "");
+  };
+
+  const handleEndDateChange = ({ bsDate, adDate }: { bsDate: string; adDate: string }) => {
+    
+    
+    setEndDateBs(bsDate);
+    setEndDate(adDate || "");
+  };
+
+ 
 
   return (
     <div className="w-full rounded-xl border bg-white p-8 shadow-sm">
@@ -367,16 +478,27 @@ export default function AdminEventForm({
               htmlFor="start_date"
               className="block text-sm font-medium text-slate-700"
             >
-              Start date & time
+              Start date (BS)
             </label>
-            <input
-              id="start_date"
-              type="text"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              placeholder=" (e.g., 12/25/2026, 02:30 PM)"
-              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
+            <div className="relative">
+              <Calendar
+                key={`start-${calendarKey}`}
+                language="ne"
+                dateFormat="YYYY-MM-DD"
+                className="mt-1 w-full"
+                inputClassName="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                placeholder="YYYY-MM-DD"
+                value={startDateBs}
+                onChange={handleStartDateChange}
+                theme="deepdark"
+                defaultDate={toLatinNumerals(startDateBs) || undefined}
+                hideDefaultValue={!startDateBs}
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              BS: {startDateBs || "Not set"} | AD: {startDate || "Not set"}
+            </p>
+            {/* Manual input as fallback */}
             
           </div>
           <div>
@@ -384,16 +506,27 @@ export default function AdminEventForm({
               htmlFor="end_date"
               className="block text-sm font-medium text-slate-700"
             >
-              End date & time
+              End date (BS)
             </label>
-            <input
-              id="end_date"
-              type="text"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              placeholder="(e.g., 12/25/2026, 05:00 PM)"
-              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
+            <div className="relative">
+              <Calendar
+                key={`end-${calendarKey}`}
+                language="ne"
+                dateFormat="YYYY-MM-DD"
+                className="mt-1 w-full"
+                inputClassName="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                placeholder="YYYY-MM-DD"
+                value={endDateBs}
+                onChange={handleEndDateChange}
+                theme="deepdark"
+                defaultDate={toLatinNumerals(endDateBs) || undefined}
+                hideDefaultValue={!endDateBs}
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              BS: {endDateBs || "Not set"} | AD: {endDate || "Not set"}
+            </p>
+            {/* Manual input as fallback */}
             
           </div>
         </div>
@@ -560,8 +693,6 @@ export default function AdminEventForm({
             </Dialog>
           </div>
         </div>
-
-    
 
         {/* Contact Information */}
         <div className="grid gap-4 md:grid-cols-2">
@@ -835,3 +966,4 @@ export default function AdminEventForm({
     </div>
   );
 }
+
