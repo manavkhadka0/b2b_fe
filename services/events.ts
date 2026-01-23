@@ -6,12 +6,35 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 export async function getEvents(page: string = "1"): Promise<EventResponse> {
   try {
     const response = await axios.get<EventResponse>(
+      `${API_BASE}/api/events/events/?page=${page ? page : 1}&is_active=true`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch events:", error);
+    return {
+      results: [],
+      count: 0,
+      next: null,
+      previous: null,
+    };
+  }
+}
+export async function getAdminEvents(
+  page: string = "1",
+): Promise<EventResponse> {
+  try {
+    const response = await axios.get<EventResponse>(
       `${API_BASE}/api/events/events/?page=${page ? page : 1}`,
       {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -29,7 +52,7 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
   try {
     const response = await axios.get<Event>(
       `${API_BASE}/api/events/events/${slug}/`,
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" } },
     );
     return response.data;
   } catch (error) {
@@ -48,7 +71,7 @@ export async function createEvent(formData: FormData): Promise<Event> {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -59,7 +82,7 @@ export async function createEvent(formData: FormData): Promise<Event> {
 
 export async function updateEvent(
   slug: string,
-  formData: FormData
+  formData: FormData,
 ): Promise<Event> {
   try {
     const response = await axios.patch<Event>(
@@ -70,7 +93,7 @@ export async function updateEvent(
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -92,7 +115,7 @@ export async function deleteEvent(slug: string): Promise<void> {
 
 export async function addEventImages(
   eventId: number,
-  images: File[]
+  images: File[],
 ): Promise<unknown> {
   try {
     const formData = new FormData();
@@ -109,7 +132,7 @@ export async function addEventImages(
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -139,7 +162,7 @@ export async function getEventOrganizers(): Promise<EventOrganizer[]> {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data.results || [];
   } catch (error) {
@@ -149,7 +172,7 @@ export async function getEventOrganizers(): Promise<EventOrganizer[]> {
 }
 
 export async function createEventOrganizer(
-  formData: FormData
+  formData: FormData,
 ): Promise<EventOrganizer> {
   try {
     const response = await axios.post<EventOrganizer>(
@@ -160,7 +183,7 @@ export async function createEventOrganizer(
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -177,11 +200,35 @@ export async function getTags(): Promise<Tag[]> {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data.results || [];
   } catch (error) {
     console.error("Failed to fetch tags:", error);
     return [];
+  }
+}
+
+export async function getPastEvents(
+  page: string = "1",
+): Promise<EventResponse> {
+  try {
+    const response = await axios.get<EventResponse>(
+      `${API_BASE}/api/events/past-events/?page=${page ? page : 1}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch past events:", error);
+    return {
+      results: [],
+      count: 0,
+      next: null,
+      previous: null,
+    };
   }
 }

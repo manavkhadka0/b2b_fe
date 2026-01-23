@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { addEventImages, deleteEvent, getEventBySlug, getEvents } from "@/services/events";
+import { addEventImages, deleteEvent, getEventBySlug, getAdminEvents } from "@/services/events";
 import type { Event, EventImage } from "@/types/events";
 import {
   AlertDialog,
@@ -26,7 +26,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 export default function AdminEventsPage() {
   const { isAuthenticated, isChecking, logout } = useAdminAuth();
   const router = useRouter();
@@ -52,7 +51,7 @@ export default function AdminEventsPage() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const data = await getEvents("1");
+      const data = await getAdminEvents("1");
       setEvents(data.results);
       setIsLoading(false);
     };

@@ -9,9 +9,10 @@ import { formatNepaliDate } from "@/lib/nepali-date";
 
 interface EventCardProps {
   event: Event;
+  hideAttendButton?: boolean;
 }
 
-const EventCard = ({ event }: EventCardProps) => {
+const EventCard = ({ event, hideAttendButton = false }: EventCardProps) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden border border-gray-100 transition hover:scale-[1.01] duration-400">
       <Link href={`/events/${event.slug}`} className="flex flex-col h-full">
@@ -80,11 +81,13 @@ const EventCard = ({ event }: EventCardProps) => {
               )}
             </div>
 
-            <Link href={`/events/${event.slug}`} className="w-full">
-              <button className="w-full bg-blue-600 text-white py-3 px-4 text-sm rounded-lg hover:bg-blue-700 transition-colors">
-                Attend This Event
-              </button>
-            </Link>
+            {!hideAttendButton && (
+              <Link href={`/events/${event.slug}`} className="w-full">
+                <button className="w-full bg-blue-600 text-white py-3 px-4 text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                  Attend This Event
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </Link>

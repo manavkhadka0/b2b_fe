@@ -5,9 +5,13 @@ import { ResponsiveContainer } from "../../common/responsive-container";
 
 interface EventsListViewProps {
   eventsResponse: EventResponse;
+  pastEventsResponse: EventResponse;
 }
 
-export const EventsListView = ({ eventsResponse }: EventsListViewProps) => {
+export const EventsListView = ({
+  eventsResponse,
+  pastEventsResponse,
+}: EventsListViewProps) => {
   return (
     <>
       {/* Banner Section */}
@@ -31,6 +35,13 @@ export const EventsListView = ({ eventsResponse }: EventsListViewProps) => {
       </ResponsiveContainer>
 
       <EventGridSection eventsResponse={eventsResponse} />
+
+      <EventGridSection
+        eventsResponse={pastEventsResponse}
+        title="Completed B2B Networking Events"
+        subtitle="Explore our successful past events"
+        hideAttendButton={true}
+      />
     </>
   );
 };
