@@ -5,7 +5,7 @@ import type { Event } from "@/types/events";
 import { Avatar, AvatarFallback } from "../../../ui/avatar";
 import Link from "next/link";
 
-import { formatNepaliDate } from "@/lib/nepali-date";
+import { formatNepaliDate, formatToNepaliMonthDayYear } from "@/lib/nepali-date";
 
 interface EventCardProps {
   event: Event;
@@ -38,10 +38,9 @@ const EventCard = ({ event, hideAttendButton = false }: EventCardProps) => {
             </div>
             {/* Date */}
             <p className="text-gray-600 text-sm font-bold">
-              {formatNepaliDate(event.start_date || "")}
+              {formatToNepaliMonthDayYear(event.start_date || "")}
             </p>
           </div>
-
           {/* Tags */}
           <div className="flex flex-wrap mt-4 gap-1">
             {event.tags.length > 0 ? (

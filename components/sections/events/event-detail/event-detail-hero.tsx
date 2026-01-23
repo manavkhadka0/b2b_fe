@@ -10,7 +10,7 @@ import EventDetailGallery from "./event-detail-gallery";
 import EventWishesSection from "./event-wishes-section";
 import EventOffersSection from "./event-offers-section";
 import AttendeesList from "./attendees-list";
-import { formatNepaliDate } from "@/lib/nepali-date";
+import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
 
 // Helper function to extract date part from "Poush 27, 2082 10:00 AM" format
 const extractDate = (dateTimeString: string): string => {
@@ -78,7 +78,7 @@ const EventDetails = ({ event }: { event: Event }) => (
       <div className="flex items-start gap-3">
         <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-sm md:text-base leading-relaxed">
-          {formatNepaliDate(event.start_date)} - {formatNepaliDate(event.end_date)}
+          {formatToNepaliMonthDayYear(event.start_date)} - {formatToNepaliMonthDayYear(event.end_date)}
         </p>
       </div>
     )}

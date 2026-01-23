@@ -26,6 +26,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
+
 export default function AdminEventsPage() {
   const { isAuthenticated, isChecking, logout } = useAdminAuth();
   const router = useRouter();
@@ -184,9 +186,6 @@ export default function AdminEventsPage() {
                 Start date
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Location
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -220,10 +219,7 @@ export default function AdminEventsPage() {
                     {event.title}
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-600">
-                    {event.start_date || "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">
-                    {event.status || "-"}
+                    {formatToNepaliMonthDayYear(event.start_date || "")}
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-600">
                     {event.location || "-"}
