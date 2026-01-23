@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { EventGridSection } from "../events-list/event-grid-section";
 import type { EventResponse } from "@/types/events";
 import { ResponsiveContainer } from "../../common/responsive-container";
@@ -38,7 +37,7 @@ export const EventsListView = ({
 
       <EventGridSection
         eventsResponse={pastEventsResponse}
-        title="Completed B2B Networking Events"
+        title="Past B2B Networking Events"
         subtitle="Explore our successful past events"
         hideAttendButton={true}
       />
