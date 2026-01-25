@@ -1,12 +1,16 @@
 "use client";
 import { HeaderSubtitle } from "../../common/header-subtitle";
-import { useOffers } from "@/app/utils/wishOffer";
+import { useEventOffers } from "@/app/utils/wishOffer";
 import WishOfferCard from "@/components/wish-offer-card";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const EventOffersSection = () => {
-  const { offers, isLoading: offerLoading, error: offerError } = useOffers();
+interface EventOffersSectionProps {
+  eventSlug: string;
+}
+
+const EventOffersSection = ({ eventSlug }: EventOffersSectionProps) => {
+  const { offers, isLoading: offerLoading, error: offerError } = useEventOffers(eventSlug);
   const router = useRouter();
 
   if (offerLoading) {

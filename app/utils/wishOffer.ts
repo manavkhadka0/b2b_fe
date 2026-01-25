@@ -111,3 +111,37 @@ export async function searchWishesOffers(search: string): Promise<{
     return { wishes: [], offers: [] };
   }
 }
+
+// Custom Hook for Event-specific Wishes
+export function useEventWishes(eventSlug: string | null) {
+  const { data, error, isLoading, mutate } = useSWR<WishResponse>(
+    eventSlug
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/wishes/`
+      : null,
+    fetcher
+  );
+
+  return {
+    wishes: data?.results || [],
+    isLoading,
+    mutate,
+    error,
+  };
+}
+
+// Custom Hook for Event-specific Offers
+export function useEventOffers(eventSlug: string | null) {
+  const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
+    eventSlug
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/offers/`
+      : null,
+    fetcher
+  );
+
+  return {
+    offers: data?.results || [],
+    isLoading,
+    mutate,
+    error,
+  };
+}

@@ -1,12 +1,16 @@
 "use client";
 import { HeaderSubtitle } from "../../common/header-subtitle";
-import { useWishes } from "@/app/utils/wishOffer";
+import { useEventWishes } from "@/app/utils/wishOffer";
 import WishOfferCard from "@/components/wish-offer-card";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const EventWishesSection = () => {
-  const { wishes, isLoading: wishLoading, error: wishError } = useWishes();
+interface EventWishesSectionProps {
+  eventSlug: string;
+}
+
+const EventWishesSection = ({ eventSlug }: EventWishesSectionProps) => {
+  const { wishes, isLoading: wishLoading, error: wishError } = useEventWishes(eventSlug);
   const router = useRouter();
 
   if (wishLoading) {

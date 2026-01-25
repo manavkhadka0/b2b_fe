@@ -1,9 +1,13 @@
 "use client";
-import { useWishes, useOffers } from "@/app/utils/wishOffer";
+import { useEventWishes, useEventOffers } from "@/app/utils/wishOffer";
 
-const AttendeesList = () => {
-  const { wishes } = useWishes();
-  const { offers } = useOffers();
+interface AttendeesListProps {
+  eventSlug: string;
+}
+
+const AttendeesList = ({ eventSlug }: AttendeesListProps) => {
+  const { wishes } = useEventWishes(eventSlug);
+  const { offers } = useEventOffers(eventSlug);
 
   const totalCount = (wishes?.length || 0) + (offers?.length || 0);
 

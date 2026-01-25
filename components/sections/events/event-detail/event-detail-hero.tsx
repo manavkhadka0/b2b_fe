@@ -60,7 +60,7 @@ const EventInfoCard = ({ event }: { event: Event }) => (
 
     {/* Bottom Section */}
     <div className="mt-6 pt-4 border-t border-gray-200">
-      <AttendeesList />
+      <AttendeesList eventSlug={event.slug} />
     </div>
   </div>
 );
@@ -78,7 +78,8 @@ const EventDetails = ({ event }: { event: Event }) => (
       <div className="flex items-start gap-3">
         <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-sm md:text-base leading-relaxed">
-          {formatToNepaliMonthDayYear(event.start_date)} - {formatToNepaliMonthDayYear(event.end_date)}
+          {formatToNepaliMonthDayYear(event.start_date)} -{" "}
+          {formatToNepaliMonthDayYear(event.end_date)}
         </p>
       </div>
     )}
@@ -218,12 +219,12 @@ const EventDetailHero = ({ event }: { event: Event }) => {
           {/* Right Column - Sticky Organizer and Participate Section */}
           <div className="sticky top-24 space-y-6">
             <EventDetailOrganizer event={event} />
-            <ParticipateSection />
+            <ParticipateSection event={event} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-6xl mx-auto pt-12">
-          <EventWishesSection />
-          <EventOffersSection />
+          <EventWishesSection eventSlug={event.slug} />
+          <EventOffersSection eventSlug={event.slug} />
         </div>
       </div>
     </ResponsiveContainer>
