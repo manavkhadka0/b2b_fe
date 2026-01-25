@@ -67,10 +67,13 @@ function AdminHeaderNav() {
   );
 }
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+function AdminLayoutContent({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/admin";
+
   return (
-    <AdminAuthProvider>
-      <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50">
+      {!isLoginPage && (
         <header className="border-b bg-white">
           <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
             <div>
@@ -85,8 +88,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <AdminHeaderNav />
           </div>
         </header>
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-      </div>
+      )}
+      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+    </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return (
+    <AdminAuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
     </AdminAuthProvider>
   );
 }
