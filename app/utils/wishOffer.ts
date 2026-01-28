@@ -26,11 +26,12 @@ const fetcher = (url: string) =>
     .then((res) => res.data);
 
 // Custom Hook for Wishes
-export function useWishes() {
-  const { data, error, isLoading, mutate } = useSWR<WishResponse>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    fetcher
-  );
+export function useWishes(categoryName?: string | null) {
+  const url = categoryName
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/?category_name=${encodeURIComponent(categoryName)}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
+
+  const { data, error, isLoading, mutate } = useSWR<WishResponse>(url, fetcher);
 
   return {
     wishes: data?.results || [],
@@ -41,10 +42,14 @@ export function useWishes() {
 }
 
 // Custom Hook for Offers
-export function useOffers() {
+export function useOffers(categoryName?: string | null) {
+  const url = categoryName
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/?category_name=${encodeURIComponent(categoryName)}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
+
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
-    fetcher
+    url,
+    fetcher,
   );
 
   return {
@@ -58,7 +63,7 @@ export function useOffers() {
 export function useWishAndOffer() {
   const { data, isLoading, error, mutate } = useSWR<WishAndOffer>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wish-offers/`,
-    fetcher
+    fetcher,
   );
   return {
     wish_and_offers: data,
@@ -72,7 +77,7 @@ export function useWishAndOffer() {
 export async function getWishes() {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    { headers: { Accept: "application/json" } }
+    { headers: { Accept: "application/json" } },
   );
   const data = await response.json();
   return data.results || [];
@@ -89,13 +94,13 @@ export async function searchWishesOffers(search: string): Promise<{
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/wishes/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
       fetch(
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/offers/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
     ]);
 
@@ -118,7 +123,7 @@ export function useEventWishes(eventSlug: string | null) {
     eventSlug
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/wishes/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {
@@ -135,7 +140,7 @@ export function useEventOffers(eventSlug: string | null) {
     eventSlug
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/offers/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {

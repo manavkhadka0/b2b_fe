@@ -8,6 +8,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from "nextjs-toploader";
 import Footer from "@/components/sections/layout/footer/footer";
+import SessionProvider from "@/contexts/SessionProvider";
+import { auth } from "@/app/auth";
 
 export const metadata: Metadata = {
   title: "B2B Marketplace",
@@ -18,23 +20,26 @@ const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${bricolage.className}  antialiased`}>
         <NextTopLoader height={3} color="#002B49" />
         <I18nProvider>
           <HtmlLang />
-          <AuthProvider>
-            <TooltipProvider>
-              {children}
-              <Toaster />
-            </TooltipProvider>
-          </AuthProvider>
+          <SessionProvider session={session}>
+            <AuthProvider>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+              </TooltipProvider>
+            </AuthProvider>
+          </SessionProvider>
         </I18nProvider>
       </body>
     </html>
