@@ -150,7 +150,7 @@ export function CreateWishOfferForm({
   const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
-    null
+    null,
   );
 
   const STEPS = [
@@ -193,7 +193,7 @@ export function CreateWishOfferForm({
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
+    null,
   );
   const [categorySearchOpen, setCategorySearchOpen] = useState(false);
   const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
@@ -347,12 +347,22 @@ export function CreateWishOfferForm({
         formData.append("image", image.file);
       }
 
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`,
         {
           method: "POST",
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : undefined,
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed to create wish");
@@ -369,7 +379,7 @@ export function CreateWishOfferForm({
       toast.success(
         `${
           is_wish_or_offer === "wishes" ? "Wish" : "Offer"
-        } created successfully!`
+        } created successfully!`,
       );
       form.reset();
       setImage(null);
@@ -377,10 +387,10 @@ export function CreateWishOfferForm({
     } catch (error) {
       console.error(
         `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}:`,
-        error
+        error,
       );
       toast.error(
-        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}`
+        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}`,
       );
     } finally {
       setIsSubmitting(false);
@@ -428,7 +438,7 @@ export function CreateWishOfferForm({
       try {
         const wishType = form.watch("type");
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=${wishType}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=${wishType}`,
         );
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
@@ -452,7 +462,7 @@ export function CreateWishOfferForm({
       setIsLoadingSubcategories(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/?category=${categoryId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/?category=${categoryId}`,
         );
         if (!response.ok) throw new Error("Failed to fetch subcategories");
         const data = await response.json();
@@ -489,7 +499,7 @@ export function CreateWishOfferForm({
     if (subcategoryId && wishType === "Product") {
       setIsLoadingProducts(true);
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?subcategory_id=${subcategoryId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?subcategory_id=${subcategoryId}`,
       )
         .then((response) => {
           if (!response.ok) throw new Error("Failed to fetch products");
@@ -660,8 +670,8 @@ export function CreateWishOfferForm({
                     ? isSubmitting
                       ? "Creating..."
                       : is_wish_or_offer === "wishes"
-                      ? "Create Wish"
-                      : "Create Offer"
+                        ? "Create Wish"
+                        : "Create Offer"
                     : "Next"}
                 </Button>
               </div>

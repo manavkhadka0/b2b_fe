@@ -30,6 +30,16 @@ export function DefaultNav() {
 
   const currentUser = session?.user || authUser;
 
+  const navigateWithAuthCheck = (targetPath: string) => {
+    if (currentUser) {
+      router.push(targetPath);
+      return;
+    }
+
+    const encodedReturnTo = encodeURIComponent(targetPath);
+    router.push(`/login?returnTo=${encodedReturnTo}`);
+  };
+
   const getInitial = () => {
     if (session?.user) {
       const name = session.user.name || session.user.email || "";
@@ -49,11 +59,11 @@ export function DefaultNav() {
     const userType =
       (authUser as any)?.user_type || (session as any)?.user?.user_type;
     if (userType === "Job Seeker") {
-      router.push("/jobseeker/dashboard/profile/me");
+      router.push("/profile");
     } else if (userType === "Employer") {
       router.push("/company/dashboard/profile/me");
     } else {
-      router.push("/dashboard");
+      router.push("/profile");
     }
   };
 
@@ -209,14 +219,18 @@ export function DefaultNav() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem
-                    onClick={() => router.push("/wishOffer/wishes/create-wish")}
+                    onClick={() =>
+                      navigateWithAuthCheck("/wishOffer/wishes/create-wish")
+                    }
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     {t("navigation.makeAWish")} (क्रेता)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => router.push("/wishOffer/offer/create-offer")}
+                    onClick={() =>
+                      navigateWithAuthCheck("/wishOffer/offer/create-offer")
+                    }
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -261,22 +275,22 @@ export function DefaultNav() {
                   <div className="flex flex-col gap-3 mt-4">
                     <Button
                       variant="outline"
-                      asChild
                       className="flex items-center gap-2 text-blue-800 border-blue-800"
+                      onClick={() =>
+                        navigateWithAuthCheck("/wishOffer/wishes/create-wish")
+                      }
                     >
-                      <Link href="/wishOffer/wishes/create-wish">
-                        <PlusCircle className="w-4 h-4" />
-                        {t("navigation.makeAWish")} ({t("navigation.buyer")})
-                      </Link>
+                      <PlusCircle className="w-4 h-4" />
+                      {t("navigation.makeAWish")} ({t("navigation.buyer")})
                     </Button>
                     <Button
-                      asChild
                       className="flex items-center gap-2 bg-blue-800"
+                      onClick={() =>
+                        navigateWithAuthCheck("/wishOffer/offer/create-offer")
+                      }
                     >
-                      <Link href="/wishOffer/offer/create-offer">
-                        <PlusCircle className="w-4 h-4" />
-                        {t("navigation.makeAnOffer")} ({t("navigation.seller")})
-                      </Link>
+                      <PlusCircle className="w-4 h-4" />
+                      {t("navigation.makeAnOffer")} ({t("navigation.seller")})
                     </Button>
                   </div>
                 </nav>

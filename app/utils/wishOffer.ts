@@ -17,13 +17,28 @@ type OfferResponse = {
   previous: string | null;
 };
 
-// Axios Fetcher for SWR
+// Axios Fetcher for SWR (public, no auth)
 const fetcher = (url: string) =>
   axios
     .get(url, {
       headers: { Accept: "application/json" },
     })
     .then((res) => res.data);
+
+// Axios Fetcher for SWR with auth token (profile, "my" data)
+const authFetcher = (url: string) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+  return axios
+    .get(url, {
+      headers: {
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
+    .then((res) => res.data);
+};
 
 // Custom Hook for Wishes
 export function useWishes(categoryName?: string | null) {
@@ -50,6 +65,35 @@ export function useOffers(categoryName?: string | null) {
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     url,
     fetcher,
+  );
+
+  return {
+    offers: data?.results || [],
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
+// Authenticated hooks for "My" wishes and offers (used in profile)
+export function useMyWishes() {
+  const { data, error, isLoading, mutate } = useSWR<WishResponse>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
+    authFetcher,
+  );
+
+  return {
+    wishes: data?.results || [],
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
+export function useMyOffers() {
+  const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
+    authFetcher,
   );
 
   return {

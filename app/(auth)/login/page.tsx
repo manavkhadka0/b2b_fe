@@ -55,7 +55,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       const timeout = setTimeout(() => {
-        router.push(returnTo || "/dashboard");
+        router.push(returnTo || "/");
       }, 2000);
 
       return () => clearTimeout(timeout);
