@@ -13,6 +13,15 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useMyWishes, useMyOffers } from "@/app/utils/wishOffer";
 import type { Wish, Offer } from "@/types/wish";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
@@ -28,10 +37,12 @@ function getInitials(name?: string | null) {
 function MyWishCard({
   wish,
   onDelete,
+  onEdit,
   isDeleting,
 }: {
   wish: Wish;
   onDelete: (id: number) => void;
+  onEdit: (wish: Wish) => void;
   isDeleting: boolean;
 }) {
   return (
@@ -82,16 +93,15 @@ function MyWishCard({
             View
           </Button>
         </Link>
-        <Link href={`/wishOffer/wishes/${wish.id}`}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
-          >
-            <Edit2 className="w-3 h-3 mr-1" />
-            Edit
-          </Button>
-        </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
+          onClick={() => onEdit(wish)}
+        >
+          <Edit2 className="w-3 h-3 mr-1" />
+          Edit
+        </Button>
         <Button
           variant="outline"
           size="sm"
@@ -114,10 +124,12 @@ function MyWishCard({
 function MyOfferCard({
   offer,
   onDelete,
+  onEdit,
   isDeleting,
 }: {
   offer: Offer;
   onDelete: (id: number) => void;
+  onEdit: (offer: Offer) => void;
   isDeleting: boolean;
 }) {
   return (
@@ -168,16 +180,15 @@ function MyOfferCard({
             View
           </Button>
         </Link>
-        <Link href={`/wishOffer/offer/${offer.id}`}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
-          >
-            <Edit2 className="w-3 h-3 mr-1" />
-            Edit
-          </Button>
-        </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
+          onClick={() => onEdit(offer)}
+        >
+          <Edit2 className="w-3 h-3 mr-1" />
+          Edit
+        </Button>
         <Button
           variant="outline"
           size="sm"
@@ -213,6 +224,11 @@ export default function ProfilePage() {
 
   const [deletingWishId, setDeletingWishId] = useState<number | null>(null);
   const [deletingOfferId, setDeletingOfferId] = useState<number | null>(null);
+  const [editingWish, setEditingWish] = useState<Wish | null>(null);
+  const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   if (authLoading) {
     return (
@@ -231,6 +247,82 @@ export default function ProfilePage() {
 
   const fullName =
     `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email;
+
+  const openEditWish = (wish: Wish) => {
+    setEditingWish(wish);
+    setEditingOffer(null);
+    setDraftTitle(wish.title || "");
+    setDraftDescription(wish.description || "");
+  };
+
+  const openEditOffer = (offer: Offer) => {
+    setEditingOffer(offer);
+    setEditingWish(null);
+    setDraftTitle(offer.title || "");
+    setDraftDescription(offer.description || "");
+  };
+
+  const closeEditDialog = () => {
+    setEditingWish(null);
+    setEditingOffer(null);
+    setDraftTitle("");
+    setDraftDescription("");
+    setSavingEdit(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingWish && !editingOffer) return;
+
+    try {
+      setSavingEdit(true);
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
+
+      if (!token) {
+        toast.error("You must be logged in to edit.");
+        setSavingEdit(false);
+        return;
+      }
+
+      const isWish = !!editingWish;
+      const id = isWish ? editingWish!.id : editingOffer!.id;
+      const url = isWish
+        ? `${API_BASE}/api/wish_and_offers/wishes/${id}/`
+        : `${API_BASE}/api/wish_and_offers/offers/${id}/`;
+
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: draftTitle,
+          description: draftDescription,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update");
+      }
+
+      toast.success(
+        isWish ? "Wish updated successfully" : "Offer updated successfully",
+      );
+      if (isWish) {
+        mutateWishes();
+      } else {
+        mutateOffers();
+      }
+      closeEditDialog();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save changes");
+      setSavingEdit(false);
+    }
+  };
 
   const handleDeleteWish = async (id: number) => {
     try {
@@ -313,14 +405,6 @@ export default function ProfilePage() {
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
                   {user.email}
                 </p>
-                {user.user_type && (
-                  <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
-                    Role:{" "}
-                    <span className="font-medium text-gray-700">
-                      {user.user_type}
-                    </span>
-                  </p>
-                )}
               </div>
             </div>
             <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
@@ -380,6 +464,7 @@ export default function ProfilePage() {
                       key={wish.id}
                       wish={wish}
                       onDelete={handleDeleteWish}
+                      onEdit={openEditWish}
                       isDeleting={deletingWishId === wish.id}
                     />
                   ))}
@@ -403,6 +488,7 @@ export default function ProfilePage() {
                       key={offer.id}
                       offer={offer}
                       onDelete={handleDeleteOffer}
+                      onEdit={openEditOffer}
                       isDeleting={deletingOfferId === offer.id}
                     />
                   ))}
@@ -411,6 +497,77 @@ export default function ProfilePage() {
             </TabsContent>
           </Tabs>
         </section>
+
+        <Dialog
+          open={!!editingWish || !!editingOffer}
+          onOpenChange={(open) => {
+            if (!open) closeEditDialog();
+          }}
+        >
+          <DialogContent className="max-w-md w-[95%] sm:w-full">
+            <DialogHeader>
+              <DialogTitle className="text-base sm:text-lg">
+                {editingWish ? "Edit Wish" : "Edit Offer"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-1">
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-title" className="text-xs sm:text-sm">
+                  Title
+                </Label>
+                <Input
+                  id="edit-title"
+                  value={draftTitle}
+                  onChange={(e) => setDraftTitle(e.target.value)}
+                  className="h-9 text-sm"
+                  placeholder="Enter title"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="edit-description"
+                  className="text-xs sm:text-sm"
+                >
+                  Description
+                </Label>
+                <Textarea
+                  id="edit-description"
+                  value={draftDescription}
+                  onChange={(e) => setDraftDescription(e.target.value)}
+                  rows={4}
+                  className="text-sm"
+                  placeholder="Enter description"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs"
+                  onClick={closeEditDialog}
+                  disabled={savingEdit}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
+                  onClick={handleSaveEdit}
+                  disabled={savingEdit || !draftTitle.trim()}
+                >
+                  {savingEdit ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </ResponsiveContainer>
     </div>
   );

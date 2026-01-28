@@ -140,12 +140,18 @@ interface CreateWishFormProps {
   event?: Event;
   onClose?: () => void;
   is_wish_or_offer: "wishes" | "offers";
+  mode?: "create" | "edit";
+  existingId?: number;
+  initialValues?: Partial<CreateWishFormValues>;
 }
 
 export function CreateWishOfferForm({
   event,
   onClose,
   is_wish_or_offer,
+  mode = "create",
+  existingId,
+  initialValues,
 }: CreateWishFormProps) {
   const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -230,6 +236,7 @@ export function CreateWishOfferForm({
       ward: "",
       type: "Product",
       event_id: event?.id?.toString() || "",
+      ...initialValues,
     },
   });
 
@@ -352,20 +359,26 @@ export function CreateWishOfferForm({
           ? localStorage.getItem("accessToken")
           : null;
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`,
-        {
-          method: "POST",
-          headers: token
-            ? {
-                Authorization: `Bearer ${token}`,
-              }
-            : undefined,
-          body: formData,
-        },
-      );
+      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`;
+      const url =
+        mode === "edit" && existingId ? `${baseUrl}${existingId}/` : baseUrl;
 
-      if (!response.ok) throw new Error("Failed to create wish");
+      const response = await fetch(url, {
+        method: mode === "edit" ? "PATCH" : "POST",
+        headers: token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : undefined,
+        body: formData,
+      });
+
+      if (!response.ok)
+        throw new Error(
+          `Failed to ${mode === "edit" ? "update" : "create"} ${
+            is_wish_or_offer === "wishes" ? "wish" : "offer"
+          }`,
+        );
 
       const result = await response.json().catch(() => null);
       const message =
@@ -373,24 +386,32 @@ export function CreateWishOfferForm({
         result?.detail ||
         `Your ${
           is_wish_or_offer === "wishes" ? "wish" : "offer"
-        } was created successfully.`;
+        } was ${mode === "edit" ? "updated" : "created"} successfully.`;
       const fileUrl = result?.file_url || result?.fileUrl;
 
       toast.success(
         `${
           is_wish_or_offer === "wishes" ? "Wish" : "Offer"
-        } created successfully!`,
+        } ${mode === "edit" ? "updated" : "created"} successfully!`,
       );
-      form.reset();
-      setImage(null);
-      setSuccessPayload({ message, fileUrl });
+      if (mode === "create") {
+        form.reset();
+        setImage(null);
+        setSuccessPayload({ message, fileUrl });
+      } else {
+        if (onClose) onClose();
+      }
     } catch (error) {
       console.error(
-        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}:`,
+        `Failed to ${mode === "edit" ? "update" : "create"} ${
+          is_wish_or_offer === "wishes" ? "wish" : "offer"
+        }:`,
         error,
       );
       toast.error(
-        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}`,
+        `Failed to ${mode === "edit" ? "update" : "create"} ${
+          is_wish_or_offer === "wishes" ? "wish" : "offer"
+        }`,
       );
     } finally {
       setIsSubmitting(false);
@@ -528,7 +549,7 @@ export function CreateWishOfferForm({
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
-  if (successPayload) {
+  if (successPayload && mode === "create") {
     return (
       <ThankYouSection
         message={successPayload.message}
@@ -620,7 +641,7 @@ export function CreateWishOfferForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {event && (
+        {event && mode === "create" && (
           <h1 className="text-2xl font-bold mb-4 px-4 md:px-0">
             Create {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} for{" "}
             {event.title}
@@ -668,10 +689,14 @@ export function CreateWishOfferForm({
                 >
                   {currentStep === STEPS.length
                     ? isSubmitting
-                      ? "Creating..."
-                      : is_wish_or_offer === "wishes"
-                        ? "Create Wish"
-                        : "Create Offer"
+                      ? mode === "edit"
+                        ? "Saving..."
+                        : "Creating..."
+                      : mode === "edit"
+                        ? "Save Changes"
+                        : is_wish_or_offer === "wishes"
+                          ? "Create Wish"
+                          : "Create Offer"
                     : "Next"}
                 </Button>
               </div>

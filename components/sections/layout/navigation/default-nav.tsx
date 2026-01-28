@@ -56,15 +56,7 @@ export function DefaultNav() {
   };
 
   const handleProfileClick = () => {
-    const userType =
-      (authUser as any)?.user_type || (session as any)?.user?.user_type;
-    if (userType === "Job Seeker") {
-      router.push("/profile");
-    } else if (userType === "Employer") {
-      router.push("/company/dashboard/profile/me");
-    } else {
-      router.push("/profile");
-    }
+    router.push("/profile");
   };
 
   const handleLogoutClick = () => {
