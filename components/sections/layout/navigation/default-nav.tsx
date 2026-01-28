@@ -2,19 +2,68 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, PlusCircle } from "lucide-react";
+import { Menu, PlusCircle, User, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useRouter, usePathname } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/sections/layout/language-switcher";
+import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function DefaultNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { data: session } = useSession();
+  const { user: authUser, logout } = useAuth();
+
+  const currentUser = session?.user || authUser;
+
+  const getInitial = () => {
+    if (session?.user) {
+      const name = session.user.name || session.user.email || "";
+      return name.charAt(0).toUpperCase() || "U";
+    }
+    if (authUser) {
+      const name =
+        `${authUser.first_name} ${authUser.last_name}`.trim() ||
+        authUser.email ||
+        authUser.username;
+      return name.charAt(0).toUpperCase() || "U";
+    }
+    return "U";
+  };
+
+  const handleProfileClick = () => {
+    const userType =
+      (authUser as any)?.user_type || (session as any)?.user?.user_type;
+    if (userType === "Job Seeker") {
+      router.push("/jobseeker/dashboard/profile/me");
+    } else if (userType === "Employer") {
+      router.push("/company/dashboard/profile/me");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
+  const handleLogoutClick = () => {
+    if (session) {
+      signOut({ callbackUrl: "/login" });
+    } else {
+      logout();
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,8 +85,8 @@ export function DefaultNav() {
     <Link
       href={href}
       className={`
-        text-sm font-medium transition-colors relative
-        after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full
+        text-xs font-medium transition-colors relative whitespace-nowrap
+        after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
         after:origin-left after:scale-x-0 after:bg-blue-800 after:transition-transform
         ${
           pathname === href
@@ -57,47 +106,124 @@ export function DefaultNav() {
       }`}
     >
       <ResponsiveContainer>
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo Section */}
-          <div className="flex items-center gap-6">
+          <div className="flex shrink-0 items-center gap-3">
             <Link href="/" className="">
-              <img src="/Container.svg" alt="Jobbriz" className="h-12 w-auto" />
+              <img src="/Container.svg" alt="Jobbriz" className="h-10 w-auto" />
             </Link>
             <Link href="/" className="">
-              <img src="/cim-logo.webp" alt="cim" className="h-16 w-auto" />
+              <img src="/cim-logo.webp" alt="cim" className="h-12 w-auto" />
             </Link>
           </div>
 
-          {/* Nav and CTA Section */}
-          <div className="flex items-center gap-8">
-            <nav className="hidden lg:flex items-center gap-6">
-              {navItems.map((item) => (
-                <NavLink key={item.href} {...item} />
-              ))}
-            </nav>
+          {/* Center: Nav links (desktop) - flex-1 centers between logo and right */}
+          <nav className="hidden lg:flex flex-1 items-center justify-center gap-5 min-w-0">
+            {navItems.map((item) => (
+              <NavLink key={item.href} {...item} />
+            ))}
+          </nav>
 
-            {/* Language Switcher */}
-            <LanguageSwitcher />
+          {/* Right: Language, Auth, Create */}
+          <div className="flex shrink-0 items-center gap-3 lg:gap-4">
+            {/* Language Switcher - compact in nav */}
+            <LanguageSwitcher compact />
 
-            {/* CTA Buttons - Hidden on mobile */}
-            <div className="hidden lg:flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 text-blue-800 border-blue-800 hover:bg-blue-50"
-                onClick={() => router.push("/wishOffer/wishes/create-wish")}
-              >
-                <PlusCircle className="w-4 h-4" />
-                {t("navigation.makeAWish")} ({t("navigation.buyer")})
-              </Button>
-              <Button
-                size="sm"
-                className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900"
-                onClick={() => router.push("/wishOffer/offer/create-offer")}
-              >
-                <PlusCircle className="w-4 h-4" />
-                {t("navigation.makeAnOffer")} ({t("navigation.seller")})
-              </Button>
+            {/* Login / Register when not logged in */}
+            {!currentUser && (
+              <div className="hidden lg:flex items-center gap-2 shrink-0">
+                <Button variant="ghost" size="sm" asChild className="h-9">
+                  <Link href="/login">{t("auth.login")}</Link>
+                </Button>
+                <Button
+                  size="sm"
+                  asChild
+                  className="h-9 bg-blue-800 hover:bg-blue-900 shrink-0"
+                >
+                  <Link href="/register">{t("auth.signup")}</Link>
+                </Button>
+              </div>
+            )}
+
+            {/* User menu when logged in */}
+            {currentUser && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full hidden lg:inline-flex shrink-0"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={(session?.user as any)?.image || "/avatar.png"}
+                        alt={
+                          (session?.user as any)?.name ||
+                          authUser?.first_name ||
+                          "User"
+                        }
+                      />
+                      <AvatarFallback>{getInitial()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem className="flex flex-col items-start">
+                    <div className="text-sm font-medium">
+                      {(session?.user as any)?.name ||
+                        `${authUser?.first_name || ""} ${authUser?.last_name || ""}`.trim() ||
+                        authUser?.email}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {(session?.user as any)?.email || authUser?.email}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleProfileClick}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogoutClick}
+                    className="text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {/* Create dropdown - single CTA, saves space */}
+            <div className="hidden lg:flex items-center shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="h-9 gap-1.5 bg-blue-800 hover:bg-blue-900"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    <span>{t("common.create")}</span>
+                    <ChevronDown className="h-4 w-4 opacity-80" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/wishOffer/wishes/create-wish")}
+                    className="cursor-pointer"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    {t("navigation.makeAWish")} (क्रेता)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/wishOffer/offer/create-offer")}
+                    className="cursor-pointer"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    {t("navigation.makeAnOffer")} (बिक्रेता)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Mobile Menu */}
@@ -116,6 +242,21 @@ export function DefaultNav() {
                   <div className="mt-4">
                     <LanguageSwitcher />
                   </div>
+                  {/* Mobile Login / Register when not logged in */}
+                  {!currentUser && (
+                    <div className="flex flex-col gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="text-blue-800 border-blue-800"
+                      >
+                        <Link href="/login">{t("auth.login")}</Link>
+                      </Button>
+                      <Button asChild className="bg-blue-800 hover:bg-blue-900">
+                        <Link href="/register">{t("auth.signup")}</Link>
+                      </Button>
+                    </div>
+                  )}
                   {/* Mobile CTA Buttons */}
                   <div className="flex flex-col gap-3 mt-4">
                     <Button

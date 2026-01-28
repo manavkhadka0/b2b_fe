@@ -25,7 +25,7 @@ export interface AuthContextType {
 }
 
 export interface LoginCredentials {
-  username: string;
+  email: string;
   password: string;
 }
 

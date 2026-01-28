@@ -1,7 +1,7 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 
 const NEXT_PUBLIC_API_URL =
-  process.env.NEXT_PUBLIC_API_U || "http://127.0.0.1:8000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export const api = axios.create({
   baseURL: NEXT_PUBLIC_API_URL,
@@ -63,5 +63,5 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );

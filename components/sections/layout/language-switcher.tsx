@@ -11,8 +11,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
-export function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  /** When true, show only the globe icon (no language label). Use in compact navbars. */
+  compact?: boolean;
+}
+
+export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const { changeLanguage, currentLanguage } = useI18n();
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
@@ -34,7 +40,8 @@ export function LanguageSwitcher() {
     { code: "ne", label: t("common.nepali"), native: "नेपाली" },
   ];
 
-  const currentLang = languages.find((lang) => lang.code === currentLanguage) || languages[0];
+  const currentLang =
+    languages.find((lang) => lang.code === currentLanguage) || languages[0];
 
   return (
     <DropdownMenu>
@@ -42,11 +49,16 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="sm"
-          className="flex items-center gap-2 h-9 px-3"
+          className={cn(
+            "flex items-center gap-2 h-9",
+            compact ? "w-9 px-0 justify-center" : "px-3",
+          )}
           aria-label={t("common.language")}
         >
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{currentLang.native}</span>
+          <Globe className="h-4 w-4 shrink-0" />
+          {!compact && (
+            <span className="hidden sm:inline">{currentLang.native}</span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">

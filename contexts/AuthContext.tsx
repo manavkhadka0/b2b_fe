@@ -28,6 +28,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const decodeToken = (token: string): any | null => {
+    try {
+      const [, payload] = token.split(".");
+      if (!payload) return null;
+      const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      return null;
+    }
+  };
+
+  const getUserFromToken = (token: string): User | null => {
+    const payload = decodeToken(token);
+    if (!payload) return null;
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < nowInSeconds) {
+      return null;
+    }
+
+    const mappedUser: User = {
+      id: payload.user_id,
+      email: payload.email,
+      username: payload.username || payload.email?.split("@")[0] || "",
+      first_name: payload.first_name || "",
+      last_name: payload.last_name || "",
+      user_type: payload.user_type || "Job Seeker",
+      gender: payload.gender || "Other",
+      phone_number: payload.phone_number,
+      address: payload.address,
+      created_at: payload.created_at || "",
+      updated_at: payload.updated_at || "",
+    };
+
+    return mappedUser;
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -36,8 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem("accessToken");
       if (token) {
-        const response = await api.get<User>("/api/user/profile/");
-        setUser(response.data);
+        const decodedUser = getUserFromToken(token);
+        if (decodedUser) {
+          setUser(decodedUser);
+        } else {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -57,21 +101,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials, returnTo?: string) => {
     try {
       const authResponse = await api.post<AuthResponse>(
-        "/api/auth/login/",
-        credentials
+        "/api/accounts/login/",
+        credentials,
       );
       const { access, refresh } = authResponse.data;
 
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
 
-      const profileResponse = await api.get<User>("/api/user/profile/");
-      setUser(profileResponse.data);
+      const decodedUser = getUserFromToken(access);
+      if (decodedUser) {
+        setUser(decodedUser);
+      }
 
       if (returnTo) {
         router.push(decodeURIComponent(returnTo));
       } else {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error) {
       localStorage.removeItem("accessToken");
@@ -80,14 +126,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (data: SignupData, returnTo?: string) => {
+  const signup = async (data: SignupData, returnTo?: string): Promise<void> => {
     try {
-      const response = await api.post("/api/auth/register/", data);
-      await login(
-        { username: data.username, password: data.password },
-        returnTo
+      // Backend returns tokens on register; use them directly like login
+      const response = await api.post<AuthResponse>(
+        "/api/accounts/register/",
+        data,
       );
-      return response.data;
+      const { access, refresh } = response.data;
+
+      if (access && refresh) {
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
+
+        const decodedUser = getUserFromToken(access);
+        if (decodedUser) {
+          setUser(decodedUser);
+        }
+      }
+
+      if (returnTo) {
+        router.push(decodeURIComponent(returnTo));
+      } else {
+        router.push("/");
+      }
     } catch (error) {
       throw error;
     }

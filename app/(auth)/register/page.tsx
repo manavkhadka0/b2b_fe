@@ -64,9 +64,20 @@ export default function SimpleRegisterPage() {
   const onSubmit = async (values: RegisterFormValues) => {
     setIsSubmitting(true);
     try {
-      await api.post("/api/accounts/register/", values);
-      toast.success("Account created successfully. You can now sign in.");
-      router.push("/login");
+      const response = await api.post("/api/accounts/register/", values);
+
+      // Expecting { access, refresh } like in your example
+      const { access, refresh } = response.data || {};
+
+      if (access && refresh) {
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
+      }
+
+      toast.success("Account created successfully. Redirecting...");
+
+      // Full reload so AuthContext re-runs auth check with fresh tokens
+      router.push("/");
     } catch (error: any) {
       // Try to surface backend validation errors if present
       const data = error?.response?.data;
@@ -89,34 +100,21 @@ export default function SimpleRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Themed gradient background (matches other auth pages) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-100/30 to-blue-100/30 animate-gradient" />
-      </div>
-
-      {/* Subtle floating blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-4 -left-4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
-        <div className="absolute -bottom-8 -right-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000" />
-      </div>
-
-      <Card className="w-full max-w-2xl mx-4 shadow-xl bg-white/80 backdrop-blur-sm relative z-10">
-        <CardHeader className="space-y-3 text-center pb-4">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-8">
+      <Card className="w-full max-w-md shadow-lg bg-white/90 backdrop-blur-sm border border-slate-100">
+        <CardHeader className="space-y-2 text-center pb-4">
+          <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Create your B2B account
           </CardTitle>
-          <CardDescription className="text-gray-600">
-            A clean, simple signup to get you started quickly.
+          <CardDescription className="text-sm text-gray-600">
+            A compact, focused signup experience.
           </CardDescription>
         </CardHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <CardContent className="space-y-6 px-6 pb-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <CardContent className="space-y-4 px-5 pb-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
                   name="first_name"
@@ -125,9 +123,9 @@ export default function SimpleRegisterPage() {
                       <FormLabel>First name</FormLabel>
                       <FormControl>
                         <div className="relative group">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                          <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                           <Input
-                            className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                            className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                             placeholder="Jane"
                             {...field}
                           />
@@ -146,9 +144,9 @@ export default function SimpleRegisterPage() {
                       <FormLabel>Last name</FormLabel>
                       <FormControl>
                         <div className="relative group">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                          <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                           <Input
-                            className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                            className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                             placeholder="Doe"
                             {...field}
                           />
@@ -168,10 +166,10 @@ export default function SimpleRegisterPage() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                         <Input
                           type="email"
-                          className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                          className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                           placeholder="you@example.com"
                           {...field}
                         />
@@ -190,10 +188,10 @@ export default function SimpleRegisterPage() {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                         <Input
                           type="password"
-                          className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                          className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                           placeholder="At least 8 characters"
                           {...field}
                         />
@@ -204,7 +202,7 @@ export default function SimpleRegisterPage() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
                   name="phone_number"
@@ -213,9 +211,9 @@ export default function SimpleRegisterPage() {
                       <FormLabel>Phone number</FormLabel>
                       <FormControl>
                         <div className="relative group">
-                          <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                          <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                           <Input
-                            className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                            className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                             placeholder="+1 555 000 1234"
                             {...field}
                           />
@@ -234,9 +232,9 @@ export default function SimpleRegisterPage() {
                       <FormLabel>Address</FormLabel>
                       <FormControl>
                         <div className="relative group">
-                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                          <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                           <Input
-                            className="pl-10 h-11 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
+                            className="pl-10 h-10 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                             placeholder="City, country"
                             {...field}
                           />
@@ -248,7 +246,7 @@ export default function SimpleRegisterPage() {
                 />
               </div>
 
-              <div className="relative flex items-center py-2">
+              <div className="relative flex items-center py-1">
                 <div className="flex-grow border-t border-gray-200" />
                 <span className="mx-3 text-xs uppercase tracking-wide text-gray-400">
                   or continue with
@@ -259,16 +257,16 @@ export default function SimpleRegisterPage() {
               <GoogleLoginButton isRegister onClick={() => signIn("google")} />
             </CardContent>
 
-            <CardFooter className="flex flex-col gap-4 px-6 pb-6">
+            <CardFooter className="flex flex-col gap-3 px-5 pb-5">
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full h-10 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-sm font-medium transition-all duration-200"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Creating account..." : "Sign up"}
+                {isSubmitting ? "Creating account..." : "Create account"}
               </Button>
 
-              <p className="text-sm text-center text-gray-600">
+              <p className="text-xs md:text-sm text-center text-gray-600">
                 Already have an account?{" "}
                 <Link
                   href="/login"

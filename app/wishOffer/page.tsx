@@ -55,10 +55,6 @@ function WishOfferContent() {
 
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/wishOffer" });
-  };
-
   // Update URL when category changes (skip on initial mount)
   useEffect(() => {
     if (isInitialMount.current) {
@@ -160,7 +156,6 @@ function WishOfferContent() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <GoogleLoginButton onClick={handleGoogleLogin} />
       <ResponsiveContainer className="py-4 px-4 md:py-6 md:px-6 lg:py-8">
         {/* Mobile Header */}
         <div className="flex items-center justify-between mb-4 lg:hidden">
