@@ -108,3 +108,40 @@ body {
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
 }
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .marquee-wrapper {
+    display: flex;
+    width: max-content;
+    animation: marqueeScroll linear infinite;
+    will-change: transform;
+  }
+
+  .marquee-inner {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  .marquee-container:hover .marquee-wrapper {
+    animation-play-state: paused;
+  }
+
+  @keyframes marqueeScroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-100% / 2));
+    }
+  }
+}

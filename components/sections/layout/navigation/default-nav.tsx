@@ -81,6 +81,8 @@ export function DefaultNav() {
     { label: t("navigation.wishOffer"), href: "/wishOffer" },
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
+    // MDMU campaign landing
+    { label: "MDMU", href: "/mdmu" },
   ];
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
@@ -112,11 +114,11 @@ export function DefaultNav() {
           {/* Logo Section */}
           <div className="flex shrink-0 items-center gap-3">
             <Link href="/" className="">
-              <img src="/Container.svg" alt="Jobbriz" className="h-10 w-auto" />
+              <img src="/b2blogo.png" alt="Jobbriz" className="h-10 w-auto" />
             </Link>
-            <Link href="/" className="">
+            {/* <Link href="/" className="">
               <img src="/cim-logo.webp" alt="cim" className="h-12 w-auto" />
-            </Link>
+            </Link> */}
           </div>
 
           {/* Center: Nav links (desktop) - flex-1 centers between logo and right */}
