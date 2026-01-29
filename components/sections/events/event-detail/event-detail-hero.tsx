@@ -53,9 +53,6 @@ const EventInfoCard = ({ event }: { event: Event }) => (
 
       {/* Contact Info */}
       <ContactInfo event={event} />
-
-      {/* Sponsor Section */}
-      <SponsorSection sponsors={event?.sponsors} />
     </div>
 
     {/* Bottom Section */}
