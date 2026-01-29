@@ -99,12 +99,12 @@ export function MDMUForm() {
       formData.append("address_street", data.address_street);
       formData.append(
         "nature_of_industry_category",
-        data.nature_of_industry_category.id.toString()
+        data.nature_of_industry_category.id.toString(),
       );
       if (data.nature_of_industry_sub_category?.id) {
         formData.append(
           "nature_of_industry_sub_category",
-          data.nature_of_industry_sub_category.id.toString()
+          data.nature_of_industry_sub_category.id.toString(),
         );
       }
       formData.append("product_market", data.product_market);
@@ -116,7 +116,7 @@ export function MDMUForm() {
       if (data.contact_alternate_number) {
         formData.append(
           "contact_alternate_number",
-          data.contact_alternate_number
+          data.contact_alternate_number,
         );
       }
       if (data.contact_email) {
@@ -154,15 +154,24 @@ export function MDMUForm() {
       };
       const finalStepValidation = await validateStepData(
         5,
-        submitDataForValidation
+        submitDataForValidation,
       );
       if (!finalStepValidation.success) return;
 
-      // Submit form data with proper headers for multipart/form-data
+      // Get auth token from localStorage
+      const accessToken = localStorage.getItem("accessToken");
+
+      // Prepare headers - don't set Content-Type manually when using FormData
+      // axios will automatically set it with the correct boundary parameter
+      const headers: Record<string, string> = {};
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
+
+      // Submit form data with auth token
+      // Note: When using FormData, axios automatically sets Content-Type to multipart/form-data with boundary
       const response = await axios.post(API_ENDPOINTS.register, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers,
       });
 
       if (response.status === 201) {
@@ -179,7 +188,7 @@ export function MDMUForm() {
 
         // Reset form and redirect to thank you page
         form.reset();
-        router.push(`/thank-you?${searchParams.toString()}`);
+        router.push(`/mdmu/thank-you?${searchParams.toString()}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

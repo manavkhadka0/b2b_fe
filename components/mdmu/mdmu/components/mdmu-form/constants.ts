@@ -2,7 +2,7 @@ import { Award, Shield } from "lucide-react";
 
 import { FileCheck } from "lucide-react";
 
-export const API_BASE_URL = "https://cim.baliyoventures.com/api";
+export const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export const API_ENDPOINTS = {
   categories: `${API_BASE_URL}/mdmu/nature-of-industry-category/`,

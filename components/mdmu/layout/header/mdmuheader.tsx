@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,6 +12,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigationItems = [
   { href: "/mdmu/about-us", label: "About Us" },
@@ -24,6 +26,21 @@ const navigationItems = [
 const MDMUHeader = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { user: authUser } = useAuth();
+
+  const currentUser = session?.user || authUser;
+
+  const navigateWithAuthCheck = (targetPath: string) => {
+    if (currentUser) {
+      router.push(targetPath);
+      return;
+    }
+
+    const encodedReturnTo = encodeURIComponent(targetPath);
+    router.push(`/login?returnTo=${encodedReturnTo}`);
+  };
 
   useEffect(() => {
     setOpen(false);
@@ -52,8 +69,11 @@ const MDMUHeader = () => {
               </Link>
             ))}
           </nav>
-          <Button className="bg-[#0A1E4B] hover:bg-blue-900" asChild>
-            <Link href={"/mdmu/apply"}>Register Now</Link>
+          <Button
+            className="bg-[#0A1E4B] hover:bg-blue-900"
+            onClick={() => navigateWithAuthCheck("/mdmu/apply")}
+          >
+            Register Now
           </Button>
         </div>
 
@@ -80,10 +100,14 @@ const MDMUHeader = () => {
                     {item.label}
                   </Link>
                 ))}
-                <Button className="bg-[#0A1E4B] hover:bg-blue-900" asChild>
-                  <Link href={"/mdmu/apply"} onClick={() => setOpen(false)}>
-                    Register Now
-                  </Link>
+                <Button
+                  className="bg-[#0A1E4B] hover:bg-blue-900"
+                  onClick={() => {
+                    setOpen(false);
+                    navigateWithAuthCheck("/mdmu/apply");
+                  }}
+                >
+                  Register Now
                 </Button>
               </div>
             </SheetContent>
