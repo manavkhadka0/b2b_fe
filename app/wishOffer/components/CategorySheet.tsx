@@ -22,15 +22,15 @@ import { Category } from "@/types/create-wish-type";
 interface CategorySheetProps {
   productCategories: Category[];
   serviceCategories: Category[];
-  activeCategory: string | null;
+  activeCategoryId: number | null;
   isLoadingCategories: boolean;
-  onCategorySelect: (categoryName: string | null) => void;
+  onCategorySelect: (categoryId: number | null) => void;
 }
 
 export function CategorySheet({
   productCategories,
   serviceCategories,
-  activeCategory,
+  activeCategoryId,
   isLoadingCategories,
   onCategorySelect,
 }: CategorySheetProps) {
@@ -62,7 +62,7 @@ export function CategorySheet({
               <button
                 onClick={() => onCategorySelect(null)}
                 className={`flex items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-blue-50/50 group border-b border-gray-100 ${
-                  activeCategory === null
+                  activeCategoryId === null
                     ? "bg-blue-50/30 text-blue-600 font-medium"
                     : "text-gray-600"
                 }`}
@@ -96,18 +96,18 @@ export function CategorySheet({
                           key={cat.id}
                           onClick={() => {
                             onCategorySelect(
-                              cat.name === activeCategory ? null : cat.name,
+                              cat.id === activeCategoryId ? null : cat.id,
                             );
                           }}
                           className={`flex items-center justify-between px-4 py-2.5 pl-8 text-left transition-colors hover:bg-blue-50/50 group w-full ${
-                            activeCategory === cat.name
+                            activeCategoryId === cat.id
                               ? "bg-blue-50/30 text-blue-600 font-medium"
                               : "text-gray-600"
                           }`}
                         >
                           <span className="text-sm">{cat.name}</span>
                           <ChevronRight
-                            className={`w-3.5 h-3.5 ${activeCategory === cat.name ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
+                            className={`w-3.5 h-3.5 ${activeCategoryId === cat.id ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
                           />
                         </button>
                       ))}
@@ -142,18 +142,18 @@ export function CategorySheet({
                           key={cat.id}
                           onClick={() => {
                             onCategorySelect(
-                              cat.name === activeCategory ? null : cat.name,
+                              cat.id === activeCategoryId ? null : cat.id,
                             );
                           }}
                           className={`flex items-center justify-between px-4 py-2.5 pl-8 text-left transition-colors hover:bg-blue-50/50 group w-full ${
-                            activeCategory === cat.name
+                            activeCategoryId === cat.id
                               ? "bg-blue-50/30 text-blue-600 font-medium"
                               : "text-gray-600"
                           }`}
                         >
                           <span className="text-sm">{cat.name}</span>
                           <ChevronRight
-                            className={`w-3.5 h-3.5 ${activeCategory === cat.name ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
+                            className={`w-3.5 h-3.5 ${activeCategoryId === cat.id ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
                           />
                         </button>
                       ))}

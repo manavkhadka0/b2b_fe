@@ -14,15 +14,15 @@ import { Category } from "@/types/create-wish-type";
 interface CategorySidebarProps {
   productCategories: Category[];
   serviceCategories: Category[];
-  activeCategory: string | null;
+  activeCategoryId: number | null;
   isLoadingCategories: boolean;
-  onCategorySelect: (categoryName: string | null) => void;
+  onCategorySelect: (categoryId: number | null) => void;
 }
 
 export function CategorySidebar({
   productCategories,
   serviceCategories,
-  activeCategory,
+  activeCategoryId,
   isLoadingCategories,
   onCategorySelect,
 }: CategorySidebarProps) {
@@ -47,12 +47,12 @@ export function CategorySidebar({
               <button
                 onClick={() => onCategorySelect(null)}
                 className={`flex items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-blue-50/50 group relative border-b border-gray-100 ${
-                  activeCategory === null
+                  activeCategoryId === null
                     ? "text-blue-600 font-medium bg-blue-50/30"
                     : "text-gray-600"
                 }`}
               >
-                {activeCategory === null && (
+                {activeCategoryId === null && (
                   <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />
                 )}
                 <span className="text-sm font-medium">All</span>
@@ -84,21 +84,21 @@ export function CategorySidebar({
                           key={cat.id}
                           onClick={() =>
                             onCategorySelect(
-                              cat.name === activeCategory ? null : cat.name,
+                              cat.id === activeCategoryId ? null : cat.id,
                             )
                           }
                           className={`flex items-center justify-between px-4 py-2.5 pl-8 text-left transition-colors hover:bg-blue-50/50 group relative w-full ${
-                            activeCategory === cat.name
+                            activeCategoryId === cat.id
                               ? "text-blue-600 font-medium bg-blue-50/30"
                               : "text-gray-600"
                           }`}
                         >
-                          {activeCategory === cat.name && (
+                          {activeCategoryId === cat.id && (
                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />
                           )}
                           <span className="text-sm">{cat.name}</span>
                           <ChevronRight
-                            className={`w-3.5 h-3.5 transition-colors ${activeCategory === cat.name ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
+                            className={`w-3.5 h-3.5 transition-colors ${activeCategoryId === cat.id ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
                           />
                         </button>
                       ))}
@@ -133,21 +133,21 @@ export function CategorySidebar({
                           key={cat.id}
                           onClick={() =>
                             onCategorySelect(
-                              cat.name === activeCategory ? null : cat.name,
+                              cat.id === activeCategoryId ? null : cat.id,
                             )
                           }
                           className={`flex items-center justify-between px-4 py-2.5 pl-8 text-left transition-colors hover:bg-blue-50/50 group relative w-full ${
-                            activeCategory === cat.name
+                            activeCategoryId === cat.id
                               ? "text-blue-600 font-medium bg-blue-50/30"
                               : "text-gray-600"
                           }`}
                         >
-                          {activeCategory === cat.name && (
+                          {activeCategoryId === cat.id && (
                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />
                           )}
                           <span className="text-sm">{cat.name}</span>
                           <ChevronRight
-                            className={`w-3.5 h-3.5 transition-colors ${activeCategory === cat.name ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
+                            className={`w-3.5 h-3.5 transition-colors ${activeCategoryId === cat.id ? "text-blue-600" : "text-gray-300 group-hover:text-blue-400"}`}
                           />
                         </button>
                       ))}

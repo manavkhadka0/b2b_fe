@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState, Suspense } from "react";
 import {
   useWishes,
   useOffers,
-  searchWishesOffers,
+  useWishOfferCategories,
+  useSearchWishesOffers,
 } from "@/app/utils/wishOffer";
 import { Wish, Offer } from "@/types/wish";
 import { Category } from "@/types/create-wish-type";
@@ -18,115 +18,44 @@ import { CategorySheet } from "./components/CategorySheet";
 import { SearchBar } from "./components/SearchBar";
 import { WishList } from "./components/WishList";
 import { OfferList } from "./components/OfferList";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
-import { signIn } from "next-auth/react";
 
 function WishOfferContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category");
-  const isInitialMount = useRef(true);
-
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    categoryParam || null,
-  );
-  const [productCategories, setProductCategories] = useState<Category[]>([]);
-  const [serviceCategories, setServiceCategories] = useState<Category[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+  const {
+    productCategories,
+    serviceCategories,
+    isLoading: isLoadingCategories,
+  } = useWishOfferCategories();
 
   const {
     wishes: allWishes,
     isLoading: wishLoading,
     error: wishError,
-  } = useWishes(activeCategory);
+  } = useWishes(activeCategoryId);
   const {
     offers: allOffers,
     isLoading: offerLoading,
     error: offerError,
-  } = useOffers(activeCategory);
+  } = useOffers(activeCategoryId);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{
-    wishes: Wish[];
-    offers: Offer[];
-  } | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
   const [activeTab, setActiveTab] = useState("wishes");
 
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // Update URL when category changes (skip on initial mount)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (activeCategory) {
-      params.set("category", activeCategory);
-    } else {
-      params.delete("category");
-    }
-    const newUrl = params.toString()
-      ? `${window.location.pathname}?${params.toString()}`
-      : window.location.pathname;
-    router.replace(newUrl, { scroll: false });
-  }, [activeCategory, router, searchParams]);
-
-  // Fetch categories on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoadingCategories(true);
-      try {
-        // Fetch Product categories
-        const productResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=Product`,
-        );
-        if (productResponse.ok) {
-          const productData = await productResponse.json();
-          setProductCategories(productData.results || []);
-        }
-
-        // Fetch Service categories
-        const serviceResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=Service`,
-        );
-        if (serviceResponse.ok) {
-          const serviceData = await serviceResponse.json();
-          setServiceCategories(serviceData.results || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  // Perform search when debounced query changes
-  useEffect(() => {
-    if (debouncedSearch.trim()) {
-      setIsSearching(true);
-      searchWishesOffers(debouncedSearch)
-        .then((results) => {
-          setSearchResults(results);
-          setIsSearching(false);
-        })
-        .catch((error) => {
-          console.error("Search error:", error);
-          setIsSearching(false);
-        });
-    } else {
-      setSearchResults(null);
-    }
-  }, [debouncedSearch]);
+  // Search wishes & offers (SWR handles deduping repeated calls)
+  const { results: swrSearchResults, isLoading: swrIsSearching } =
+    useSearchWishesOffers(debouncedSearch);
 
   const clearSearch = () => {
     setSearchQuery("");
-    setSearchResults(null);
+  };
+
+  const searchResults = swrSearchResults;
+  const isSearching = swrIsSearching;
+
+  const handleCategorySelect = (categoryId: number | null) => {
+    setActiveCategoryId(categoryId);
   };
 
   // When searching, use search results; otherwise use API-filtered results
@@ -134,16 +63,16 @@ function WishOfferContent() {
   const filteredWishes = searchResults
     ? searchResults.wishes.filter(
         (wish) =>
-          !activeCategory || wish.product?.category?.name === activeCategory,
+          !activeCategoryId || wish.product?.category?.id === activeCategoryId,
       )
     : allWishes;
 
   const filteredOffers = searchResults
     ? searchResults.offers.filter(
         (offer) =>
-          !activeCategory ||
-          offer.product?.category?.name === activeCategory ||
-          offer.service?.category?.name === activeCategory,
+          !activeCategoryId ||
+          offer.product?.category?.id === activeCategoryId ||
+          offer.service?.category?.id === activeCategoryId,
       )
     : allOffers;
 
@@ -163,9 +92,9 @@ function WishOfferContent() {
           <CategorySheet
             productCategories={productCategories}
             serviceCategories={serviceCategories}
-            activeCategory={activeCategory}
+            activeCategoryId={activeCategoryId}
             isLoadingCategories={isLoadingCategories}
-            onCategorySelect={setActiveCategory}
+            onCategorySelect={handleCategorySelect}
           />
         </div>
 
@@ -174,9 +103,9 @@ function WishOfferContent() {
           <CategorySidebar
             productCategories={productCategories}
             serviceCategories={serviceCategories}
-            activeCategory={activeCategory}
+            activeCategoryId={activeCategoryId}
             isLoadingCategories={isLoadingCategories}
-            onCategorySelect={setActiveCategory}
+            onCategorySelect={handleCategorySelect}
           />
 
           {/* Main Content */}

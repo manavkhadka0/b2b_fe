@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import axios from "axios";
 import { Wish, Offer, WishAndOffer } from "@/types/wish";
+import { CategoryResponse } from "@/types/create-wish-type";
 
 // API Response Types
 type WishResponse = {
@@ -41,9 +42,9 @@ const authFetcher = (url: string) => {
 };
 
 // Custom Hook for Wishes
-export function useWishes(categoryName?: string | null) {
-  const url = categoryName
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/?category_name=${encodeURIComponent(categoryName)}`
+export function useWishes(categoryId?: number | null) {
+  const url = categoryId
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/?category_id=${categoryId}`
     : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
 
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(url, fetcher);
@@ -57,9 +58,9 @@ export function useWishes(categoryName?: string | null) {
 }
 
 // Custom Hook for Offers
-export function useOffers(categoryName?: string | null) {
-  const url = categoryName
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/?category_name=${encodeURIComponent(categoryName)}`
+export function useOffers(categoryId?: number | null) {
+  const url = categoryId
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/?category_id=${categoryId}`
     : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
 
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
@@ -72,6 +73,31 @@ export function useOffers(categoryName?: string | null) {
     isLoading,
     error,
     mutate,
+  };
+}
+
+// Shared hook for Wish & Offer categories (reduces duplicate category API calls)
+export function useWishOfferCategories() {
+  const productUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=Product`;
+  const serviceUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/?type=Service`;
+
+  const {
+    data: productData,
+    error: productError,
+    isLoading: productLoading,
+  } = useSWR<CategoryResponse>(productUrl, fetcher);
+
+  const {
+    data: serviceData,
+    error: serviceError,
+    isLoading: serviceLoading,
+  } = useSWR<CategoryResponse>(serviceUrl, fetcher);
+
+  return {
+    productCategories: productData?.results || [],
+    serviceCategories: serviceData?.results || [],
+    isLoading: productLoading || serviceLoading,
+    error: productError || serviceError,
   };
 }
 
@@ -159,6 +185,33 @@ export async function searchWishesOffers(search: string): Promise<{
     console.error("Error searching wishes and offers:", error);
     return { wishes: [], offers: [] };
   }
+}
+
+type SearchResult = {
+  wishes: Wish[];
+  offers: Offer[];
+};
+
+// SWR hook for searching wishes and offers (dedupes repeated search calls)
+export function useSearchWishesOffers(search: string) {
+  const trimmed = search.trim();
+  const shouldFetch = trimmed.length > 0;
+
+  const { data, error, isLoading } = useSWR<SearchResult>(
+    shouldFetch ? ["searchWishesOffers", trimmed] : null,
+    // SWR fetcher delegates to the existing search function (which calls both APIs in parallel)
+    ([, query]) => searchWishesOffers(query as string),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
+
+  return {
+    results: data ?? null,
+    isLoading,
+    error,
+  };
 }
 
 // Custom Hook for Event-specific Wishes
