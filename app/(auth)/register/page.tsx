@@ -61,6 +61,10 @@ export default function SimpleRegisterPage() {
     },
   });
 
+  const handleGoogleLogin = () => {
+    signIn("google", { callbackUrl: "/" });
+  };
+
   const onSubmit = async (values: RegisterFormValues) => {
     setIsSubmitting(true);
     try {
@@ -254,7 +258,7 @@ export default function SimpleRegisterPage() {
                 <div className="flex-grow border-t border-gray-200" />
               </div>
 
-              <GoogleLoginButton isRegister onClick={() => signIn("google")} />
+              <GoogleLoginButton isRegister onClick={handleGoogleLogin} />
             </CardContent>
 
             <CardFooter className="flex flex-col gap-3 px-5 pb-5">

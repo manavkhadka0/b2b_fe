@@ -7,9 +7,16 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { User, LoginCredentials, SignupData, AuthResponse } from "@/types/auth";
+import {
+  User,
+  LoginCredentials,
+  SignupData,
+  AuthResponse,
+  UserType,
+} from "@/types/auth";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
 
   const decodeToken = (token: string): any | null => {
     try {
@@ -66,30 +74,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return mappedUser;
   };
 
+  // Check auth when session status changes
   useEffect(() => {
-    checkAuth();
-  }, []);
+    const checkAuth = async () => {
+      try {
+        // Wait for NextAuth session to finish loading
+        if (sessionStatus === "loading") {
+          return;
+        }
 
-  const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        const decodedUser = getUserFromToken(token);
-        if (decodedUser) {
-          setUser(decodedUser);
+        // First check NextAuth session (for Google OAuth)
+        if (session?.user?.accessToken) {
+          const accessToken = session.user.accessToken;
+          const refreshToken = session.user.refreshToken || "";
+
+          // Sync to localStorage
+          const currentToken = localStorage.getItem("accessToken");
+          if (currentToken !== accessToken) {
+            localStorage.setItem("accessToken", accessToken);
+            if (refreshToken) {
+              localStorage.setItem("refreshToken", refreshToken);
+            }
+          }
+
+          // Get user from token
+          const decodedUser = getUserFromToken(accessToken);
+          if (decodedUser) {
+            // Merge NextAuth session data
+            const sessionUserType = session.user.user_type as
+              | UserType
+              | undefined;
+            const mergedUser: User = {
+              ...decodedUser,
+              email: session.user.email || decodedUser.email,
+              username: session.user.username || decodedUser.username,
+              first_name: session.user.first_name || decodedUser.first_name,
+              last_name: session.user.last_name || decodedUser.last_name,
+              user_type:
+                sessionUserType === "Job Seeker" ||
+                sessionUserType === "Employer"
+                  ? sessionUserType
+                  : decodedUser.user_type,
+            };
+            setUser(mergedUser);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback to localStorage check (for credentials login)
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          const decodedUser = getUserFromToken(token);
+          if (decodedUser) {
+            setUser(decodedUser);
+          } else {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            setUser(null);
+          }
         } else {
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
+          // No token in localStorage and no NextAuth session
           setUser(null);
         }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
+    checkAuth();
+  }, [session, sessionStatus]);
 
   const requireAuth = (returnTo: string) => {
     if (!user && !isLoading) {
@@ -155,10 +212,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = (returnTo?: string) => {
+  const logout = async (returnTo?: string) => {
     setUser(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+
+    // Also sign out from NextAuth if session exists
+    if (session) {
+      const { signOut } = await import("next-auth/react");
+      await signOut({ redirect: false });
+    }
+
     const redirectUrl = returnTo
       ? `/login?returnTo=${encodeURIComponent(returnTo)}`
       : "/login";

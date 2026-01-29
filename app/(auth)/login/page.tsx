@@ -29,6 +29,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginCredentials } from "@/types/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { signIn } from "next-auth/react";
 
 const loginSchema = z.object({
   email: z.string().email("Valid email is required"),
@@ -76,6 +78,11 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    const callbackUrl = returnTo ? decodeURIComponent(returnTo) : "/";
+    signIn("google", { callbackUrl });
   };
 
   if (user) {
@@ -245,6 +252,16 @@ export default function LoginPage() {
                   "Sign in"
                 )}
               </Button>
+
+              <div className="relative flex items-center py-1">
+                <div className="flex-grow border-t border-gray-200" />
+                <span className="mx-3 text-xs uppercase tracking-wide text-gray-400">
+                  or continue with
+                </span>
+                <div className="flex-grow border-t border-gray-200" />
+              </div>
+
+              <GoogleLoginButton onClick={handleGoogleLogin} />
 
               <p className="text-sm text-center text-gray-600">
                 Don&apos;t have an account?{" "}
