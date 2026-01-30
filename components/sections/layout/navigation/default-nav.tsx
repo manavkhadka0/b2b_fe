@@ -83,6 +83,7 @@ export function DefaultNav() {
     { label: t("navigation.howToApply"), href: "/howtoapply" },
     // MDMU campaign landing
     { label: "MDMU", href: "/mdmu" },
+    { label: "Jobs", href: "/jobs" },
   ];
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (

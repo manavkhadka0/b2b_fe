@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { Loader2 } from "lucide-react";
 import { useMyWishes, useMyOffers } from "@/app/utils/wishOffer";
 import { ProfileHeader } from "@/components/profile/profile-header";
-import { WishesOffersTabs } from "@/components/profile/wishes-offers-tabs";
+import { ProfileSidebar } from "@/components/profile/profile-sidebar";
+import { ProfileContent } from "@/components/profile/profile-content";
 import { EditDialog } from "@/components/profile/edit-dialog";
 import { ConvertDialog } from "@/components/profile/convert-dialog";
 import { useEditData } from "@/components/profile/use-edit-data";
 import { useDeleteHandlers } from "@/components/profile/use-delete-handlers";
 import { useConvertHandler } from "@/components/profile/use-convert-handler";
+import { getMyJobs, getAppliedJobs } from "@/services/jobs";
+import { transformJobs, transformAppliedJobs } from "@/utils/jobTransform";
 import type { Wish, Offer } from "@/types/wish";
+import type { Job } from "@/types/types";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -28,6 +32,15 @@ export default function ProfilePage() {
     isLoading: offersLoading,
     mutate: mutateOffers,
   } = useMyOffers();
+
+  // Jobs state
+  const [myJobs, setMyJobs] = useState<Job[]>([]);
+  const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
+  const [myJobsLoading, setMyJobsLoading] = useState(true);
+  const [appliedJobsLoading, setAppliedJobsLoading] = useState(true);
+  
+  // Active tab state
+  const [activeTab, setActiveTab] = useState("wishes");
 
   const {
     editingWish,
@@ -60,6 +73,41 @@ export default function ProfilePage() {
     targetType: "wish" | "offer";
     title?: string;
   } | null>(null);
+
+  // Fetch jobs
+  const fetchMyJobs = useCallback(async () => {
+    setMyJobsLoading(true);
+    try {
+      const response = await getMyJobs();
+      const transformedJobs = transformJobs(response.results);
+      setMyJobs(transformedJobs);
+    } catch (error) {
+      console.error("Error fetching my jobs:", error);
+    } finally {
+      setMyJobsLoading(false);
+    }
+  }, []);
+
+  const fetchAppliedJobs = useCallback(async () => {
+    setAppliedJobsLoading(true);
+    try {
+      const response = await getAppliedJobs();
+      // Transform applications - extract job from each application
+      const transformedJobs = transformAppliedJobs(response.results);
+      setAppliedJobs(transformedJobs);
+    } catch (error) {
+      console.error("Error fetching applied jobs:", error);
+    } finally {
+      setAppliedJobsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchMyJobs();
+      fetchAppliedJobs();
+    }
+  }, [user, fetchMyJobs, fetchAppliedJobs]);
 
   // Handle redirect if not authenticated
   useEffect(() => {
@@ -114,6 +162,10 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEditJob = (job: Job) => {
+    router.push(`/jobs/create?slug=${job.slug}`);
+  };
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -131,21 +183,33 @@ export default function ProfilePage() {
       <ResponsiveContainer className="py-5 px-4 sm:px-5 md:px-6 lg:py-8">
         <ProfileHeader user={user} />
 
-        <WishesOffersTabs
-          wishes={wishes}
-          offers={offers}
-          wishesLoading={wishesLoading}
-          offersLoading={offersLoading}
-          deletingWishId={deletingWishId}
-          deletingOfferId={deletingOfferId}
-          convertingId={convertingId}
-          onEditWish={openEditWish}
-          onEditOffer={openEditOffer}
-          onDeleteWish={handleDeleteWish}
-          onDeleteOffer={handleDeleteOffer}
-          onConvertWish={handleConvertWish}
-          onConvertOffer={handleConvertOffer}
-        />
+        <div className="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            <ProfileSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+            
+            <ProfileContent
+              activeTab={activeTab}
+              wishes={wishes}
+              offers={offers}
+              myJobs={myJobs}
+              appliedJobs={appliedJobs}
+              wishesLoading={wishesLoading}
+              offersLoading={offersLoading}
+              myJobsLoading={myJobsLoading}
+              appliedJobsLoading={appliedJobsLoading}
+              deletingWishId={deletingWishId}
+              deletingOfferId={deletingOfferId}
+              convertingId={convertingId}
+              onEditWish={openEditWish}
+              onEditOffer={openEditOffer}
+              onEditJob={handleEditJob}
+              onDeleteWish={handleDeleteWish}
+              onDeleteOffer={handleDeleteOffer}
+              onConvertWish={handleConvertWish}
+              onConvertOffer={handleConvertOffer}
+            />
+          </div>
+        </div>
 
         <EditDialog
           editingWish={editingWish}

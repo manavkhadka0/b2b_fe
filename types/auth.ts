@@ -52,3 +52,10 @@ export interface AuthResponse {
   refresh: string;
   user: User;
 }
+
+export interface Location {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+}

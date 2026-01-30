@@ -18,10 +18,10 @@ const Footerbot = () => {
             {/* Left Section - Logo and Description */}
             <div className="flex-1 space-y-4">
               <Image
-                src="/Link.svg"
+                src="/b2blogo.png"
                 alt="B2B Birat Bazaar Logo"
-                width={150}
-                height={64}
+                width={200}
+                height={150}
               />
               <p className="leading-relaxed text-gray-500 mt-5">
                 Connecting businesses, fostering growth, and promoting

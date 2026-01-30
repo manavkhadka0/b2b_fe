@@ -2,12 +2,10 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Download } from "lucide-react";
-import { createWishOfferSchema } from "@/types/schemas/create-wish-schemas";
+import { useDebouncedCallback } from "use-debounce";
+import { createWishOfferSimplifiedSchema } from "@/types/schemas/create-wish-schemas";
 import type {
   CreateWishFormValues,
   ImageUpload,
@@ -18,146 +16,24 @@ import type {
 } from "@/types/create-wish-type";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Event } from "@/types/events";
-import { useDebouncedCallback } from "use-debounce";
 import { StepIndicator } from "./create-wish-steps/step-indicator";
 import { Step1Type } from "./create-wish-steps/step-1-type";
 import { Step2Details } from "./create-wish-steps/step-2-details";
-import { Step3Company } from "./create-wish-steps/step-3-company";
-import { Step4Personal } from "./create-wish-steps/step-4-personal";
-import { Step5Review } from "./create-wish-steps/step-5-review";
-import { cn } from "@/lib/utils";
-import { CheckIcon } from "@radix-ui/react-icons";
+import { X } from "lucide-react";
 
-type SuccessPayload = {
-  message?: string;
-  fileUrl?: string;
-};
-
-function ThankYouSection({ message, fileUrl }: SuccessPayload) {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8"
-        >
-          <div className="text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 20,
-                delay: 0.2,
-              }}
-              className="mb-6"
-            >
-              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                <motion.svg
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.8, delay: 0.5 }}
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </motion.svg>
-              </div>
-            </motion.div>
-
-            <motion.h2
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4"
-            >
-              Products Successfully Registered
-            </motion.h2>
-
-            {message && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="text-gray-600 mb-6"
-              >
-                {message}
-              </motion.p>
-            )}
-
-            {fileUrl && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="mt-6"
-              >
-                <Button
-                  asChild
-                  className="gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
-                >
-                  <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                    <Download className="w-4 h-4" />
-                    Download Application PDF
-                  </a>
-                </Button>
-              </motion.div>
-            )}
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-8"
-            >
-              <Button
-                variant="outline"
-                asChild
-                className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
-              >
-                <Link href="/wishOffer">Return to Wish/Offer</Link>
-              </Button>
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
-interface CreateWishFormProps {
-  event?: Event;
+interface CreateWishFormSimplifiedProps {
   onClose?: () => void;
   is_wish_or_offer: "wishes" | "offers";
-  mode?: "create" | "edit";
-  existingId?: number;
   initialValues?: Partial<CreateWishFormValues>;
 }
 
-export function CreateWishOfferForm({
-  event,
+export function CreateWishOfferFormSimplified({
   onClose,
   is_wish_or_offer,
-  mode = "create",
-  existingId,
   initialValues,
-}: CreateWishFormProps) {
+}: CreateWishFormSimplifiedProps) {
   const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
-    null,
-  );
 
   const STEPS = [
     {
@@ -167,24 +43,11 @@ export function CreateWishOfferForm({
       } type`,
     },
     {
-      title: "Details",
-      description: "Product/Service details",
-    },
-    {
-      title: "Company",
-      description: "Company information",
-    },
-    {
-      title: "Personal",
-      description: "Personal details",
-    },
-    {
       title: "Review",
       description: "Review and submit",
     },
   ];
 
-  const [designationPopoverOpen, setDesignationPopoverOpen] = useState(false);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
   const [productSearchValue, setProductSearchValue] = useState("");
   const [products, setProducts] = useState<HSCode[]>([]);
@@ -208,45 +71,70 @@ export function CreateWishOfferForm({
     useState<SubCategory | null>(null);
   const [subcategorySearchOpen, setSubcategorySearchOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
+  const hasFetchedService = useRef(false);
 
   const form = useForm<CreateWishFormValues>({
-    resolver: zodResolver(createWishOfferSchema),
+    resolver: zodResolver(createWishOfferSimplifiedSchema),
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
       title: "",
-      full_name: "",
-      designation: "",
-      email: "",
-      mobile_no: "",
-      alternate_no: "",
-      company_name: "",
-      company_website: "",
       product: "",
       service: "",
       category: "",
       subcategory: "",
       description: "",
       images: [],
-      country: "Nepal",
-      address: "",
-      province: "",
-      district: "",
-      municipality: "",
-      ward: "",
       type: "Product",
-      event_id: event?.id?.toString() || "",
       ...initialValues,
     },
   });
+
+  // Fetch service details when service ID is provided in initialValues
+  useEffect(() => {
+    const serviceId = initialValues?.service;
+    if (serviceId && serviceId.toString().trim() !== "" && !hasFetchedService.current) {
+      hasFetchedService.current = true;
+      const fetchServiceDetails = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${serviceId}/`,
+          );
+          if (!response.ok) throw new Error("Failed to fetch service details");
+          const data = await response.json();
+          setServiceDetails(data);
+          setSelectedService(data);
+          
+          // Set subcategory if available
+          if (data.subcategory?.id) {
+            form.setValue("subcategory", data.subcategory.id.toString());
+            setSelectedSubcategory(data.subcategory);
+          } else if (data.SubCategory) {
+            const subcategoryId = typeof data.SubCategory === 'number' 
+              ? data.SubCategory.toString() 
+              : (data.SubCategory as SubCategory)?.id?.toString();
+            if (subcategoryId) {
+              form.setValue("subcategory", subcategoryId);
+              // Try to find and set the subcategory object
+              if (typeof data.SubCategory === 'object' && data.SubCategory.id) {
+                setSelectedSubcategory(data.SubCategory as SubCategory);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch service details:", error);
+        }
+      };
+      fetchServiceDetails();
+    }
+  }, [initialValues?.service]);
 
   const searchProducts = useDebouncedCallback(async (search: string) => {
     if (search.length < 3) return;
 
     setIsLoadingProducts(true);
     try {
-      // Only use search when no subcategory is selected
-      // If subcategory is selected, products are loaded via the subcategory useEffect
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/hs-codes/?search=${search}`;
 
       const response = await fetch(url);
@@ -267,8 +155,6 @@ export function CreateWishOfferForm({
   useEffect(() => {
     const subcategoryId = form.watch("subcategory");
 
-    // Only use search if no subcategory is selected
-    // If subcategory is selected, products are loaded via the subcategory useEffect
     if (!subcategoryId) {
       if (productSearchValue.length >= 3) {
         searchProducts(productSearchValue);
@@ -282,38 +168,10 @@ export function CreateWishOfferForm({
     switch (step) {
       case 1:
         return ["title", "type"];
-      case 2: {
-        const wishType = form.getValues("type");
-        if (!wishType) return [];
-        return wishType === "Product" ? ["product"] : ["service"];
-      }
-      case 3:
-        return [
-          "company_name",
-          "address",
-          "province",
-          "district",
-          "municipality",
-          "ward",
-        ];
-      case 4:
-        return ["full_name", "designation", "email", "mobile_no"];
+      case 2:
+        return ["title", "type"];
       default:
-        return [
-          "title",
-          "type",
-          "product",
-          "service",
-          "company_name",
-          "address",
-          "province",
-          "municipality",
-          "ward",
-          "full_name",
-          "designation",
-          "email",
-          "mobile_no",
-        ];
+        return ["title", "type"];
     }
   };
 
@@ -342,12 +200,38 @@ export function CreateWishOfferForm({
     try {
       const formData = new FormData();
 
-      // Append non-file fields
+      // Append non-file fields, including product/service if present in initialValues
       Object.entries(data).forEach(([key, value]) => {
         if (value && key !== "images") {
-          formData.append(key, value.toString());
+          // Only append product/service if they have values (from initialValues)
+          if (key === "product" || key === "service") {
+            if (value && value.toString().trim() !== "") {
+              formData.append(key, value.toString());
+            }
+          } else {
+            formData.append(key, value.toString());
+          }
         }
       });
+
+      // Append service name if service ID is present
+      if (data.service && data.service.toString().trim() !== "" && serviceDetails) {
+        formData.append("service_name", serviceDetails.name);
+      }
+
+      // Append subcategory ID if present
+      if (data.subcategory && data.subcategory.toString().trim() !== "") {
+        formData.append("subcategory_id", data.subcategory.toString());
+      } else if (serviceDetails?.subcategory?.id) {
+        formData.append("subcategory_id", serviceDetails.subcategory.id.toString());
+      } else if (serviceDetails?.SubCategory) {
+        const subcategoryId = typeof serviceDetails.SubCategory === 'number' 
+          ? serviceDetails.SubCategory.toString() 
+          : (serviceDetails.SubCategory as SubCategory)?.id?.toString();
+        if (subcategoryId) {
+          formData.append("subcategory_id", subcategoryId);
+        }
+      }
 
       // Append single image if it exists
       if (image) {
@@ -360,11 +244,10 @@ export function CreateWishOfferForm({
           : null;
 
       const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`;
-      const url =
-        mode === "edit" && existingId ? `${baseUrl}${existingId}/` : baseUrl;
+      const url = baseUrl;
 
       const response = await fetch(url, {
-        method: mode === "edit" ? "PATCH" : "POST",
+        method: "POST",
         headers: token
           ? {
               Authorization: `Bearer ${token}`,
@@ -375,49 +258,31 @@ export function CreateWishOfferForm({
 
       if (!response.ok)
         throw new Error(
-          `Failed to ${mode === "edit" ? "update" : "create"} ${
+          `Failed to create ${
             is_wish_or_offer === "wishes" ? "wish" : "offer"
           }`,
         );
 
-      const result = await response.json().catch(() => null);
-      const message =
-        result?.message ||
-        result?.detail ||
-        `Your ${
-          is_wish_or_offer === "wishes" ? "wish" : "offer"
-        } was ${mode === "edit" ? "updated" : "created"} successfully.`;
-      const fileUrl = result?.file_url || result?.fileUrl;
-
       toast.success(
         `${
           is_wish_or_offer === "wishes" ? "Wish" : "Offer"
-        } ${mode === "edit" ? "updated" : "created"} successfully!`,
+        } created successfully!`,
       );
-      if (mode === "create") {
-        // If onClose is provided (modal mode), close the modal
-        // Otherwise show success page
-        if (onClose) {
-          form.reset();
-          setImage(null);
-          onClose();
-        } else {
-          form.reset();
-          setImage(null);
-          setSuccessPayload({ message, fileUrl });
-        }
-      } else {
-        if (onClose) onClose();
+
+      if (onClose) {
+        form.reset();
+        setImage(null);
+        onClose();
       }
     } catch (error) {
       console.error(
-        `Failed to ${mode === "edit" ? "update" : "create"} ${
+        `Failed to create ${
           is_wish_or_offer === "wishes" ? "wish" : "offer"
         }:`,
         error,
       );
       toast.error(
-        `Failed to ${mode === "edit" ? "update" : "create"} ${
+        `Failed to create ${
           is_wish_or_offer === "wishes" ? "wish" : "offer"
         }`,
       );
@@ -433,7 +298,6 @@ export function CreateWishOfferForm({
         const subcategoryId = form.watch("subcategory");
         let url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/`;
 
-        // If subcategory is selected, use subcategory_id
         if (subcategoryId) {
           url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/?subcategory_id=${subcategoryId}`;
         }
@@ -456,7 +320,6 @@ export function CreateWishOfferForm({
     if (wishType === "Service") {
       fetchServices();
     } else {
-      // Clear services if type changes away from Service
       setServices([]);
     }
   }, [form.watch("type"), form.watch("subcategory")]);
@@ -508,19 +371,16 @@ export function CreateWishOfferForm({
     const categoryId = form.watch("category");
     const wishType = form.watch("type");
     if (categoryId && (wishType === "Product" || wishType === "Service")) {
-      // Clear previous subcategory selection when category changes
       setSelectedSubcategory(null);
       form.setValue("subcategory", "");
       fetchSubcategories(categoryId);
     } else {
-      // Clear subcategories when category is cleared or type changes
       setSubcategories([]);
       setSelectedSubcategory(null);
       form.setValue("subcategory", "");
     }
   }, [form.watch("category"), form.watch("type")]);
 
-  // Load products when subcategory is selected or changes
   useEffect(() => {
     const subcategoryId = form.watch("subcategory");
     const wishType = form.watch("type");
@@ -550,21 +410,11 @@ export function CreateWishOfferForm({
       wishType === "Product" &&
       productSearchValue.length < 3
     ) {
-      // Clear products if subcategory is cleared and no search is active
       setProducts([]);
     }
   }, [form.watch("subcategory"), form.watch("type"), productSearchValue]);
 
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-
-  if (successPayload && mode === "create") {
-    return (
-      <ThankYouSection
-        message={successPayload.message}
-        fileUrl={successPayload.fileUrl}
-      />
-    );
-  }
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const renderStep = () => {
     switch (currentStep) {
@@ -572,62 +422,12 @@ export function CreateWishOfferForm({
         return <Step1Type form={form} is_wish_or_offer={is_wish_or_offer} />;
       case 2:
         return (
-          <Step2Details
-            form={form}
-            products={products}
-            services={services}
-            categories={categories}
-            subcategories={subcategories}
-            isLoadingProducts={isLoadingProducts}
-            isLoadingServices={isLoadingServices}
-            isLoadingCategories={isLoadingCategories}
-            isLoadingSubcategories={isLoadingSubcategories}
-            selectedProduct={selectedProduct}
-            selectedService={selectedService}
-            selectedCategory={selectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            productSearchOpen={productSearchOpen}
-            serviceSearchOpen={serviceSearchOpen}
-            categorySearchOpen={categorySearchOpen}
-            subcategorySearchOpen={subcategorySearchOpen}
-            productSearchValue={productSearchValue}
-            serviceSearchValue={serviceSearchValue}
-            showServiceForm={showServiceForm}
-            setProductSearchOpen={setProductSearchOpen}
-            setServiceSearchOpen={setServiceSearchOpen}
-            setCategorySearchOpen={setCategorySearchOpen}
-            setSubcategorySearchOpen={setSubcategorySearchOpen}
-            setProductSearchValue={setProductSearchValue}
-            setServiceSearchValue={setServiceSearchValue}
-            setShowServiceForm={setShowServiceForm}
-            setSelectedProduct={setSelectedProduct}
-            setSelectedService={setSelectedService}
-            setSelectedCategory={setSelectedCategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            setServices={setServices}
-            image={image}
-            setImage={setImage}
-            setProducts={setProducts}
-            setIsLoadingProducts={setIsLoadingProducts}
-          />
-        );
-      case 3:
-        return <Step3Company form={form} />;
-      case 4:
-        return (
-          <Step4Personal
-            form={form}
-            designationPopoverOpen={designationPopoverOpen}
-            setDesignationPopoverOpen={setDesignationPopoverOpen}
-          />
-        );
-      case 5:
-        return (
-          <Step5Review
+          <Step3ReviewSimplified
             form={form}
             selectedProduct={selectedProduct}
             selectedService={selectedService}
             image={image}
+            is_wish_or_offer={is_wish_or_offer}
           />
         );
       default:
@@ -649,13 +449,6 @@ export function CreateWishOfferForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {event && mode === "create" && (
-          <h1 className="text-2xl font-bold mb-4 px-4 md:px-0">
-            Create {is_wish_or_offer === "wishes" ? "Wish" : "Offer"} for{" "}
-            {event.title}
-          </h1>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12">
           {/* Left side - Steps */}
           <div className="col-span-1 md:col-span-4 shrink-0">
@@ -697,14 +490,10 @@ export function CreateWishOfferForm({
                 >
                   {currentStep === STEPS.length
                     ? isSubmitting
-                      ? mode === "edit"
-                        ? "Saving..."
-                        : "Creating..."
-                      : mode === "edit"
-                        ? "Save Changes"
-                        : is_wish_or_offer === "wishes"
-                          ? "Create Wish"
-                          : "Create Offer"
+                      ? "Creating..."
+                      : is_wish_or_offer === "wishes"
+                        ? "Create Wish"
+                        : "Create Offer"
                     : "Next"}
                 </Button>
               </div>
@@ -713,5 +502,80 @@ export function CreateWishOfferForm({
         </div>
       </form>
     </Form>
+  );
+}
+
+// Simplified Review Step without company and personal information
+function Step3ReviewSimplified({
+  form,
+  selectedProduct,
+  selectedService,
+  image,
+  is_wish_or_offer,
+}: {
+  form: any;
+  selectedProduct: HSCode | null;
+  selectedService: Service | null;
+  image: { url: string } | null;
+  is_wish_or_offer: "wishes" | "offers";
+}) {
+  const values = form.getValues();
+
+  return (
+    <div className="space-y-8">
+      <h2 className="text-lg font-semibold">
+        Review Your {is_wish_or_offer === "wishes" ? "Wish" : "Offer"}
+      </h2>
+
+      <div className="space-y-6">
+        {/* Wish/Offer Details */}
+        <div className="space-y-2">
+          <h3 className="font-medium">Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div>
+              <span className="text-sm text-gray-500">Title:</span>
+              <p className="font-medium">{values.title || "N/A"}</p>
+            </div>
+            <div>
+              <span className="text-sm text-gray-500">Type:</span>
+              <p className="font-medium">{values.type}</p>
+            </div>
+            {values.description && (
+              <div className="col-span-full">
+                <span className="text-sm text-gray-500">Description:</span>
+                <p className="font-medium">{values.description}</p>
+              </div>
+            )}
+            {/* Only show product/service info if it exists in form values */}
+            {values.product && (
+              <div className="col-span-full">
+                <span className="text-sm text-gray-500">Product ID:</span>
+                <p className="font-medium">{values.product}</p>
+              </div>
+            )}
+            {values.service && (
+              <div className="col-span-full">
+                <span className="text-sm text-gray-500">Service ID:</span>
+                <p className="font-medium">{values.service}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Images */}
+        {image && (
+          <div className="space-y-2">
+            <h3 className="font-medium">Uploaded Image</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <img
+                src={image.url}
+                alt="Uploaded Image"
+                className="w-full h-32 object-cover rounded-lg"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
