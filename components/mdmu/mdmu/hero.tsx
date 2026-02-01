@@ -39,7 +39,7 @@ export default function Hero() {
           </div>
           <div className="flex gap-4">
             <Button className="bg-[#0A1E4B] hover:bg-blue-900" asChild>
-              <Link href={"/apply"}>Register Now</Link>
+              <Link href={"/mdmu/apply"}>Register Now</Link>
             </Button>
             <Button
               variant="outline"

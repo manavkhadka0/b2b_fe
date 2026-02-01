@@ -29,7 +29,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
       />
       <button 
         type="submit"
-        className="bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-slate-800 transition-colors"
+        className="bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-900 transition-colors"
       >
         Search
       </button>

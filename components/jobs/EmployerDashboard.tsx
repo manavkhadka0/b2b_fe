@@ -22,7 +22,7 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({
       <div className="flex justify-end">
         <button 
           onClick={onCreateJob}
-          className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+          className="px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
         >
           <PlusCircle className="w-4 h-4" /> Create Job Posting
         </button>

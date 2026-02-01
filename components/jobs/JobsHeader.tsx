@@ -13,7 +13,7 @@ export const JobsHeader: React.FC<JobsHeaderProps> = ({
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
       <div>
-        <span className="text-nepal-red font-bold text-xs uppercase tracking-wider mb-2 block">
+        <span className="text-blue-800 font-bold text-xs uppercase tracking-wider mb-2 block">
           Talent Ecosystem
         </span>
         <h1 className="text-3xl font-bold text-slate-900">

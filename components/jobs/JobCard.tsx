@@ -31,10 +31,10 @@ export const JobCard: React.FC<JobCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:border-nepal-red/30 hover:shadow-md transition-all group cursor-pointer">
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:border-blue-600/30 hover:shadow-md transition-all group cursor-pointer">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-nepal-red transition-colors">
+          <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
             {job.title}
           </h3>
           <div className="flex items-center gap-2 text-sm text-slate-600 mt-1 font-medium">
@@ -73,7 +73,7 @@ export const JobCard: React.FC<JobCardProps> = ({
         {showEditButton && onEdit && (
           <button
             onClick={handleEditClick}
-            className="text-xs font-bold text-slate-900 group-hover:translate-x-1 transition-transform flex items-center gap-1 hover:text-nepal-red"
+            className="text-xs font-bold text-slate-900 group-hover:translate-x-1 transition-transform flex items-center gap-1 hover:text-blue-600"
           >
             <Edit className="w-3 h-3" /> Edit
           </button>
@@ -87,7 +87,7 @@ export const JobCard: React.FC<JobCardProps> = ({
             ) : onApply ? (
               <button
                 onClick={handleApplyClick}
-                className="text-xs font-bold text-slate-900 group-hover:translate-x-1 transition-transform flex items-center gap-1 hover:text-nepal-red"
+                className="text-xs font-bold text-slate-900 group-hover:translate-x-1 transition-transform flex items-center gap-1 hover:text-blue-600"
               >
                 Apply <ChevronRight className="w-3 h-3" />
               </button>
