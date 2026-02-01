@@ -11,13 +11,14 @@ import { Wish, Offer } from "@/types/wish";
 import { Category } from "@/types/create-wish-type";
 import {
   Loader2,
-  Filter,
   MapPin,
   Briefcase,
   Zap,
   X,
   ChevronRight,
   Search,
+  LayoutGrid,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import Link from "next/link";
@@ -30,53 +31,6 @@ type CategoryType = "Product" | "Service" | "ALL";
 // Type for items with source tracking (based on API call)
 type ItemWithSource = (Wish | Offer) & { _source: "wish" | "offer" };
 
-// Helper function to determine if an item is a Wish based on API source
-function isItemWish(item: Wish | Offer | ItemWithSource): boolean {
-  // First check if item has _source property (from API call tracking)
-  if ("_source" in item && item._source) {
-    return item._source === "wish";
-  }
-  
-  // Fallback: Check the type field if available
-  if (item.type) {
-    const typeLower = item.type.toLowerCase();
-    if (typeLower === "wish") return true;
-    if (typeLower === "offer") return false;
-  }
-  
-  // Fallback: Check if item has required Wish fields
-  // Wish requires full_name, designation, mobile_no, email, company_name, address, country
-  // Offer has these as optional
-  if (
-    item.full_name &&
-    typeof item.full_name === "string" &&
-    item.full_name.trim() !== "" &&
-    item.designation &&
-    typeof item.designation === "string" &&
-    item.designation.trim() !== "" &&
-    item.mobile_no &&
-    typeof item.mobile_no === "string" &&
-    item.mobile_no.trim() !== "" &&
-    item.email &&
-    typeof item.email === "string" &&
-    item.email.trim() !== "" &&
-    item.company_name &&
-    typeof item.company_name === "string" &&
-    item.company_name.trim() !== "" &&
-    item.address &&
-    typeof item.address === "string" &&
-    item.address.trim() !== "" &&
-    item.country &&
-    typeof item.country === "string" &&
-    item.country.trim() !== ""
-  ) {
-    return true;
-  }
-  
-  // Default to Offer if we can't determine
-  return false;
-}
-
 function WishOfferContent() {
   const [selectedType, setSelectedType] = useState<ItemType>("ALL");
   const [selectedCategoryType, setSelectedCategoryType] =
@@ -88,6 +42,7 @@ function WishOfferContent() {
   const [formType, setFormType] = useState<"wishes" | "offers">("wishes");
   const [relatedItemId, setRelatedItemId] = useState<number | null>(null);
   const [relatedItem, setRelatedItem] = useState<Wish | Offer | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
     productCategories,
@@ -203,10 +158,12 @@ function WishOfferContent() {
     setSelectedItem(null);
   };
 
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      {/* Header + Search - sticky on desktop */}
+      <div className="sticky top-16 z-30 flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 pb-6 mb-6 bg-white border-b border-slate-200 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div>
           <span className="text-blue-800 font-bold text-xs uppercase tracking-wider mb-2 block">
             Marketplace
@@ -217,153 +174,128 @@ function WishOfferContent() {
             and partners across Nepal.
           </p>
         </div>
-      </div>
-
-      {/* Search Bar - Top */}
-      <div className="mb-8">
-        <div className="bg-white p-5 rounded-xl border border-slate-200">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+        <div className="flex-shrink-0 w-full md:w-auto md:min-w-[280px] md:max-w-md">
+          <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white">
+            <Search className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all"
+              className="flex-1 bg-transparent border-none outline-none text-sm text-slate-700 h-7 min-w-0"
             />
             {swrIsSearching && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400 shrink-0" />
             )}
             {searchQuery && !swrIsSearching && (
               <button
+                type="button"
                 onClick={clearSearch}
-                className="absolute right-2 top-1/2 -translate-y-1/2 hover:bg-slate-200 p-1 rounded text-slate-400 transition-colors"
+                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar Filters */}
-        <aside className="w-full lg:w-60 flex-shrink-0 space-y-6">
-          {/* Filter Group: Type */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <div className="flex items-center gap-2 mb-4 text-slate-800 font-bold text-xs uppercase tracking-wide">
-              <Filter className="w-3 h-3" />
-              <span>Type</span>
-            </div>
-            <div className="space-y-1">
-              <FilterOption
-                label="All Items"
-                isActive={selectedType === "ALL"}
-                onClick={() => setSelectedType("ALL")}
-              />
-              <FilterOption
-                label="Wishes (क्रेता)"
-                isActive={selectedType === "WISH"}
-                onClick={() => setSelectedType("WISH")}
-                icon={<Briefcase className="w-3 h-3 text-blue-500" />}
-              />
-              <FilterOption
-                label="Offers (बिक्रेता)"
-                isActive={selectedType === "OFFER"}
-                onClick={() => setSelectedType("OFFER")}
-                icon={<Zap className="w-3 h-3 text-emerald-500" />}
-              />
-            </div>
-          </div>
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
+          onClick={closeSidebar}
+          aria-hidden="true"
+        />
+      )}
 
-          {/* Filter Group: Category Type */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200">
-            <h3 className="text-slate-800 font-bold text-xs uppercase tracking-wide mb-4">
-              Category Type
-            </h3>
-            <div className="space-y-1">
-              <FilterOption
-                label="All Categories"
-                isActive={selectedCategoryType === "ALL"}
-                onClick={() => {
-                  setSelectedCategoryType("ALL");
-                  setActiveCategoryId(null);
-                }}
-              />
-              <FilterOption
-                label="Products"
-                isActive={selectedCategoryType === "Product"}
-                onClick={() => {
-                  setSelectedCategoryType("Product");
-                  setActiveCategoryId(null);
-                }}
-              />
-              <FilterOption
-                label="Services"
-                isActive={selectedCategoryType === "Service"}
-                onClick={() => {
-                  setSelectedCategoryType("Service");
-                  setActiveCategoryId(null);
-                }}
-              />
-            </div>
-          </div>
+      {/* Mobile sidebar drawer */}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 overflow-y-auto py-4 px-4 transition-transform duration-200 ease-out lg:hidden ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-hidden={!sidebarOpen}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-bold text-slate-900 text-sm">Filters</span>
+          <button
+            type="button"
+            onClick={closeSidebar}
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+            aria-label="Close filters"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <SidebarContent
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
+          selectedCategoryType={selectedCategoryType}
+          setSelectedCategoryType={setSelectedCategoryType}
+          activeCategoryId={activeCategoryId}
+          setActiveCategoryId={setActiveCategoryId}
+          availableCategories={availableCategories}
+          onFilterClick={closeSidebar}
+        />
+      </aside>
 
-          {/* Filter Group: Categories */}
-          {availableCategories.length > 0 && (
-            <div className="bg-white p-5 rounded-xl border border-slate-200">
-              <h3 className="text-slate-800 font-bold text-xs uppercase tracking-wide mb-4">
-                Industries
-              </h3>
-              <div className="space-y-1">
-                <FilterOption
-                  label="All Industries"
-                  isActive={activeCategoryId === null}
-                  onClick={() => setActiveCategoryId(null)}
-                />
-                {availableCategories.map((cat) => (
-                  <FilterOption
-                    key={cat.id}
-                    label={cat.name}
-                    isActive={activeCategoryId === cat.id}
-                    onClick={() =>
-                      setActiveCategoryId(
-                        activeCategoryId === cat.id ? null : cat.id
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        {/* Desktop sidebar - flush, sticky */}
+        <aside className="hidden lg:block w-64 flex-shrink-0 self-start sticky top-[15rem] border-r border-slate-200 pr-6 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <SidebarContent
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            selectedCategoryType={selectedCategoryType}
+            setSelectedCategoryType={setSelectedCategoryType}
+            activeCategoryId={activeCategoryId}
+            setActiveCategoryId={setActiveCategoryId}
+            availableCategories={availableCategories}
+            onFilterClick={undefined}
+          />
         </aside>
 
-        {/* Main Grid */}
-        <div className="flex-1">
+        {/* Main content - Listings */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h2 className="text-lg font-bold text-slate-900">Listings</h2>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors lg:hidden"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+            </button>
+          </div>
           {wishLoading || offerLoading ? (
-            <div className="flex justify-center items-center min-h-[400px]">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-800" />
+            <div className="flex justify-center items-center min-h-[400px] bg-white rounded-xl border border-slate-200 shadow-sm">
+              <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="bg-white rounded-xl p-16 text-center border border-slate-200 border-dashed">
+            <div className="bg-white rounded-xl p-8 text-center border border-slate-200 shadow-sm">
               <p className="text-slate-500">
                 No items found matching your criteria.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col divide-y divide-slate-100">
               {filteredItems.map((item) => {
-                // Use the _source property to determine if it's a wish or offer (from API call)
                 const isWish = item._source === "wish";
-                
                 return (
                   <ItemCard
                     key={item.id}
                     item={item}
                     isWish={isWish}
                     onOpen={() => setSelectedItem(item)}
-                    onCreateOffer={isWish ? () => handleCreateOffer(item as Wish) : undefined}
-                    onCreateWish={!isWish ? () => handleCreateWish(item as Offer) : undefined}
+                    onCreateOffer={
+                      isWish ? () => handleCreateOffer(item as Wish) : undefined
+                    }
+                    onCreateWish={
+                      !isWish
+                        ? () => handleCreateWish(item as Offer)
+                        : undefined
+                    }
                   />
                 );
               })}
@@ -372,32 +304,13 @@ function WishOfferContent() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedItem && (
-        <ItemDetailModal
-          item={selectedItem}
-          isWish={selectedItem._source === "wish"}
-          onClose={() => setSelectedItem(null)}
-          onCreateOffer={
-            selectedItem._source === "wish"
-              ? () => handleCreateOffer(selectedItem as Wish)
-              : undefined
-          }
-          onCreateWish={
-            selectedItem._source === "wish"
-              ? undefined
-              : () => handleCreateWish(selectedItem as Offer)
-          }
-        />
-      )}
-
       {/* Create Form Modal */}
       {showFormModal && relatedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-4xl w-full my-8 relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full my-8 relative max-h-[90vh] overflow-y-auto shadow-lg border border-slate-200">
             <button
               onClick={handleCloseForm}
-              className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition-colors z-10"
+              className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors z-10"
             >
               <X className="w-5 h-5" />
             </button>
@@ -406,8 +319,14 @@ function WishOfferContent() {
                 is_wish_or_offer={formType}
                 onClose={handleCloseForm}
                 initialValues={{
-                  wish_id: formType === "offers" && relatedItemId ? relatedItemId.toString() : undefined,
-                  offer_id: formType === "wishes" && relatedItemId ? relatedItemId.toString() : undefined,
+                  wish_id:
+                    formType === "offers" && relatedItemId
+                      ? relatedItemId.toString()
+                      : undefined,
+                  offer_id:
+                    formType === "wishes" && relatedItemId
+                      ? relatedItemId.toString()
+                      : undefined,
                   type: relatedItem.product ? "Product" : "Service",
                   product: relatedItem.product?.id?.toString() || "",
                   service: relatedItem.service?.id?.toString() || "",
@@ -418,7 +337,12 @@ function WishOfferContent() {
                       return relatedItem.product.category.id.toString();
                     }
                     const service = relatedItem.service;
-                    if (service && typeof service === 'object' && 'category' in service && service.category?.id) {
+                    if (
+                      service &&
+                      typeof service === "object" &&
+                      "category" in service &&
+                      service.category?.id
+                    ) {
                       return service.category.id.toString();
                     }
                     return "";
@@ -438,17 +362,137 @@ const FilterOption: React.FC<{
   isActive: boolean;
   onClick: () => void;
   icon?: React.ReactNode;
-}> = ({ label, isActive, onClick, icon }) => (
+  showChevron?: boolean;
+}> = ({ label, isActive, onClick, icon, showChevron }) => (
   <button
     onClick={onClick}
-    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center gap-2 ${
-      isActive ? "bg-blue-800 text-white" : "text-slate-600 hover:bg-slate-100"
+    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+      isActive
+        ? "bg-slate-100 text-slate-900"
+        : "text-slate-600 hover:bg-slate-50"
     }`}
   >
     {icon}
-    {label}
+    <span className="flex-1 text-left">{label}</span>
+    {showChevron && (
+      <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+    )}
   </button>
 );
+
+const SidebarContent: React.FC<{
+  selectedType: ItemType;
+  setSelectedType: (t: ItemType) => void;
+  selectedCategoryType: CategoryType;
+  setSelectedCategoryType: (t: CategoryType) => void;
+  activeCategoryId: number | null;
+  setActiveCategoryId: (id: number | null) => void;
+  availableCategories: Category[];
+  onFilterClick?: () => void;
+}> = ({
+  selectedType,
+  setSelectedType,
+  selectedCategoryType,
+  setSelectedCategoryType,
+  activeCategoryId,
+  setActiveCategoryId,
+  availableCategories,
+  onFilterClick,
+}) => {
+  const wrap = (fn: () => void) => () => {
+    fn();
+    onFilterClick?.();
+  };
+  return (
+    <>
+      <div>
+        <div className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm">
+          <LayoutGrid className="w-4 h-4 text-slate-500" />
+          <span>Type</span>
+        </div>
+        <div className="space-y-0.5">
+          <FilterOption
+            label="All Items"
+            isActive={selectedType === "ALL"}
+            onClick={wrap(() => setSelectedType("ALL"))}
+          />
+          <FilterOption
+            label="Wishes (क्रेता)"
+            isActive={selectedType === "WISH"}
+            onClick={wrap(() => setSelectedType("WISH"))}
+            icon={<Briefcase className="w-4 h-4 text-slate-500" />}
+          />
+          <FilterOption
+            label="Offers (बिक्रेता)"
+            isActive={selectedType === "OFFER"}
+            onClick={wrap(() => setSelectedType("OFFER"))}
+            icon={<Zap className="w-4 h-4 text-slate-500" />}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm">
+          <LayoutGrid className="w-4 h-4 text-slate-500" />
+          <span>Category Type</span>
+        </div>
+        <div className="space-y-0.5">
+          <FilterOption
+            label="All Categories"
+            isActive={selectedCategoryType === "ALL"}
+            onClick={wrap(() => {
+              setSelectedCategoryType("ALL");
+              setActiveCategoryId(null);
+            })}
+          />
+          <FilterOption
+            label="Products"
+            isActive={selectedCategoryType === "Product"}
+            onClick={wrap(() => {
+              setSelectedCategoryType("Product");
+              setActiveCategoryId(null);
+            })}
+          />
+          <FilterOption
+            label="Services"
+            isActive={selectedCategoryType === "Service"}
+            onClick={wrap(() => {
+              setSelectedCategoryType("Service");
+              setActiveCategoryId(null);
+            })}
+          />
+        </div>
+      </div>
+      {availableCategories.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm">
+            <LayoutGrid className="w-4 h-4 text-slate-500" />
+            <span>Industries</span>
+          </div>
+          <div className="space-y-0.5">
+            <FilterOption
+              label="All Industries"
+              isActive={activeCategoryId === null}
+              onClick={wrap(() => setActiveCategoryId(null))}
+            />
+            {availableCategories.map((cat) => (
+              <FilterOption
+                key={cat.id}
+                label={cat.name}
+                isActive={activeCategoryId === cat.id}
+                onClick={wrap(() =>
+                  setActiveCategoryId(
+                    activeCategoryId === cat.id ? null : cat.id
+                  )
+                )}
+                showChevron
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 const ItemCard: React.FC<{
   item: Wish | Offer | ItemWithSource;
@@ -458,124 +502,27 @@ const ItemCard: React.FC<{
   onCreateWish?: () => void;
 }> = ({ item, isWish, onOpen, onCreateOffer, onCreateWish }) => {
   const imageUrl = item.image || (isWish ? item.product?.image : null) || null;
-
-  // Get category name - handle both Wish and Offer types
-  let categoryName = "Uncategorized";
-  if (isWish && item.product?.category?.name) {
-    categoryName = item.product.category.name;
-  } else if ("service" in item && item.service) {
-    // For Offer, service can have category
-    if ("category" in item.service && item.service.category?.name) {
-      categoryName = item.service.category.name;
-    }
-  }
   const postedBy = item.company_name || item.full_name || "Unknown";
   const location = item.province || item.municipality || item.country || "N/A";
-  const date = new Date(item.created_at).toLocaleDateString();
+  const created = new Date(item.created_at);
+  const timeAgo =
+    Date.now() - created.getTime() < 60000
+      ? "just now"
+      : Date.now() - created.getTime() < 120000
+      ? "1 min ago"
+      : `${Math.max(
+          1,
+          Math.floor((Date.now() - created.getTime()) / 60000)
+        )} mins ago`;
 
   return (
     <div
-      className="bg-white rounded-xl overflow-hidden border border-slate-100 hover:-translate-y-1 transition-all duration-300 flex flex-col group cursor-pointer"
+      className="flex flex-row gap-3 sm:gap-4 py-4 sm:py-5 first:pt-0 group cursor-pointer -mx-2 px-2 rounded-lg hover:bg-slate-50 transition-colors"
       onClick={onOpen}
     >
-      <div className="h-32 bg-slate-100 relative overflow-hidden">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={item.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-            <span className="text-slate-400 text-xs">No Image</span>
-          </div>
-        )}
-        <div className="absolute top-2 left-2">
-          <span
-            className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase text-white ${
-              isWish ? "bg-blue-500" : "bg-emerald-500"
-            }`}
-          >
-            {isWish ? "Wish" : "Offer"}
-          </span>
-        </div>
-      </div>
-
-      <div className="p-4 flex flex-col flex-1">
-        <div className="flex justify-between items-start mb-2">
-          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">
-            {categoryName}
-          </span>
-          <span className="text-[10px] text-slate-400">{date}</span>
-        </div>
-
-        <h3 className="text-sm font-bold text-slate-900 mb-2 leading-snug line-clamp-2 group-hover:text-blue-800 transition-colors">
-          {item.title}
-        </h3>
-
-        <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
-            <Briefcase className="w-3 h-3" />
-            <span className="truncate max-w-[100px]">{postedBy}</span>
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isWish && onCreateOffer) {
-                onCreateOffer();
-              } else if (!isWish && onCreateWish) {
-                onCreateWish();
-              }
-            }}
-            className={`text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 transition-colors ${
-              isWish
-                ? "text-emerald-600 group-hover:text-emerald-700"
-                : "text-blue-800 group-hover:text-blue-900"
-            }`}
-          >
-            {isWish ? "Create Offer" : "Request"}{" "}
-            <ChevronRight className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ItemDetailModal: React.FC<{
-  item: Wish | Offer | ItemWithSource;
-  isWish: boolean;
-  onClose: () => void;
-  onCreateOffer?: () => void;
-  onCreateWish?: () => void;
-}> = ({ item, isWish, onClose, onCreateOffer, onCreateWish }) => {
-  const imageUrl = item.image || (isWish ? item.product?.image : null) || null;
-
-  // Get category name - handle both Wish and Offer types
-  let categoryName = "Uncategorized";
-  if (isWish && item.product?.category?.name) {
-    categoryName = item.product.category.name;
-  } else if ("service" in item && item.service) {
-    // For Offer, service can have category
-    if ("category" in item.service && item.service.category?.name) {
-      categoryName = item.service.category.name;
-    }
-  }
-  const postedBy = item.company_name || item.full_name || "Unknown";
-  const location = item.province || item.municipality || item.country || "N/A";
-  const tags = categoryName ? [categoryName] : [];
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden animate-fade-in"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="relative h-48 sm:h-64">
+      {/* Image block */}
+      <div className="w-24 sm:w-40 md:w-48 flex-shrink-0">
+        <div className="aspect-square bg-slate-50 relative overflow-hidden rounded">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -584,109 +531,48 @@ const ItemDetailModal: React.FC<{
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-              <span className="text-slate-400">No Image</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-slate-400 text-xs">No Image</span>
             </div>
           )}
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 to-transparent"></div>
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white backdrop-blur-md transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="absolute bottom-4 left-6 text-white">
-            <span
-              className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase mb-2 ${
-                isWish ? "bg-blue-500" : "bg-emerald-500"
-              }`}
-            >
-              {isWish ? "Buying Wish" : "Selling Offer"}
-            </span>
-            <h2 className="text-2xl font-bold leading-tight">{item.title}</h2>
-          </div>
         </div>
-        <div className="p-6 sm:p-8">
-          <div className="flex items-center gap-4 text-sm text-slate-500 mb-6 border-b border-slate-100 pb-6">
-            <span className="flex items-center gap-1 font-medium text-slate-700">
-              <Briefcase className="w-4 h-4" /> {postedBy}
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="w-4 h-4" /> {location}
-            </span>
-          </div>
+      </div>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-2">
-              Description
-            </h3>
-            <p className="text-slate-600 leading-relaxed">
-              {item.description || "No description provided."}
-            </p>
-          </div>
-
-          {tags.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-2">
-                Tags
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            {isWish && onCreateOffer ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateOffer();
-                }}
-                className="flex-1 py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors"
-              >
-                Create Offer
-              </button>
-            ) : !isWish && onCreateWish ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateWish();
-                }}
-                className="flex-1 py-3 px-4 rounded-lg bg-blue-800 hover:bg-blue-900 text-white font-medium transition-colors"
-              >
-                Request
-              </button>
-            ) : (
-              <Link
-                href={
-                  isWish
-                    ? `/wishOffer/wishes/${item.id}`
-                    : `/wishOffer/offer/${item.id}`
-                }
-                className={`flex-1 py-3 px-4 rounded-lg text-white font-medium transition-colors text-center ${
-                  isWish
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-blue-800 hover:bg-blue-900"
-                }`}
-              >
-                {isWish ? "Create Offer" : "Contact Seller"}
-              </Link>
-            )}
-            <button
-              className="px-6 py-3 border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors"
-              onClick={onClose}
-            >
-              Close
-            </button>
-          </div>
+      {/* Content block - full width, larger readable text */}
+      <div className="flex-1 min-w-0 flex flex-col text-left w-full">
+        <h3 className="text-lg font-bold text-slate-900 mb-1.5 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
+          {item.title}
+        </h3>
+        {(item.description ?? "").trim() && (
+          <p className="text-sm text-slate-600 mb-2 line-clamp-2 leading-relaxed">
+            {item.description}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <span className="bg-slate-100 text-slate-600 text-sm px-2.5 py-1 rounded font-medium">
+            {isWish ? "Wish" : "Offer"}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600 mb-2">
+          <span className="flex items-center gap-1.5 min-w-0">
+            <MapPin className="w-4 h-4 flex-shrink-0 text-slate-500" />
+            <span className="truncate">{location}</span>
+          </span>
+          <span className="text-slate-500">{timeAgo}</span>
+        </div>
+        <div className="text-sm text-slate-600 mb-3">{postedBy}</div>
+        <div className="mt-auto flex items-center justify-end sm:justify-between pt-3 border-t border-slate-100">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isWish && onCreateOffer) onCreateOffer();
+              else if (!isWish && onCreateWish) onCreateWish();
+            }}
+            className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors flex items-center gap-1.5 ml-auto"
+          >
+            {isWish ? "Create Offer" : "Request"}
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
