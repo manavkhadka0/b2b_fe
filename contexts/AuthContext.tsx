@@ -7,9 +7,16 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { User, LoginCredentials, SignupData, AuthResponse } from "@/types/auth";
+import {
+  User,
+  LoginCredentials,
+  SignupData,
+  AuthResponse,
+  UserType,
+} from "@/types/auth";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface AuthContextType {
   user: User | null;
@@ -27,25 +34,119 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const decodeToken = (token: string): any | null => {
     try {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        const response = await api.get<User>("/api/user/profile/");
-        setUser(response.data);
-      }
+      const [, payload] = token.split(".");
+      if (!payload) return null;
+      const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+      return JSON.parse(decoded);
     } catch (error) {
-      console.error("Auth check failed:", error);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
+      console.error("Failed to decode token:", error);
+      return null;
     }
   };
+
+  const getUserFromToken = (token: string): User | null => {
+    const payload = decodeToken(token);
+    if (!payload) return null;
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < nowInSeconds) {
+      return null;
+    }
+
+    const mappedUser: User = {
+      id: payload.user_id,
+      email: payload.email,
+      username: payload.username || payload.email?.split("@")[0] || "",
+      first_name: payload.first_name || "",
+      last_name: payload.last_name || "",
+      user_type: payload.user_type || "Job Seeker",
+      gender: payload.gender || "Other",
+      phone_number: payload.phone_number,
+      address: payload.address,
+      created_at: payload.created_at || "",
+      updated_at: payload.updated_at || "",
+    };
+
+    return mappedUser;
+  };
+
+  // Check auth when session status changes
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Wait for NextAuth session to finish loading
+        if (sessionStatus === "loading") {
+          return;
+        }
+
+        // First check NextAuth session (for Google OAuth)
+        if (session?.user?.accessToken) {
+          const accessToken = session.user.accessToken;
+          const refreshToken = session.user.refreshToken || "";
+
+          // Sync to localStorage
+          const currentToken = localStorage.getItem("accessToken");
+          if (currentToken !== accessToken) {
+            localStorage.setItem("accessToken", accessToken);
+            if (refreshToken) {
+              localStorage.setItem("refreshToken", refreshToken);
+            }
+          }
+
+          // Get user from token
+          const decodedUser = getUserFromToken(accessToken);
+          if (decodedUser) {
+            // Merge NextAuth session data
+            const sessionUserType = session.user.user_type as
+              | UserType
+              | undefined;
+            const mergedUser: User = {
+              ...decodedUser,
+              email: session.user.email || decodedUser.email,
+              username: session.user.username || decodedUser.username,
+              first_name: session.user.first_name || decodedUser.first_name,
+              last_name: session.user.last_name || decodedUser.last_name,
+              user_type:
+                sessionUserType === "Job Seeker" ||
+                sessionUserType === "Employer"
+                  ? sessionUserType
+                  : decodedUser.user_type,
+            };
+            setUser(mergedUser);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback to localStorage check (for credentials login)
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          const decodedUser = getUserFromToken(token);
+          if (decodedUser) {
+            setUser(decodedUser);
+          } else {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            setUser(null);
+          }
+        } else {
+          // No token in localStorage and no NextAuth session
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [session, sessionStatus]);
 
   const requireAuth = (returnTo: string) => {
     if (!user && !isLoading) {
@@ -57,21 +158,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials, returnTo?: string) => {
     try {
       const authResponse = await api.post<AuthResponse>(
-        "/api/auth/login/",
-        credentials
+        "/api/accounts/login/",
+        credentials,
       );
       const { access, refresh } = authResponse.data;
 
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
 
-      const profileResponse = await api.get<User>("/api/user/profile/");
-      setUser(profileResponse.data);
+      const decodedUser = getUserFromToken(access);
+      if (decodedUser) {
+        setUser(decodedUser);
+      }
 
       if (returnTo) {
         router.push(decodeURIComponent(returnTo));
       } else {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error) {
       localStorage.removeItem("accessToken");
@@ -80,23 +183,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (data: SignupData, returnTo?: string) => {
+  const signup = async (data: SignupData, returnTo?: string): Promise<void> => {
     try {
-      const response = await api.post("/api/auth/register/", data);
-      await login(
-        { username: data.username, password: data.password },
-        returnTo
+      // Backend returns tokens on register; use them directly like login
+      const response = await api.post<AuthResponse>(
+        "/api/accounts/register/",
+        data,
       );
-      return response.data;
+      const { access, refresh } = response.data;
+
+      if (access && refresh) {
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
+
+        const decodedUser = getUserFromToken(access);
+        if (decodedUser) {
+          setUser(decodedUser);
+        }
+      }
+
+      if (returnTo) {
+        router.push(decodeURIComponent(returnTo));
+      } else {
+        router.push("/");
+      }
     } catch (error) {
       throw error;
     }
   };
 
-  const logout = (returnTo?: string) => {
+  const logout = async (returnTo?: string) => {
     setUser(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+
+    // Also sign out from NextAuth if session exists
+    if (session) {
+      const { signOut } = await import("next-auth/react");
+      await signOut({ redirect: false });
+    }
+
     const redirectUrl = returnTo
       ? `/login?returnTo=${encodeURIComponent(returnTo)}`
       : "/login";

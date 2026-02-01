@@ -1,0 +1,193 @@
+"use client";
+
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import useSWR, { mutate } from "swr";
+import { MDMUResponse } from "@/components/mdmu/mdmu/components/mdmu-form/types";
+import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mdmu-form/constants";
+import {
+  fetcher,
+  ALL_OPTION,
+  API_BASE_URL,
+} from "@/components/mdmu/admin/constants";
+import { useMDMUAdminAuth } from "@/contexts/MDMUAdminAuthContext";
+import { LoadingState } from "@/components/mdmu/admin/LoadingState";
+import { ErrorState } from "@/components/mdmu/admin/ErrorState";
+import { EmptyState } from "@/components/mdmu/admin/EmptyState";
+import { ApplicationFilters } from "@/components/mdmu/admin/ApplicationFilters";
+import { ApplicationsTable } from "@/components/mdmu/admin/ApplicationsTable";
+import { ViewApplicationDialog } from "@/components/mdmu/admin/ViewApplicationDialog";
+import { StatusUpdateDialog } from "@/components/mdmu/admin/StatusUpdateDialog";
+
+export default function AdminPage() {
+  const { isAuthenticated, isChecking } = useMDMUAdminAuth();
+  const router = useRouter();
+  const [selectedApplication, setSelectedApplication] =
+    useState<MDMUResponse | null>(null);
+  const [viewApplication, setViewApplication] = useState<MDMUResponse | null>(
+    null,
+  );
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    company: "",
+    category: "",
+    status: "",
+  });
+
+  useEffect(() => {
+    if (!isChecking && !isAuthenticated) {
+      router.push("/mdmu/admin/login");
+    }
+  }, [isAuthenticated, isChecking, router]);
+
+  const {
+    data: applications = [],
+    error,
+    isLoading,
+  } = useSWR<MDMUResponse[]>(`${API_ENDPOINTS.register}`, fetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: true,
+    errorRetryCount: 2,
+  });
+
+  // Memoize unique categories
+  const uniqueCategories = useMemo(() => {
+    if (!Array.isArray(applications)) return [];
+    return Array.from(
+      new Set(
+        applications
+          .map(
+            (app) => app.nature_of_industry_sub_category_detail?.category?.name,
+          )
+          .filter(Boolean),
+      ),
+    );
+  }, [applications]);
+
+  // Memoize filtered applications
+  const filteredApplications = useMemo(() => {
+    if (!Array.isArray(applications)) return [];
+
+    return applications.filter((app) => {
+      if (!app) return false;
+
+      const companyMatch =
+        !filters.company ||
+        app.name_of_company
+          ?.toLowerCase()
+          .includes(filters.company.toLowerCase().trim());
+
+      const categoryMatch =
+        filters.category === ALL_OPTION ||
+        !filters.category ||
+        app.nature_of_industry_sub_category_detail?.category?.name?.toLowerCase() ===
+          filters.category.toLowerCase().trim();
+
+      const statusMatch =
+        filters.status === ALL_OPTION ||
+        !filters.status ||
+        app.status?.toLowerCase() === filters.status.toLowerCase().trim();
+
+      return companyMatch && categoryMatch && statusMatch;
+    });
+  }, [applications, filters]);
+  // Memoize handlers
+  const handleStatusUpdate = useCallback(
+    async (status: "Pending" | "Approved" | "Rejected") => {
+      if (!selectedApplication) return;
+
+      setStatusUpdateLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/mdmu/${selectedApplication.id}/status/?status=${status}`,
+          { method: "PATCH" },
+        );
+
+        if (response.ok) {
+          await mutate(`${API_ENDPOINTS.register}`);
+          setSelectedApplication(null);
+        }
+      } catch (error) {
+        console.error("Failed to update status", error);
+      } finally {
+        setStatusUpdateLoading(false);
+      }
+    },
+    [selectedApplication],
+  );
+
+  const handlePrintFile = useCallback((fileUrl: string) => {
+    window.open(fileUrl, "_blank");
+  }, []);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("Raw applications data:", applications);
+    console.log("Applications type:", typeof applications);
+    console.log("Is Array:", Array.isArray(applications));
+
+    if (Array.isArray(applications)) {
+      console.log("Applications length:", applications.length);
+      if (applications.length > 0) {
+        console.log("First application:", applications[0]);
+      }
+    }
+  }, [applications]);
+
+  if (!isAuthenticated && !isChecking) {
+    return null;
+  }
+
+  // Render loading state
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  // Render error state
+  if (error) {
+    return <ErrorState message={error.message} />;
+  }
+
+  const hasFilters = Object.values(filters).some((f) => f !== "");
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+          MDMU Applications
+        </h1>
+
+        <ApplicationFilters
+          filters={filters}
+          uniqueCategories={uniqueCategories}
+          onFilterChange={setFilters}
+        />
+
+        {filteredApplications.length === 0 ? (
+          <EmptyState hasFilters={hasFilters} />
+        ) : (
+          <ApplicationsTable
+            applications={filteredApplications}
+            onView={setViewApplication}
+            onEdit={setSelectedApplication}
+            onPrint={handlePrintFile}
+          />
+        )}
+      </div>
+
+      <ViewApplicationDialog
+        application={viewApplication}
+        isOpen={!!viewApplication}
+        onClose={() => setViewApplication(null)}
+      />
+
+      <StatusUpdateDialog
+        application={selectedApplication}
+        isOpen={!!selectedApplication}
+        isLoading={statusUpdateLoading}
+        onClose={() => setSelectedApplication(null)}
+        onStatusUpdate={handleStatusUpdate}
+      />
+    </div>
+  );
+}

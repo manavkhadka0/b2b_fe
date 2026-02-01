@@ -20,7 +20,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { User, Lock, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,9 +29,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginCredentials } from "@/types/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { signIn } from "next-auth/react";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Email or username is required"),
+  email: z.string().email("Valid email is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -47,7 +49,7 @@ export default function LoginPage() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -55,7 +57,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       const timeout = setTimeout(() => {
-        router.push(returnTo || "/dashboard");
+        router.push(returnTo || "/");
       }, 2000);
 
       return () => clearTimeout(timeout);
@@ -66,7 +68,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const loginData: LoginCredentials = {
-        username: data.username,
+        email: data.email,
         password: data.password,
       };
       await login(loginData, returnTo || undefined);
@@ -76,6 +78,11 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    const callbackUrl = returnTo ? decodeURIComponent(returnTo) : "/";
+    signIn("google", { callbackUrl });
   };
 
   if (user) {
@@ -175,18 +182,18 @@ export default function LoginPage() {
             <CardContent className="space-y-6">
               <FormField
                 control={form.control}
-                name="username"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-gray-700 font-medium">
-                      Username
+                      Email
                     </FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                         <Input
                           className="pl-10 h-12 border-gray-200 focus:border-purple-400 focus:ring-purple-400 transition-all"
-                          placeholder="Enter your email or username"
+                          placeholder="Enter your email"
                           {...field}
                         />
                       </div>
@@ -245,6 +252,16 @@ export default function LoginPage() {
                   "Sign in"
                 )}
               </Button>
+
+              <div className="relative flex items-center py-1">
+                <div className="flex-grow border-t border-gray-200" />
+                <span className="mx-3 text-xs uppercase tracking-wide text-gray-400">
+                  or continue with
+                </span>
+                <div className="flex-grow border-t border-gray-200" />
+              </div>
+
+              <GoogleLoginButton onClick={handleGoogleLogin} />
 
               <p className="text-sm text-center text-gray-600">
                 Don&apos;t have an account?{" "}

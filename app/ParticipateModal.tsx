@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { CreateWishOfferForm } from "@/components/sections/create-wish/create-wish-form";
 import { Plus } from "lucide-react";
 import { Event } from "@/types/events";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePathname, useRouter } from "next/navigation";
 
 interface ParticipateSectionProps {
   event?: Event;
@@ -15,7 +17,18 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeForm, setActiveForm] = useState<"wish" | "offer" | null>(null);
 
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleFormSelect = (formType: "wish" | "offer") => {
+    if (!user && !isLoading) {
+      const returnTo = pathname || "/";
+      const encodedReturnTo = encodeURIComponent(returnTo);
+      router.push(`/login?returnTo=${encodedReturnTo}`);
+      return;
+    }
+
     setActiveForm(formType);
     setIsDialogOpen(true);
   };

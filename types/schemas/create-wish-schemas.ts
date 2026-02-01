@@ -45,6 +45,8 @@ export const createWishOfferSchema = z
     company_website: z.string().optional().or(z.literal("")),
     images: z.array(z.string()).optional(),
     event_id: z.string().optional(),
+    wish_id: z.string().optional(),
+    offer_id: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -68,3 +70,20 @@ export const createWishOfferSchema = z
       path: ["province"],
     }
   );
+
+// Simplified schema without company and personal information
+export const createWishOfferSimplifiedSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  type: z.enum(["Product", "Service"], {
+    required_error: "Please select a wish type",
+  }),
+  product: z.string().optional(),
+  service: z.string().optional(),
+  category: z.string().optional(),
+  subcategory: z.string().optional(),
+  description: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  event_id: z.string().optional(),
+  wish_id: z.string().optional(),
+  offer_id: z.string().optional(),
+});

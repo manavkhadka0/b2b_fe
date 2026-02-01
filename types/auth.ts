@@ -25,7 +25,7 @@ export interface AuthContextType {
 }
 
 export interface LoginCredentials {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -51,4 +51,11 @@ export interface AuthResponse {
   access: string;
   refresh: string;
   user: User;
+}
+
+export interface Location {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
 }
