@@ -3,9 +3,11 @@
 import { Loader2 } from "lucide-react";
 import type { Wish, Offer } from "@/types/wish";
 import type { Job } from "@/types/types";
+import type { CvProfile } from "@/types/cv";
 import { ProfileWishesTable } from "./profile-wishes-table";
 import { ProfileOffersTable } from "./profile-offers-table";
 import { ProfileJobsTable } from "./profile-jobs-table";
+import { CvSections } from "./cv/CvSections";
 
 interface ProfileContentProps {
   activeTab: string;
@@ -13,6 +15,13 @@ interface ProfileContentProps {
   offers: Offer[];
   myJobs: Job[];
   appliedJobs: Job[];
+  cvProfile: CvProfile;
+  onCvProfileUpdate: (profile: CvProfile) => void;
+  cvProfileLoading?: boolean;
+  cvProfileNotFound?: boolean;
+  onCreateCv?: () => Promise<void>;
+  creatingCv?: boolean;
+  username: string | null;
   wishesLoading: boolean;
   offersLoading: boolean;
   myJobsLoading: boolean;
@@ -35,6 +44,13 @@ export function ProfileContent({
   offers,
   myJobs,
   appliedJobs,
+  cvProfile,
+  onCvProfileUpdate,
+  cvProfileLoading = false,
+  cvProfileNotFound = false,
+  onCreateCv,
+  creatingCv = false,
+  username,
   wishesLoading,
   offersLoading,
   myJobsLoading,
@@ -147,6 +163,48 @@ export function ProfileContent({
             jobs={appliedJobs}
             showEditButton={false}
           />
+        );
+
+      case "cv":
+        if (cvProfileLoading) {
+          return (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+            </div>
+          );
+        }
+        if (cvProfileNotFound && username) {
+          return (
+            <div className="py-12 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+              <p className="text-sm text-gray-600 mb-4">
+                You don&apos;t have a CV profile yet. Create one to add your education, experience, skills and more.
+              </p>
+              <button
+                type="button"
+                onClick={() => onCreateCv?.()}
+                disabled={creatingCv}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {creatingCv ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create CV"
+                )}
+              </button>
+            </div>
+          );
+        }
+        return (
+          <div className="py-4">
+            <CvSections
+              profile={cvProfile}
+              onProfileUpdate={onCvProfileUpdate}
+              username={username}
+            />
+          </div>
         );
 
       default:

@@ -1,64 +1,69 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { MapPin, Mail, Plus } from "lucide-react";
 import type { User } from "@/types/auth";
-
-function getInitials(name?: string | null) {
-  if (!name) return "U";
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (
-    (parts[0]?.charAt(0) || "") + (parts[1]?.charAt(0) || "")
-  ).toUpperCase();
-}
 
 interface ProfileHeaderProps {
   user: User;
 }
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
-  const fullName =
-    `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email;
+  const displayName =
+    `${user.first_name || ""} ${user.last_name || ""}`.trim() || null;
+  const address = user.address?.trim() || null;
 
   return (
-    <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5 md:p-6 mb-5 md:mb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Avatar className="h-12 w-12 sm:h-14 sm:w-14 bg-blue-50">
-            <AvatarFallback className="text-blue-700 font-semibold">
-              {getInitials(fullName)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">
-              {fullName}
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500 truncate">
-              {user.email}
-            </p>
+    <div className="relative w-full bg-[#020A33] text-white rounded-xl overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 right-0 pointer-events-none">
+        <div className="w-48 h-48 bg-[#E31B54] rounded-full opacity-20 translate-x-20 -translate-y-20" />
+      </div>
+      <div className="absolute bottom-0 right-0 pointer-events-none">
+        <div className="w-32 h-32 bg-blue-800 rounded-full opacity-20 translate-x-16 translate-y-16" />
+      </div>
+
+      <div className="relative p-6 sm:p-8 space-y-6">
+        <div className="space-y-4">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            {displayName || "Add your name"}
+          </h1>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-gray-300">
+              <MapPin className="w-4 h-4 shrink-0 text-gray-400" />
+              <span>{address || "Add a home location"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-300">
+              <Mail className="w-4 h-4 shrink-0 text-gray-400" />
+              <span>{user.email}</span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
+
+        <div className="flex flex-wrap gap-3">
           <Link href="/wishOffer/wishes/create-wish">
             <Button
+              variant="outline"
               size="sm"
-              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700"
+              className="gap-2 bg-transparent border-white/60 text-white hover:bg-white hover:text-[#020A33]"
             >
+              <Plus className="w-4 h-4" />
               Create Wish
             </Button>
           </Link>
           <Link href="/wishOffer/offer/create-offer">
             <Button
+              variant="outline"
               size="sm"
-              className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+              className="gap-2 bg-transparent border-white/60 text-white hover:bg-white hover:text-[#020A33]"
             >
+              <Plus className="w-4 h-4" />
               Create Offer
             </Button>
           </Link>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

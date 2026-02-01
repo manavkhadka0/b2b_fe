@@ -18,6 +18,14 @@ import { getMyJobs, getAppliedJobs } from "@/services/jobs";
 import { transformJobs, transformAppliedJobs } from "@/utils/jobTransform";
 import type { Wish, Offer } from "@/types/wish";
 import type { Job } from "@/types/types";
+import { emptyCvProfile } from "@/types/cv";
+import type { CvProfile } from "@/types/cv";
+import {
+  getJobseekerProfile,
+  mapApiToCvProfile,
+  createJobseekerProfile,
+  isProfileNotFoundError,
+} from "@/services/jobseeker";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -38,9 +46,52 @@ export default function ProfilePage() {
   const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
   const [myJobsLoading, setMyJobsLoading] = useState(true);
   const [appliedJobsLoading, setAppliedJobsLoading] = useState(true);
-  
+
   // Active tab state
   const [activeTab, setActiveTab] = useState("wishes");
+
+  // CV profile (fetched from jobseeker API when user exists)
+  const [cvProfile, setCvProfile] = useState<CvProfile>(() => emptyCvProfile());
+  const [cvProfileLoading, setCvProfileLoading] = useState(false);
+  const [cvProfileNotFound, setCvProfileNotFound] = useState(false);
+  const [creatingCv, setCreatingCv] = useState(false);
+
+  const fetchCvProfile = useCallback(async () => {
+    if (!user?.username) return;
+    setCvProfileLoading(true);
+    setCvProfileNotFound(false);
+    try {
+      const data = await getJobseekerProfile(user.username);
+      setCvProfile(mapApiToCvProfile(data));
+    } catch (err) {
+      if (isProfileNotFoundError(err)) {
+        setCvProfileNotFound(true);
+        setCvProfile(emptyCvProfile());
+      } else {
+        console.error("Error fetching CV profile:", err);
+        setCvProfile(emptyCvProfile());
+      }
+    } finally {
+      setCvProfileLoading(false);
+    }
+  }, [user?.username]);
+
+  const handleCreateCv = useCallback(async () => {
+    if (!user?.username) return;
+    setCreatingCv(true);
+    try {
+      await createJobseekerProfile();
+      await fetchCvProfile();
+    } catch (err) {
+      console.error("Error creating CV profile:", err);
+    } finally {
+      setCreatingCv(false);
+    }
+  }, [user?.username, fetchCvProfile]);
+
+  useEffect(() => {
+    if (user?.username) fetchCvProfile();
+  }, [user?.username, fetchCvProfile]);
 
   const {
     editingWish,
@@ -62,7 +113,7 @@ export default function ProfilePage() {
 
   const { convertItem, isConverting, convertingId } = useConvertHandler(
     mutateWishes,
-    mutateOffers,
+    mutateOffers
   );
 
   // Convert dialog state
@@ -168,8 +219,34 @@ export default function ProfilePage() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-gray-50">
+        <ResponsiveContainer className="py-10 px-4 sm:px-5 md:px-6">
+          <div className="space-y-8">
+            <div className="relative w-full bg-[#020A33] text-white rounded-xl overflow-hidden">
+              <div className="absolute top-0 right-0">
+                <div className="w-48 h-48 bg-[#E31B54] rounded-full opacity-20 translate-x-20 -translate-y-20" />
+              </div>
+              <div className="absolute bottom-0 right-0">
+                <div className="w-32 h-32 bg-blue-800 rounded-full opacity-20 translate-x-16 translate-y-16" />
+              </div>
+              <div className="relative p-8 space-y-6">
+                <div className="h-10 w-64 bg-gray-700/50 rounded animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-6 w-48 bg-gray-700/50 rounded animate-pulse" />
+                  <div className="h-6 w-56 bg-gray-700/50 rounded animate-pulse" />
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-9 w-24 bg-gray-700/50 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12">
+              <div className="flex justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </ResponsiveContainer>
       </div>
     );
   }
@@ -179,57 +256,69 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/60">
-      <ResponsiveContainer className="py-5 px-4 sm:px-5 md:px-6 lg:py-8">
-        <ProfileHeader user={user} />
+    <div className="min-h-screen bg-gray-50">
+      <ResponsiveContainer className="py-10 px-4 sm:px-5 md:px-6">
+        <div className="space-y-8">
+          <ProfileHeader user={user} />
 
-        <div className="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            <ProfileSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-            
-            <ProfileContent
-              activeTab={activeTab}
-              wishes={wishes}
-              offers={offers}
-              myJobs={myJobs}
-              appliedJobs={appliedJobs}
-              wishesLoading={wishesLoading}
-              offersLoading={offersLoading}
-              myJobsLoading={myJobsLoading}
-              appliedJobsLoading={appliedJobsLoading}
-              deletingWishId={deletingWishId}
-              deletingOfferId={deletingOfferId}
-              convertingId={convertingId}
-              onEditWish={openEditWish}
-              onEditOffer={openEditOffer}
-              onEditJob={handleEditJob}
-              onDeleteWish={handleDeleteWish}
-              onDeleteOffer={handleDeleteOffer}
-              onConvertWish={handleConvertWish}
-              onConvertOffer={handleConvertOffer}
-            />
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex flex-col md:flex-row">
+              <ProfileSidebar
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+
+              <ProfileContent
+                activeTab={activeTab}
+                wishes={wishes}
+                offers={offers}
+                myJobs={myJobs}
+                appliedJobs={appliedJobs}
+                cvProfile={cvProfile}
+                onCvProfileUpdate={setCvProfile}
+                cvProfileLoading={cvProfileLoading}
+                cvProfileNotFound={cvProfileNotFound}
+                onCreateCv={handleCreateCv}
+                creatingCv={creatingCv}
+                username={user?.username ?? null}
+                wishesLoading={wishesLoading}
+                offersLoading={offersLoading}
+                myJobsLoading={myJobsLoading}
+                appliedJobsLoading={appliedJobsLoading}
+                deletingWishId={deletingWishId}
+                deletingOfferId={deletingOfferId}
+                convertingId={convertingId}
+                onEditWish={openEditWish}
+                onEditOffer={openEditOffer}
+                onEditJob={handleEditJob}
+                onDeleteWish={handleDeleteWish}
+                onDeleteOffer={handleDeleteOffer}
+                onConvertWish={handleConvertWish}
+                onConvertOffer={handleConvertOffer}
+              />
+            </div>
           </div>
+
+          <EditDialog
+            editingWish={editingWish}
+            editingOffer={editingOffer}
+            editingWishData={editingWishData}
+            editingOfferData={editingOfferData}
+            loadingEditData={loadingEditData}
+            onClose={closeEditDialog}
+            onEditSuccess={handleEditSuccess}
+          />
+
+          <ConvertDialog
+            open={convertDialogOpen}
+            onOpenChange={setConvertDialogOpen}
+            onConfirm={handleConfirmConvert}
+            sourceType={itemToConvert?.sourceType || null}
+            targetType={itemToConvert?.targetType || null}
+            itemTitle={itemToConvert?.title}
+            isConverting={isConverting}
+          />
         </div>
-
-        <EditDialog
-          editingWish={editingWish}
-          editingOffer={editingOffer}
-          editingWishData={editingWishData}
-          editingOfferData={editingOfferData}
-          loadingEditData={loadingEditData}
-          onClose={closeEditDialog}
-          onEditSuccess={handleEditSuccess}
-        />
-
-        <ConvertDialog
-          open={convertDialogOpen}
-          onOpenChange={setConvertDialogOpen}
-          onConfirm={handleConfirmConvert}
-          sourceType={itemToConvert?.sourceType || null}
-          targetType={itemToConvert?.targetType || null}
-          itemTitle={itemToConvert?.title}
-          isConverting={isConverting}
-        />
       </ResponsiveContainer>
     </div>
   );
