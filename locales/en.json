@@ -103,11 +103,16 @@
     "sendErrorDesc": "Please try again later."
   },
   "hero": {
-    "title": "Join us at Birat Bazaar",
-    "subtitle": "B2B Networking Platform",
-    "description": "The Birat Bazaar B2B Networking Platform is a flagship digital service of the Chamber of Industries Morang (CIM). It institutionalizes business-to-business (B2B) connections across Koshi Province and beyond, creating a permanent, digital-first hub where businesses of all sizes — from startups and women-led enterprises to MSMEs, farmers, and service providers — can connect, collaborate, and grow.",
-    "exploreEvents": "Explore Events",
-    "registerNow": "Register Now"
+    "badge": "All-in-One B2B Platform",
+    "title": "Connect. Collaborate. Grow.",
+    "subtitle": "Birat Bazaar",
+    "description": "Your digital hub for business connections. Connect wishes with offers, match job seekers with employers, discover B2B events — all in one place. Powered by Chamber of Industries Morang (CIM).",
+    "exploreWishOffer": "Explore Wish and Offers",
+    "exploreJobs": "Explore Jobs",
+    "pillWish": "Wishes",
+    "pillOffer": "Offers",
+    "pillJobs": "Jobs",
+    "pillEvents": "Events"
   },
   "objectives": {
     "title": "Platform Objectives",
@@ -167,7 +172,95 @@
     "partnershipDevelopment": {
       "title": "Partnership Development",
       "description": "Once matched, businesses can leverage our secure communication channels, document sharing, and collaboration tools to develop partnerships. Our platform provides structured frameworks for partnership agreements, progress tracking, and relationship management."
+    },
+    "visualText": "One platform for all your B2B needs"
+  },
+  "features": {
+    "title": "One Platform, Endless Possibilities",
+    "subtitle": "Everything you need to grow your business and career in Nepal's digital B2B ecosystem",
+    "businessWishes": {
+      "title": "Business Wishes",
+      "description": "Express your needs — partnerships, technology, supply chain, or investments. Our matching connects you to the right partners."
+    },
+    "businessOffers": {
+      "title": "Business Offers",
+      "description": "Showcase your products, services, and expertise. Create detailed offers to attract quality partnerships."
+    },
+    "jobMatching": {
+      "title": "Job Matching",
+      "description": "Employers find talent, job seekers find opportunities. All in one integrated platform."
+    },
+    "inclusiveGrowth": {
+      "title": "Inclusive Growth",
+      "description": "Equal access for startups, women-led enterprises, and small businesses to networking and visibility."
+    },
+    "smartMatching": {
+      "title": "Smart Matching",
+      "description": "Intelligent algorithms match wishes with offers, accelerating your path to successful collaborations."
+    },
+    "localToGlobal": {
+      "title": "Local to Global",
+      "description": "Start local in Koshi Province, expand across Nepal and beyond with increased visibility."
     }
+  },
+  "platformFeatures": {
+    "title": "What We Offer",
+    "subtitle": "Everything you need to grow your business in one place",
+    "wish": {
+      "title": "Wishes",
+      "description": "Post your business needs and find matching offers from partners.",
+      "cta": "Create a Wish"
+    },
+    "offer": {
+      "title": "Offers",
+      "description": "Showcase your products and services to potential business partners.",
+      "cta": "Create an Offer"
+    },
+    "jobs": {
+      "title": "Jobs & Careers",
+      "description": "Connect job seekers with employers. Find talent or opportunities.",
+      "cta": "Explore Jobs"
+    },
+    "events": {
+      "title": "B2B Events",
+      "description": "Discover networking events, trade fairs, and business conferences.",
+      "cta": "View Events"
+    },
+    "matches": {
+      "title": "Live Matches",
+      "description": "Watch wishes and offers get matched in real-time.",
+      "cta": "See Matches"
+    },
+    "bds": {
+      "title": "Business Services",
+      "description": "Access business development services and support.",
+      "cta": "Explore Services"
+    }
+  },
+  "howItWorks": {
+    "title": "How Birat Bazaar Works",
+    "subtitle": "Four simple steps to start connecting and growing your business",
+    "step1": {
+      "title": "Create Account",
+      "description": "Sign up and build your business profile with your capabilities and goals."
+    },
+    "step2": {
+      "title": "Post Wish or Offer",
+      "description": "Express what you need (wish) or what you can provide (offer) to the marketplace."
+    },
+    "step3": {
+      "title": "Get Matched",
+      "description": "Our system matches your wishes with relevant offers and vice versa."
+    },
+    "step4": {
+      "title": "Connect & Grow",
+      "description": "Connect with matched businesses and build meaningful partnerships."
+    }
+  },
+  "ctaSection": {
+    "title": "Ready to grow your business?",
+    "subtitle": "Join Birat Bazaar and connect with businesses across Koshi Province.",
+    "button": "Get Started Free"
   },
   "footer": {
     "newsletter": "Newsletter",

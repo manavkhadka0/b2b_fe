@@ -1,99 +1,76 @@
 "use client";
 
 import { ResponsiveContainer } from "../common/responsive-container";
-import { HeaderSubtitle } from "../common/header-subtitle";
 import { useTranslation } from "react-i18next";
+import { Briefcase, Zap, Shield } from "lucide-react";
 
 export default function AboutUs() {
   const { t } = useTranslation();
 
-  const steps = [
+  const features = [
     {
-      title: t("about.enterpriseSolutions.title"),
-      description: t("about.enterpriseSolutions.description"),
-      icon: (
-        <svg
-          className="w-6 h-6 text-blue-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
+      key: "enterpriseSolutions",
+      icon: Briefcase,
     },
     {
-      title: t("about.streamlinedProcess.title"),
-      description: t("about.streamlinedProcess.description"),
-      icon: (
-        <svg
-          className="w-6 h-6 text-blue-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
-      ),
+      key: "streamlinedProcess",
+      icon: Zap,
     },
     {
-      title: t("about.partnershipDevelopment.title"),
-      description: t("about.partnershipDevelopment.description"),
-      icon: (
-        <svg
-          className="w-6 h-6 text-blue-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-          />
-        </svg>
-      ),
+      key: "partnershipDevelopment",
+      icon: Shield,
     },
   ];
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50">
-      <ResponsiveContainer className="py-10">
-        <HeaderSubtitle
-          title={t("about.title")}
-          subtitle={t("about.subtitle")}
-        />
-
-        <div className="mt-12 grid md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="p-8 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
-            >
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 mb-4">
-                {step.icon}
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {step.title}
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {step.description}
-              </p>
+    <section className="py-16 md:py-24 bg-slate-50">
+      <ResponsiveContainer>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left - Content */}
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              {t("about.title")}
+            </h2>
+            <p className="text-lg text-slate-600 mb-8">
+              {t("about.subtitle")}
+            </p>
+            <div className="space-y-6">
+              {features.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.key} className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900 mb-1">
+                        {t(`about.${item.key}.title`)}
+                      </h3>
+                      <p className="text-slate-600 text-sm leading-relaxed">
+                        {t(`about.${item.key}.description`)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          </div>
+
+          {/* Right - Visual */}
+          <div className="relative">
+            <div className="aspect-square max-w-md mx-auto rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/80 shadow-sm mb-4">
+                  <Briefcase className="w-10 h-10 text-blue-600" />
+                </div>
+                <p className="text-slate-600 font-medium">
+                  {t("about.visualText")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </ResponsiveContainer>
-    </div>
+    </section>
   );
 }
