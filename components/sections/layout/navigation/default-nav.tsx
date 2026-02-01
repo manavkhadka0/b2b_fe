@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, PlusCircle, User, LogOut, ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +22,8 @@ import {
 
 export function DefaultNav() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mdmuOpen, setMdmuOpen] = useState(false);
+  const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -81,16 +83,22 @@ export function DefaultNav() {
     { label: t("navigation.wishOffer"), href: "/wishOffer" },
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
-    // MDMU campaign landing
-    { label: "MDMU", href: "/mdmu" },
     { label: "Jobs", href: "/jobs" },
   ];
+
+  const mdmuNavItems = [
+    { label: "MDMU", href: "/mdmu" },
+    { label: "About Us", href: "/mdmu/about-us" },
+    { label: "Endorsements", href: "/mdmu/endorsements" },
+    { label: "Newsletter", href: "/mdmu/newsletter" },
+  ];
+  const isMdmuActive = pathname.startsWith("/mdmu");
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
       href={href}
       className={`
-        text-xs font-medium transition-colors relative whitespace-nowrap
+        text-sm font-medium transition-colors relative whitespace-nowrap
         after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
         after:origin-left after:scale-x-0 after:bg-blue-800 after:transition-transform
         ${
@@ -111,11 +119,11 @@ export function DefaultNav() {
       }`}
     >
       <ResponsiveContainer>
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-20 items-center justify-between gap-4">
           {/* Logo Section */}
           <div className="flex shrink-0 items-center gap-3">
             <Link href="/" className="">
-              <img src="/b2blogo.png" alt="Jobbriz" className="h-10 w-auto" />
+              <img src="/b2blogo.png" alt="Jobbriz" className="h-11 w-auto" />
             </Link>
             {/* <Link href="/" className="">
               <img src="/cim-logo.webp" alt="cim" className="h-12 w-auto" />
@@ -123,27 +131,96 @@ export function DefaultNav() {
           </div>
 
           {/* Center: Nav links (desktop) - flex-1 centers between logo and right */}
-          <nav className="hidden lg:flex flex-1 items-center justify-center gap-5 min-w-0">
-            {navItems.map((item) => (
+          <nav className="hidden lg:flex flex-1 items-center justify-center gap-6 min-w-0">
+            {navItems.slice(0, 5).map((item) => (
               <NavLink key={item.href} {...item} />
             ))}
+            <DropdownMenu
+              open={mdmuOpen}
+              onOpenChange={(open) => {
+                if (!open) setMdmuOpen(false);
+              }}
+            >
+              <div
+                className="relative"
+                onMouseEnter={() => {
+                  if (mdmuLeaveTimeoutRef.current) {
+                    clearTimeout(mdmuLeaveTimeoutRef.current);
+                    mdmuLeaveTimeoutRef.current = null;
+                  }
+                  setMdmuOpen(true);
+                }}
+                onMouseLeave={() => {
+                  mdmuLeaveTimeoutRef.current = setTimeout(() => {
+                    setMdmuOpen(false);
+                    mdmuLeaveTimeoutRef.current = null;
+                  }, 150);
+                }}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/mdmu")}
+                    className={`
+                      text-sm font-medium transition-colors relative whitespace-nowrap flex items-center gap-0.5
+                      after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
+                      after:origin-left after:scale-x-0 after:bg-blue-800 after:transition-transform
+                      ${
+                        isMdmuActive
+                          ? "text-blue-800 after:scale-x-100"
+                          : "text-gray-600 hover:text-blue-800 after:hover:scale-x-100"
+                      }
+                    `}
+                  >
+                    MDMU
+                    <ChevronDown className="h-4 w-4 opacity-80" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  className="w-48"
+                  onMouseEnter={() => {
+                    if (mdmuLeaveTimeoutRef.current) {
+                      clearTimeout(mdmuLeaveTimeoutRef.current);
+                      mdmuLeaveTimeoutRef.current = null;
+                    }
+                    setMdmuOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    mdmuLeaveTimeoutRef.current = setTimeout(() => {
+                      setMdmuOpen(false);
+                      mdmuLeaveTimeoutRef.current = null;
+                    }, 150);
+                  }}
+                >
+                  {mdmuNavItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href} className="cursor-pointer">
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </div>
+            </DropdownMenu>
+            <NavLink href="/jobs" label="Jobs" />
           </nav>
 
           {/* Right: Language, Auth, Create */}
-          <div className="flex shrink-0 items-center gap-3 lg:gap-4">
+          <div className="flex shrink-0 items-center gap-4 lg:gap-5">
             {/* Language Switcher - compact in nav */}
             <LanguageSwitcher compact />
 
             {/* Login / Register when not logged in */}
             {!currentUser && (
               <div className="hidden lg:flex items-center gap-2 shrink-0">
-                <Button variant="ghost" size="sm" asChild className="h-9">
+                <Button variant="ghost" size="sm" asChild className="h-10 px-4">
                   <Link href="/login">{t("auth.login")}</Link>
                 </Button>
                 <Button
                   size="sm"
                   asChild
-                  className="h-9 bg-blue-800 hover:bg-blue-900 shrink-0"
+                  className="h-10 px-4 bg-blue-800 hover:bg-blue-900 shrink-0"
                 >
                   <Link href="/register">{t("auth.signup")}</Link>
                 </Button>
@@ -156,9 +233,9 @@ export function DefaultNav() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-9 w-9 rounded-full hidden lg:inline-flex shrink-0"
+                    className="relative h-10 w-10 rounded-full hidden lg:inline-flex shrink-0"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-9 w-9">
                       <AvatarImage
                         src={(session?.user as any)?.image || "/avatar.png"}
                         alt={
@@ -205,7 +282,7 @@ export function DefaultNav() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     size="sm"
-                    className="h-9 gap-1.5 bg-blue-800 hover:bg-blue-900"
+                    className="h-10 px-4 gap-2 bg-blue-800 hover:bg-blue-900"
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span>{t("common.create")}</span>
@@ -247,6 +324,12 @@ export function DefaultNav() {
                   {navItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                   ))}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">MDMU</span>
+                    {mdmuNavItems.map((item) => (
+                      <NavLink key={item.href} href={item.href} label={item.label} />
+                    ))}
+                  </div>
                   {/* Language Switcher - Mobile */}
                   <div className="mt-4">
                     <LanguageSwitcher />

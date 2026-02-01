@@ -3,9 +3,9 @@
 import { Loader2 } from "lucide-react";
 import type { Wish, Offer } from "@/types/wish";
 import type { Job } from "@/types/types";
-import { WishCard } from "./wish-card";
-import { OfferCard } from "./offer-card";
-import { JobCard } from "@/components/jobs/JobCard";
+import { ProfileWishesTable } from "./profile-wishes-table";
+import { ProfileOffersTable } from "./profile-offers-table";
+import { ProfileJobsTable } from "./profile-jobs-table";
 
 interface ProfileContentProps {
   activeTab: string;
@@ -68,19 +68,14 @@ export function ProfileContent({
           );
         }
         return (
-          <div className="grid grid-cols-1 gap-4">
-            {wishes.map((wish) => (
-              <WishCard
-                key={wish.id}
-                wish={wish}
-                onDelete={onDeleteWish}
-                onEdit={onEditWish}
-                onConvert={onConvertWish}
-                isDeleting={deletingWishId === wish.id}
-                isConverting={convertingId === wish.id}
-              />
-            ))}
-          </div>
+          <ProfileWishesTable
+            wishes={wishes}
+            deletingWishId={deletingWishId}
+            convertingId={convertingId}
+            onEdit={onEditWish}
+            onDelete={onDeleteWish}
+            onConvert={onConvertWish}
+          />
         );
 
       case "offers":
@@ -99,19 +94,14 @@ export function ProfileContent({
           );
         }
         return (
-          <div className="grid grid-cols-1 gap-4">
-            {offers.map((offer) => (
-              <OfferCard
-                key={offer.id}
-                offer={offer}
-                onDelete={onDeleteOffer}
-                onEdit={onEditOffer}
-                onConvert={onConvertOffer}
-                isDeleting={deletingOfferId === offer.id}
-                isConverting={convertingId === offer.id}
-              />
-            ))}
-          </div>
+          <ProfileOffersTable
+            offers={offers}
+            deletingOfferId={deletingOfferId}
+            convertingId={convertingId}
+            onEdit={onEditOffer}
+            onDelete={onDeleteOffer}
+            onConvert={onConvertOffer}
+          />
         );
 
       case "my-jobs":
@@ -130,17 +120,11 @@ export function ProfileContent({
           );
         }
         return (
-          <div className="grid grid-cols-1 gap-4">
-            {myJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                showApplyButton={false}
-                showEditButton={!!onEditJob}
-                onEdit={onEditJob}
-              />
-            ))}
-          </div>
+          <ProfileJobsTable
+            jobs={myJobs}
+            showEditButton={!!onEditJob}
+            onEdit={onEditJob}
+          />
         );
 
       case "applied-jobs":
@@ -159,16 +143,10 @@ export function ProfileContent({
           );
         }
         return (
-          <div className="grid grid-cols-1 gap-4">
-            {appliedJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                showApplyButton={false}
-                showEditButton={false}
-              />
-            ))}
-          </div>
+          <ProfileJobsTable
+            jobs={appliedJobs}
+            showEditButton={false}
+          />
         );
 
       default:
@@ -176,5 +154,5 @@ export function ProfileContent({
     }
   };
 
-  return <div className="flex-1 p-4 md:p-6">{renderContent()}</div>;
+  return <div className="flex-1 p-4 md:p-5">{renderContent()}</div>;
 }

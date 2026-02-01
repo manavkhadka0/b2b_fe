@@ -24,6 +24,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import Link from "next/link";
 import Image from "next/image";
 import { CreateWishOfferFormSimplified } from "@/components/sections/create-wish/create-wish-form-simplified";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ItemType = "WISH" | "OFFER" | "ALL";
 type CategoryType = "Product" | "Service" | "ALL";
@@ -32,6 +33,7 @@ type CategoryType = "Product" | "Service" | "ALL";
 type ItemWithSource = (Wish | Offer) & { _source: "wish" | "offer" };
 
 function WishOfferContent() {
+  const { user, isLoading: authLoading, requireAuth } = useAuth();
   const [selectedType, setSelectedType] = useState<ItemType>("ALL");
   const [selectedCategoryType, setSelectedCategoryType] =
     useState<CategoryType>("ALL");
@@ -43,6 +45,10 @@ function WishOfferContent() {
   const [relatedItemId, setRelatedItemId] = useState<number | null>(null);
   const [relatedItem, setRelatedItem] = useState<Wish | Offer | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const isLoggedIn =
+    !!user ||
+    (typeof window !== "undefined" && !!localStorage.getItem("accessToken"));
 
   const {
     productCategories,
@@ -138,6 +144,10 @@ function WishOfferContent() {
   };
 
   const handleCreateOffer = (wish: Wish) => {
+    if (!isLoggedIn && !authLoading) {
+      requireAuth("/wishOffer");
+      return;
+    }
     setRelatedItem(wish);
     setRelatedItemId(wish.id);
     setFormType("offers");
@@ -145,6 +155,10 @@ function WishOfferContent() {
   };
 
   const handleCreateWish = (offer: Offer) => {
+    if (!isLoggedIn && !authLoading) {
+      requireAuth("/wishOffer");
+      return;
+    }
     setRelatedItem(offer);
     setRelatedItemId(offer.id);
     setFormType("wishes");

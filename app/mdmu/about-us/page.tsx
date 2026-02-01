@@ -10,7 +10,7 @@ import {
 import Contact from "@/components/mdmu/mdmu/contact";
 import useSWR from "swr";
 
-const API_URL = "https://cim.baliyoventures.com/api/mdmu/company-logo/";
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/mdmu/company-logo/`;
 
 const fetcher = async (url: string) => {
   const response = await fetch(url);

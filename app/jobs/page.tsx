@@ -11,9 +11,11 @@ import {
 import { getJobs, getMyJobs } from "@/services/jobs";
 import { Job } from "@/types/types";
 import { transformJobs } from "@/utils/jobTransform";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Jobs: React.FC = () => {
   const router = useRouter();
+  const { user, isLoading: authLoading, requireAuth } = useAuth();
   const [isHiringMode, setIsHiringMode] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
@@ -79,6 +81,12 @@ const Jobs: React.FC = () => {
   };
 
   const handleCreateJob = () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+    if (!user && !token && !authLoading) {
+      requireAuth("/jobs/create");
+      return;
+    }
     router.push("/jobs/create");
   };
 
@@ -111,6 +119,7 @@ const Jobs: React.FC = () => {
           onEditJob={handleEditJob}
           jobs={myJobs}
           isLoading={isLoadingMyJobs}
+          isLoggedIn={!!user || (typeof window !== "undefined" && !!localStorage.getItem("accessToken"))}
         />
       ) : (
         <>

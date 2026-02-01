@@ -8,13 +8,15 @@ interface EmployerDashboardProps {
   onEditJob: (job: Job) => void;
   jobs: Job[];
   isLoading: boolean;
+  isLoggedIn?: boolean;
 }
 
 export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ 
   onCreateJob,
   onEditJob,
   jobs,
-  isLoading
+  isLoading,
+  isLoggedIn = false,
 }) => {
   return (
     <div className="space-y-6">
@@ -37,7 +39,11 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({
           </div>
         ) : jobs.length === 0 ? (
           <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
-            <p className="text-slate-500">You haven't posted any jobs yet. Create your first job posting above!</p>
+            <p className="text-slate-500">
+              {isLoggedIn
+                ? "You haven't posted any jobs yet. Create your first job posting above!"
+                : "Log in to create and manage your job postings."}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

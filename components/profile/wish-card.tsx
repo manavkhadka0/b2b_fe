@@ -31,10 +31,10 @@ export function WishCard({
   isConverting,
 }: WishCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-100 p-4 sm:p-5 shadow-sm flex flex-col gap-3">
+    <div className="px-4 py-3 hover:bg-gray-50/50 transition-colors">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
             <Badge className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] font-semibold uppercase">
               {wish.type}
             </Badge>
@@ -47,50 +47,50 @@ export function WishCard({
               </span>
             )}
           </div>
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-1">
+          <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
             {wish.title}
           </h3>
         </div>
       </div>
 
-      <p className="text-xs sm:text-sm text-gray-500 line-clamp-3">
+      <p className="text-xs text-gray-500 line-clamp-2 mt-1">
         {wish.description || "No description provided for this wish."}
       </p>
 
-      <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[11px] text-gray-500 mt-1.5">
         <span className="inline-flex items-center gap-1">
-          <MapPin className="w-3 h-3 text-blue-500" />
+          <MapPin className="w-3 h-3 text-blue-500 shrink-0" />
           {wish.province || "N/A"}
         </span>
         <span className="inline-flex items-center gap-1">
-          <Clock className="w-3 h-3" />
+          <Clock className="w-3 h-3 shrink-0" />
           {new Date(wish.created_at).toLocaleDateString()}
         </span>
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-gray-100 mt-1">
+      <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 mt-1.5">
         <Link href={`/wishOffer/wishes/${wish.id}`}>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="h-8 px-3 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+            className="h-7 px-2.5 text-xs text-blue-600 hover:bg-blue-50 hover:text-blue-700"
           >
             View
           </Button>
         </Link>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 px-3 text-xs border-gray-200 hover:bg-gray-50"
+          className="h-7 px-2.5 text-xs text-gray-600 hover:bg-gray-100"
           onClick={() => onEdit(wish)}
         >
           <Edit2 className="w-3 h-3 mr-1" />
           Edit
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 px-3 text-xs border-amber-200 text-amber-600 hover:bg-amber-50"
+          className="h-7 px-2.5 text-xs text-amber-600 hover:bg-amber-50"
           onClick={() => onConvert(wish)}
           disabled={isConverting || isDeleting}
         >
@@ -102,9 +102,9 @@ export function WishCard({
           Convert
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 px-3 text-xs border-red-200 text-red-600 hover:bg-red-50"
+          className="h-7 px-2.5 text-xs text-red-600 hover:bg-red-50"
           onClick={() => onDelete(wish.id)}
           disabled={isDeleting || isConverting}
         >
