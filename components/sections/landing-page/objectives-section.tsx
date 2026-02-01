@@ -1,61 +1,60 @@
 "use client";
 
 import { ResponsiveContainer } from "../common/responsive-container";
-import { HeaderSubtitle } from "../common/header-subtitle";
 import { useTranslation } from "react-i18next";
+import { Network, Handshake, Building2, TrendingUp, Users } from "lucide-react";
+
+const iconMap = {
+  network: Network,
+  handshake: Handshake,
+  building: Building2,
+  trending: TrendingUp,
+  users: Users,
+};
+
+const objectiveKeys = [
+  { key: "enhanceNetworking", icon: "network" as keyof typeof iconMap },
+  { key: "promoteCollaboration", icon: "handshake" as keyof typeof iconMap },
+  { key: "supportLocal", icon: "building" as keyof typeof iconMap },
+];
 
 export default function ObjectivesSection() {
   const { t } = useTranslation();
 
-  const objectives = [
-    {
-      title: t("objectives.enhanceNetworking.title"),
-      description: t("objectives.enhanceNetworking.description"),
-    },
-    {
-      title: t("objectives.promoteCollaboration.title"),
-      description: t("objectives.promoteCollaboration.description"),
-    },
-    {
-      title: t("objectives.supportLocal.title"),
-      description: t("objectives.supportLocal.description"),
-    },
-    {
-      title: t("objectives.showcaseInvestment.title"),
-      description: t("objectives.showcaseInvestment.description"),
-    },
-    {
-      title: t("objectives.inclusiveGrowth.title"),
-      description: t("objectives.inclusiveGrowth.description"),
-    },
-  ];
-
   return (
-    <div className="bg-gradient-to-br from-blue-50/60 via-white to-purple-50/60">
-      <ResponsiveContainer className="py-10 md:py-14">
-        <HeaderSubtitle
-          title={t("objectives.title")}
-          subtitle={t("objectives.subtitle")}
-        />
+    <section className="py-16 md:py-24 bg-white">
+      <ResponsiveContainer>
+        <div className="mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 text-left">
+            {t("objectives.title")}
+          </h2>
+          <p className="text-slate-600 text-lg text-left max-w-2xl">
+            {t("objectives.subtitle")}
+          </p>
+        </div>
 
-        <div className="mt-10 md:mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {objectives.map((item, index) => (
-            <div
-              key={index}
-              className="h-full rounded-xl bg-white/90 border border-blue-50 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-7 flex flex-col"
-            >
-              <div className="mb-4 flex items-center gap-3">
-                <h3 className="text-lg md:text-xl font-semibold text-gray-900 leading-snug">
-                  {item.title}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {objectiveKeys.map((item) => {
+            const Icon = iconMap[item.icon];
+            return (
+              <div
+                key={item.key}
+                className="p-6 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-200 hover:shadow-md transition-all duration-300"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  {t(`objectives.${item.key}.title`)}
                 </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  {t(`objectives.${item.key}.description`)}
+                </p>
               </div>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                {item.description}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </ResponsiveContainer>
-    </div>
+    </section>
   );
 }

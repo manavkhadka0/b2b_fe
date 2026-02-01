@@ -4,96 +4,115 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ResponsiveContainer } from "../common/responsive-container";
 import { useTranslation } from "react-i18next";
+import { ChevronRight, Sparkles } from "lucide-react";
 
 export default function HeroSection() {
   const { t } = useTranslation();
 
   return (
-    <main className="relative bg-gradient-to-br from-blue-50 via-white to-gray-50 min-h-[calc(100vh-100px)] overflow-hidden flex items-center w-full px-4 md:px-6 py-10 md:py-16">
-      {/* Improved background elements */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-blue-100/30 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-gray-100/20 to-transparent rounded-full blur-3xl" />
-      </div>
+    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-slate-50">
+      {/* Subtle grid background */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,1) 1px, transparent 1px)`,
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-      <ResponsiveContainer>
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-14">
-          {/* Left Content */}
+      {/* Soft gradient orbs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-blue-100/40 blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-indigo-100/30 blur-3xl" />
+
+      <ResponsiveContainer className="relative z-10 py-16 md:py-24">
+        <div className="grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,480px] gap-12 items-center">
+          <div className="max-w-2xl">
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span className="text-sm font-medium text-slate-600">
+                {t("hero.badge")}
+              </span>
+            </motion.div>
+
+            <motion.h1
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-[1.1] mb-6"
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {t("hero.title")}{" "}
+              <span className="text-blue-600">{t("hero.subtitle")}</span>
+            </motion.h1>
+
+            <motion.p
+              className="text-lg sm:text-xl text-slate-600 leading-relaxed mb-10 max-w-2xl"
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {t("hero.description")}
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col sm:flex-row gap-3"
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Link href="/wishOffer">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/25"
+                >
+                  {t("hero.exploreWishOffer")}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <Link href="/jobs">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-white text-slate-700 font-semibold rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  {t("hero.exploreJobs")}
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </Link>
+            </motion.div>
+
+            {/* Trust pills */}
+            <motion.div
+              className="mt-12 flex flex-wrap gap-4 text-sm text-slate-500"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <span>{t("hero.pillWish")}</span>
+              <span className="text-slate-300">•</span>
+              <span>{t("hero.pillOffer")}</span>
+              <span className="text-slate-300">•</span>
+              <span>{t("hero.pillJobs")}</span>
+              <span className="text-slate-300">•</span>
+              <span>{t("hero.pillEvents")}</span>
+            </motion.div>
+          </div>
+
+          {/* Hero visual - desktop */}
           <motion.div
-            className="max-w-2xl mx-auto md:mx-0"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="hidden lg:block order-2"
+            initial={{ opacity: 1, x: 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className=" px-5 py-6 ">
-              <div className="text-center md:text-left">
-                <h1 className="text-3xl md:text-5xl font-semibold md:font-bold text-gray-900 leading-snug md:leading-tight mb-4 md:mb-6 tracking-tight">
-                  {t("hero.title")}{" "}
-                  <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
-                    {t("hero.subtitle")}
-                  </span>
-                </h1>
-
-                <p className="text-gray-700 text-base md:text-lg mb-7 md:mb-8 leading-relaxed md:leading-relaxed">
-                  {t("hero.description")}
-                </p>
-
-                {/* Improved CTA section */}
-                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center md:justify-start">
-                  <Link href="/events" className="w-full sm:w-auto">
-                    <motion.button
-                      className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-full shadow-lg hover:shadow-blue-200/60 transition-all duration-300"
-                      whileHover={{
-                        scale: 1.02,
-                        boxShadow: "0 20px 30px -10px rgb(59 130 246 / 0.35)",
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {t("hero.exploreEvents")}
-                    </motion.button>
-                  </Link>
-                  <Link
-                    href="/wishOffer/wishes/create-wish"
-                    className="w-full sm:w-auto"
-                  >
-                    <motion.button
-                      className="w-full sm:w-auto px-7 py-3.5 bg-white text-blue-700 font-semibold rounded-full shadow-md hover:shadow-lg border border-blue-100/80 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {t("hero.registerNow")}
-                    </motion.button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Visual with improved animation */}
-          <motion.div
-            className="hidden md:flex justify-center items-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <div className="relative w-full max-w-[600px]">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-blue-100/30 to-transparent rounded-3xl"
-                animate={{
-                  scale: [1, 1.02, 1],
-                  rotate: [0, 1, 0],
-                }}
-                transition={{ duration: 5, repeat: Infinity }}
-              />
-              <img
-                src="/amico.svg"
-                alt="Birat Expo Graphic"
-                className="w-full h-full object-contain relative z-10"
-              />
-            </div>
+            <img src="/b2b.png" alt="Birat Bazaar" className="w-full h-auto" />
           </motion.div>
         </div>
       </ResponsiveContainer>
-    </main>
+    </section>
   );
 }
