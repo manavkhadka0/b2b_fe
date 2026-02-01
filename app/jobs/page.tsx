@@ -1,42 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  JobsHeader,
-  EmployerDashboard,
-  JobSeekerView,
-  ApplyDialog,
-} from "@/components/jobs";
-import { getJobs, getMyJobs } from "@/services/jobs";
+import { JobsHeader, EmployerDashboard, ApplyDialog } from "@/components/jobs";
+import { getMyJobs } from "@/services/jobs";
 import { Job } from "@/types/types";
 import { transformJobs } from "@/utils/jobTransform";
 import { useAuth } from "@/contexts/AuthContext";
+import { JobsSeekerContent } from "./components/JobsSeekerContent";
 
 const Jobs: React.FC = () => {
   const router = useRouter();
   const { user, isLoading: authLoading, requireAuth } = useAuth();
   const [isHiringMode, setIsHiringMode] = useState(false);
-  const [jobs, setJobs] = useState<Job[]>([]);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMyJobs, setIsLoadingMyJobs] = useState(true);
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const fetchJobs = useCallback(async (search?: string) => {
-    setIsLoading(true);
-    try {
-      const response = await getJobs(search);
-      const transformedJobs = transformJobs(response.results);
-      setJobs(transformedJobs);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   const fetchMyJobs = useCallback(async () => {
     setIsLoadingMyJobs(true);
@@ -52,37 +32,29 @@ const Jobs: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isHiringMode) {
-      fetchJobs(searchQuery);
-    } else {
+    if (isHiringMode) {
       fetchMyJobs();
     }
-  }, [isHiringMode, searchQuery, fetchJobs, fetchMyJobs]);
+  }, [isHiringMode, fetchMyJobs]);
 
   // Refresh data when page becomes visible (user returns from edit page)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        if (isHiringMode) {
-          fetchMyJobs();
-        } else {
-          fetchJobs(searchQuery);
-        }
+      if (document.visibilityState === "visible" && isHiringMode) {
+        fetchMyJobs();
       }
     };
 
     window.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       window.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isHiringMode, searchQuery, fetchJobs, fetchMyJobs]);
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+  }, [isHiringMode, fetchMyJobs]);
 
   const handleCreateJob = () => {
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
     if (!user && !token && !authLoading) {
       requireAuth("/jobs/create");
       return;
@@ -103,14 +75,11 @@ const Jobs: React.FC = () => {
   };
 
   const handleApplySuccess = () => {
-    // Refresh jobs to update is_applied status
-    if (!isHiringMode) {
-      fetchJobs(searchQuery);
-    }
+    // Jobs seeker view refetches on its own; no need to refresh here
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
+    <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
       <JobsHeader isHiringMode={isHiringMode} onModeChange={setIsHiringMode} />
 
       {isHiringMode ? (
@@ -119,17 +88,16 @@ const Jobs: React.FC = () => {
           onEditJob={handleEditJob}
           jobs={myJobs}
           isLoading={isLoadingMyJobs}
-          isLoggedIn={!!user || (typeof window !== "undefined" && !!localStorage.getItem("accessToken"))}
+          isLoggedIn={
+            !!user ||
+            (typeof window !== "undefined" &&
+              !!localStorage.getItem("accessToken"))
+          }
         />
       ) : (
-        <>
-          <JobSeekerView
-            jobs={jobs}
-            onApply={handleApply}
-            onSearch={handleSearch}
-            isLoading={isLoading}
-          />
-        </>
+        <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center"><span className="text-slate-500">Loading...</span></div>}>
+          <JobsSeekerContent onApply={handleApply} />
+        </Suspense>
       )}
 
       {selectedJob && (
