@@ -95,3 +95,8 @@ export type WishAndOffer = {
   wishes: Wish[];
   offers: Offer[];
 };
+
+export type ItemType = "WISH" | "OFFER" | "ALL";
+export type CategoryType = "Product" | "Service" | "ALL";
+
+export type ItemWithSource = (Wish | Offer) & { _source: "wish" | "offer" };

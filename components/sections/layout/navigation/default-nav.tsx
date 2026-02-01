@@ -23,7 +23,14 @@ import {
 export function DefaultNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mdmuOpen, setMdmuOpen] = useState(false);
-  const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const moreLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -81,9 +88,11 @@ export function DefaultNav() {
     { label: t("navigation.home"), href: "/" },
     { label: t("navigation.b2bEvents"), href: "/events" },
     { label: t("navigation.wishOffer"), href: "/wishOffer" },
+  ];
+
+  const moreNavItems = [
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
-    { label: "Jobs", href: "/jobs" },
   ];
 
   const mdmuNavItems = [
@@ -93,14 +102,29 @@ export function DefaultNav() {
     { label: "Newsletter", href: "/mdmu/newsletter" },
   ];
   const isMdmuActive = pathname.startsWith("/mdmu");
+  const isMoreActive = pathname === "/contacts" || pathname === "/howtoapply";
 
-  const NavLink = ({ href, label }: { href: string; label: string }) => (
+  const NavLink = ({
+    href,
+    label,
+    mobile,
+  }: {
+    href: string;
+    label: string;
+    mobile?: boolean;
+  }) => (
     <Link
       href={href}
+      onClick={mobile ? () => setMobileOpen(false) : undefined}
       className={`
         text-sm font-medium transition-colors relative whitespace-nowrap
         after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
         after:origin-left after:scale-x-0 after:bg-blue-800 after:transition-transform
+        ${
+          mobile
+            ? "block py-3 text-base active:bg-gray-50 rounded-md px-1 -mx-1"
+            : ""
+        }
         ${
           pathname === href
             ? "text-blue-800 after:scale-x-100"
@@ -115,15 +139,19 @@ export function DefaultNav() {
   return (
     <header
       className={`w-full sticky top-0 z-50 bg-white ${
-        isScrolled ? "shadow-md" : "border-b"
+        isScrolled ? "shadow-sm" : "border-b"
       }`}
     >
       <ResponsiveContainer>
-        <div className="flex h-20 items-center justify-between gap-4">
-          {/* Logo Section */}
-          <div className="flex shrink-0 items-center gap-3">
-            <Link href="/" className="">
-              <img src="/b2blogo.png" alt="Jobbriz" className="h-11 w-auto" />
+        <div className="flex h-14 sm:h-16 lg:h-20 items-center justify-between gap-2 sm:gap-4 min-h-0">
+          {/* Logo Section - responsive size */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 min-w-0">
+            <Link href="/" className="flex items-center shrink-0">
+              <img
+                src="/b2blogo.png"
+                alt="Jobbriz"
+                className="h-7 sm:h-8 md:h-9 lg:h-11 w-auto max-w-[140px] sm:max-w-[180px] object-contain object-left"
+              />
             </Link>
             {/* <Link href="/" className="">
               <img src="/cim-logo.webp" alt="cim" className="h-12 w-auto" />
@@ -132,9 +160,10 @@ export function DefaultNav() {
 
           {/* Center: Nav links (desktop) - flex-1 centers between logo and right */}
           <nav className="hidden lg:flex flex-1 items-center justify-center gap-6 min-w-0">
-            {navItems.slice(0, 5).map((item) => (
+            {navItems.map((item) => (
               <NavLink key={item.href} {...item} />
             ))}
+            <NavLink href="/jobs" label="Jobbriz" />
             <DropdownMenu
               open={mdmuOpen}
               onOpenChange={(open) => {
@@ -203,7 +232,73 @@ export function DefaultNav() {
                 </DropdownMenuContent>
               </div>
             </DropdownMenu>
-            <NavLink href="/jobs" label="Jobs" />
+            <DropdownMenu
+              open={moreOpen}
+              onOpenChange={(open) => {
+                if (!open) setMoreOpen(false);
+              }}
+            >
+              <div
+                className="relative"
+                onMouseEnter={() => {
+                  if (moreLeaveTimeoutRef.current) {
+                    clearTimeout(moreLeaveTimeoutRef.current);
+                    moreLeaveTimeoutRef.current = null;
+                  }
+                  setMoreOpen(true);
+                }}
+                onMouseLeave={() => {
+                  moreLeaveTimeoutRef.current = setTimeout(() => {
+                    setMoreOpen(false);
+                    moreLeaveTimeoutRef.current = null;
+                  }, 150);
+                }}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={`
+                      text-sm font-medium transition-colors relative whitespace-nowrap flex items-center gap-0.5
+                      after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
+                      after:origin-left after:scale-x-0 after:bg-blue-800 after:transition-transform
+                      ${
+                        isMoreActive
+                          ? "text-blue-800 after:scale-x-100"
+                          : "text-gray-600 hover:text-blue-800 after:hover:scale-x-100"
+                      }
+                    `}
+                  >
+                    More
+                    <ChevronDown className="h-4 w-4 opacity-80" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  className="w-48"
+                  onMouseEnter={() => {
+                    if (moreLeaveTimeoutRef.current) {
+                      clearTimeout(moreLeaveTimeoutRef.current);
+                      moreLeaveTimeoutRef.current = null;
+                    }
+                    setMoreOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    moreLeaveTimeoutRef.current = setTimeout(() => {
+                      setMoreOpen(false);
+                      moreLeaveTimeoutRef.current = null;
+                    }, 150);
+                  }}
+                >
+                  {moreNavItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href} className="cursor-pointer">
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </div>
+            </DropdownMenu>
           </nav>
 
           {/* Right: Language, Auth, Create */}
@@ -252,7 +347,9 @@ export function DefaultNav() {
                   <DropdownMenuItem className="flex flex-col items-start">
                     <div className="text-sm font-medium">
                       {(session?.user as any)?.name ||
-                        `${authUser?.first_name || ""} ${authUser?.last_name || ""}`.trim() ||
+                        `${authUser?.first_name || ""} ${
+                          authUser?.last_name || ""
+                        }`.trim() ||
                         authUser?.email}
                     </div>
                     <div className="text-xs text-gray-500">
@@ -313,61 +410,153 @@ export function DefaultNav() {
             </div>
 
             {/* Mobile Menu */}
-            <Sheet>
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="h-6 w-6" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden h-10 w-10 shrink-0"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
-                <nav className="flex flex-col gap-4 mt-8">
+              <SheetContent
+                side="left"
+                className="w-[min(100vw-2rem,320px)] overflow-y-auto"
+              >
+                <nav className="flex flex-col gap-1 mt-6 pb-6">
                   {navItems.map((item) => (
-                    <NavLink key={item.href} {...item} />
+                    <NavLink key={item.href} {...item} mobile />
                   ))}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">MDMU</span>
+                  <NavLink href="/jobs" label="Jobbriz" mobile />
+                  <div className="flex flex-col gap-1 pt-2 mt-2 border-t border-gray-100">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide px-1 mb-1">
+                      MDMU
+                    </span>
                     {mdmuNavItems.map((item) => (
-                      <NavLink key={item.href} href={item.href} label={item.label} />
+                      <NavLink
+                        key={item.href}
+                        href={item.href}
+                        label={item.label}
+                        mobile
+                      />
+                    ))}
+                  </div>
+                  <div className="flex flex-col gap-1 pt-2 mt-2 border-t border-gray-100">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide px-1 mb-1">
+                      More
+                    </span>
+                    {moreNavItems.map((item) => (
+                      <NavLink
+                        key={item.href}
+                        href={item.href}
+                        label={item.label}
+                        mobile
+                      />
                     ))}
                   </div>
                   {/* Language Switcher - Mobile */}
-                  <div className="mt-4">
+                  <div className="pt-4 mt-4 border-t border-gray-100">
                     <LanguageSwitcher />
                   </div>
-                  {/* Mobile Login / Register when not logged in */}
-                  {!currentUser && (
-                    <div className="flex flex-col gap-2 mt-4">
+                  {/* Mobile: Logged-in user section (Profile, Log out) */}
+                  {currentUser && (
+                    <div className="flex flex-col gap-2 pt-4 mt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-3 px-1 py-2 rounded-lg bg-gray-50">
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage
+                            src={(session?.user as any)?.image || "/avatar.png"}
+                            alt=""
+                          />
+                          <AvatarFallback>{getInitial()}</AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {(session?.user as any)?.name ||
+                              `${authUser?.first_name || ""} ${
+                                authUser?.last_name || ""
+                              }`.trim() ||
+                              authUser?.email}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {(session?.user as any)?.email || authUser?.email}
+                          </p>
+                        </div>
+                      </div>
                       <Button
-                        variant="outline"
-                        asChild
-                        className="text-blue-800 border-blue-800"
+                        variant="ghost"
+                        className="justify-start gap-2 h-11 text-gray-700"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          handleProfileClick();
+                        }}
                       >
-                        <Link href="/login">{t("auth.login")}</Link>
+                        <User className="h-4 w-4 shrink-0" />
+                        <span>Profile</span>
                       </Button>
-                      <Button asChild className="bg-blue-800 hover:bg-blue-900">
-                        <Link href="/register">{t("auth.signup")}</Link>
+                      <Button
+                        variant="ghost"
+                        className="justify-start gap-2 h-11 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          handleLogoutClick();
+                        }}
+                      >
+                        <LogOut className="h-4 w-4 shrink-0" />
+                        <span>Log out</span>
                       </Button>
                     </div>
                   )}
-                  {/* Mobile CTA Buttons */}
-                  <div className="flex flex-col gap-3 mt-4">
+                  {/* Mobile Login / Register when not logged in */}
+                  {!currentUser && (
+                    <div className="flex flex-col gap-2 pt-4 mt-4 border-t border-gray-100">
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="h-11 text-blue-800 border-blue-800"
+                      >
+                        <Link
+                          href="/login"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {t("auth.login")}
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        className="h-11 bg-blue-800 hover:bg-blue-900"
+                      >
+                        <Link
+                          href="/register"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {t("auth.signup")}
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                  {/* Mobile CTA Buttons - Create Wish / Create Offer */}
+                  <div className="flex flex-col gap-2 pt-4 mt-4 border-t border-gray-100">
                     <Button
                       variant="outline"
-                      className="flex items-center gap-2 text-blue-800 border-blue-800"
-                      onClick={() =>
-                        navigateWithAuthCheck("/wishOffer/wishes/create-wish")
-                      }
+                      className="flex items-center justify-center gap-2 h-11 text-blue-800 border-blue-800"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        navigateWithAuthCheck("/wishOffer/wishes/create-wish");
+                      }}
                     >
-                      <PlusCircle className="w-4 h-4" />
+                      <PlusCircle className="w-4 h-4 shrink-0" />
                       {t("navigation.makeAWish")} ({t("navigation.buyer")})
                     </Button>
                     <Button
-                      className="flex items-center gap-2 bg-blue-800"
-                      onClick={() =>
-                        navigateWithAuthCheck("/wishOffer/offer/create-offer")
-                      }
+                      className="flex items-center justify-center gap-2 h-11 bg-blue-800 hover:bg-blue-900"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        navigateWithAuthCheck("/wishOffer/offer/create-offer");
+                      }}
                     >
-                      <PlusCircle className="w-4 h-4" />
+                      <PlusCircle className="w-4 h-4 shrink-0" />
                       {t("navigation.makeAnOffer")} ({t("navigation.seller")})
                     </Button>
                   </div>
