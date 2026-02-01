@@ -63,7 +63,7 @@ export function Newsletter() {
   return (
     <ResponsiveContainer className="py-10">
       <div className="bg-gradient-to-r from-[#E0F7FF] p-4 rounded-xl overflow-hidden ">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 ps-6">
           {/* Left Side */}
           <div className="w-full lg:w-1/2 space-y-6 text-center lg:text-left">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
@@ -95,11 +95,11 @@ export function Newsletter() {
           </div>
 
           {/* Right Side */}
-          <div className="w-full lg:w-1/2 flex justify-center">
+          <div className="w-full lg:w-1/3 flex justify-center">
             <img
-              src="/newsletter.svg"
+              src="/b2b.jpg"
               alt="Newsletter Illustration"
-              className="w-full max-w-sm lg:max-w-md"
+              className="w-full max-w-sm lg:max-w-md rounded-lg"
             />
           </div>
         </div>

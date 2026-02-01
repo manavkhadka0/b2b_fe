@@ -84,12 +84,12 @@ export function B2BNetworking() {
           {/* District Images */}
           <div
             id="districts-scroll"
-            className="flex cursor-pointer overflow-x-auto gap-4 scroll-smooth no-scrollbar"
+            className="flex flex-wrap cursor-pointer overflow-x-auto gap-4 scroll-smooth no-scrollbar"
           >
             {districts.map((district) => (
               <div
                 key={district.name}
-                className="relative shrink-0 w-36 h-44 rounded-lg overflow-hidden shadow-md"
+                className="relative shrink-0 w-40 h-44 rounded-lg overflow-hidden shadow-md"
                 onClick={() => router.push(district.link || "")}
               >
                 {/* Image wrapper div with hover effect */}
