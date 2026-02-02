@@ -58,13 +58,19 @@ export function WishOfferContent() {
   }, [selectedCategoryType, productCategories, serviceCategories]);
 
   const filteredItems = useMemo(() => {
+    // 1. Determine Source & Initial List
     const searchResults = swrSearchResults;
-    const wishes = searchResults ? searchResults.wishes : allWishes;
-    const offers = searchResults ? searchResults.offers : allOffers;
+    const isSearching = searchQuery.trim().length > 0;
 
     let items: ItemWithSource[] = [];
 
-    if (selectedType === "ALL") {
+    if (isSearching) {
+      // If Searching: Use search results.
+      // NOTE: Search results are NOT pre-filtered by category from the API,
+      // so we MUST filter them client-side if a category is selected.
+      const wishes = searchResults?.wishes || [];
+      const offers = searchResults?.offers || [];
+
       const taggedWishes: ItemWithSource[] = wishes.map((wish) => ({
         ...wish,
         _source: "wish" as const,
@@ -74,20 +80,38 @@ export function WishOfferContent() {
         _source: "offer" as const,
       }));
       items = [...taggedWishes, ...taggedOffers];
-    } else if (selectedType === "WISH") {
-      items = wishes.map((wish) => ({
-        ...wish,
-        _source: "wish" as const,
-      }));
-    } else if (selectedType === "OFFER") {
-      items = offers.map((offer) => ({
-        ...offer,
-        _source: "offer" as const,
-      }));
+    } else {
+      // If NOT Searching: Use `allWishes` and `allOffers`.
+      // NOTE: These are already filtered by `activeCategoryId` via the API hooks.
+      // So we generally TRUST the API here and do NOT need to re-filter by category
+      // (which avoids issues where client-side filter expects different structure).
+      items = [
+        ...allWishes.map((w) => ({ ...w, _source: "wish" as const })),
+        ...allOffers.map((o) => ({ ...o, _source: "offer" as const })),
+      ];
     }
 
-    if (activeCategoryId) {
+    // 2. Filter by Type (Wishes / Offers / All)
+    if (selectedType === "WISH") {
+      items = items.filter((i) => i._source === "wish");
+    } else if (selectedType === "OFFER") {
+      items = items.filter((i) => i._source === "offer");
+    }
+
+    // 3. Filter by Category (Only needed if Searching)
+    // - If not searching, the API hooks already filtered by `activeCategoryId`.
+    // - If searching, the search API ignores category, so we filter here.
+    if (isSearching && activeCategoryId) {
       items = items.filter((item) => {
+        // Handle new API structure: `subcategory` ID
+        // Using `(item as any)` because types might not reflect this yet
+        // and we want to be robust.
+        const subId = (item as any).subcategory;
+        if (typeof subId === "number") {
+          return subId === activeCategoryId;
+        }
+
+        // Fallback for legacy nested structure
         if (
           "product" in item &&
           item.product?.category?.id === activeCategoryId
@@ -107,7 +131,14 @@ export function WishOfferContent() {
     }
 
     return items;
-  }, [selectedType, activeCategoryId, allWishes, allOffers, swrSearchResults]);
+  }, [
+    selectedType,
+    activeCategoryId,
+    allWishes,
+    allOffers,
+    swrSearchResults,
+    searchQuery,
+  ]);
 
   const clearSearch = () => setSearchQuery("");
 
