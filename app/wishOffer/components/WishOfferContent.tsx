@@ -177,7 +177,6 @@ export function WishOfferContent() {
           aria-hidden="true"
         />
       )}
-
       <aside
         className={`fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 overflow-y-auto overflow-x-hidden py-4 px-4 transition-transform duration-200 ease-out lg:hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -207,7 +206,15 @@ export function WishOfferContent() {
           onFilterClick={closeSidebar}
         />
       </aside>
-
+      <div className="mb-6 sm:mb-8 text-center sm:text-left">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2 py-2">
+          क्रेता बिक्रेता भेट हुने ठाउँ
+        </h1>
+        <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
+          Discover opportunities to connect, trade, and collaborate. Share your
+          wish, discover offers, and seize the best opportunities with ease.
+        </p>
+      </div>
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         <aside className="hidden lg:block w-64 flex-shrink-0 self-start sticky top-24 border-r border-slate-200 pr-6 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
           <SidebarContent
@@ -221,7 +228,6 @@ export function WishOfferContent() {
             onFilterClick={undefined}
           />
         </aside>
-
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
             <h2 className="text-lg font-bold text-slate-900">
@@ -334,7 +340,6 @@ export function WishOfferContent() {
           )}
         </div>
       </div>
-
       {selectedItem && (
         <ItemDetailDialog
           item={selectedItem}
@@ -351,7 +356,6 @@ export function WishOfferContent() {
           }
         />
       )}
-
       {showFormModal && relatedItem && (
         <CreateFormModal
           formType={formType}
