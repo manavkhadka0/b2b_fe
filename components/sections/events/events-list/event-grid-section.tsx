@@ -25,7 +25,7 @@ type EventGridSectionProps = {
 
 export const EventGridSection = ({
   eventsResponse,
-  title = "Upcoming B2B Networking Events",
+  title = "B2B events मा सहभागी हुने ठाउँ",
   subtitle = "Attend the most popular B2B networking events in your area",
   hideAttendButton = false,
 }: EventGridSectionProps) => {
@@ -67,10 +67,7 @@ export const EventGridSection = ({
 
   return (
     <ResponsiveContainer className="space-y-6 py-10 mb-40">
-      <HeaderSubtitle
-        title={title}
-        subtitle={subtitle}
-      />
+      <HeaderSubtitle title={title} subtitle={subtitle} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((event: Event) => (
           <EventCard
