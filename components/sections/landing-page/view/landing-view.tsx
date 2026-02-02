@@ -8,8 +8,8 @@ import WishOfferSection from "../wish-offer-section";
 export default function LandingView() {
   return (
     <>
-      <HeroSection />
       <WishOfferSection />
+      <HeroSection />
       <ObjectivesSection />
       <PlatformFeatures />
       <WishOfferDescription />
