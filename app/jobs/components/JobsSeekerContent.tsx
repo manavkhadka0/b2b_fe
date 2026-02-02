@@ -13,9 +13,11 @@ import { Loader2, X, Search, SlidersHorizontal, FilterX } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { JobCard } from "@/components/jobs/JobCard";
 import { JobsSidebarContent } from "./JobsSidebarContent";
+import { ModeToggle } from "@/components/jobs/ModeToggle";
 
 interface JobsSeekerContentProps {
   onApply: (job: Job) => void;
+  onModeChange?: (isHiring: boolean) => void;
 }
 
 const VALID_LISTING_TIMES: (ListingTimeFilter | "")[] = [
@@ -27,7 +29,10 @@ const VALID_LISTING_TIMES: (ListingTimeFilter | "")[] = [
   "Last 30 days",
 ];
 
-export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
+export function JobsSeekerContent({
+  onApply,
+  onModeChange,
+}: JobsSeekerContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -68,14 +73,14 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
     setSelectedEmploymentType(
       ["All", "Full Time", "Part Time", "Contract", "Internship"].includes(emp)
         ? emp
-        : "All"
+        : "All",
     );
     setSelectedUnitGroupCodes(units);
     setSelectedMinorGroupCodes(minors);
     setListingTime(
       VALID_LISTING_TIMES.includes(lt as ListingTimeFilter | "")
         ? (lt as ListingTimeFilter | "")
-        : ""
+        : "",
     );
     setSalaryMin(smin);
     setSalaryMax(smax);
@@ -123,7 +128,7 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
       minor_groups?: string[],
       listing_time?: ListingTimeFilter,
       salary_min?: string,
-      salary_max?: string
+      salary_max?: string,
     ) => {
       setIsLoading(true);
       try {
@@ -134,7 +139,7 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
           minor_groups && minor_groups.length > 0 ? minor_groups : undefined,
           listing_time || undefined,
           salary_min?.trim() || undefined,
-          salary_max?.trim() || undefined
+          salary_max?.trim() || undefined,
         );
         const transformed = transformJobs(response.results);
         setJobs(transformed);
@@ -145,7 +150,7 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -168,7 +173,7 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
       selectedMinorGroupCodes,
       listingTime || undefined,
       debouncedSalaryMin.trim() || undefined,
-      debouncedSalaryMax.trim() || undefined
+      debouncedSalaryMax.trim() || undefined,
     );
   }, [
     debouncedSearch,
@@ -274,8 +279,19 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <h2 className="text-lg font-bold text-slate-900">Explore Jobs</h2>
+            <div className="mb-6 sm:mb-8 text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2 py-2">
+                Find Your Dream Job
+              </h1>
+              <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
+                Explore opportunities, connect with employers, and take the next
+                step in your career journey.
+              </p>
+            </div>
             <div className="flex items-center gap-2">
+              {onModeChange && (
+                <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+              )}
               <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white min-w-[200px] max-w-[280px]">
                 <Search className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
@@ -344,8 +360,8 @@ export function JobsSeekerContent({ onApply }: JobsSeekerContentProps) {
                   {salaryMin.trim() && salaryMax.trim()
                     ? `${salaryMin.trim()} - ${salaryMax.trim()}`
                     : salaryMin.trim()
-                    ? `Min ${salaryMin.trim()}`
-                    : `Max ${salaryMax.trim()}`}
+                      ? `Min ${salaryMin.trim()}`
+                      : `Max ${salaryMax.trim()}`}
                 </span>
               )}
               <button

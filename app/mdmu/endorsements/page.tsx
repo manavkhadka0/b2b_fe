@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LogoGrid from "@/components/mdmu/mdmu/components/logo/logo-gallery";
+import LogoSlideshow from "@/components/mdmu/mdmu/components/logo/logo-slideshow";
 import {
   LogoItem,
   CompanyLogoResponse,
 } from "@/components/mdmu/mdmu/components/types";
 import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mdmu-form/constants";
 import axios from "axios";
+import Image from "next/image";
 
 export default function LogosPage() {
   const [logos, setLogos] = useState<LogoItem[]>([]);
@@ -48,10 +49,10 @@ export default function LogosPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading logos...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mb-4"></div>
+          <p className="text-gray-600 text-xl font-medium">Loading logos...</p>
         </div>
       </div>
     );
@@ -59,7 +60,7 @@ export default function LogosPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -68,7 +69,7 @@ export default function LogosPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Try Again
           </button>
@@ -79,7 +80,7 @@ export default function LogosPage() {
 
   if (logos.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-gray-400 text-6xl mb-4">📋</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -94,13 +95,20 @@ export default function LogosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-10">
+        <div className="container mx-auto ">
+          <Image
+            src="/mdmu-logo.png"
+            alt=""
+            width={200}
+            height={200}
+            className="mx-auto"
+          />
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-gray-800 relative inline-block">
+            <div className="text-center">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold  text-gray-800 relative inline-block">
                 Champions of Domestic Pride
                 <div className="relative mt-4">
                   <img
@@ -110,23 +118,14 @@ export default function LogosPage() {
                   />
                 </div>
               </h1>
-              <p className="text-lg text-gray-600 mt-6">
-                Discover the diverse range of companies proudly displaying the{" "}
-                <span className="font-semibold text-blue-600">
-                  &quot;Mero Desh Merai Utpadan&quot;
-                </span>{" "}
-                logo, showcasing their commitment to Nepali products.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Logo Gallery Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
-          <LogoGrid logos={logos} />
-        </div>
+      {/* Logo Slideshow Section */}
+      <section className="py-12 md:py-16">
+        <LogoSlideshow logos={logos} slideInterval={5000} />
       </section>
     </div>
   );

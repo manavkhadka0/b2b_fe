@@ -80,20 +80,24 @@ const JobsView: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
-      <JobsHeader isHiringMode={isHiringMode} onModeChange={setIsHiringMode} />
-
       {isHiringMode ? (
-        <EmployerDashboard
-          onCreateJob={handleCreateJob}
-          onEditJob={handleEditJob}
-          jobs={myJobs}
-          isLoading={isLoadingMyJobs}
-          isLoggedIn={
-            !!user ||
-            (typeof window !== "undefined" &&
-              !!localStorage.getItem("accessToken"))
-          }
-        />
+        <>
+          <JobsHeader
+            isHiringMode={isHiringMode}
+            onModeChange={setIsHiringMode}
+          />
+          <EmployerDashboard
+            onCreateJob={handleCreateJob}
+            onEditJob={handleEditJob}
+            jobs={myJobs}
+            isLoading={isLoadingMyJobs}
+            isLoggedIn={
+              !!user ||
+              (typeof window !== "undefined" &&
+                !!localStorage.getItem("accessToken"))
+            }
+          />
+        </>
       ) : (
         <Suspense
           fallback={
@@ -102,7 +106,10 @@ const JobsView: React.FC = () => {
             </div>
           }
         >
-          <JobsSeekerContent onApply={handleApply} />
+          <JobsSeekerContent
+            onApply={handleApply}
+            onModeChange={setIsHiringMode}
+          />
         </Suspense>
       )}
 
