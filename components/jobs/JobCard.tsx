@@ -1,6 +1,18 @@
-import React from 'react';
-import { Job } from '@/types/types';
-import { MapPin, Clock, Banknote, Building2, ChevronRight, Edit, CheckCircle2 } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { Job } from "@/types/types";
+import {
+  MapPin,
+  Clock,
+  Banknote,
+  Building2,
+  ChevronRight,
+  Edit,
+  CheckCircle2,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePathname, useRouter } from "next/navigation";
 
 interface JobCardProps {
   job: Job;
@@ -12,21 +24,32 @@ interface JobCardProps {
   compact?: boolean;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ 
-  job, 
-  onApply, 
+export const JobCard: React.FC<JobCardProps> = ({
+  job,
+  onApply,
   onEdit,
   onClick,
   showApplyButton = true,
   showEditButton = false,
-  compact = false
+  compact = false,
 }) => {
+  const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleCardClick = () => {
     if (onClick) onClick(job);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    if (!user) {
+      const returnTo = encodeURIComponent(pathname);
+      router.push(`/login?returnTo=${returnTo}`);
+      return;
+    }
+
     if (onApply) onApply(job);
   };
 
@@ -41,7 +64,9 @@ export const JobCard: React.FC<JobCardProps> = ({
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}
         onClick={onClick ? handleCardClick : undefined}
-        onKeyDown={onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined}
+        onKeyDown={
+          onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined
+        }
         className={`px-4 py-3 hover:bg-gray-50/50 transition-colors group ${onClick ? "cursor-pointer" : ""}`}
       >
         <div className="flex justify-between items-start gap-3">
@@ -88,7 +113,9 @@ export const JobCard: React.FC<JobCardProps> = ({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick ? handleCardClick : undefined}
-      onKeyDown={onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined}
+      onKeyDown={
+        onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined
+      }
       className={`bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:border-blue-600/30 hover:shadow-md transition-all group ${onClick ? "cursor-pointer" : ""}`}
     >
       <div className="mb-4">
@@ -100,7 +127,7 @@ export const JobCard: React.FC<JobCardProps> = ({
           <span>{job.company}</span>
         </div>
       </div>
-      
+
       <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5" /> {job.location}
@@ -118,9 +145,9 @@ export const JobCard: React.FC<JobCardProps> = ({
           {job.type}
         </span>
         <div className="flex gap-2 flex-wrap min-w-0 flex-1 justify-center">
-          {job.requirements.map(req => (
-            <span 
-              key={req} 
+          {job.requirements.map((req) => (
+            <span
+              key={req}
               className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded text-[10px] text-slate-500 font-medium"
             >
               {req}

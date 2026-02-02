@@ -14,7 +14,9 @@ export const JobsHeader: React.FC<JobsHeaderProps> = ({
     <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
       <div>
         <h1 className="text-base sm:text-4xl lg:text-5xl  font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent break-words py-4">
-          {isHiringMode ? "Employer Dashboard" : "यहाँ काम र कामदार पाइन्छ"}
+          {isHiringMode
+            ? "Employer Dashboard"
+            : "Connecting job seekers with employers"}
         </h1>
         <p className="text-slate-500 mt-2 text-sm max-w-md">
           {isHiringMode

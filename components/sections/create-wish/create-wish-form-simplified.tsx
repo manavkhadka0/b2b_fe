@@ -5,7 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
-import { createWishOfferSimplifiedSchema } from "@/types/schemas/create-wish-schemas";
+import {
+  createWishOfferSimplifiedSchema,
+  createWishOfferSchema,
+} from "@/types/schemas/create-wish-schemas";
 import type {
   CreateWishFormValues,
   ImageUpload,
@@ -19,7 +22,10 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./create-wish-steps/step-indicator";
 import { Step1Type } from "./create-wish-steps/step-1-type";
 import { Step2Details } from "./create-wish-steps/step-2-details";
+import { Step3Company } from "./create-wish-steps/step-3-company";
+import { Step4Personal } from "./create-wish-steps/step-4-personal";
 import { X } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CreateWishFormSimplifiedProps {
   onClose?: () => void;
@@ -34,19 +40,43 @@ export function CreateWishOfferFormSimplified({
 }: CreateWishFormSimplifiedProps) {
   const [image, setImage] = useState<ImageUpload | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+  const [designationPopoverOpen, setDesignationPopoverOpen] = useState(false);
 
-  const STEPS = [
-    {
-      title: "Type",
-      description: `Choose ${
-        is_wish_or_offer === "wishes" ? "wish" : "offer"
-      } type`,
-    },
-    {
-      title: "Review",
-      description: "Review and submit",
-    },
-  ];
+  // Define steps based on auth status
+  const STEPS = user
+    ? [
+        {
+          title: "Type",
+          description: `Choose ${
+            is_wish_or_offer === "wishes" ? "wish" : "offer"
+          } type`,
+        },
+        {
+          title: "Review",
+          description: "Review and submit",
+        },
+      ]
+    : [
+        {
+          title: "Type",
+          description: `Choose ${
+            is_wish_or_offer === "wishes" ? "wish" : "offer"
+          } type`,
+        },
+        {
+          title: "Company",
+          description: "Company information",
+        },
+        {
+          title: "Personal",
+          description: "Personal details",
+        },
+        {
+          title: "Review",
+          description: "Review and submit",
+        },
+      ];
 
   const [productSearchOpen, setProductSearchOpen] = useState(false);
   const [productSearchValue, setProductSearchValue] = useState("");
@@ -75,7 +105,9 @@ export function CreateWishOfferFormSimplified({
   const hasFetchedService = useRef(false);
 
   const form = useForm<CreateWishFormValues>({
-    resolver: zodResolver(createWishOfferSimplifiedSchema),
+    resolver: zodResolver(
+      user ? createWishOfferSimplifiedSchema : createWishOfferSchema,
+    ),
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -94,7 +126,11 @@ export function CreateWishOfferFormSimplified({
   // Fetch service details when service ID is provided in initialValues
   useEffect(() => {
     const serviceId = initialValues?.service;
-    if (serviceId && serviceId.toString().trim() !== "" && !hasFetchedService.current) {
+    if (
+      serviceId &&
+      serviceId.toString().trim() !== "" &&
+      !hasFetchedService.current
+    ) {
       hasFetchedService.current = true;
       const fetchServiceDetails = async () => {
         try {
@@ -105,19 +141,20 @@ export function CreateWishOfferFormSimplified({
           const data = await response.json();
           setServiceDetails(data);
           setSelectedService(data);
-          
+
           // Set subcategory if available
           if (data.subcategory?.id) {
             form.setValue("subcategory", data.subcategory.id.toString());
             setSelectedSubcategory(data.subcategory);
           } else if (data.SubCategory) {
-            const subcategoryId = typeof data.SubCategory === 'number' 
-              ? data.SubCategory.toString() 
-              : (data.SubCategory as SubCategory)?.id?.toString();
+            const subcategoryId =
+              typeof data.SubCategory === "number"
+                ? data.SubCategory.toString()
+                : (data.SubCategory as SubCategory)?.id?.toString();
             if (subcategoryId) {
               form.setValue("subcategory", subcategoryId);
               // Try to find and set the subcategory object
-              if (typeof data.SubCategory === 'object' && data.SubCategory.id) {
+              if (typeof data.SubCategory === "object" && data.SubCategory.id) {
                 setSelectedSubcategory(data.SubCategory as SubCategory);
               }
             }
@@ -165,13 +202,50 @@ export function CreateWishOfferFormSimplified({
   }, [productSearchValue, searchProducts, form.watch("subcategory")]);
 
   const getFieldsForStep = (step: number): (keyof CreateWishFormValues)[] => {
-    switch (step) {
-      case 1:
-        return ["title", "type"];
-      case 2:
-        return ["title", "type"];
-      default:
-        return ["title", "type"];
+    if (user) {
+      // Simplified flow for logged-in users
+      switch (step) {
+        case 1:
+          return ["title", "type"];
+        case 2:
+          return ["title", "type"]; // Review Step validation (basically ensure Step 1 is valid)
+        default:
+          return ["title", "type"];
+      }
+    } else {
+      // Full flow for guests
+      switch (step) {
+        case 1:
+          return ["title", "type"];
+        case 2:
+          return [
+            "company_name",
+            "address",
+            "province",
+            "district",
+            "municipality",
+            "ward",
+          ];
+        case 3:
+          return ["full_name", "designation", "email", "mobile_no"];
+        case 4:
+          return [
+            "title",
+            "type",
+            "company_name",
+            "address",
+            "province",
+            "district",
+            "municipality",
+            "ward",
+            "full_name",
+            "designation",
+            "email",
+            "mobile_no",
+          ];
+        default:
+          return [];
+      }
     }
   };
 
@@ -215,7 +289,11 @@ export function CreateWishOfferFormSimplified({
       });
 
       // Append service name if service ID is present
-      if (data.service && data.service.toString().trim() !== "" && serviceDetails) {
+      if (
+        data.service &&
+        data.service.toString().trim() !== "" &&
+        serviceDetails
+      ) {
         formData.append("service_name", serviceDetails.name);
       }
 
@@ -223,11 +301,15 @@ export function CreateWishOfferFormSimplified({
       if (data.subcategory && data.subcategory.toString().trim() !== "") {
         formData.append("subcategory_id", data.subcategory.toString());
       } else if (serviceDetails?.subcategory?.id) {
-        formData.append("subcategory_id", serviceDetails.subcategory.id.toString());
+        formData.append(
+          "subcategory_id",
+          serviceDetails.subcategory.id.toString(),
+        );
       } else if (serviceDetails?.SubCategory) {
-        const subcategoryId = typeof serviceDetails.SubCategory === 'number' 
-          ? serviceDetails.SubCategory.toString() 
-          : (serviceDetails.SubCategory as SubCategory)?.id?.toString();
+        const subcategoryId =
+          typeof serviceDetails.SubCategory === "number"
+            ? serviceDetails.SubCategory.toString()
+            : (serviceDetails.SubCategory as SubCategory)?.id?.toString();
         if (subcategoryId) {
           formData.append("subcategory_id", subcategoryId);
         }
@@ -276,15 +358,11 @@ export function CreateWishOfferFormSimplified({
       }
     } catch (error) {
       console.error(
-        `Failed to create ${
-          is_wish_or_offer === "wishes" ? "wish" : "offer"
-        }:`,
+        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}:`,
         error,
       );
       toast.error(
-        `Failed to create ${
-          is_wish_or_offer === "wishes" ? "wish" : "offer"
-        }`,
+        `Failed to create ${is_wish_or_offer === "wishes" ? "wish" : "offer"}`,
       );
     } finally {
       setIsSubmitting(false);
@@ -417,21 +495,52 @@ export function CreateWishOfferFormSimplified({
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1Type form={form} is_wish_or_offer={is_wish_or_offer} />;
-      case 2:
-        return (
-          <Step3ReviewSimplified
-            form={form}
-            selectedProduct={selectedProduct}
-            selectedService={selectedService}
-            image={image}
-            is_wish_or_offer={is_wish_or_offer}
-          />
-        );
-      default:
-        return null;
+    if (user) {
+      // Logged-in user flow
+      switch (currentStep) {
+        case 1:
+          return <Step1Type form={form} is_wish_or_offer={is_wish_or_offer} />;
+        case 2:
+          return (
+            <Step3ReviewSimplified
+              form={form}
+              selectedProduct={selectedProduct}
+              selectedService={selectedService}
+              image={image}
+              is_wish_or_offer={is_wish_or_offer}
+            />
+          );
+        default:
+          return null;
+      }
+    } else {
+      // Guest user flow
+      switch (currentStep) {
+        case 1:
+          return <Step1Type form={form} is_wish_or_offer={is_wish_or_offer} />;
+        case 2:
+          return <Step3Company form={form} />;
+        case 3:
+          return (
+            <Step4Personal
+              form={form}
+              designationPopoverOpen={designationPopoverOpen}
+              setDesignationPopoverOpen={setDesignationPopoverOpen}
+            />
+          );
+        case 4:
+          return (
+            <Step3ReviewSimplified
+              form={form}
+              selectedProduct={selectedProduct}
+              selectedService={selectedService}
+              image={image}
+              is_wish_or_offer={is_wish_or_offer}
+            />
+          );
+        default:
+          return null;
+      }
     }
   };
 

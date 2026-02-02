@@ -252,6 +252,7 @@ export function Step2Details({
                 <Popover
                   open={categorySearchOpen}
                   onOpenChange={setCategorySearchOpen}
+                  modal={true}
                 >
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -260,13 +261,13 @@ export function Step2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedCategory?.name ||
                             categories.find(
-                              (c) => c.id.toString() === field.value
+                              (c) => c.id.toString() === field.value,
                             )?.name ||
                             "Select a category"
                           : "Select category..."}
@@ -281,8 +282,8 @@ export function Step2Details({
                         {isLoadingCategories
                           ? "Loading..."
                           : categories.length === 0
-                          ? "No categories available"
-                          : "No categories found."}
+                            ? "No categories available"
+                            : "No categories found."}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
                         {categories.map((category) => (
@@ -300,7 +301,7 @@ export function Step2Details({
                                 "mr-2 h-4 w-4",
                                 category.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">{category.name}</span>
@@ -330,6 +331,7 @@ export function Step2Details({
                   <Popover
                     open={subcategorySearchOpen}
                     onOpenChange={setSubcategorySearchOpen}
+                    modal={true}
                   >
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -338,13 +340,13 @@ export function Step2Details({
                           role="combobox"
                           className={cn(
                             "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
                             ? selectedSubcategory?.name ||
                               subcategories.find(
-                                (sc) => sc.id.toString() === field.value
+                                (sc) => sc.id.toString() === field.value,
                               )?.name ||
                               "Select a subcategory"
                             : "Select subcategory..."}
@@ -362,8 +364,8 @@ export function Step2Details({
                           {isLoadingSubcategories
                             ? "Loading..."
                             : subcategories.length === 0
-                            ? "No subcategories available"
-                            : "No subcategories found."}
+                              ? "No subcategories available"
+                              : "No subcategories found."}
                         </CommandEmpty>
                         <CommandGroup className="max-h-64 overflow-y-auto">
                           {subcategories.map((subcategory) => (
@@ -373,7 +375,7 @@ export function Step2Details({
                               onSelect={() => {
                                 form.setValue(
                                   "subcategory",
-                                  subcategory.id.toString()
+                                  subcategory.id.toString(),
                                 );
                                 setSelectedSubcategory(subcategory);
                                 setSubcategorySearchOpen(false);
@@ -384,7 +386,7 @@ export function Step2Details({
                                   "mr-2 h-4 w-4",
                                   subcategory.id.toString() === field.value
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex flex-col">
@@ -423,6 +425,7 @@ export function Step2Details({
                 <Popover
                   open={productSearchOpen}
                   onOpenChange={setProductSearchOpen}
+                  modal={true}
                 >
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -431,13 +434,13 @@ export function Step2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedProduct?.description ||
                             products.find(
-                              (p) => p.id.toString() === field.value
+                              (p) => p.id.toString() === field.value,
                             )?.description ||
                             "Select a product"
                           : "Search products..."}
@@ -463,11 +466,11 @@ export function Step2Details({
                         localSearchValue.length < 3
                           ? "Type at least 3 characters to search..."
                           : isLoadingProducts
-                          ? "Loading..."
-                          : products.length === 0 &&
-                            localSearchValue.length === 0
-                          ? "Start typing to search..."
-                          : "No products found."}
+                            ? "Loading..."
+                            : products.length === 0 &&
+                                localSearchValue.length === 0
+                              ? "Start typing to search..."
+                              : "No products found."}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
                         {products.map((product) => (
@@ -487,7 +490,7 @@ export function Step2Details({
                                 "mr-2 h-4 w-4",
                                 product.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">
@@ -526,13 +529,13 @@ export function Step2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedCategory?.name ||
                             categories.find(
-                              (c) => c.id.toString() === field.value
+                              (c) => c.id.toString() === field.value,
                             )?.name ||
                             "Select a category"
                           : "Select category..."}
@@ -547,8 +550,8 @@ export function Step2Details({
                         {isLoadingCategories
                           ? "Loading..."
                           : categories.length === 0
-                          ? "No categories available"
-                          : "No categories found."}
+                            ? "No categories available"
+                            : "No categories found."}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
                         {categories.map((category) => (
@@ -566,7 +569,7 @@ export function Step2Details({
                                 "mr-2 h-4 w-4",
                                 category.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">{category.name}</span>
@@ -604,13 +607,13 @@ export function Step2Details({
                           role="combobox"
                           className={cn(
                             "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
                             ? selectedSubcategory?.name ||
                               subcategories.find(
-                                (sc) => sc.id.toString() === field.value
+                                (sc) => sc.id.toString() === field.value,
                               )?.name ||
                               "Select a subcategory"
                             : "Select subcategory..."}
@@ -628,8 +631,8 @@ export function Step2Details({
                           {isLoadingSubcategories
                             ? "Loading..."
                             : subcategories.length === 0
-                            ? "No subcategories available"
-                            : "No subcategories found."}
+                              ? "No subcategories available"
+                              : "No subcategories found."}
                         </CommandEmpty>
                         <CommandGroup className="max-h-64 overflow-y-auto">
                           {subcategories.map((subcategory) => (
@@ -639,7 +642,7 @@ export function Step2Details({
                               onSelect={() => {
                                 form.setValue(
                                   "subcategory",
-                                  subcategory.id.toString()
+                                  subcategory.id.toString(),
                                 );
                                 setSelectedSubcategory(subcategory);
                                 setSubcategorySearchOpen(false);
@@ -650,7 +653,7 @@ export function Step2Details({
                                   "mr-2 h-4 w-4",
                                   subcategory.id.toString() === field.value
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex flex-col">
@@ -689,6 +692,7 @@ export function Step2Details({
                 <Popover
                   open={serviceSearchOpen}
                   onOpenChange={setServiceSearchOpen}
+                  modal={true}
                 >
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -697,13 +701,13 @@ export function Step2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedService?.name ||
                             services.find(
-                              (s) => s.id.toString() === field.value
+                              (s) => s.id.toString() === field.value,
                             )?.name ||
                             "Select a service"
                           : "Select a service"}
@@ -755,7 +759,7 @@ export function Step2Details({
                                 "mr-2 h-4 w-4",
                                 service.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <div className="flex flex-col">
