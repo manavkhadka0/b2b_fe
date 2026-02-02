@@ -74,10 +74,12 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
         {/* Image fixed at top, not scrollable; X overlaid on image */}
         <div className="relative w-full aspect-[16/9] bg-slate-100 shrink-0">
           <Image
-            src={imageUrl || "/noimage.jpg"}
+            src={imageUrl || "/no-image.png"}
             alt={item.title}
             fill
-            className="object-cover"
+            className={
+              imageUrl ? "object-cover" : "object-contain p-4 bg-white"
+            }
           />
           <span className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md bg-white/95 text-slate-700 shadow-sm">
             {isWish ? "Wish" : "Offer"}

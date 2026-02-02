@@ -13,12 +13,9 @@ function formatTimeAgo(createdAt: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
   if (diffSec < 60) return "Just now";
-  if (diffMin < 60)
-    return diffMin === 1 ? "1 min ago" : `${diffMin} min ago`;
-  if (diffHr < 24)
-    return diffHr === 1 ? "1 hr ago" : `${diffHr} hr ago`;
-  if (diffDay < 7)
-    return diffDay === 1 ? "Yesterday" : `${diffDay} days ago`;
+  if (diffMin < 60) return diffMin === 1 ? "1 min ago" : `${diffMin} min ago`;
+  if (diffHr < 24) return diffHr === 1 ? "1 hr ago" : `${diffHr} hr ago`;
+  if (diffDay < 7) return diffDay === 1 ? "Yesterday" : `${diffDay} days ago`;
   return created.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -59,10 +56,10 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     >
       <div className="w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-slate-50 relative">
         <Image
-          src={imageUrl || "/noimage.jpg"}
+          src={imageUrl || "/no-image.png"}
           alt={item.title}
           fill
-          className="object-cover"
+          className={imageUrl ? "object-cover" : "object-contain p-4 bg-white"}
         />
         <span
           className="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm"
