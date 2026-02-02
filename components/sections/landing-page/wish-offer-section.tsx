@@ -28,16 +28,11 @@ export default function WishOfferSection() {
   return (
     <ResponsiveContainer className="py-2 px-2 sm:py-4 sm:px-4 md:py-6 md:px-6 lg:py-10">
       {/* Heading */}
-      {/* <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
-        <h1 className="text-base sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent break-words px-1 sm:p-2">
-          Explore Wishes (क्रेता) and Offers (विक्रेता) to Connect and
-          Collaborate
+      <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+        <h1 className="text-base sm:text-4xl lg:text-5xl  font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent break-words px-1 sm:p-2 text-center">
+          क्रेता बिक्रेता भेट हुने ठाउँ
         </h1>
-        <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 sm:mt-2 break-words px-1 sm:px-0">
-          Share your wish, discover offers, and seize the best opportunities
-          with ease.
-        </p>
-      </div> */}
+      </div>
 
       {/* Display Content */}
       <>
