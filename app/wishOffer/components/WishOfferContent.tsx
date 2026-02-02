@@ -123,7 +123,7 @@ export function WishOfferContent() {
       activeCategoryId
         ? availableCategories.find((c) => c.id === activeCategoryId)
         : null,
-    [activeCategoryId, availableCategories]
+    [activeCategoryId, availableCategories],
   );
 
   const hasActiveFilters =
@@ -146,10 +146,6 @@ export function WishOfferContent() {
         : "Services";
 
   const handleCreateOffer = (wish: Wish) => {
-    if (!isLoggedIn && !authLoading) {
-      requireAuth("/wishOffer");
-      return;
-    }
     setRelatedItem(wish);
     setRelatedItemId(wish.id);
     setFormType("offers");
@@ -157,10 +153,6 @@ export function WishOfferContent() {
   };
 
   const handleCreateWish = (offer: Offer) => {
-    if (!isLoggedIn && !authLoading) {
-      requireAuth("/wishOffer");
-      return;
-    }
     setRelatedItem(offer);
     setRelatedItemId(offer.id);
     setFormType("wishes");

@@ -26,10 +26,10 @@ export function DefaultNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
+    null,
   );
   const moreLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
+    null,
   );
   const router = useRouter();
   const pathname = usePathname();
@@ -388,18 +388,14 @@ export function DefaultNav() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem
-                    onClick={() =>
-                      navigateWithAuthCheck("/wishOffer/wishes/create-wish")
-                    }
+                    onClick={() => router.push("/wishOffer/wishes/create-wish")}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     {t("navigation.makeAWish")} (क्रेता)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      navigateWithAuthCheck("/wishOffer/offer/create-offer")
-                    }
+                    onClick={() => router.push("/wishOffer/offer/create-offer")}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -543,7 +539,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 text-blue-800 border-blue-800"
                       onClick={() => {
                         setMobileOpen(false);
-                        navigateWithAuthCheck("/wishOffer/wishes/create-wish");
+                        router.push("/wishOffer/wishes/create-wish");
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />
@@ -553,7 +549,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 bg-blue-800 hover:bg-blue-900"
                       onClick={() => {
                         setMobileOpen(false);
-                        navigateWithAuthCheck("/wishOffer/offer/create-offer");
+                        router.push("/wishOffer/offer/create-offer");
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />
