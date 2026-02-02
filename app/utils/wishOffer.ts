@@ -3,20 +3,18 @@ import axios from "axios";
 import { Wish, Offer, WishAndOffer } from "@/types/wish";
 import { CategoryResponse } from "@/types/create-wish-type";
 
+import useSWRInfinite from "swr/infinite";
+
 // API Response Types
-type WishResponse = {
-  results: Wish[];
+type PaginatedResponse<T> = {
+  results: T[];
   count: number;
   next: string | null;
   previous: string | null;
 };
 
-type OfferResponse = {
-  results: Offer[];
-  count: number;
-  next: string | null;
-  previous: string | null;
-};
+type WishResponse = PaginatedResponse<Wish>;
+type OfferResponse = PaginatedResponse<Offer>;
 
 // Axios Fetcher for SWR (public, no auth)
 const fetcher = (url: string) =>
@@ -41,38 +39,86 @@ const authFetcher = (url: string) => {
     .then((res) => res.data);
 };
 
-// Custom Hook for Wishes
-export function useWishes(categoryId?: number | null) {
-  const url = categoryId
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/?category_id=${categoryId}`
-    : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
+// Helper to get key for SWR Infinite
+const getGetKey =
+  (baseUrl: string, categoryId?: number | null) =>
+  (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
+    // Reached the end
+    if (previousPageData && !previousPageData.next) return null;
 
-  const { data, error, isLoading, mutate } = useSWR<WishResponse>(url, fetcher);
+    // First page
+    if (pageIndex === 0) {
+      return categoryId ? `${baseUrl}?category_id=${categoryId}` : `${baseUrl}`;
+    }
+
+    // Add cursor/pagination query to next pages
+    // The API returns the full URL in `next`, so use that if available,
+    // or manually construct if offset/limit is needed (API usually gives full next URL).
+    // Fix: Reconstruct URL to avoid CORS/Protocol issues (e.g. http vs https)
+    // We trust our configured baseUrl and just want the pagination params from 'next'
+    if (previousPageData?.next) {
+      try {
+        const nextUrl = new URL(previousPageData.next);
+        return `${baseUrl}${nextUrl.search}`;
+      } catch (e) {
+        // Fallback if next is not a valid URL
+        return previousPageData.next;
+      }
+    }
+
+    return null;
+  };
+
+// Custom Hook for Wishes (Infinite)
+export function useWishes(categoryId?: number | null) {
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
+
+  const { data, error, isLoading, size, setSize, mutate } =
+    useSWRInfinite<WishResponse>(getGetKey(baseUrl, categoryId), fetcher, {
+      revalidateFirstPage: false,
+    });
+
+  // Flatten results
+  const wishes = data ? data.flatMap((page) => page.results) : [];
+  const isEmpty = data?.[0]?.results.length === 0;
+  const isReachingEnd = isEmpty || (data && !data[data.length - 1]?.next);
 
   return {
-    wishes: data?.results || [],
-    isLoading,
+    wishes,
+    isLoading, // Initial loading
+    isLoadingMore:
+      isLoading || (size > 0 && data && typeof data[size - 1] === "undefined"),
+    isReachingEnd,
     mutate,
     error,
+    size,
+    setSize,
   };
 }
 
-// Custom Hook for Offers
+// Custom Hook for Offers (Infinite)
 export function useOffers(categoryId?: number | null) {
-  const url = categoryId
-    ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/?category_id=${categoryId}`
-    : `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
 
-  const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
-    url,
-    fetcher
-  );
+  const { data, error, isLoading, size, setSize, mutate } =
+    useSWRInfinite<OfferResponse>(getGetKey(baseUrl, categoryId), fetcher, {
+      revalidateFirstPage: false,
+    });
+
+  const offers = data ? data.flatMap((page) => page.results) : [];
+  const isEmpty = data?.[0]?.results.length === 0;
+  const isReachingEnd = isEmpty || (data && !data[data.length - 1]?.next);
 
   return {
-    offers: data?.results || [],
+    offers,
     isLoading,
+    isLoadingMore:
+      isLoading || (size > 0 && data && typeof data[size - 1] === "undefined"),
+    isReachingEnd,
     error,
     mutate,
+    size,
+    setSize,
   };
 }
 
@@ -102,10 +148,11 @@ export function useWishOfferCategories() {
 }
 
 // Authenticated hooks for "My" wishes and offers (used in profile)
+// Keeping these as single page for now unless requested, but reusing authFetcher
 export function useMyWishes() {
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    authFetcher
+    authFetcher,
   );
 
   return {
@@ -119,7 +166,7 @@ export function useMyWishes() {
 export function useMyOffers() {
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
-    authFetcher
+    authFetcher,
   );
 
   return {
@@ -133,7 +180,7 @@ export function useMyOffers() {
 export function useWishAndOffer() {
   const { data, isLoading, error, mutate } = useSWR<WishAndOffer>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wish-offers/`,
-    fetcher
+    fetcher,
   );
   return {
     wish_and_offers: data,
@@ -147,7 +194,7 @@ export function useWishAndOffer() {
 export async function getWishes() {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    { headers: { Accept: "application/json" } }
+    { headers: { Accept: "application/json" } },
   );
   const data = await response.json();
   return data.results || [];
@@ -164,13 +211,13 @@ export async function searchWishesOffers(search: string): Promise<{
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/wishes/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
       fetch(
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/offers/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
     ]);
 
@@ -204,7 +251,7 @@ export function useSearchWishesOffers(search: string) {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   return {
@@ -220,7 +267,7 @@ export function useEventWishes(eventSlug: string | null) {
     eventSlug
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/wishes/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {
@@ -237,7 +284,7 @@ export function useEventOffers(eventSlug: string | null) {
     eventSlug
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/offers/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {

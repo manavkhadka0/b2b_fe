@@ -21,6 +21,8 @@ import { SidebarContent } from "./SidebarContent";
 import { ItemCard } from "./ItemCard";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { CreateFormModal } from "./CreateFormModal";
+import { useInView } from "react-intersection-observer"; // Ensure this package is installed or use native
+import { SkeletonCard } from "./SkeletonCard";
 
 export function WishOfferContent() {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
@@ -42,10 +44,55 @@ export function WishOfferContent() {
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
 
-  const { wishes: allWishes, isLoading: wishLoading } =
-    useWishes(activeCategoryId);
-  const { offers: allOffers, isLoading: offerLoading } =
-    useOffers(activeCategoryId);
+  // Infinite Scroll Hooks
+  const {
+    wishes: allWishes,
+    isLoading: wishLoading,
+    isLoadingMore: isWishLoadingMore,
+    size: wishSize,
+    setSize: setWishSize,
+    isReachingEnd: isWishReachingEnd,
+  } = useWishes(activeCategoryId);
+
+  const {
+    offers: allOffers,
+    isLoading: offerLoading,
+    isLoadingMore: isOfferLoadingMore,
+    size: offerSize,
+    setSize: setOfferSize,
+    isReachingEnd: isOfferReachingEnd,
+  } = useOffers(activeCategoryId);
+
+  // Intersection Observer
+  const { ref, inView } = useInView();
+
+  // Load more when scrolled to bottom
+  React.useEffect(() => {
+    if (inView && !searchQuery.trim()) {
+      if (selectedType === "ALL") {
+        if (!isWishReachingEnd && !isWishLoadingMore) setWishSize(wishSize + 1);
+        if (!isOfferReachingEnd && !isOfferLoadingMore)
+          setOfferSize(offerSize + 1);
+      } else if (selectedType === "WISH") {
+        if (!isWishReachingEnd && !isWishLoadingMore) setWishSize(wishSize + 1);
+      } else if (selectedType === "OFFER") {
+        if (!isOfferReachingEnd && !isOfferLoadingMore)
+          setOfferSize(offerSize + 1);
+      }
+    }
+  }, [
+    inView,
+    searchQuery,
+    selectedType,
+    isWishReachingEnd,
+    isOfferReachingEnd,
+    isWishLoadingMore,
+    isOfferLoadingMore,
+    wishSize,
+    offerSize,
+    setWishSize,
+    setOfferSize,
+  ]);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const { results: swrSearchResults, isLoading: swrIsSearching } =
@@ -352,7 +399,7 @@ export function WishOfferContent() {
                 const isWish = item._source === "wish";
                 return (
                   <ItemCard
-                    key={item.id}
+                    key={`${item._source}-${item.id}`} // Ensure unique keys with source
                     item={item}
                     isWish={isWish}
                     onOpen={() => setSelectedItem(item)}
@@ -367,6 +414,23 @@ export function WishOfferContent() {
                   />
                 );
               })}
+
+              {/* Skeleton Loaders for Infinite Scroll */}
+              {(isWishLoadingMore || isOfferLoadingMore) &&
+                Array.from({ length: 3 }).map((_, i) => (
+                  <SkeletonCard key={`skeleton-${i}`} />
+                ))}
+
+              {/* Intersection Observer Target */}
+              {/* Only show if we have more data to load and are not currently loading/searching */}
+              {!searchQuery.trim() && (
+                <div
+                  ref={ref}
+                  className="col-span-1 sm:col-span-2 lg:col-span-3 h-10 flex justify-center items-center"
+                >
+                  {/* Optional: Add a spinner or message here if needed, but skeletons cover loading state */}
+                </div>
+              )}
             </div>
           )}
         </div>
