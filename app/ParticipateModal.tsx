@@ -22,13 +22,6 @@ const ParticipateSection = ({ event }: ParticipateSectionProps) => {
   const pathname = usePathname();
 
   const handleFormSelect = (formType: "wish" | "offer") => {
-    if (!user && !isLoading) {
-      const returnTo = pathname || "/";
-      const encodedReturnTo = encodeURIComponent(returnTo);
-      router.push(`/login?returnTo=${encodedReturnTo}`);
-      return;
-    }
-
     setActiveForm(formType);
     setIsDialogOpen(true);
   };

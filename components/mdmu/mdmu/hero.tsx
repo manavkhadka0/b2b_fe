@@ -14,7 +14,7 @@ export default function Hero() {
 
   return (
     <section className="bg-gradient-to-br min-h-[calc(100vh-130px)] flex flex-col justify-center items-center from-blue-50 to-white py-16">
-      <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+      <div className="max-w-7xl mx-auto  grid md:grid-cols-2 gap-8 items-center">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#0A1E4B]">
             {/* mero desh merei udpadan */}
@@ -54,7 +54,7 @@ export default function Hero() {
           <img
             src="/mdmu-logo.png"
             alt="MDMU Logo"
-            className="w-full max-w-[400px] h-full object-cover"
+            className="w-full max-w-[550px] h-full object-cover"
           />
         </div>
       </div>
