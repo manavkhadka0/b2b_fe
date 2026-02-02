@@ -78,7 +78,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
             alt={item.title}
             fill
             className={
-              imageUrl ? "object-cover" : "object-contain p-4 bg-white"
+              imageUrl ? "object-cover" : "object-contain p-24 bg-white"
             }
           />
           <span className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md bg-white/95 text-slate-700 shadow-sm">

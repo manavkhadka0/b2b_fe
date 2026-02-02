@@ -59,7 +59,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           src={imageUrl || "/no-image.png"}
           alt={item.title}
           fill
-          className={imageUrl ? "object-cover" : "object-contain p-4 bg-white"}
+          className={
+            imageUrl ? "object-cover" : "object-contain p-14 bg-white h-5"
+          }
         />
         <span
           className="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm"
