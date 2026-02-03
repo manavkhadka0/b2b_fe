@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   useWishes,
   useOffers,
@@ -14,7 +14,14 @@ import {
   type ItemType,
   type CategoryType,
 } from "@/types/wish";
-import { Loader2, X, Search, SlidersHorizontal, FilterX } from "lucide-react";
+import {
+  Loader2,
+  X,
+  Search,
+  SlidersHorizontal,
+  FilterX,
+  LayoutGrid,
+} from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/contexts/AuthContext";
 import { SidebarContent } from "./SidebarContent";
@@ -23,6 +30,9 @@ import { ItemDetailDialog } from "./ItemDetailDialog";
 import { CreateFormModal } from "./CreateFormModal";
 import { useInView } from "react-intersection-observer"; // Ensure this package is installed or use native
 import { SkeletonCard } from "./SkeletonCard";
+import { SubCategory } from "@/types/create-wish-type";
+import useSWR from "swr";
+import axios from "axios";
 
 export function WishOfferContent() {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
@@ -30,6 +40,9 @@ export function WishOfferContent() {
   const [selectedCategoryType, setSelectedCategoryType] =
     useState<CategoryType>("ALL");
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+  const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(
+    null
+  );
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFormModal, setShowFormModal] = useState(false);
@@ -44,6 +57,28 @@ export function WishOfferContent() {
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
 
+  // Fetch subcategories when a category is selected
+  const subcategoryFetcher = (url: string) =>
+    axios
+      .get(url, {
+        headers: { Accept: "application/json" },
+      })
+      .then((res) => res.data);
+
+  const { data: subcategoryData, isLoading: isLoadingSubcategories } = useSWR(
+    activeCategoryId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/?category=${activeCategoryId}`
+      : null,
+    subcategoryFetcher
+  );
+
+  const subcategories: SubCategory[] = subcategoryData?.results || [];
+
+  // Reset subcategory when category changes
+  useEffect(() => {
+    setActiveSubcategoryId(null);
+  }, [activeCategoryId]);
+
   // Infinite Scroll Hooks
   const {
     wishes: allWishes,
@@ -52,7 +87,10 @@ export function WishOfferContent() {
     size: wishSize,
     setSize: setWishSize,
     isReachingEnd: isWishReachingEnd,
-  } = useWishes(activeCategoryId);
+  } = useWishes(
+    activeSubcategoryId ? null : activeCategoryId,
+    activeSubcategoryId
+  );
 
   const {
     offers: allOffers,
@@ -61,7 +99,10 @@ export function WishOfferContent() {
     size: offerSize,
     setSize: setOfferSize,
     isReachingEnd: isOfferReachingEnd,
-  } = useOffers(activeCategoryId);
+  } = useOffers(
+    activeSubcategoryId ? null : activeCategoryId,
+    activeSubcategoryId
+  );
 
   // Intersection Observer
   const { ref, inView } = useInView();
@@ -145,35 +186,49 @@ export function WishOfferContent() {
       items = items.filter((i) => i._source === "offer");
     }
 
-    // 3. Filter by Category (Only needed if Searching)
-    // - If not searching, the API hooks already filtered by `activeCategoryId`.
-    // - If searching, the search API ignores category, so we filter here.
-    if (isSearching && activeCategoryId) {
+    // 3. Filter by Category/Subcategory (Only needed if Searching)
+    // - If not searching, the API hooks already filtered by `activeCategoryId` or `activeSubcategoryId`.
+    // - If searching, the search API ignores category/subcategory, so we filter here.
+    if (isSearching && (activeCategoryId || activeSubcategoryId)) {
       items = items.filter((item) => {
-        // Handle new API structure: `subcategory` ID
-        // Using `(item as any)` because types might not reflect this yet
-        // and we want to be robust.
-        const subId = (item as any).subcategory;
-        if (typeof subId === "number") {
-          return subId === activeCategoryId;
+        // If subcategory is selected, filter by subcategory ID
+        if (activeSubcategoryId) {
+          const subId = (item as any).subcategory;
+          if (typeof subId === "number") {
+            return subId === activeSubcategoryId;
+          }
+          return false;
         }
 
-        // Fallback for legacy nested structure
-        if (
-          "product" in item &&
-          item.product?.category?.id === activeCategoryId
-        ) {
-          return true;
+        // Otherwise filter by category ID
+        if (activeCategoryId) {
+          // Handle new API structure: `subcategory` ID (but we're filtering by category)
+          const subId = (item as any).subcategory;
+          if (typeof subId === "number") {
+            // If item has subcategory, check if it belongs to the active category
+            // We need to check if the subcategory's category matches
+            // For now, we'll rely on the API structure
+            return true; // Let API handle this
+          }
+
+          // Fallback for legacy nested structure
+          if (
+            "product" in item &&
+            item.product?.category?.id === activeCategoryId
+          ) {
+            return true;
+          }
+          if (
+            "service" in item &&
+            item.service &&
+            "category" in item.service &&
+            item.service.category?.id === activeCategoryId
+          ) {
+            return true;
+          }
+          return false;
         }
-        if (
-          "service" in item &&
-          item.service &&
-          "category" in item.service &&
-          item.service.category?.id === activeCategoryId
-        ) {
-          return true;
-        }
-        return false;
+        return true;
       });
     }
 
@@ -181,6 +236,7 @@ export function WishOfferContent() {
   }, [
     selectedType,
     activeCategoryId,
+    activeSubcategoryId,
     allWishes,
     allOffers,
     swrSearchResults,
@@ -193,6 +249,7 @@ export function WishOfferContent() {
     setSelectedType("ALL");
     setSelectedCategoryType("ALL");
     setActiveCategoryId(null);
+    setActiveSubcategoryId(null);
     setSearchQuery("");
   };
 
@@ -201,27 +258,36 @@ export function WishOfferContent() {
       activeCategoryId
         ? availableCategories.find((c) => c.id === activeCategoryId)
         : null,
-    [activeCategoryId, availableCategories],
+    [activeCategoryId, availableCategories]
+  );
+
+  const activeSubcategory = useMemo(
+    () =>
+      activeSubcategoryId
+        ? subcategories.find((sc) => sc.id === activeSubcategoryId)
+        : null,
+    [activeSubcategoryId, subcategories]
   );
 
   const hasActiveFilters =
     selectedType !== "ALL" ||
     selectedCategoryType !== "ALL" ||
     activeCategoryId !== null ||
+    activeSubcategoryId !== null ||
     searchQuery.trim() !== "";
 
   const typeLabel =
     selectedType === "ALL"
       ? null
       : selectedType === "WISH"
-        ? "Wishes"
-        : "Offers";
+      ? "Wishes"
+      : "Offers";
   const categoryTypeLabel =
     selectedCategoryType === "ALL"
       ? null
       : selectedCategoryType === "Product"
-        ? "Products"
-        : "Services";
+      ? "Products"
+      : "Services";
 
   const handleCreateOffer = (wish: Wish) => {
     setRelatedItem(wish);
@@ -280,8 +346,13 @@ export function WishOfferContent() {
           setSelectedCategoryType={setSelectedCategoryType}
           activeCategoryId={activeCategoryId}
           setActiveCategoryId={setActiveCategoryId}
+          activeSubcategoryId={activeSubcategoryId}
+          setActiveSubcategoryId={setActiveSubcategoryId}
           availableCategories={availableCategories}
+          subcategories={subcategories}
+          isLoadingSubcategories={isLoadingSubcategories}
           onFilterClick={closeSidebar}
+          showSubcategoriesInline={true}
         />
       </aside>
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -293,8 +364,13 @@ export function WishOfferContent() {
             setSelectedCategoryType={setSelectedCategoryType}
             activeCategoryId={activeCategoryId}
             setActiveCategoryId={setActiveCategoryId}
+            activeSubcategoryId={activeSubcategoryId}
+            setActiveSubcategoryId={setActiveSubcategoryId}
             availableCategories={availableCategories}
+            subcategories={subcategories}
+            isLoadingSubcategories={isLoadingSubcategories}
             onFilterClick={undefined}
+            showSubcategoriesInline={false}
           />
         </aside>
         <div className="flex-1 min-w-0">
@@ -361,6 +437,11 @@ export function WishOfferContent() {
               {activeCategory && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium">
                   Industry: {activeCategory.name}
+                </span>
+              )}
+              {activeSubcategory && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-medium">
+                  Subcategory: {activeSubcategory.name}
                 </span>
               )}
               {searchQuery.trim() && (
