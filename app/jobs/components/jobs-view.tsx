@@ -79,7 +79,7 @@ const JobsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
+    <div className="max-w-7xl mx-auto px-8 min-h-screen">
       {isHiringMode ? (
         <>
           <JobsHeader
