@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   LayoutGrid,
   Briefcase,
@@ -70,6 +70,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [isIndustriesOpen, setIsIndustriesOpen] = useState(true);
   const [isEventsOpen, setIsEventsOpen] = useState(true);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const wrap = (fn: () => void) => () => {
     fn();
@@ -112,6 +113,58 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
     setOpenDropdownId(null); // Close dropdown after selection
     onFilterClick?.();
   };
+
+  const handleCategoryHover = (categoryId: number) => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+
+    const categorySubcategories = subcategories.filter(
+      (sc) => sc.category === categoryId
+    );
+
+    if (categorySubcategories.length > 0) {
+      // Set category as active if not already active
+      if (activeCategoryId !== categoryId) {
+        setActiveCategoryId(categoryId);
+        setActiveSubcategoryId(null);
+      }
+      // Open dropdown
+      setOpenDropdownId(categoryId);
+    }
+  };
+
+  const handleCategoryLeave = () => {
+    // Delay closing to allow moving to dropdown content
+    hoverTimeoutRef.current = setTimeout(() => {
+      setOpenDropdownId(null);
+      hoverTimeoutRef.current = null;
+    }, 200);
+  };
+
+  const handleDropdownEnter = () => {
+    // Clear timeout when entering dropdown
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  const handleDropdownLeave = () => {
+    // Close dropdown when leaving
+    setOpenDropdownId(null);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -209,14 +262,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                         key={cat.id}
                         open={isDropdownOpen}
                         onOpenChange={(open) => {
-                          if (open) {
-                            // When opening, set the category as active first
-                            if (!isCategoryActive) {
-                              handleCategoryClick(cat.id);
-                            } else {
-                              setOpenDropdownId(cat.id);
-                            }
-                          } else {
+                          // Only handle programmatic changes, hover handles the rest
+                          if (!open) {
                             setOpenDropdownId(null);
                           }
                         }}
@@ -225,14 +272,31 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                           <button
                             onClick={() => {
                               if (!hasSubcategories) {
+                                // For categories without subcategories, toggle active state
                                 wrap(() => handleCategoryClick(cat.id))();
                               } else {
-                                // For categories with subcategories, the dropdown handles the click
-                                if (!isCategoryActive) {
-                                  handleCategoryClick(cat.id);
+                                // For categories with subcategories, just toggle active state
+                                // Hover will handle opening/closing the dropdown
+                                if (isCategoryActive) {
+                                  wrap(() => {
+                                    setActiveCategoryId(null);
+                                    setActiveSubcategoryId(null);
+                                    setOpenDropdownId(null);
+                                  })();
+                                } else {
+                                  wrap(() => {
+                                    setActiveCategoryId(cat.id);
+                                    setActiveSubcategoryId(null);
+                                  })();
                                 }
                               }
                             }}
+                            onMouseEnter={() => {
+                              if (hasSubcategories) {
+                                handleCategoryHover(cat.id);
+                              }
+                            }}
+                            onMouseLeave={handleCategoryLeave}
                             className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                               isCategoryActive
                                 ? "bg-slate-100 text-slate-900"
@@ -251,6 +315,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                             side="right"
                             className="w-56"
                             onCloseAutoFocus={(e) => e.preventDefault()}
+                            onMouseEnter={handleDropdownEnter}
+                            onMouseLeave={handleDropdownLeave}
                           >
                             {isLoadingSubcategories ? (
                               <div className="flex items-center justify-center py-4">
