@@ -2,12 +2,13 @@
 
 import React, { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { JobsHeader, EmployerDashboard, ApplyDialog } from "@/components/jobs";
+import { ApplyDialog } from "@/components/jobs";
 import { getMyJobs } from "@/services/jobs";
 import { Job } from "@/types/types";
 import { transformJobs } from "@/utils/jobTransform";
 import { useAuth } from "@/contexts/AuthContext";
-import { JobsSeekerContent } from "./JobsSeekerContent";
+import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
+import { EmployerContent } from "@/components/jobs/EmployerContent";
 
 const JobsView: React.FC = () => {
   const router = useRouter();
@@ -79,14 +80,16 @@ const JobsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 min-h-screen">
+    <div className="max-w-7xl mx-auto min-h-screen">
       {isHiringMode ? (
-        <>
-          <JobsHeader
-            isHiringMode={isHiringMode}
-            onModeChange={setIsHiringMode}
-          />
-          <EmployerDashboard
+        <Suspense
+          fallback={
+            <div className="min-h-[400px] flex items-center justify-center">
+              <span className="text-slate-500">Loading...</span>
+            </div>
+          }
+        >
+          <EmployerContent
             onCreateJob={handleCreateJob}
             onEditJob={handleEditJob}
             jobs={myJobs}
@@ -96,8 +99,9 @@ const JobsView: React.FC = () => {
               (typeof window !== "undefined" &&
                 !!localStorage.getItem("accessToken"))
             }
+            onModeChange={setIsHiringMode}
           />
-        </>
+        </Suspense>
       ) : (
         <Suspense
           fallback={

@@ -20,14 +20,15 @@ import {
   type SearchGroupResponse,
 } from "@/services/jobs";
 
-const LISTING_TIME_OPTIONS: { value: ListingTimeFilter | ""; label: string }[] = [
-  { value: "", label: "Any time" },
-  { value: "Last 24 hours", label: "Last 24 hours" },
-  { value: "Last 3 days", label: "Last 3 days" },
-  { value: "Last 7 days", label: "Last 7 days" },
-  { value: "Last 14 days", label: "Last 14 days" },
-  { value: "Last 30 days", label: "Last 30 days" },
-];
+const LISTING_TIME_OPTIONS: { value: ListingTimeFilter | ""; label: string }[] =
+  [
+    { value: "", label: "Any time" },
+    { value: "Last 24 hours", label: "Last 24 hours" },
+    { value: "Last 3 days", label: "Last 3 days" },
+    { value: "Last 7 days", label: "Last 7 days" },
+    { value: "Last 14 days", label: "Last 14 days" },
+    { value: "Last 30 days", label: "Last 30 days" },
+  ];
 
 export type JobsSidebarContentProps = {
   selectedEmploymentType: EmploymentTypeFilter;
@@ -253,9 +254,7 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
                         key={group.code}
                         label={`${group.code} · ${group.title}`}
                         isActive={selectedMinorGroupCodes.includes(group.code)}
-                        onClick={wrap(() =>
-                          handleMinorGroupToggle(group.code)
-                        )}
+                        onClick={wrap(() => handleMinorGroupToggle(group.code))}
                       />
                     ))}
                   </div>

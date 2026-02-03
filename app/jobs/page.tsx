@@ -1,4 +1,4 @@
-import JobsView from "./components/jobs-view";
+import JobsView from "@/components/jobs/JobsView";
 
 export default function JobsPage() {
   return <JobsView />;
