@@ -7,9 +7,11 @@ import {
   Zap,
   Loader2,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { FilterOption } from "./FilterOption";
 import { Category, SubCategory } from "@/types/create-wish-type";
+import { Event } from "@/types/events";
 import type { ItemType, CategoryType } from "@/types/wish";
 import {
   DropdownMenu,
@@ -20,6 +22,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export type SidebarContentProps = {
   selectedType: ItemType;
@@ -30,9 +37,13 @@ export type SidebarContentProps = {
   setActiveCategoryId: (id: number | null) => void;
   activeSubcategoryId: number | null;
   setActiveSubcategoryId: (id: number | null) => void;
+  activeEventSlug: string | null;
+  setActiveEventSlug: (slug: string | null) => void;
   availableCategories: Category[];
   subcategories: SubCategory[];
   isLoadingSubcategories: boolean;
+  events: Event[];
+  isLoadingEvents: boolean;
   onFilterClick?: () => void;
   showSubcategoriesInline?: boolean;
 };
@@ -46,13 +57,19 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   setActiveCategoryId,
   activeSubcategoryId,
   setActiveSubcategoryId,
+  activeEventSlug,
+  setActiveEventSlug,
   availableCategories,
   subcategories,
   isLoadingSubcategories,
+  events,
+  isLoadingEvents,
   onFilterClick,
   showSubcategoriesInline = true,
 }) => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [isIndustriesOpen, setIsIndustriesOpen] = useState(true);
+  const [isEventsOpen, setIsEventsOpen] = useState(true);
 
   const wrap = (fn: () => void) => () => {
     fn();
@@ -158,120 +175,175 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           </div>
         </div>
         {availableCategories.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm">
-              <LayoutGrid className="w-4 h-4 text-slate-500" />
-              <span>Industries</span>
-            </div>
-            <div className="space-y-0.5">
-              <FilterOption
-                label="All Industries"
-                isActive={activeCategoryId === null}
-                onClick={wrap(() => handleCategoryClick(null))}
-              />
-              {availableCategories.map((cat) => {
-                const categorySubcategories = subcategories.filter(
-                  (sc) => sc.category === cat.id
-                );
-                const hasSubcategories = categorySubcategories.length > 0;
-                const isCategoryActive = activeCategoryId === cat.id;
-                const isDropdownOpen = openDropdownId === cat.id;
+          <Collapsible
+            open={isIndustriesOpen}
+            onOpenChange={setIsIndustriesOpen}
+          >
+            <div>
+              <CollapsibleTrigger className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm w-full hover:opacity-80 transition-opacity">
+                <LayoutGrid className="w-4 h-4 text-slate-500" />
+                <span className="flex-1 text-left">Industries</span>
+                {isIndustriesOpen ? (
+                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-slate-500" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="space-y-0.5">
+                  <FilterOption
+                    label="All Industries"
+                    isActive={activeCategoryId === null}
+                    onClick={wrap(() => handleCategoryClick(null))}
+                  />
+                  {availableCategories.map((cat) => {
+                    const categorySubcategories = subcategories.filter(
+                      (sc) => sc.category === cat.id
+                    );
+                    const hasSubcategories = categorySubcategories.length > 0;
+                    const isCategoryActive = activeCategoryId === cat.id;
+                    const isDropdownOpen = openDropdownId === cat.id;
 
-                return (
-                  <DropdownMenu
-                    key={cat.id}
-                    open={isDropdownOpen}
-                    onOpenChange={(open) => {
-                      if (open) {
-                        // When opening, set the category as active first
-                        if (!isCategoryActive) {
-                          handleCategoryClick(cat.id);
-                        } else {
-                          setOpenDropdownId(cat.id);
-                        }
-                      } else {
-                        setOpenDropdownId(null);
-                      }
-                    }}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        onClick={() => {
-                          if (!hasSubcategories) {
-                            wrap(() => handleCategoryClick(cat.id))();
-                          } else {
-                            // For categories with subcategories, the dropdown handles the click
+                    return (
+                      <DropdownMenu
+                        key={cat.id}
+                        open={isDropdownOpen}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            // When opening, set the category as active first
                             if (!isCategoryActive) {
                               handleCategoryClick(cat.id);
+                            } else {
+                              setOpenDropdownId(cat.id);
                             }
+                          } else {
+                            setOpenDropdownId(null);
                           }
                         }}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                          isCategoryActive
-                            ? "bg-slate-100 text-slate-900"
-                            : "text-slate-600 hover:bg-slate-50"
-                        }`}
                       >
-                        <span className="flex-1 text-left">{cat.name}</span>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            onClick={() => {
+                              if (!hasSubcategories) {
+                                wrap(() => handleCategoryClick(cat.id))();
+                              } else {
+                                // For categories with subcategories, the dropdown handles the click
+                                if (!isCategoryActive) {
+                                  handleCategoryClick(cat.id);
+                                }
+                              }
+                            }}
+                            className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                              isCategoryActive
+                                ? "bg-slate-100 text-slate-900"
+                                : "text-slate-600 hover:bg-slate-50"
+                            }`}
+                          >
+                            <span className="flex-1 text-left">{cat.name}</span>
+                            {hasSubcategories && (
+                              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                            )}
+                          </button>
+                        </DropdownMenuTrigger>
                         {hasSubcategories && (
-                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                          <DropdownMenuContent
+                            align="start"
+                            side="right"
+                            className="w-56"
+                            onCloseAutoFocus={(e) => e.preventDefault()}
+                          >
+                            {isLoadingSubcategories ? (
+                              <div className="flex items-center justify-center py-4">
+                                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                              </div>
+                            ) : categorySubcategories.length === 0 ? (
+                              <div className="px-2 py-1.5 text-sm text-slate-500">
+                                No subcategories
+                              </div>
+                            ) : (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={wrap(() => {
+                                    setActiveSubcategoryId(null);
+                                    setOpenDropdownId(null);
+                                  })}
+                                  className={`cursor-pointer ${
+                                    activeSubcategoryId === null &&
+                                    isCategoryActive
+                                      ? "bg-slate-100"
+                                      : ""
+                                  }`}
+                                >
+                                  All Subcategories
+                                </DropdownMenuItem>
+                                {categorySubcategories.map((subcat) => (
+                                  <DropdownMenuItem
+                                    key={subcat.id}
+                                    onClick={wrap(() => {
+                                      handleSubcategoryClick(subcat.id);
+                                    })}
+                                    className={`cursor-pointer ${
+                                      activeSubcategoryId === subcat.id
+                                        ? "bg-slate-100"
+                                        : ""
+                                    }`}
+                                  >
+                                    {subcat.name}
+                                  </DropdownMenuItem>
+                                ))}
+                              </>
+                            )}
+                          </DropdownMenuContent>
                         )}
-                      </button>
-                    </DropdownMenuTrigger>
-                    {hasSubcategories && (
-                      <DropdownMenuContent
-                        align="start"
-                        side="right"
-                        className="w-56"
-                        onCloseAutoFocus={(e) => e.preventDefault()}
-                      >
-                        {isLoadingSubcategories ? (
-                          <div className="flex items-center justify-center py-4">
-                            <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                          </div>
-                        ) : categorySubcategories.length === 0 ? (
-                          <div className="px-2 py-1.5 text-sm text-slate-500">
-                            No subcategories
-                          </div>
-                        ) : (
-                          <>
-                            <DropdownMenuItem
-                              onClick={wrap(() => {
-                                setActiveSubcategoryId(null);
-                                setOpenDropdownId(null);
-                              })}
-                              className={`cursor-pointer ${
-                                activeSubcategoryId === null && isCategoryActive
-                                  ? "bg-slate-100"
-                                  : ""
-                              }`}
-                            >
-                              All Subcategories
-                            </DropdownMenuItem>
-                            {categorySubcategories.map((subcat) => (
-                              <DropdownMenuItem
-                                key={subcat.id}
-                                onClick={wrap(() => {
-                                  handleSubcategoryClick(subcat.id);
-                                })}
-                                className={`cursor-pointer ${
-                                  activeSubcategoryId === subcat.id
-                                    ? "bg-slate-100"
-                                    : ""
-                                }`}
-                              >
-                                {subcat.name}
-                              </DropdownMenuItem>
-                            ))}
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    )}
-                  </DropdownMenu>
-                );
-              })}
+                      </DropdownMenu>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
             </div>
-          </div>
+          </Collapsible>
+        )}
+        {events.length > 0 && (
+          <Collapsible open={isEventsOpen} onOpenChange={setIsEventsOpen}>
+            <div>
+              <CollapsibleTrigger className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm w-full hover:opacity-80 transition-opacity">
+                <LayoutGrid className="w-4 h-4 text-slate-500" />
+                <span className="flex-1 text-left">Events</span>
+                {isEventsOpen ? (
+                  <ChevronDown className="w-4 h-4 text-slate-500" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-slate-500" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="space-y-0.5">
+                  <FilterOption
+                    label="All Events"
+                    isActive={activeEventSlug === null}
+                    onClick={wrap(() => setActiveEventSlug(null))}
+                  />
+                  {isLoadingEvents ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                    </div>
+                  ) : (
+                    events.map((event) => (
+                      <FilterOption
+                        key={event.id}
+                        label={event.title}
+                        isActive={activeEventSlug === event.slug}
+                        onClick={wrap(() =>
+                          setActiveEventSlug(
+                            activeEventSlug === event.slug ? null : event.slug
+                          )
+                        )}
+                      />
+                    ))
+                  )}
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         )}
       </div>
 

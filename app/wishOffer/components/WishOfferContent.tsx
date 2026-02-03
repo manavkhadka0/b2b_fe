@@ -31,6 +31,8 @@ import { CreateFormModal } from "./CreateFormModal";
 import { useInView } from "react-intersection-observer"; // Ensure this package is installed or use native
 import { SkeletonCard } from "./SkeletonCard";
 import { SubCategory } from "@/types/create-wish-type";
+import { Event } from "@/types/events";
+import { getEvents } from "@/services/events";
 import useSWR from "swr";
 import axios from "axios";
 
@@ -43,6 +45,7 @@ export function WishOfferContent() {
   const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(
     null
   );
+  const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFormModal, setShowFormModal] = useState(false);
@@ -74,6 +77,17 @@ export function WishOfferContent() {
 
   const subcategories: SubCategory[] = subcategoryData?.results || [];
 
+  // Fetch events
+  const eventFetcher = async () => {
+    const response = await getEvents("1");
+    return response.results || [];
+  };
+
+  const { data: events, isLoading: isLoadingEvents } = useSWR<Event[]>(
+    "wishOfferEvents",
+    eventFetcher
+  );
+
   // Reset subcategory when category changes
   useEffect(() => {
     setActiveSubcategoryId(null);
@@ -89,7 +103,8 @@ export function WishOfferContent() {
     isReachingEnd: isWishReachingEnd,
   } = useWishes(
     activeSubcategoryId ? null : activeCategoryId,
-    activeSubcategoryId
+    activeSubcategoryId,
+    activeEventSlug
   );
 
   const {
@@ -101,7 +116,8 @@ export function WishOfferContent() {
     isReachingEnd: isOfferReachingEnd,
   } = useOffers(
     activeSubcategoryId ? null : activeCategoryId,
-    activeSubcategoryId
+    activeSubcategoryId,
+    activeEventSlug
   );
 
   // Intersection Observer
@@ -186,11 +202,24 @@ export function WishOfferContent() {
       items = items.filter((i) => i._source === "offer");
     }
 
-    // 3. Filter by Category/Subcategory (Only needed if Searching)
-    // - If not searching, the API hooks already filtered by `activeCategoryId` or `activeSubcategoryId`.
-    // - If searching, the search API ignores category/subcategory, so we filter here.
-    if (isSearching && (activeCategoryId || activeSubcategoryId)) {
+    // 3. Filter by Category/Subcategory/Event (Only needed if Searching)
+    // - If not searching, the API hooks already filtered by `activeCategoryId`, `activeSubcategoryId`, or `activeEventSlug`.
+    // - If searching, the search API ignores these filters, so we filter here.
+    if (
+      isSearching &&
+      (activeCategoryId || activeSubcategoryId || activeEventSlug)
+    ) {
       items = items.filter((item) => {
+        // If event is selected, filter by event slug
+        if (activeEventSlug) {
+          const eventSlug =
+            (item as any).event_slug || (item as any).event?.slug;
+          if (eventSlug) {
+            return eventSlug === activeEventSlug;
+          }
+          return false;
+        }
+
         // If subcategory is selected, filter by subcategory ID
         if (activeSubcategoryId) {
           const subId = (item as any).subcategory;
@@ -237,6 +266,7 @@ export function WishOfferContent() {
     selectedType,
     activeCategoryId,
     activeSubcategoryId,
+    activeEventSlug,
     allWishes,
     allOffers,
     swrSearchResults,
@@ -250,6 +280,7 @@ export function WishOfferContent() {
     setSelectedCategoryType("ALL");
     setActiveCategoryId(null);
     setActiveSubcategoryId(null);
+    setActiveEventSlug(null);
     setSearchQuery("");
   };
 
@@ -269,11 +300,18 @@ export function WishOfferContent() {
     [activeSubcategoryId, subcategories]
   );
 
+  const activeEvent = useMemo(
+    () =>
+      activeEventSlug ? events?.find((e) => e.slug === activeEventSlug) : null,
+    [activeEventSlug, events]
+  );
+
   const hasActiveFilters =
     selectedType !== "ALL" ||
     selectedCategoryType !== "ALL" ||
     activeCategoryId !== null ||
     activeSubcategoryId !== null ||
+    activeEventSlug !== null ||
     searchQuery.trim() !== "";
 
   const typeLabel =
@@ -348,9 +386,13 @@ export function WishOfferContent() {
           setActiveCategoryId={setActiveCategoryId}
           activeSubcategoryId={activeSubcategoryId}
           setActiveSubcategoryId={setActiveSubcategoryId}
+          activeEventSlug={activeEventSlug}
+          setActiveEventSlug={setActiveEventSlug}
           availableCategories={availableCategories}
           subcategories={subcategories}
           isLoadingSubcategories={isLoadingSubcategories}
+          events={events || []}
+          isLoadingEvents={isLoadingEvents}
           onFilterClick={closeSidebar}
           showSubcategoriesInline={true}
         />
@@ -366,9 +408,13 @@ export function WishOfferContent() {
             setActiveCategoryId={setActiveCategoryId}
             activeSubcategoryId={activeSubcategoryId}
             setActiveSubcategoryId={setActiveSubcategoryId}
+            activeEventSlug={activeEventSlug}
+            setActiveEventSlug={setActiveEventSlug}
             availableCategories={availableCategories}
             subcategories={subcategories}
             isLoadingSubcategories={isLoadingSubcategories}
+            events={events || []}
+            isLoadingEvents={isLoadingEvents}
             onFilterClick={undefined}
             showSubcategoriesInline={false}
           />
@@ -442,6 +488,11 @@ export function WishOfferContent() {
               {activeSubcategory && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 text-xs font-medium">
                   Subcategory: {activeSubcategory.name}
+                </span>
+              )}
+              {activeEvent && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-100 text-green-800 text-xs font-medium">
+                  Event: {activeEvent.title}
                 </span>
               )}
               {searchQuery.trim() && (

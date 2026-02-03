@@ -44,7 +44,8 @@ const getGetKey =
   (
     baseUrl: string,
     categoryId?: number | null,
-    subcategoryId?: number | null
+    subcategoryId?: number | null,
+    eventSlug?: string | null
   ) =>
   (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
     // Reached the end
@@ -57,6 +58,9 @@ const getGetKey =
         params.append("subcategory_id", subcategoryId.toString());
       } else if (categoryId) {
         params.append("category_id", categoryId.toString());
+      }
+      if (eventSlug) {
+        params.append("event_slug", eventSlug);
       }
       const queryString = params.toString();
       return queryString ? `${baseUrl}?${queryString}` : `${baseUrl}`;
@@ -83,13 +87,14 @@ const getGetKey =
 // Custom Hook for Wishes (Infinite)
 export function useWishes(
   categoryId?: number | null,
-  subcategoryId?: number | null
+  subcategoryId?: number | null,
+  eventSlug?: string | null
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
 
   const { data, error, isLoading, size, setSize, mutate } =
     useSWRInfinite<WishResponse>(
-      getGetKey(baseUrl, categoryId, subcategoryId),
+      getGetKey(baseUrl, categoryId, subcategoryId, eventSlug),
       fetcher,
       {
         revalidateFirstPage: false,
@@ -117,13 +122,14 @@ export function useWishes(
 // Custom Hook for Offers (Infinite)
 export function useOffers(
   categoryId?: number | null,
-  subcategoryId?: number | null
+  subcategoryId?: number | null,
+  eventSlug?: string | null
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
 
   const { data, error, isLoading, size, setSize, mutate } =
     useSWRInfinite<OfferResponse>(
-      getGetKey(baseUrl, categoryId, subcategoryId),
+      getGetKey(baseUrl, categoryId, subcategoryId, eventSlug),
       fetcher,
       {
         revalidateFirstPage: false,
