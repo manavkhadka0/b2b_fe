@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getJobBySlug } from "@/services/jobs";
 import { ApplyDialog, JobsHeader } from "@/components/jobs";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface JobDetailResponse {
@@ -106,6 +107,8 @@ export default function JobDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [pendingApplyAfterAuth, setPendingApplyAfterAuth] = useState(false);
   const fetchingSlugRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -344,8 +347,8 @@ export default function JobDetailPage() {
                   onClick={() => {
                     // Check if user is logged in
                     if (!user && !authLoading) {
-                      const returnTo = encodeURIComponent(pathname);
-                      router.push(`/login?returnTo=${returnTo}`);
+                      setPendingApplyAfterAuth(true);
+                      setAuthDialogOpen(true);
                       return;
                     }
                     setApplyDialogOpen(true);
@@ -472,6 +475,23 @@ export default function JobDetailPage() {
           }}
         />
       </div>
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) {
+            setPendingApplyAfterAuth(false);
+          }
+        }}
+        initialMode="login"
+        returnTo={pathname}
+        onAuthenticated={() => {
+          if (pendingApplyAfterAuth) {
+            setApplyDialogOpen(true);
+            setPendingApplyAfterAuth(false);
+          }
+        }}
+      />
     </>
   );
 }

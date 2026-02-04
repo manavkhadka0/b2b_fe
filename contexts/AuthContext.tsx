@@ -223,10 +223,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut({ redirect: false });
     }
 
-    const redirectUrl = returnTo
-      ? `/login?returnTo=${encodeURIComponent(returnTo)}`
-      : "/login";
-    router.push(redirectUrl);
+    // const redirectUrl = returnTo
+    //   ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+    //   : "/login";
+    // router.push(redirectUrl);
   };
 
   const updateProfile = async (data: Partial<User>) => {

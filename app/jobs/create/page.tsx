@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { getJobBySlug } from "@/services/jobs";
 import { Job } from "@/types/job";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 export default function CreateJobPage() {
   const router = useRouter();
@@ -20,17 +21,19 @@ export default function CreateJobPage() {
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
-  // Redirect to login if not authenticated (no user and no token)
+  // If not authenticated (no user and no token), show auth dialog instead of redirecting away
   useEffect(() => {
     if (authLoading) return;
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
     if (!user && !token) {
-      const returnTo = encodeURIComponent("/jobs/create" + (slug ? `?slug=${slug}` : ""));
-      router.replace(`/login?returnTo=${returnTo}`);
+      setAuthDialogOpen(true);
     }
-  }, [user, authLoading, router, slug]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     // Don't fetch until we know user is authenticated
@@ -66,8 +69,13 @@ export default function CreateJobPage() {
     fetchData();
   }, [slug, authLoading, user]);
 
-  // Show loading while checking auth or when redirecting to login
-  if (authLoading || (!user && typeof window !== "undefined" && !localStorage.getItem("accessToken"))) {
+  // Show loading while checking auth or when unauthenticated
+  if (
+    authLoading ||
+    (!user &&
+      typeof window !== "undefined" &&
+      !localStorage.getItem("accessToken"))
+  ) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
         <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
@@ -92,12 +100,20 @@ export default function CreateJobPage() {
   };
 
   return (
-    <PostJobForm
-      unitGroups={unitGroups}
-      locations={locations}
-      initialData={jobData}
-      isEditing={!!slug}
-      onSuccess={handleSuccess}
-    />
+    <>
+      <PostJobForm
+        unitGroups={unitGroups}
+        locations={locations}
+        initialData={jobData}
+        isEditing={!!slug}
+        onSuccess={handleSuccess}
+      />
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        initialMode="login"
+        returnTo={`/jobs/create${slug ? `?slug=${slug}` : ""}`}
+      />
+    </>
   );
 }

@@ -19,12 +19,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 export function DefaultNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mdmuOpen, setMdmuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogMode, setAuthDialogMode] = useState<"login" | "register">(
+    "login",
+  );
   const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -68,11 +73,16 @@ export function DefaultNav() {
     router.push("/profile");
   };
 
-  const handleLogoutClick = () => {
-    if (session) {
-      signOut({ callbackUrl: "/login" });
-    } else {
-      logout();
+  const handleLogoutClick = async () => {
+    try {
+      if (session) {
+        await signOut({ redirect: false });
+      } else {
+        logout();
+      }
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
@@ -309,15 +319,26 @@ export function DefaultNav() {
             {/* Login / Register when not logged in */}
             {!currentUser && (
               <div className="hidden lg:flex items-center gap-2 shrink-0">
-                <Button variant="ghost" size="sm" asChild className="h-10 px-4">
-                  <Link href="/login">{t("auth.login")}</Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 px-4"
+                  onClick={() => {
+                    setAuthDialogMode("login");
+                    setAuthDialogOpen(true);
+                  }}
+                >
+                  {t("auth.login")}
                 </Button>
                 <Button
                   size="sm"
-                  asChild
                   className="h-10 px-4 bg-blue-800 hover:bg-blue-900 shrink-0"
+                  onClick={() => {
+                    setAuthDialogMode("register");
+                    setAuthDialogOpen(true);
+                  }}
                 >
-                  <Link href="/register">{t("auth.signup")}</Link>
+                  {t("auth.signup")}
                 </Button>
               </div>
             )}
@@ -509,26 +530,24 @@ export function DefaultNav() {
                     <div className="flex flex-col gap-2 pt-4 mt-4 border-t border-gray-100">
                       <Button
                         variant="outline"
-                        asChild
                         className="h-11 text-blue-800 border-blue-800"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setAuthDialogMode("login");
+                          setAuthDialogOpen(true);
+                        }}
                       >
-                        <Link
-                          href="/login"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          {t("auth.login")}
-                        </Link>
+                        {t("auth.login")}
                       </Button>
                       <Button
-                        asChild
                         className="h-11 bg-blue-800 hover:bg-blue-900"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setAuthDialogMode("register");
+                          setAuthDialogOpen(true);
+                        }}
                       >
-                        <Link
-                          href="/register"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          {t("auth.signup")}
-                        </Link>
+                        {t("auth.signup")}
                       </Button>
                     </div>
                   )}
@@ -562,6 +581,11 @@ export function DefaultNav() {
           </div>
         </div>
       </ResponsiveContainer>
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        initialMode={authDialogMode}
+      />
     </header>
   );
 }

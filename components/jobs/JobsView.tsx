@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
 import { EmployerContent } from "@/components/jobs/EmployerContent";
 import { Briefcase, GraduationCap, ArrowRight } from "lucide-react";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 const JobsView: React.FC = () => {
   const router = useRouter();
@@ -20,6 +21,13 @@ const JobsView: React.FC = () => {
   const [isLoadingMyJobs, setIsLoadingMyJobs] = useState(true);
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogMode, setAuthDialogMode] = useState<"login" | "register">(
+    "login",
+  );
+  const [pendingAction, setPendingAction] = useState<
+    "create-job" | "apply-job" | null
+  >(null);
 
   const fetchMyJobs = useCallback(async () => {
     setIsLoadingMyJobs(true);
@@ -59,7 +67,9 @@ const JobsView: React.FC = () => {
         ? localStorage.getItem("accessToken")
         : null;
     if (!user && !token && !authLoading) {
-      requireAuth("/jobs/create");
+      setPendingAction("create-job");
+      setAuthDialogMode("login");
+      setAuthDialogOpen(true);
       return;
     }
     router.push("/jobs/create");
@@ -73,12 +83,30 @@ const JobsView: React.FC = () => {
     if (job.isApplied) {
       return; // Don't allow applying if already applied
     }
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+    if (!user && !token && !authLoading) {
+      setSelectedJob(job);
+      setPendingAction("apply-job");
+      setAuthDialogMode("login");
+      setAuthDialogOpen(true);
+      return;
+    }
     setSelectedJob(job);
     setApplyDialogOpen(true);
   };
 
   const handleApplySuccess = () => {
     // Jobs seeker view refetches on its own; no need to refresh here
+  };
+
+  const handleAuthenticated = () => {
+    if (pendingAction === "apply-job" && selectedJob) {
+      setApplyDialogOpen(true);
+    }
+    setPendingAction(null);
   };
 
   return (
@@ -128,6 +156,18 @@ const JobsView: React.FC = () => {
           onSuccess={handleApplySuccess}
         />
       )}
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) {
+            setPendingAction(null);
+          }
+        }}
+        initialMode={authDialogMode}
+        returnTo={pendingAction === "create-job" ? "/jobs/create" : undefined}
+        onAuthenticated={handleAuthenticated}
+      />
     </div>
   );
 };

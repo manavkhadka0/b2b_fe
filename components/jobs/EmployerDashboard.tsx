@@ -24,15 +24,18 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* Create Job Button */}
-      <div className="flex items-center justify-between gap-2">
-        {onModeChange && (
-          <ModeToggle isHiringMode={true} onModeChange={onModeChange} />
-        )}
+      <div className="flex items-center gap-3 mb-2 flex-wrap justify-between">
+        <div className="flex items-center gap-3 flex-wrap">
+          {onModeChange && (
+            <ModeToggle isHiringMode={true} onModeChange={onModeChange} />
+          )}
+        </div>
         <button
           onClick={onCreateJob}
-          className="px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
         >
-          <PlusCircle className="w-4 h-4" /> Create Job Posting
+          <PlusCircle className="w-4 h-4" />
+          <span className="whitespace-nowrap">Create Job Posting</span>
         </button>
       </div>
 
