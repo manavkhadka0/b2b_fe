@@ -11,7 +11,7 @@ import {
   Loader2,
   Calendar,
   DollarSign,
-  ArrowRight,
+  ChevronRight,
 } from "lucide-react";
 import { FilterOption } from "@/app/wishOffer/components/FilterOption";
 import {
@@ -159,7 +159,7 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
           >
             <Briefcase className="w-4 h-4 text-slate-600 shrink-0" />
             <span className="truncate">Career Guidance</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
           </Link>
           <Link
             href="/jobs/internship"
@@ -167,7 +167,7 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
           >
             <GraduationCap className="w-4 h-4 text-slate-600 shrink-0" />
             <span className="truncate">Internship Opportunities</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
           </Link>
           <Link
             href="/jobs/apprenticeship"
@@ -175,7 +175,7 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
           >
             <GraduationCap className="w-4 h-4 text-slate-600 shrink-0" />
             <span className="truncate">Apprenticeship Opportunities</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
           </Link>
         </div>
       </div>
@@ -227,10 +227,10 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
                           key={group.code}
                           label={`${group.code} · ${group.title}`}
                           isActive={selectedMinorGroupCodes.includes(
-                            group.code
+                            group.code,
                           )}
                           onClick={wrap(() =>
-                            handleMinorGroupToggle(group.code)
+                            handleMinorGroupToggle(group.code),
                           )}
                         />
                       ))}
@@ -249,7 +249,7 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
                           label={`${group.code} · ${group.title}`}
                           isActive={selectedUnitGroupCodes.includes(group.code)}
                           onClick={wrap(() =>
-                            handleUnitGroupToggle(group.code)
+                            handleUnitGroupToggle(group.code),
                           )}
                         />
                       ))}
