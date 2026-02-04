@@ -12,8 +12,9 @@ import { transformJobs } from "@/utils/jobTransform";
 import { Loader2, X, Search, SlidersHorizontal, FilterX } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { JobCard } from "@/components/jobs/JobCard";
-import { JobsSidebarContent } from "@/components/jobs/JobsSidebarContent";
+
 import { ModeToggle } from "@/components/jobs/ModeToggle";
+import { JobsSidebarContent } from "./JobsSidebarContent";
 
 interface JobsSeekerContentProps {
   onApply: (job: Job) => void;
@@ -278,51 +279,52 @@ export function JobsSeekerContent({
         </aside>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <div className="mb-6 sm:mb-8 text-center sm:text-left flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2 py-2">
-                Find Your Dream Job
-              </h1>
-              <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
-                Explore opportunities, connect with employers, and take the next
-                step in your career journey.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 ml-auto">
-              {onModeChange && (
-                <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+          {/* Header Section */}
+          <div className="mb-6 sm:mb-8 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2 py-2">
+              यहाँ काम र कामदार पाइन्छ
+            </h1>
+            <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
+              Explore opportunities, connect with employers, and take the next
+              step in your career journey.
+            </p>
+          </div>
+
+          {/* Controls Section */}
+          <div className="flex items-center gap-3 mb-4 flex-wrap justify-between">
+            {onModeChange && (
+              <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+            )}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors lg:hidden"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+            </button>
+            <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white min-w-[200px] max-w-[280px] flex-1 sm:flex-initial">
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                type="text"
+                placeholder="Search job..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-transparent border-none outline-none text-sm text-slate-700 h-7 min-w-0"
+              />
+              {isLoading && (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400 shrink-0" />
               )}
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors lg:hidden"
-                aria-label="Open filters"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filters
-              </button>
-              <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white min-w-[200px] max-w-[280px]">
-                <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Search job..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none outline-none text-sm text-slate-700 h-7 min-w-0"
-                />
-                {isLoading && (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400 shrink-0" />
-                )}
-                {searchQuery && !isLoading && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
+              {searchQuery && !isLoading && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 

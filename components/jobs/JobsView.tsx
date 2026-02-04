@@ -2,6 +2,7 @@
 
 import React, { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ApplyDialog } from "@/components/jobs";
 import { getMyJobs } from "@/services/jobs";
 import { Job } from "@/types/types";
@@ -9,6 +10,7 @@ import { transformJobs } from "@/utils/jobTransform";
 import { useAuth } from "@/contexts/AuthContext";
 import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
 import { EmployerContent } from "@/components/jobs/EmployerContent";
+import { Briefcase, GraduationCap, ArrowRight } from "lucide-react";
 
 const JobsView: React.FC = () => {
   const router = useRouter();
@@ -80,7 +82,7 @@ const JobsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto min-h-screen">
+    <div className="max-w-7xl px-8 mx-auto min-h-screen">
       {isHiringMode ? (
         <Suspense
           fallback={
