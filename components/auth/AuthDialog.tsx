@@ -6,10 +6,7 @@ import { usePathname } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,14 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Mail, Lock, User, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -174,8 +163,7 @@ export function AuthDialog({
         });
       } else {
         const message =
-          error?.message ||
-          "Something went wrong while creating your account.";
+          error?.message || "Something went wrong while creating your account.";
         toast.error(message);
       }
     } finally {
@@ -192,19 +180,22 @@ export function AuthDialog({
     const { handleSubmit, control } = loginForm;
 
     return (
-      <Card className="w-full max-w-md mx-4 shadow-xl bg-white/80 backdrop-blur-sm relative z-10">
-        <CardHeader className="space-y-4 text-center pb-8">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
+      <div className="w-full max-w-md mx-auto">
+        <div className="space-y-4 text-center pb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Welcome Back
-          </CardTitle>
-          <CardDescription className="text-lg text-gray-600">
+          </h2>
+          <p className="text-lg text-gray-600">
             Sign in to your B2B account
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
 
         <Form {...loginForm}>
-          <form onSubmit={handleSubmit(handleLoginSubmit)} className="space-y-6">
-            <CardContent className="space-y-6">
+          <form
+            onSubmit={handleSubmit(handleLoginSubmit)}
+            className="space-y-6"
+          >
+            <div className="space-y-6">
               <FormField
                 control={control}
                 name="email"
@@ -260,9 +251,9 @@ export function AuthDialog({
                   Forgot password?
                 </Link>
               </div>
-            </CardContent>
+            </div>
 
-            <CardFooter className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-4">
               <Button
                 type="submit"
                 className="w-full h-12 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-lg font-medium transition-all duration-300 transform hover:scale-[1.02]"
@@ -298,10 +289,10 @@ export function AuthDialog({
                   Create account
                 </button>
               </p>
-            </CardFooter>
+            </div>
           </form>
         </Form>
-      </Card>
+      </div>
     );
   };
 
@@ -309,19 +300,22 @@ export function AuthDialog({
     const { handleSubmit, control } = registerForm;
 
     return (
-      <Card className="w-full max-w-md shadow-lg bg-white/90 backdrop-blur-sm border border-slate-100">
-        <CardHeader className="space-y-2 text-center pb-4">
-          <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
+      <div className="w-full max-w-md mx-auto">
+        <div className="space-y-2 text-center pb-4">
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Create your B2B account
-          </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
+          </h2>
+          <p className="text-sm text-gray-600">
             A compact, focused signup experience.
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
 
         <Form {...registerForm}>
-          <form onSubmit={handleSubmit(handleRegisterSubmit)} className="space-y-4">
-            <CardContent className="space-y-4 px-5 pb-2">
+          <form
+            onSubmit={handleSubmit(handleRegisterSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-4 px-5 pb-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormField
                   control={control}
@@ -422,7 +416,7 @@ export function AuthDialog({
                           <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                           <Input
                             className="pl-10 h-10 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
-                            placeholder="+1 555 000 1234"
+                            placeholder="9800000000"
                             {...field}
                           />
                         </div>
@@ -463,15 +457,17 @@ export function AuthDialog({
               </div>
 
               <GoogleLoginButton isRegister onClick={handleGoogleLogin} />
-            </CardContent>
+            </div>
 
-            <CardFooter className="flex flex-col gap-3 px-5 pb-5">
+            <div className="flex flex-col gap-3 px-5 pb-5">
               <Button
                 type="submit"
                 className="w-full h-10 bg-gradient-to-r from-blue-800 to-purple-600 hover:from-blue-800 hover:to-purple-700 text-white text-sm font-medium transition-all duration-200"
                 disabled={isSubmittingRegister}
               >
-                {isSubmittingRegister ? "Creating account..." : "Create account"}
+                {isSubmittingRegister
+                  ? "Creating account..."
+                  : "Create account"}
               </Button>
 
               <p className="text-xs md:text-sm text-center text-gray-600">
@@ -484,43 +480,17 @@ export function AuthDialog({
                   Sign in
                 </button>
               </p>
-            </CardFooter>
+            </div>
           </form>
         </Form>
-      </Card>
+      </div>
     );
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="w-full max-w-md border-none bg-transparent p-0 shadow-none sm:max-w-lg"
-      >
-        <div className="flex flex-col items-center justify-center py-6 px-4 sm:px-0 max-h-[90vh] overflow-y-auto">
-          <div className="mb-4 inline-flex rounded-full bg-slate-100 p-1 text-xs font-medium">
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className={`px-4 py-1 rounded-full transition-colors ${
-                mode === "login"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              Login
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("register")}
-              className={`px-4 py-1 rounded-full transition-colors ${
-                mode === "register"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              Register
-            </button>
-          </div>
+      <DialogContent className="w-full max-w-md border-none bg-white p-0 shadow-none sm:max-w-lg">
+        <div className="flex flex-col items-center py-6 px-4 sm:px-0 max-h-[90vh] overflow-y-auto">
           <div className="w-full">
             {mode === "login" ? renderLoginForm() : renderRegisterForm()}
           </div>
@@ -529,4 +499,3 @@ export function AuthDialog({
     </Dialog>
   );
 }
-
