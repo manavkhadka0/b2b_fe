@@ -29,9 +29,13 @@ export interface HSCodeResponse {
 export interface Category {
   id: number;
   name: string;
-  description: string;
+  description: string | null;
   image: string | null;
   type: string;
+  subcategories?: Array<{
+    id: number;
+    name: string;
+  }>;
 }
 
 export interface Service {

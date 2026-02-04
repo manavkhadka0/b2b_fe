@@ -30,11 +30,9 @@ import { ItemDetailDialog } from "./ItemDetailDialog";
 import { CreateFormModal } from "./CreateFormModal";
 import { useInView } from "react-intersection-observer"; // Ensure this package is installed or use native
 import { SkeletonCard } from "./SkeletonCard";
-import { SubCategory } from "@/types/create-wish-type";
 import { Event } from "@/types/events";
 import { getEvents } from "@/services/events";
 import useSWR from "swr";
-import axios from "axios";
 
 export function WishOfferContent() {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
@@ -60,23 +58,6 @@ export function WishOfferContent() {
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
 
-  // Fetch subcategories when a category is selected
-  const subcategoryFetcher = (url: string) =>
-    axios
-      .get(url, {
-        headers: { Accept: "application/json" },
-      })
-      .then((res) => res.data);
-
-  const { data: subcategoryData, isLoading: isLoadingSubcategories } = useSWR(
-    activeCategoryId
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/?category=${activeCategoryId}`
-      : null,
-    subcategoryFetcher
-  );
-
-  const subcategories: SubCategory[] = subcategoryData?.results || [];
-
   // Fetch events
   const eventFetcher = async () => {
     const response = await getEvents("1");
@@ -87,11 +68,6 @@ export function WishOfferContent() {
     "wishOfferEvents",
     eventFetcher
   );
-
-  // Reset subcategory when category changes
-  useEffect(() => {
-    setActiveSubcategoryId(null);
-  }, [activeCategoryId]);
 
   // Infinite Scroll Hooks
   const {
@@ -160,6 +136,41 @@ export function WishOfferContent() {
     if (selectedCategoryType === "Service") return serviceCategories;
     return [...productCategories, ...serviceCategories];
   }, [selectedCategoryType, productCategories, serviceCategories]);
+
+  // Get all subcategories from available categories
+  const allSubcategories = useMemo(() => {
+    return availableCategories.flatMap((cat) => cat.subcategories || []);
+  }, [availableCategories]);
+
+  // Reset subcategory when category changes to a different category
+  // But don't reset if the category matches the subcategory's parent category
+  const prevCategoryIdRef = React.useRef<number | null>(null);
+  useEffect(() => {
+    // If category is null, clear subcategory
+    if (activeCategoryId === null) {
+      setActiveSubcategoryId(null);
+      prevCategoryIdRef.current = null;
+      return;
+    }
+
+    // Only clear subcategory if category changed to a different category
+    // (not when setting category to match subcategory's parent)
+    if (
+      prevCategoryIdRef.current !== null &&
+      prevCategoryIdRef.current !== activeCategoryId &&
+      activeSubcategoryId !== null
+    ) {
+      // Category changed to a different category, check if subcategory belongs to new category
+      const parentCategory = availableCategories.find((cat) =>
+        cat.subcategories?.some((sub) => sub.id === activeSubcategoryId)
+      );
+      // Only clear if the subcategory doesn't belong to the new category
+      if (!parentCategory || parentCategory.id !== activeCategoryId) {
+        setActiveSubcategoryId(null);
+      }
+    }
+    prevCategoryIdRef.current = activeCategoryId;
+  }, [activeCategoryId, availableCategories, activeSubcategoryId]);
 
   const filteredItems = useMemo(() => {
     // 1. Determine Source & Initial List
@@ -295,9 +306,9 @@ export function WishOfferContent() {
   const activeSubcategory = useMemo(
     () =>
       activeSubcategoryId
-        ? subcategories.find((sc) => sc.id === activeSubcategoryId)
+        ? allSubcategories.find((sc) => sc.id === activeSubcategoryId)
         : null,
-    [activeSubcategoryId, subcategories]
+    [activeSubcategoryId, allSubcategories]
   );
 
   const activeEvent = useMemo(
@@ -389,12 +400,9 @@ export function WishOfferContent() {
           activeEventSlug={activeEventSlug}
           setActiveEventSlug={setActiveEventSlug}
           availableCategories={availableCategories}
-          subcategories={subcategories}
-          isLoadingSubcategories={isLoadingSubcategories}
           events={events || []}
           isLoadingEvents={isLoadingEvents}
           onFilterClick={closeSidebar}
-          showSubcategoriesInline={true}
         />
       </aside>
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -411,12 +419,9 @@ export function WishOfferContent() {
             activeEventSlug={activeEventSlug}
             setActiveEventSlug={setActiveEventSlug}
             availableCategories={availableCategories}
-            subcategories={subcategories}
-            isLoadingSubcategories={isLoadingSubcategories}
             events={events || []}
             isLoadingEvents={isLoadingEvents}
             onFilterClick={undefined}
-            showSubcategoriesInline={false}
           />
         </aside>
         <div className="flex-1 min-w-0">

@@ -37,7 +37,7 @@ export default function EditCategoryPage() {
         setCategory(data);
         setFormData({
           name: data.name,
-          description: data.description,
+          description: data.description ?? "",
           type: data.type || "Product",
         });
         if (data.image) {
@@ -131,9 +131,7 @@ export default function EditCategoryPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-900">Edit Category</h2>
-        <p className="text-sm text-slate-500">
-          Update category information.
-        </p>
+        <p className="text-sm text-slate-500">Update category information.</p>
       </div>
 
       <div className="rounded-xl border bg-white p-6 shadow-sm">

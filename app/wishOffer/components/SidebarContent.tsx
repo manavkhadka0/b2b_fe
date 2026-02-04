@@ -10,7 +10,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { FilterOption } from "./FilterOption";
-import { Category, SubCategory } from "@/types/create-wish-type";
+import { Category } from "@/types/create-wish-type";
 import { Event } from "@/types/events";
 import type { ItemType, CategoryType } from "@/types/wish";
 import {
@@ -40,12 +40,9 @@ export type SidebarContentProps = {
   activeEventSlug: string | null;
   setActiveEventSlug: (slug: string | null) => void;
   availableCategories: Category[];
-  subcategories: SubCategory[];
-  isLoadingSubcategories: boolean;
   events: Event[];
   isLoadingEvents: boolean;
   onFilterClick?: () => void;
-  showSubcategoriesInline?: boolean;
 };
 
 export const SidebarContent: React.FC<SidebarContentProps> = ({
@@ -60,12 +57,9 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
   activeEventSlug,
   setActiveEventSlug,
   availableCategories,
-  subcategories,
-  isLoadingSubcategories,
   events,
   isLoadingEvents,
   onFilterClick,
-  showSubcategoriesInline = true,
 }) => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [isIndustriesOpen, setIsIndustriesOpen] = useState(true);
@@ -85,9 +79,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       return;
     }
 
-    const categorySubcategories = subcategories.filter(
-      (sc) => sc.category === categoryId
-    );
+    const category = availableCategories.find((c) => c.id === categoryId);
+    const categorySubcategories = category?.subcategories || [];
 
     // If category is already active, toggle it off
     if (activeCategoryId === categoryId) {
@@ -98,20 +91,24 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       // Set new active category
       setActiveCategoryId(categoryId);
       setActiveSubcategoryId(null);
-
-      // If category has subcategories, open the dropdown
-      if (categorySubcategories.length > 0) {
-        setOpenDropdownId(categoryId);
-      }
     }
   };
 
-  const handleSubcategoryClick = (subcategoryId: number | null) => {
-    setActiveSubcategoryId(
-      subcategoryId === activeSubcategoryId ? null : subcategoryId
-    );
+  const handleSubcategoryClick = (
+    categoryId: number,
+    subcategoryId: number | null
+  ) => {
+    // If clicking the same subcategory, clear both category and subcategory
+    if (subcategoryId === activeSubcategoryId) {
+      setActiveCategoryId(null);
+      setActiveSubcategoryId(null);
+    } else {
+      // Always set both category and subcategory when subcategory is selected
+      // The category should always be shown as active when its subcategory is selected
+      setActiveSubcategoryId(subcategoryId);
+      setActiveCategoryId(categoryId);
+    }
     setOpenDropdownId(null); // Close dropdown after selection
-    onFilterClick?.();
   };
 
   const handleCategoryHover = (categoryId: number) => {
@@ -121,17 +118,11 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
       hoverTimeoutRef.current = null;
     }
 
-    const categorySubcategories = subcategories.filter(
-      (sc) => sc.category === categoryId
-    );
+    const category = availableCategories.find((c) => c.id === categoryId);
+    const categorySubcategories = category?.subcategories || [];
 
     if (categorySubcategories.length > 0) {
-      // Set category as active if not already active
-      if (activeCategoryId !== categoryId) {
-        setActiveCategoryId(categoryId);
-        setActiveSubcategoryId(null);
-      }
-      // Open dropdown
+      // Open dropdown on hover (don't change active category)
       setOpenDropdownId(categoryId);
     }
   };
@@ -250,11 +241,17 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                     onClick={wrap(() => handleCategoryClick(null))}
                   />
                   {availableCategories.map((cat) => {
-                    const categorySubcategories = subcategories.filter(
-                      (sc) => sc.category === cat.id
-                    );
+                    const categorySubcategories = cat.subcategories || [];
                     const hasSubcategories = categorySubcategories.length > 0;
-                    const isCategoryActive = activeCategoryId === cat.id;
+                    // Category is active if:
+                    // 1. It's selected AND no subcategory is selected, OR
+                    // 2. It's selected AND a subcategory from this category is selected
+                    const isCategoryActive =
+                      activeCategoryId === cat.id &&
+                      (activeSubcategoryId === null ||
+                        categorySubcategories.some(
+                          (sub) => sub.id === activeSubcategoryId
+                        ));
                     const isDropdownOpen = openDropdownId === cat.id;
 
                     return (
@@ -285,6 +282,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                                   })();
                                 } else {
                                   wrap(() => {
+                                    // When clicking category directly, set category and clear subcategory
                                     setActiveCategoryId(cat.id);
                                     setActiveSubcategoryId(null);
                                   })();
@@ -292,9 +290,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                               }
                             }}
                             onMouseEnter={() => {
-                              if (hasSubcategories) {
-                                handleCategoryHover(cat.id);
-                              }
+                              handleCategoryHover(cat.id);
                             }}
                             onMouseLeave={handleCategoryLeave}
                             className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
@@ -318,46 +314,45 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                             onMouseEnter={handleDropdownEnter}
                             onMouseLeave={handleDropdownLeave}
                           >
-                            {isLoadingSubcategories ? (
-                              <div className="flex items-center justify-center py-4">
-                                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                              </div>
-                            ) : categorySubcategories.length === 0 ? (
+                            {categorySubcategories.length === 0 ? (
                               <div className="px-2 py-1.5 text-sm text-slate-500">
                                 No subcategories
                               </div>
                             ) : (
-                              <>
+                              categorySubcategories.map((subcat) => (
                                 <DropdownMenuItem
-                                  onClick={wrap(() => {
-                                    setActiveSubcategoryId(null);
+                                  key={subcat.id}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    // Always set both category and subcategory when subcategory is selected
+                                    // The category should always be shown as active when its subcategory is selected
+                                    if (subcat.id === activeSubcategoryId) {
+                                      // Toggle off if same subcategory clicked - clear both
+                                      wrap(() => {
+                                        setActiveCategoryId(null);
+                                        setActiveSubcategoryId(null);
+                                      })();
+                                    } else {
+                                      // Set both category and subcategory - use wrap to ensure filter is triggered
+                                      // Set subcategory first, then category to ensure subcategory filter is applied
+                                      wrap(() => {
+                                        // Use functional updates to ensure we're working with latest state
+                                        setActiveSubcategoryId(subcat.id);
+                                        setActiveCategoryId(cat.id);
+                                      })();
+                                    }
                                     setOpenDropdownId(null);
-                                  })}
+                                  }}
                                   className={`cursor-pointer ${
-                                    activeSubcategoryId === null &&
-                                    isCategoryActive
+                                    activeSubcategoryId === subcat.id
                                       ? "bg-slate-100"
                                       : ""
                                   }`}
                                 >
-                                  All Subcategories
+                                  {subcat.name}
                                 </DropdownMenuItem>
-                                {categorySubcategories.map((subcat) => (
-                                  <DropdownMenuItem
-                                    key={subcat.id}
-                                    onClick={wrap(() => {
-                                      handleSubcategoryClick(subcat.id);
-                                    })}
-                                    className={`cursor-pointer ${
-                                      activeSubcategoryId === subcat.id
-                                        ? "bg-slate-100"
-                                        : ""
-                                    }`}
-                                  >
-                                    {subcat.name}
-                                  </DropdownMenuItem>
-                                ))}
-                              </>
+                              ))
                             )}
                           </DropdownMenuContent>
                         )}
@@ -412,41 +407,6 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
           </Collapsible>
         )}
       </div>
-
-      {/* Subcategories inline (for mobile) */}
-      {activeCategoryId && showSubcategoriesInline && (
-        <div className="border-t border-slate-200 pt-6 mt-6">
-          <div className="flex items-center gap-2 mb-3 text-slate-900 font-bold text-sm">
-            <LayoutGrid className="w-4 h-4 text-slate-500" />
-            <span>Subcategories</span>
-          </div>
-          {isLoadingSubcategories ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-            </div>
-          ) : subcategories.length === 0 ? (
-            <div className="text-sm text-slate-500 py-4">
-              No subcategories available
-            </div>
-          ) : (
-            <div className="space-y-0.5">
-              <FilterOption
-                label="All Subcategories"
-                isActive={activeSubcategoryId === null}
-                onClick={wrap(() => setActiveSubcategoryId(null))}
-              />
-              {subcategories.map((subcat) => (
-                <FilterOption
-                  key={subcat.id}
-                  label={subcat.name}
-                  isActive={activeSubcategoryId === subcat.id}
-                  onClick={wrap(() => handleSubcategoryClick(subcat.id))}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };

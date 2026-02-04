@@ -135,7 +135,7 @@ export default function AdminCategoriesPage() {
                   <td className="px-4 py-3 text-sm text-slate-600">
                     <div
                       className="max-w-md truncate"
-                      title={category.description}
+                      title={category.description ?? ""}
                     >
                       {category.description || "-"}
                     </div>
