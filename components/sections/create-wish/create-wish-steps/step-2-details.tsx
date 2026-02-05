@@ -122,9 +122,28 @@ export function Step2Details({
 }: Step2DetailsProps) {
   const type = form.watch("type");
   const [localSearchValue, setLocalSearchValue] = useState("");
+  const [categorySearchValue, setCategorySearchValue] = useState("");
+  const [subcategorySearchValue, setSubcategorySearchValue] = useState("");
   const debouncedSearchValue = useDebounce(localSearchValue, 300);
   const [hasLoadedInitialProducts, setHasLoadedInitialProducts] =
     useState(false);
+
+  const filteredCategories = categories.filter((category) => {
+    const search = categorySearchValue.toLowerCase().trim();
+    if (!search) return true;
+    const matchesName = category.name.toLowerCase().includes(search);
+    const matchesDescription = category.description?.toLowerCase().includes(search);
+    return matchesName || matchesDescription;
+  });
+
+  const filteredSubcategories = subcategories.filter((subcategory) => {
+    const search = subcategorySearchValue.toLowerCase().trim();
+    if (!search) return true;
+    const matchesName = subcategory.name.toLowerCase().includes(search);
+    const matchesExample = subcategory.example_items?.toLowerCase().includes(search);
+    const matchesReference = subcategory.reference?.toLowerCase().includes(search);
+    return matchesName || matchesExample || matchesReference;
+  });
 
   // Load initial products when popover opens for the first time
   useEffect(() => {
@@ -235,6 +254,20 @@ export function Step2Details({
     }
   }, [productSearchOpen]);
 
+  // Reset category search when category popover closes
+  useEffect(() => {
+    if (!categorySearchOpen) {
+      setCategorySearchValue("");
+    }
+  }, [categorySearchOpen]);
+
+  // Reset subcategory search when subcategory popover closes
+  useEffect(() => {
+    if (!subcategorySearchOpen) {
+      setSubcategorySearchValue("");
+    }
+  }, [subcategorySearchOpen]);
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">
@@ -277,7 +310,11 @@ export function Step2Details({
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0 max-h-80" align="start">
                     <Command shouldFilter={false}>
-                      <CommandInput placeholder="Search categories..." />
+                      <CommandInput
+                        placeholder="Search categories..."
+                        value={categorySearchValue}
+                        onValueChange={setCategorySearchValue}
+                      />
                       <CommandEmpty>
                         {isLoadingCategories
                           ? "Loading..."
@@ -286,7 +323,7 @@ export function Step2Details({
                             : "No categories found."}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
-                        {categories.map((category) => (
+                        {filteredCategories.map((category) => (
                           <CommandItem
                             key={category.id}
                             value={category.id.toString()}
@@ -359,7 +396,11 @@ export function Step2Details({
                       align="start"
                     >
                       <Command shouldFilter={false}>
-                        <CommandInput placeholder="Search subcategories..." />
+                        <CommandInput
+                          placeholder="Search subcategories..."
+                          value={subcategorySearchValue}
+                          onValueChange={setSubcategorySearchValue}
+                        />
                         <CommandEmpty>
                           {isLoadingSubcategories
                             ? "Loading..."
@@ -368,7 +409,7 @@ export function Step2Details({
                               : "No subcategories found."}
                         </CommandEmpty>
                         <CommandGroup className="max-h-64 overflow-y-auto">
-                          {subcategories.map((subcategory) => (
+                          {filteredSubcategories.map((subcategory) => (
                             <CommandItem
                               key={subcategory.id}
                               value={subcategory.id.toString()}
@@ -545,7 +586,11 @@ export function Step2Details({
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0 max-h-80" align="start">
                     <Command shouldFilter={false}>
-                      <CommandInput placeholder="Search categories..." />
+                      <CommandInput
+                        placeholder="Search categories..."
+                        value={categorySearchValue}
+                        onValueChange={setCategorySearchValue}
+                      />
                       <CommandEmpty>
                         {isLoadingCategories
                           ? "Loading..."
@@ -554,7 +599,7 @@ export function Step2Details({
                             : "No categories found."}
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-y-auto">
-                        {categories.map((category) => (
+                        {filteredCategories.map((category) => (
                           <CommandItem
                             key={category.id}
                             value={category.id.toString()}
@@ -626,7 +671,11 @@ export function Step2Details({
                       align="start"
                     >
                       <Command shouldFilter={false}>
-                        <CommandInput placeholder="Search subcategories..." />
+                        <CommandInput
+                          placeholder="Search subcategories..."
+                          value={subcategorySearchValue}
+                          onValueChange={setSubcategorySearchValue}
+                        />
                         <CommandEmpty>
                           {isLoadingSubcategories
                             ? "Loading..."
@@ -635,7 +684,7 @@ export function Step2Details({
                               : "No subcategories found."}
                         </CommandEmpty>
                         <CommandGroup className="max-h-64 overflow-y-auto">
-                          {subcategories.map((subcategory) => (
+                          {filteredSubcategories.map((subcategory) => (
                             <CommandItem
                               key={subcategory.id}
                               value={subcategory.id.toString()}
