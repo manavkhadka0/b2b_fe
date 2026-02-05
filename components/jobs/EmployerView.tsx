@@ -8,6 +8,7 @@ import { transformJobs } from "@/utils/jobTransform";
 import { useAuth } from "@/contexts/AuthContext";
 import { EmployerContent } from "@/components/jobs/EmployerContent";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 
 export default function EmployerView() {
   const router = useRouter();
@@ -62,10 +63,13 @@ export default function EmployerView() {
     router.push(`/jobs/create?slug=${job.slug}`);
   };
 
-  const handleModeChange = (isHiring: boolean) => {
-    if (!isHiring) {
+  const handleModeChange = (mode: JobsViewMode) => {
+    if (mode === "jobs") {
       router.push("/jobs");
+    } else if (mode === "work-interests") {
+      router.push("/jobs/work-interests");
     }
+    // mode === "employer" -> already here, no-op
   };
 
   return (

@@ -6,6 +6,7 @@ import { ApplyDialog } from "@/components/jobs";
 import { Job } from "@/types/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
+import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 
 const JobsView: React.FC = () => {
@@ -51,9 +52,13 @@ const JobsView: React.FC = () => {
     setPendingAction(null);
   };
 
-  const handleModeChange = (isHiring: boolean) => {
-    if (isHiring) {
+  const handleModeChange = (mode: JobsViewMode) => {
+    if (mode === "employer") {
       router.push("/jobs/employer");
+    } else if (mode === "work-interests") {
+      router.push("/jobs/work-interests");
+    } else {
+      router.push("/jobs");
     }
   };
 

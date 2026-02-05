@@ -115,9 +115,14 @@ export async function applyToJob(jobSlug: string, coverLetter: Content): Promise
   }
 }
 
-export async function getUnitGroups(): Promise<UnitGroup[]> {
+export async function getUnitGroups(search?: string): Promise<UnitGroup[]> {
   try {
-    const response = await api.get<{ results: UnitGroup[] }>("/api/unit-groups/");
+    const params = new URLSearchParams();
+    if (search?.trim()) params.append("search", search.trim());
+    const query = params.toString();
+    const response = await api.get<{ results: UnitGroup[] }>(
+      `/api/unit-groups/${query ? `?${query}` : ""}`,
+    );
     return response.data.results || [];
   } catch (error) {
     console.error("Failed to fetch unit groups:", error);

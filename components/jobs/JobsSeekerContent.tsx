@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   getJobs,
@@ -9,17 +10,25 @@ import {
 } from "@/services/jobs";
 import { Job } from "@/types/types";
 import { transformJobs } from "@/utils/jobTransform";
-import { Loader2, X, Search, SlidersHorizontal, FilterX } from "lucide-react";
+import {
+  Loader2,
+  X,
+  Search,
+  SlidersHorizontal,
+  FilterX,
+  ChevronRight,
+} from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { JobCard } from "@/components/jobs/JobCard";
+import { Button } from "@/components/ui/button";
 
-import { ModeToggle } from "@/components/jobs/ModeToggle";
+import { ModeToggle, type JobsViewMode } from "@/components/jobs/ModeToggle";
 import { JobsSidebarContent } from "./JobsSidebarContent";
 import { JOBS_SIDEBAR } from "./jobs-sidebar-styles";
 
 interface JobsSeekerContentProps {
   onApply: (job: Job) => void;
-  onModeChange?: (isHiring: boolean) => void;
+  onModeChange?: (mode: JobsViewMode) => void;
 }
 
 const VALID_LISTING_TIMES: (ListingTimeFilter | "")[] = [
@@ -246,7 +255,7 @@ export function JobsSeekerContent({
         {onModeChange && (
           <div className={JOBS_SIDEBAR.sectionBordered}>
             <h2 className={JOBS_SIDEBAR.sectionHeadingTight}>View Mode</h2>
-            <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+            <ModeToggle mode="jobs" onModeChange={onModeChange} />
           </div>
         )}
         <JobsSidebarContent
@@ -271,7 +280,7 @@ export function JobsSeekerContent({
           {onModeChange && (
             <div className={JOBS_SIDEBAR.sectionBordered}>
               <h2 className={JOBS_SIDEBAR.sectionHeadingTight}>View Mode</h2>
-              <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+              <ModeToggle mode="jobs" onModeChange={onModeChange} />
             </div>
           )}
           <JobsSidebarContent
@@ -293,10 +302,21 @@ export function JobsSeekerContent({
 
         <div className="flex-1 min-w-0">
           {/* Header Section */}
-          <div className="mb-6 sm:mb-8 text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2 py-2">
-              यहाँ काम र कामदार पाइन्छ
-            </h1>
+          <div className="mb-6 sm:mb-8 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent py-2">
+                यहाँ काम र कामदार पाइन्छ
+              </h1>
+              <Link href="/jobs/employer">
+                <Button
+                  size="default"
+                  className="whitespace-nowrap bg-blue-800 text-white"
+                >
+                  Post Your Job
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
             <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
               Explore opportunities, connect with employers, and take the next
               step in your career journey.

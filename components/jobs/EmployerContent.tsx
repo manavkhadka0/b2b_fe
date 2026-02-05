@@ -6,6 +6,7 @@ import { Loader2, X, Menu } from "lucide-react";
 import { EmployerDashboard } from "@/components/jobs/EmployerDashboard";
 import { JobsSidebarNav } from "@/components/jobs/JobsSidebarNav";
 import { JOBS_SIDEBAR } from "@/components/jobs/jobs-sidebar-styles";
+import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 
 interface EmployerContentProps {
   onCreateJob: () => void;
@@ -13,7 +14,7 @@ interface EmployerContentProps {
   jobs: Job[];
   isLoading: boolean;
   isLoggedIn: boolean;
-  onModeChange?: (isHiring: boolean) => void;
+  onModeChange?: (mode: JobsViewMode) => void;
 }
 
 export function EmployerContent({
@@ -56,14 +57,14 @@ export function EmployerContent({
           </button>
         </div>
         {onModeChange && (
-          <JobsSidebarNav isHiringMode={true} onModeChange={onModeChange} />
+          <JobsSidebarNav mode="employer" onModeChange={onModeChange} />
         )}
       </aside>
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {onModeChange && (
           <aside className={JOBS_SIDEBAR.desktop}>
-            <JobsSidebarNav isHiringMode={true} onModeChange={onModeChange} />
+            <JobsSidebarNav mode="employer" onModeChange={onModeChange} />
           </aside>
         )}
         <div className="flex-1 min-w-0">
@@ -96,7 +97,6 @@ export function EmployerContent({
               jobs={jobs}
               isLoading={isLoading}
               isLoggedIn={isLoggedIn}
-              onModeChange={onModeChange}
             />
           )}
         </div>

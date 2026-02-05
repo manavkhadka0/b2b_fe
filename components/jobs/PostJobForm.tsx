@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
@@ -41,6 +41,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UnitGroup } from "@/types/unit-groups";
 import { Location } from "@/types/auth";
 import { Job } from "@/types/job";
+import { useDebounce } from "@/hooks/use-debounce";
+import { getUnitGroups } from "@/services/jobs";
+import { Loader2 } from "lucide-react";
 
 const postJobSchema = z
   .object({
@@ -158,6 +161,11 @@ export function PostJobForm({
   onSuccess,
 }: PostJobFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [unitGroupSearchInput, setUnitGroupSearchInput] = useState("");
+  const [unitGroupsForForm, setUnitGroupsForForm] = useState<UnitGroup[]>([]);
+  const [unitGroupComboboxOpen, setUnitGroupComboboxOpen] = useState(false);
+  const [isLoadingUnitGroups, setIsLoadingUnitGroups] = useState(false);
+  const debouncedUnitGroupSearch = useDebounce(unitGroupSearchInput, 300);
   const router = useRouter();
 
   // Helper function to safely cast enum values
@@ -265,20 +273,29 @@ export function PostJobForm({
   // Watch show_salary to conditionally render salary fields
   const showSalary = form.watch("show_salary");
 
-  // Group unit groups by major group
-  const groupedUnitGroups = unitGroups.reduce(
+  useEffect(() => {
+    if (!unitGroupComboboxOpen) return;
+    const fetchUnitGroups = async () => {
+      setIsLoadingUnitGroups(true);
+      try {
+        const data = await getUnitGroups(debouncedUnitGroupSearch || undefined);
+        setUnitGroupsForForm(data);
+      } catch (err) {
+        console.warn("Failed to fetch unit groups", err);
+        setUnitGroupsForForm([]);
+      } finally {
+        setIsLoadingUnitGroups(false);
+      }
+    };
+    void fetchUnitGroups();
+  }, [unitGroupComboboxOpen, debouncedUnitGroupSearch]);
+
+  // Group unit groups by major group (for combobox options from backend search)
+  const groupedUnitGroupsForForm = unitGroupsForForm.reduce(
     (acc, unitGroup) => {
       const majorGroup = unitGroup?.minor_group?.sub_major_group?.major_group;
-
-      if (!majorGroup) {
-        console.warn("Invalid UnitGroup structure:", unitGroup);
-        return acc;
-      }
-
-      if (!acc[majorGroup.title]) {
-        acc[majorGroup.title] = [];
-      }
-
+      if (!majorGroup) return acc;
+      if (!acc[majorGroup.title]) acc[majorGroup.title] = [];
       acc[majorGroup.title].push(unitGroup);
       return acc;
     },
@@ -349,84 +366,104 @@ export function PostJobForm({
                   <FormField
                     control={form.control}
                     name="unit_group"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Unit Group</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between border-slate-200",
-                                  !field.value && "text-muted-foreground",
-                                )}
-                              >
-                                {field.value
-                                  ? unitGroups.find(
-                                      (group) => group.code === field.value,
-                                    )?.title
-                                  : "Select unit group"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[450px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search unit group..." />
-                              <CommandList>
-                                <CommandEmpty>
-                                  No unit group found.
-                                </CommandEmpty>
-                                {Object.entries(groupedUnitGroups).map(
-                                  ([majorGroupTitle, groups]) => (
-                                    <CommandGroup
-                                      key={majorGroupTitle}
-                                      heading={majorGroupTitle}
-                                    >
-                                      {groups.map((group) => (
-                                        <CommandItem
-                                          key={group.code}
-                                          value={`${group.title} ${group.minor_group?.sub_major_group?.title ?? ""} ${majorGroupTitle} ${group.code}`}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "unit_group",
-                                              group.code,
-                                            );
-                                          }}
+                    render={({ field }) => {
+                      const selectedGroup =
+                        unitGroups.find((g) => g.code === field.value) ??
+                        unitGroupsForForm.find((g) => g.code === field.value);
+                      return (
+                        <FormItem>
+                          <FormLabel>Unit Group</FormLabel>
+                          <Popover
+                            open={unitGroupComboboxOpen}
+                            onOpenChange={(open) => {
+                              setUnitGroupComboboxOpen(open);
+                              if (open) setUnitGroupSearchInput("");
+                            }}
+                          >
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-full justify-between border-slate-200",
+                                    !field.value && "text-muted-foreground",
+                                  )}
+                                >
+                                  {field.value && selectedGroup
+                                    ? selectedGroup.title
+                                    : "Select unit group"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[450px] p-0">
+                              <Command shouldFilter={false}>
+                                <CommandInput
+                                  placeholder="Search unit group..."
+                                  value={unitGroupSearchInput}
+                                  onValueChange={setUnitGroupSearchInput}
+                                />
+                                <CommandList>
+                                  {isLoadingUnitGroups ? (
+                                    <div className="flex items-center justify-center py-6">
+                                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <CommandEmpty>
+                                        No unit group found.
+                                      </CommandEmpty>
+                                      {Object.entries(
+                                        groupedUnitGroupsForForm,
+                                      ).map(([majorGroupTitle, groups]) => (
+                                        <CommandGroup
+                                          key={majorGroupTitle}
+                                          heading={majorGroupTitle}
                                         >
-                                          <div className="flex flex-col">
-                                            <span>{group.title}</span>
-                                            <span className="text-xs text-muted-foreground">
-                                              {
-                                                group.minor_group
-                                                  .sub_major_group.title
-                                              }{" "}
-                                              - {group.code}
-                                            </span>
-                                          </div>
-                                          <Check
-                                            className={cn(
-                                              "ml-auto h-4 w-4",
-                                              group.code ===
-                                                form.watch("unit_group")
-                                                ? "opacity-100"
-                                                : "opacity-0",
-                                            )}
-                                          />
-                                        </CommandItem>
+                                          {groups.map((group) => (
+                                            <CommandItem
+                                              key={group.code}
+                                              value={group.code}
+                                              onSelect={() => {
+                                                form.setValue(
+                                                  "unit_group",
+                                                  group.code,
+                                                );
+                                              }}
+                                            >
+                                              <div className="flex flex-col">
+                                                <span>{group.title}</span>
+                                                <span className="text-xs text-muted-foreground">
+                                                  {
+                                                    group.minor_group
+                                                      ?.sub_major_group?.title
+                                                  }{" "}
+                                                  - {group.code}
+                                                </span>
+                                              </div>
+                                              <Check
+                                                className={cn(
+                                                  "ml-auto h-4 w-4",
+                                                  group.code === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
+                                                )}
+                                              />
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
                                       ))}
-                                    </CommandGroup>
-                                  ),
-                                )}
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                                    </>
+                                  )}
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   {/* Employment Type */}

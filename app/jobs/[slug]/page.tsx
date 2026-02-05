@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getJobBySlug } from "@/services/jobs";
 import { ApplyDialog, JobsHeader } from "@/components/jobs";
+import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -211,8 +212,16 @@ export default function JobDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
         <JobsHeader
-          isHiringMode={false}
-          onModeChange={() => router.push("/jobs")}
+          mode="jobs"
+          onModeChange={(mode: JobsViewMode) => {
+            if (mode === "employer") {
+              router.push("/jobs/employer");
+            } else if (mode === "work-interests") {
+              router.push("/jobs/work-interests");
+            } else {
+              router.push("/jobs");
+            }
+          }}
         />
         <div className="flex justify-center items-center min-h-[400px]">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
@@ -225,8 +234,16 @@ export default function JobDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
         <JobsHeader
-          isHiringMode={false}
-          onModeChange={() => router.push("/jobs")}
+          mode="jobs"
+          onModeChange={(mode: JobsViewMode) => {
+            if (mode === "employer") {
+              router.push("/jobs/employer");
+            } else if (mode === "work-interests") {
+              router.push("/jobs/work-interests");
+            } else {
+              router.push("/jobs");
+            }
+          }}
         />
         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
           <p className="text-slate-600 mb-4">{error || "Job not found"}</p>

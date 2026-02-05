@@ -9,7 +9,6 @@ interface EmployerDashboardProps {
   jobs: Job[];
   isLoading: boolean;
   isLoggedIn?: boolean;
-  onModeChange?: (isHiring: boolean) => void;
 }
 
 export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({
@@ -18,7 +17,6 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({
   jobs,
   isLoading,
   isLoggedIn = false,
-  onModeChange,
 }) => {
   return (
     <div className="space-y-6">
