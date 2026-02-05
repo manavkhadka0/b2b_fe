@@ -48,28 +48,37 @@ export const createWishOfferSchema = z
     wish_id: z.string().optional(),
     offer_id: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.country === "Nepal") {
-        return (
-          data.province &&
-          data.province.length > 0 &&
-          data.district &&
-          data.district.length > 0 &&
-          data.municipality &&
-          data.municipality.length > 0 &&
-          data.ward &&
-          data.ward.length > 0
-        );
-      }
-      return true;
-    },
-    {
-      message:
-        "Province, District, Municipality, and Ward are required for Nepal",
-      path: ["province"],
+  .superRefine((data, ctx) => {
+    if (data.country !== "Nepal") return;
+    if (!data.province || data.province.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Province is required",
+        path: ["province"],
+      });
     }
-  );
+    if (!data.district || data.district.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "District is required ",
+        path: ["district"],
+      });
+    }
+    if (!data.municipality || data.municipality.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Municipality is required",
+        path: ["municipality"],
+      });
+    }
+    if (!data.ward || data.ward.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Ward is required",
+        path: ["ward"],
+      });
+    }
+  });
 
 // Simplified schema without company and personal information
 export const createWishOfferSimplifiedSchema = z.object({
