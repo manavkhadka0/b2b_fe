@@ -1,24 +1,16 @@
 "use client";
 
-import React, { Suspense, useState, useEffect, useCallback } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { ApplyDialog } from "@/components/jobs";
-import { getMyJobs } from "@/services/jobs";
 import { Job } from "@/types/types";
-import { transformJobs } from "@/utils/jobTransform";
 import { useAuth } from "@/contexts/AuthContext";
 import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
-import { EmployerContent } from "@/components/jobs/EmployerContent";
-import { Briefcase, GraduationCap, ArrowRight } from "lucide-react";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 
 const JobsView: React.FC = () => {
   const router = useRouter();
-  const { user, isLoading: authLoading, requireAuth } = useAuth();
-  const [isHiringMode, setIsHiringMode] = useState(false);
-  const [myJobs, setMyJobs] = useState<Job[]>([]);
-  const [isLoadingMyJobs, setIsLoadingMyJobs] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
@@ -28,56 +20,6 @@ const JobsView: React.FC = () => {
   const [pendingAction, setPendingAction] = useState<
     "create-job" | "apply-job" | null
   >(null);
-
-  const fetchMyJobs = useCallback(async () => {
-    setIsLoadingMyJobs(true);
-    try {
-      const response = await getMyJobs();
-      const transformedJobs = transformJobs(response.results);
-      setMyJobs(transformedJobs);
-    } catch (error) {
-      console.error("Error fetching my jobs:", error);
-    } finally {
-      setIsLoadingMyJobs(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isHiringMode) {
-      fetchMyJobs();
-    }
-  }, [isHiringMode, fetchMyJobs]);
-
-  // Refresh data when page becomes visible (user returns from edit page)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && isHiringMode) {
-        fetchMyJobs();
-      }
-    };
-
-    window.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      window.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isHiringMode, fetchMyJobs]);
-
-  const handleCreateJob = () => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("accessToken")
-        : null;
-    if (!user && !token && !authLoading) {
-      setPendingAction("create-job");
-      setAuthDialogMode("login");
-      setAuthDialogOpen(true);
-      return;
-    }
-    router.push("/jobs/create");
-  };
-
-  const handleEditJob = (job: Job) => {
-    router.push(`/jobs/create?slug=${job.slug}`);
-  };
 
   const handleApply = (job: Job) => {
     if (job.isApplied) {
@@ -109,43 +51,23 @@ const JobsView: React.FC = () => {
     setPendingAction(null);
   };
 
+  const handleModeChange = (isHiring: boolean) => {
+    if (isHiring) {
+      router.push("/jobs/employer");
+    }
+  };
+
   return (
     <div className="max-w-7xl px-8 mx-auto min-h-screen">
-      {isHiringMode ? (
-        <Suspense
-          fallback={
-            <div className="min-h-[400px] flex items-center justify-center">
-              <span className="text-slate-500">Loading...</span>
-            </div>
-          }
-        >
-          <EmployerContent
-            onCreateJob={handleCreateJob}
-            onEditJob={handleEditJob}
-            jobs={myJobs}
-            isLoading={isLoadingMyJobs}
-            isLoggedIn={
-              !!user ||
-              (typeof window !== "undefined" &&
-                !!localStorage.getItem("accessToken"))
-            }
-            onModeChange={setIsHiringMode}
-          />
-        </Suspense>
-      ) : (
-        <Suspense
-          fallback={
-            <div className="min-h-[400px] flex items-center justify-center">
-              <span className="text-slate-500">Loading...</span>
-            </div>
-          }
-        >
-          <JobsSeekerContent
-            onApply={handleApply}
-            onModeChange={setIsHiringMode}
-          />
-        </Suspense>
-      )}
+      <Suspense
+        fallback={
+          <div className="min-h-[400px] flex items-center justify-center">
+            <span className="text-slate-500">Loading...</span>
+          </div>
+        }
+      >
+        <JobsSeekerContent onApply={handleApply} onModeChange={handleModeChange} />
+      </Suspense>
 
       {selectedJob && (
         <ApplyDialog

@@ -2,25 +2,15 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ExternalLink, AlertCircle, Compass } from "lucide-react";
+import { ExternalLink, AlertCircle, Compass } from "lucide-react";
 
 const testUrl = "https://quiz-g2u0.onrender.com/";
 
 export default function CareerGuidanceView() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-blue-50/50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-        {/* Back */}
-        <Link
-          href="/jobs"
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-800 mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Jobs
-        </Link>
-
+    <div className="min-h-screen">
+      <div className="max-w-4xl">
         {/* Hero */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 px-6 py-10 sm:px-8 sm:py-12 text-white shadow-lg">
           <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">

@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import Footer from "@/components/sections/layout/footer/footer";
 import { DefaultNav } from "@/components/sections/layout/navigation/default-nav";
+import { JobsLayoutClient } from "@/components/jobs/JobsLayoutClient";
 
 export default function JobsLayout({
   children,
@@ -9,7 +11,9 @@ export default function JobsLayout({
   return (
     <>
       <DefaultNav />
-      {children}
+      <Suspense fallback={null}>
+        <JobsLayoutClient>{children}</JobsLayoutClient>
+      </Suspense>
       <Footer />
     </>
   );

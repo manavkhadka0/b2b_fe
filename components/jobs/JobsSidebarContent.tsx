@@ -21,6 +21,7 @@ import {
   type SearchGroupResponse,
 } from "@/services/jobs";
 import Link from "next/link";
+import { JOBS_SIDEBAR } from "./jobs-sidebar-styles";
 
 const LISTING_TIME_OPTIONS: { value: ListingTimeFilter | ""; label: string }[] =
   [
@@ -149,40 +150,40 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Quick Links Section */}
-      <div className=" border-b border-slate-200 pb-6">
-        <h2 className="text-slate-900 font-bold text-base mb-4">Quick Links</h2>
-        <div className="flex flex-col gap-3">
+      {/* Quick Links Section - shared styles with JobsSidebarNav */}
+      <div className={JOBS_SIDEBAR.sectionBordered}>
+        <h2 className={JOBS_SIDEBAR.sectionHeading}>Quick Links</h2>
+        <div className={JOBS_SIDEBAR.linksContainer}>
           <Link
             href="/jobs/career-guidance"
-            className="flex items-center gap-2 text-slate-700 text-sm font-medium hover:text-slate-900 hover:underline transition-colors whitespace-nowrap"
+            className={JOBS_SIDEBAR.link}
           >
-            <Briefcase className="w-4 h-4 text-slate-600 shrink-0" />
+            <Briefcase className={JOBS_SIDEBAR.linkIcon} />
             <span className="truncate">Career Guidance</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
           </Link>
           <Link
             href="/jobs/internship"
-            className="flex items-center gap-2 text-slate-700 text-sm font-medium hover:text-slate-900 hover:underline transition-colors whitespace-nowrap"
+            className={JOBS_SIDEBAR.link}
           >
-            <GraduationCap className="w-4 h-4 text-slate-600 shrink-0" />
+            <GraduationCap className={JOBS_SIDEBAR.linkIcon} />
             <span className="truncate">Internship Opportunities</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
           </Link>
           <Link
             href="/jobs/apprenticeship"
-            className="flex items-center gap-2 text-slate-700 text-sm font-medium hover:text-slate-900 hover:underline transition-colors whitespace-nowrap"
+            className={JOBS_SIDEBAR.link}
           >
-            <GraduationCap className="w-4 h-4 text-slate-600 shrink-0" />
+            <GraduationCap className={JOBS_SIDEBAR.linkIcon} />
             <span className="truncate">Apprenticeship Opportunities</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-auto" />
+            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
           </Link>
         </div>
       </div>
 
       {/* Filters Section */}
       <div>
-        <h4 className="text-slate-900 font-bold text-base mb-6">Filters</h4>
+        <h4 className={JOBS_SIDEBAR.sectionHeadingLarge}>Filters</h4>
 
         {/* Groups Filter */}
         <div className="mb-6">

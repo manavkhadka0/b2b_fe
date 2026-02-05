@@ -15,6 +15,7 @@ import { JobCard } from "@/components/jobs/JobCard";
 
 import { ModeToggle } from "@/components/jobs/ModeToggle";
 import { JobsSidebarContent } from "./JobsSidebarContent";
+import { JOBS_SIDEBAR } from "./jobs-sidebar-styles";
 
 interface JobsSeekerContentProps {
   onApply: (job: Job) => void;
@@ -74,14 +75,14 @@ export function JobsSeekerContent({
     setSelectedEmploymentType(
       ["All", "Full Time", "Part Time", "Contract", "Internship"].includes(emp)
         ? emp
-        : "All"
+        : "All",
     );
     setSelectedUnitGroupCodes(units);
     setSelectedMinorGroupCodes(minors);
     setListingTime(
       VALID_LISTING_TIMES.includes(lt as ListingTimeFilter | "")
         ? (lt as ListingTimeFilter | "")
-        : ""
+        : "",
     );
     setSalaryMin(smin);
     setSalaryMax(smax);
@@ -129,7 +130,7 @@ export function JobsSeekerContent({
       minor_groups?: string[],
       listing_time?: ListingTimeFilter,
       salary_min?: string,
-      salary_max?: string
+      salary_max?: string,
     ) => {
       setIsLoading(true);
       try {
@@ -140,7 +141,7 @@ export function JobsSeekerContent({
           minor_groups && minor_groups.length > 0 ? minor_groups : undefined,
           listing_time || undefined,
           salary_min?.trim() || undefined,
-          salary_max?.trim() || undefined
+          salary_max?.trim() || undefined,
         );
         const transformed = transformJobs(response.results);
         setJobs(transformed);
@@ -151,7 +152,7 @@ export function JobsSeekerContent({
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -174,7 +175,7 @@ export function JobsSeekerContent({
       selectedMinorGroupCodes,
       listingTime || undefined,
       debouncedSalaryMin.trim() || undefined,
-      debouncedSalaryMax.trim() || undefined
+      debouncedSalaryMax.trim() || undefined,
     );
   }, [
     debouncedSearch,
@@ -215,7 +216,7 @@ export function JobsSeekerContent({
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="max-w-7xl mx-auto  py-10 min-h-screen">
+    <div className="max-w-7xl mx-auto py-10 min-h-screen">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"
@@ -225,7 +226,7 @@ export function JobsSeekerContent({
       )}
 
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 overflow-y-auto overflow-x-hidden py-4 px-4 transition-transform duration-200 ease-out lg:hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden ${
+        className={`${JOBS_SIDEBAR.mobile} ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ msOverflowStyle: "none" } as React.CSSProperties}
@@ -242,6 +243,12 @@ export function JobsSeekerContent({
             <X className="w-5 h-5" />
           </button>
         </div>
+        {onModeChange && (
+          <div className={JOBS_SIDEBAR.sectionBordered}>
+            <h2 className={JOBS_SIDEBAR.sectionHeadingTight}>View Mode</h2>
+            <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+          </div>
+        )}
         <JobsSidebarContent
           selectedEmploymentType={selectedEmploymentType}
           setSelectedEmploymentType={setSelectedEmploymentType}
@@ -260,7 +267,13 @@ export function JobsSeekerContent({
       </aside>
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-        <aside className="hidden lg:block w-64 flex-shrink-0 self-start sticky top-24 border-r border-slate-200 pr-6 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
+        <aside className={JOBS_SIDEBAR.desktop}>
+          {onModeChange && (
+            <div className={JOBS_SIDEBAR.sectionBordered}>
+              <h2 className={JOBS_SIDEBAR.sectionHeadingTight}>View Mode</h2>
+              <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
+            </div>
+          )}
           <JobsSidebarContent
             selectedEmploymentType={selectedEmploymentType}
             setSelectedEmploymentType={setSelectedEmploymentType}
@@ -292,9 +305,6 @@ export function JobsSeekerContent({
 
           {/* Controls Section */}
           <div className="flex items-center gap-3 mb-4 flex-wrap justify-between">
-            {onModeChange && (
-              <ModeToggle isHiringMode={false} onModeChange={onModeChange} />
-            )}
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -362,8 +372,8 @@ export function JobsSeekerContent({
                   {salaryMin.trim() && salaryMax.trim()
                     ? `${salaryMin.trim()} - ${salaryMax.trim()}`
                     : salaryMin.trim()
-                    ? `Min ${salaryMin.trim()}`
-                    : `Max ${salaryMax.trim()}`}
+                      ? `Min ${salaryMin.trim()}`
+                      : `Max ${salaryMax.trim()}`}
                 </span>
               )}
               <button
