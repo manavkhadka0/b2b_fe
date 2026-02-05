@@ -51,6 +51,17 @@ export default function CareerGuidanceView() {
               higher education, and entrepreneurship.
             </p>
 
+            <div className="pt-2">
+              <Button
+                onClick={() => window.open(testUrl, "_blank")}
+                className="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white shadow-md"
+                size="lg"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Start Career Interest Test
+              </Button>
+            </div>
+
             <div className="rounded-xl bg-blue-50/80 border border-blue-100 p-4 sm:p-5">
               <div className="flex gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -63,21 +74,11 @@ export default function CareerGuidanceView() {
                   <p className="text-sm text-blue-800/90 leading-relaxed">
                     This test provides guidance only. Final decisions should
                     consider your personal situation, qualifications, and
-                    consultation with teachers/mentors.
+                    consultation with qualified career counselors or mentors
+                    associated with this program
                   </p>
                 </div>
               </div>
-            </div>
-
-            <div className="pt-2">
-              <Button
-                onClick={() => window.open(testUrl, "_blank")}
-                className="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white shadow-md"
-                size="lg"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Start Career Interest Test
-              </Button>
             </div>
           </div>
         </div>
