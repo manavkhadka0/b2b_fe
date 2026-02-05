@@ -106,7 +106,7 @@ const postJobSchema = z
     {
       message: "Maximum salary must be greater than minimum salary",
       path: ["salary_range_max"],
-    }
+    },
   );
 
 const qualifications = [
@@ -162,7 +162,7 @@ export function PostJobForm({
 
   // Helper function to safely cast enum values
   const getEmploymentType = (
-    value?: string
+    value?: string,
   ): z.infer<typeof postJobSchema>["employment_type"] => {
     if (value && employmentTypes.some((t) => t.value === value)) {
       return value as z.infer<typeof postJobSchema>["employment_type"];
@@ -171,7 +171,7 @@ export function PostJobForm({
   };
 
   const getSkillLevel = (
-    value?: string
+    value?: string,
   ): z.infer<typeof postJobSchema>["required_skill_level"] => {
     if (value && skillLevels.some((l) => l.value === value)) {
       return value as z.infer<typeof postJobSchema>["required_skill_level"];
@@ -180,7 +180,7 @@ export function PostJobForm({
   };
 
   const getEducation = (
-    value?: string
+    value?: string,
   ): z.infer<typeof postJobSchema>["required_education"] => {
     if (value && qualifications.some((q) => q.value === value)) {
       return value as z.infer<typeof postJobSchema>["required_education"];
@@ -198,10 +198,10 @@ export function PostJobForm({
       required_skill_level: getSkillLevel(initialData?.required_skill_level),
       required_education: getEducation(initialData?.required_education),
       salary_range_min: parseInt(
-        initialData?.salary_range_min?.toString() || "0"
+        initialData?.salary_range_min?.toString() || "0",
       ),
       salary_range_max: parseInt(
-        initialData?.salary_range_max?.toString() || "0"
+        initialData?.salary_range_max?.toString() || "0",
       ),
       location: initialData?.location?.map((location) => location.id) || [],
       deadline: initialData?.deadline
@@ -248,13 +248,13 @@ export function PostJobForm({
         const errorMessages = Object.entries(errorData)
           .map(
             ([key, value]) =>
-              `${key}: ${Array.isArray(value) ? value[0] : value}`
+              `${key}: ${Array.isArray(value) ? value[0] : value}`,
           )
           .join(", ");
         toast.error(errorMessages || "Failed to save job");
       } else {
         toast.error(
-          `Failed to ${isEditing ? "update" : "post"} job. Please try again.`
+          `Failed to ${isEditing ? "update" : "post"} job. Please try again.`,
         );
       }
     } finally {
@@ -266,21 +266,24 @@ export function PostJobForm({
   const showSalary = form.watch("show_salary");
 
   // Group unit groups by major group
-  const groupedUnitGroups = unitGroups.reduce((acc, unitGroup) => {
-    const majorGroup = unitGroup?.minor_group?.sub_major_group?.major_group;
+  const groupedUnitGroups = unitGroups.reduce(
+    (acc, unitGroup) => {
+      const majorGroup = unitGroup?.minor_group?.sub_major_group?.major_group;
 
-    if (!majorGroup) {
-      console.warn("Invalid UnitGroup structure:", unitGroup);
+      if (!majorGroup) {
+        console.warn("Invalid UnitGroup structure:", unitGroup);
+        return acc;
+      }
+
+      if (!acc[majorGroup.title]) {
+        acc[majorGroup.title] = [];
+      }
+
+      acc[majorGroup.title].push(unitGroup);
       return acc;
-    }
-
-    if (!acc[majorGroup.title]) {
-      acc[majorGroup.title] = [];
-    }
-
-    acc[majorGroup.title].push(unitGroup);
-    return acc;
-  }, {} as Record<string, UnitGroup[]>);
+    },
+    {} as Record<string, UnitGroup[]>,
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
@@ -357,12 +360,12 @@ export function PostJobForm({
                                 role="combobox"
                                 className={cn(
                                   "w-full justify-between border-slate-200",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value
                                   ? unitGroups.find(
-                                      (group) => group.code === field.value
+                                      (group) => group.code === field.value,
                                     )?.title
                                   : "Select unit group"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -385,11 +388,11 @@ export function PostJobForm({
                                       {groups.map((group) => (
                                         <CommandItem
                                           key={group.code}
-                                          value={group.code}
+                                          value={`${group.title} ${group.minor_group?.sub_major_group?.title ?? ""} ${majorGroupTitle} ${group.code}`}
                                           onSelect={() => {
                                             form.setValue(
                                               "unit_group",
-                                              group.code
+                                              group.code,
                                             );
                                           }}
                                         >
@@ -409,13 +412,13 @@ export function PostJobForm({
                                               group.code ===
                                                 form.watch("unit_group")
                                                 ? "opacity-100"
-                                                : "opacity-0"
+                                                : "opacity-0",
                                             )}
                                           />
                                         </CommandItem>
                                       ))}
                                     </CommandGroup>
-                                  )
+                                  ),
                                 )}
                               </CommandList>
                             </Command>
@@ -441,12 +444,12 @@ export function PostJobForm({
                                 role="combobox"
                                 className={cn(
                                   "w-full justify-between border-slate-200",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value
                                   ? employmentTypes.find(
-                                      (type) => type.value === field.value
+                                      (type) => type.value === field.value,
                                     )?.label
                                   : "Select employment type"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -466,7 +469,7 @@ export function PostJobForm({
                                       onSelect={() => {
                                         form.setValue(
                                           "employment_type",
-                                          type.value
+                                          type.value,
                                         );
                                       }}
                                     >
@@ -476,7 +479,7 @@ export function PostJobForm({
                                           "ml-auto h-4 w-4",
                                           type.value === field.value
                                             ? "opacity-100"
-                                            : "opacity-0"
+                                            : "opacity-0",
                                         )}
                                       />
                                     </CommandItem>
@@ -518,12 +521,12 @@ export function PostJobForm({
                                 role="combobox"
                                 className={cn(
                                   "w-full justify-between border-slate-200",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value
                                   ? skillLevels.find(
-                                      (level) => level.value === field.value
+                                      (level) => level.value === field.value,
                                     )?.label
                                   : "Select skill level"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -543,7 +546,7 @@ export function PostJobForm({
                                       onSelect={() => {
                                         form.setValue(
                                           "required_skill_level",
-                                          level.value
+                                          level.value,
                                         );
                                       }}
                                     >
@@ -553,7 +556,7 @@ export function PostJobForm({
                                           "ml-auto h-4 w-4",
                                           level.value === field.value
                                             ? "opacity-100"
-                                            : "opacity-0"
+                                            : "opacity-0",
                                         )}
                                       />
                                     </CommandItem>
@@ -583,13 +586,13 @@ export function PostJobForm({
                                 role="combobox"
                                 className={cn(
                                   "w-full justify-between border-slate-200",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value
                                   ? qualifications.find(
                                       (qualification) =>
-                                        qualification.value === field.value
+                                        qualification.value === field.value,
                                     )?.label
                                   : "Select education level"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -609,7 +612,7 @@ export function PostJobForm({
                                       onSelect={() => {
                                         form.setValue(
                                           "required_education",
-                                          qualification.value
+                                          qualification.value,
                                         );
                                       }}
                                     >
@@ -619,7 +622,7 @@ export function PostJobForm({
                                           "ml-auto h-4 w-4",
                                           qualification.value === field.value
                                             ? "opacity-100"
-                                            : "opacity-0"
+                                            : "opacity-0",
                                         )}
                                       />
                                     </CommandItem>
@@ -846,7 +849,7 @@ export function PostJobForm({
                                 className={cn(
                                   "w-full justify-between border-slate-200",
                                   !field.value?.length &&
-                                    "text-muted-foreground"
+                                    "text-muted-foreground",
                                 )}
                               >
                                 {field.value?.length > 0
@@ -866,7 +869,7 @@ export function PostJobForm({
                                 <CommandGroup>
                                   {locations.map((location) => {
                                     const isSelected = field.value?.includes(
-                                      location.id
+                                      location.id,
                                     );
                                     return (
                                       <CommandItem
@@ -875,7 +878,7 @@ export function PostJobForm({
                                         onSelect={() => {
                                           const newValue = isSelected
                                             ? field.value.filter(
-                                                (id) => id !== location.id
+                                                (id) => id !== location.id,
                                               )
                                             : [
                                                 ...(field.value || []),
@@ -911,7 +914,7 @@ export function PostJobForm({
                         <div className="flex flex-wrap gap-2 mt-2">
                           {field.value?.map((locationId) => {
                             const location = locations.find(
-                              (l) => l.id === locationId
+                              (l) => l.id === locationId,
                             );
                             if (!location) return null;
                             return (
@@ -927,7 +930,7 @@ export function PostJobForm({
                                   className="h-4 w-4 p-0 hover:bg-slate-200"
                                   onClick={() => {
                                     const newValue = field.value.filter(
-                                      (id) => id !== location.id
+                                      (id) => id !== location.id,
                                     );
                                     form.setValue("location", newValue);
                                   }}
@@ -957,7 +960,7 @@ export function PostJobForm({
                                 variant={"outline"}
                                 className={cn(
                                   "w-full pl-3 text-left font-normal border-slate-200",
-                                  !field.value && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground",
                                 )}
                               >
                                 {field.value ? (
@@ -1009,8 +1012,8 @@ export function PostJobForm({
                     ? "Updating..."
                     : "Posting..."
                   : isEditing
-                  ? "Update Job"
-                  : "Post Job"}
+                    ? "Update Job"
+                    : "Post Job"}
               </Button>
             </div>
           </div>
