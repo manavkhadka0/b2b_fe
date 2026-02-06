@@ -57,7 +57,7 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
 
   return (
     <WorkInterestsFiltersProvider>
-      <div className="max-w-7xl px-8 mx-auto py-10 min-h-screen">
+      <div className="max-w-7xl px-4 sm:px-8 mx-auto py-10 min-h-screen">
         {sidebarOpen && (
           <div
             className="fixed inset-0 z-40 bg-slate-900/50 lg:hidden"

@@ -352,21 +352,21 @@ export default function ApprenticeshipApplyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-4 px-2 sm:py-6 sm:px-4 lg:py-8 lg:px-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-2">
+        <div className="mb-4 sm:mb-6 lg:mb-8 text-center">
+          <h1 className="text-xl min-[375px]:text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2 px-2">
             Apprenticeship Program Application
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base">
+          <p className="text-slate-600 text-xs min-[375px]:text-sm sm:text-base px-2">
             Complete all steps to submit your application for Industry Placement
             Assurance
           </p>
         </div>
 
         {/* Step Indicator */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-6 lg:mb-8 px-2">
           <div className="hidden md:flex items-center justify-between">
             {STEPS.map((step, index) => {
               const stepNumber = index + 1;
@@ -422,15 +422,15 @@ export default function ApprenticeshipApplyPage() {
 
           {/* Mobile Step Indicator */}
           <div className="md:hidden">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-blue-600">
+            <div className="flex items-center justify-between mb-2 gap-2">
+              <span className="text-xs min-[375px]:text-sm font-medium text-blue-600 truncate">
                 Step {currentStep} of {STEPS.length}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs min-[375px]:text-sm text-gray-500 truncate text-right">
                 {STEPS[currentStep - 1].title}
               </span>
             </div>
-            <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="relative h-1.5 sm:h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="absolute left-0 top-0 h-full bg-blue-600 transition-all duration-300 rounded-full"
                 style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
@@ -440,21 +440,21 @@ export default function ApprenticeshipApplyPage() {
         </div>
 
         {/* Form Card */}
-        <Card className="shadow-xl bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">
+        <Card className="shadow-xl bg-white/80 backdrop-blur-sm mx-0 sm:mx-2">
+          <CardHeader className="px-3 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
+            <CardTitle className="text-lg min-[375px]:text-xl sm:text-2xl">
               {STEPS[currentStep - 1].title}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs min-[375px]:text-sm mt-1">
               {STEPS[currentStep - 1].description}
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
                 {/* Step Components */}
                 {currentStep === 1 && <Step1ApplicantDetails form={form} />}
@@ -506,15 +506,15 @@ export default function ApprenticeshipApplyPage() {
 
                 {/* Navigation Buttons */}
                 {currentStep === 7 && isEditing ? null : (
-                  <div className="flex justify-between pt-6 border-t">
+                  <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 pt-4 sm:pt-6 border-t">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={prevStep}
                       disabled={currentStep === 1}
-                      className="flex items-center gap-2"
+                      className="flex items-center justify-center gap-2 w-full sm:w-auto text-sm sm:text-base"
                     >
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                       Previous
                     </Button>
 
@@ -522,10 +522,10 @@ export default function ApprenticeshipApplyPage() {
                       <Button
                         type="button"
                         onClick={nextStep}
-                        className="flex items-center gap-2"
+                        className="flex items-center justify-center gap-2 w-full sm:w-auto text-sm sm:text-base"
                       >
                         Next
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     ) : (
                       <Button
@@ -534,20 +534,20 @@ export default function ApprenticeshipApplyPage() {
                           isSubmitting || !form.watch("declaration")
                         }
                         className={cn(
-                          "flex items-center gap-2",
+                          "flex items-center justify-center gap-2 w-full sm:w-auto text-sm sm:text-base",
                           !form.watch("declaration") &&
                             "disabled:opacity-50 disabled:pointer-events-none"
                         )}
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                            Submitting...
+                            <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <span className="text-xs sm:text-sm">Submitting...</span>
                           </>
                         ) : (
                           <>
-                            <CheckCircle2 className="h-4 w-4" />
-                            Submit Application
+                            <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="text-xs sm:text-sm">Submit Application</span>
                           </>
                         )}
                       </Button>

@@ -303,14 +303,14 @@ export function JobsSeekerContent({
         <div className="flex-1 min-w-0">
           {/* Header Section */}
           <div className="mb-6 sm:mb-8 space-y-2">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent py-2">
                 यहाँ काम र कामदार पाइन्छ
               </h1>
               <Link href="/jobs/employer">
                 <Button
                   size="default"
-                  className="whitespace-nowrap bg-blue-800 text-white"
+                  className="w-full sm:w-auto bg-blue-800 text-white"
                 >
                   Post Your Job
                   <ChevronRight className="w-4 h-4" />

@@ -140,7 +140,7 @@ export const JobCard: React.FC<JobCardProps> = ({
         </span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-6 border-t border-slate-50 pt-4">
+      <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 border-t border-slate-50 pt-4">
         <span className="bg-slate-50 border border-slate-100 text-slate-600 text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide shrink-0">
           {job.type}
         </span>

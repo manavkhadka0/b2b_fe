@@ -121,7 +121,7 @@ export function Step4InternshipPreferences({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-4"
+      className="space-y-3 sm:space-y-4"
     >
       <FormField
         control={form.control}
@@ -140,37 +140,40 @@ export function Step4InternshipPreferences({
                     variant="outline"
                     role="combobox"
                     className={cn(
-                      "w-full justify-between",
+                      "w-full justify-between text-xs sm:text-sm",
                       !field.value && "text-muted-foreground",
                     )}
                     disabled={isLoadingIndustries}
                   >
-                    {field.value
-                      ? industries.find(
-                          (ind) => ind.id.toString() === field.value,
-                        )?.name || "Select preferred industry"
-                      : isLoadingIndustries
-                        ? "Loading industries..."
-                        : "Select preferred industry"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <span className="truncate mr-2">
+                      {field.value
+                        ? industries.find(
+                            (ind) => ind.id.toString() === field.value,
+                          )?.name || "Select preferred industry"
+                        : isLoadingIndustries
+                          ? "Loading industries..."
+                          : "Select preferred industry"}
+                    </span>
+                    <ChevronsUpDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-80" align="start">
+              <PopoverContent className="w-[calc(100vw-1rem)] sm:w-full p-0 max-h-[70vh] sm:max-h-80" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search industries..."
                     value={industrySearchValue}
                     onValueChange={setIndustrySearchValue}
+                    className="text-sm sm:text-base"
                   />
-                  <CommandEmpty>
+                  <CommandEmpty className="text-xs sm:text-sm py-2">
                     {isLoadingIndustries
                       ? "Loading..."
                       : industries.length === 0
                         ? "No industries found."
                         : "No industries match your search."}
                   </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-y-auto">
+                  <CommandGroup className="max-h-[50vh] sm:max-h-64 overflow-y-auto">
                     {industries.map((industry) => (
                       <CommandItem
                         key={industry.id}
@@ -188,8 +191,8 @@ export function Step4InternshipPreferences({
                               : "opacity-0",
                           )}
                         />
-                        <div className="flex items-center justify-between gap-3 w-full">
-                          <span className="truncate">{industry.name}</span>
+                        <div className="flex items-center justify-between gap-2 sm:gap-3 w-full min-w-0">
+                          <span className="truncate text-xs sm:text-sm">{industry.name}</span>
                           {getIndustryWebsiteUrl(industry.link) && (
                             <a
                               href={
@@ -197,13 +200,13 @@ export function Step4InternshipPreferences({
                               }
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline flex-shrink-0"
+                              className="flex items-center gap-1 text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 hover:underline flex-shrink-0"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <span className="hidden sm:inline">
+                              <span className="hidden min-[375px]:inline">
                                 {getIndustryWebsiteLabel(industry.link)}
                               </span>
-                              <ExternalLink className="h-3 w-3" />
+                              <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                             </a>
                           )}
                         </div>
@@ -243,7 +246,7 @@ export function Step4InternshipPreferences({
         )}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <FormField
           control={form.control}
           name="internshipDuration"

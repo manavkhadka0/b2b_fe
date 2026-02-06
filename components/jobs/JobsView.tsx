@@ -63,7 +63,7 @@ const JobsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl px-8 mx-auto min-h-screen">
+    <div className="max-w-7xl px-4 sm:px-8 mx-auto min-h-screen">
       <Suspense
         fallback={
           <div className="min-h-[400px] flex items-center justify-center">

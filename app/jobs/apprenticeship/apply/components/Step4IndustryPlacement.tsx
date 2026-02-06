@@ -158,10 +158,10 @@ export function Step4IndustryPlacement({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-4"
+      className="space-y-3 sm:space-y-4"
     >
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+        <p className="text-xs min-[375px]:text-sm text-blue-800 leading-relaxed">
           Select your industry preferences for placement. You can select up to 3
           industries in order of preference.
         </p>
@@ -184,35 +184,38 @@ export function Step4IndustryPlacement({
                     variant="outline"
                     role="combobox"
                     className={cn(
-                      "w-full justify-between",
+                      "w-full justify-between text-xs sm:text-sm",
                       !field.value && "text-muted-foreground",
                     )}
                     disabled={isLoadingIndustries}
                   >
-                    {field.value
-                      ? getIndustryName(field.value)
-                      : isLoadingIndustries
-                        ? "Loading industries..."
-                        : "Select first preference"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <span className="truncate mr-2">
+                      {field.value
+                        ? getIndustryName(field.value)
+                        : isLoadingIndustries
+                          ? "Loading industries..."
+                          : "Select first preference"}
+                    </span>
+                    <ChevronsUpDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-80" align="start">
+              <PopoverContent className="w-[calc(100vw-1rem)] sm:w-full p-0 max-h-[70vh] sm:max-h-80" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search industries..."
                     value={industrySearch1.value}
                     onValueChange={industrySearch1.setValue}
+                    className="text-sm sm:text-base"
                   />
-                  <CommandEmpty>
+                  <CommandEmpty className="text-xs sm:text-sm py-2">
                     {isLoadingIndustries
                       ? "Loading..."
                       : industry1Options.length === 0
                         ? "No industries found."
                         : "No industries match your search."}
                   </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-y-auto">
+                  <CommandGroup className="max-h-[50vh] sm:max-h-64 overflow-y-auto">
                     {industry1Options.map((industry) => (
                       <CommandItem
                         key={industry.id}
@@ -230,10 +233,10 @@ export function Step4IndustryPlacement({
                               : "opacity-0",
                           )}
                         />
-                        <div className="flex items-center justify-between gap-3 w-full">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Building className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                            <span className="truncate">{industry.name}</span>
+                        <div className="flex items-center justify-between gap-2 sm:gap-3 w-full min-w-0">
+                          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                            <Building className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
+                            <span className="truncate text-xs sm:text-sm">{industry.name}</span>
                           </div>
                           {getIndustryWebsiteUrl(industry.link) && (
                             <a
@@ -242,13 +245,13 @@ export function Step4IndustryPlacement({
                               }
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline flex-shrink-0"
+                              className="flex items-center gap-1 text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 hover:underline flex-shrink-0"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <span className="hidden sm:inline">
+                              <span className="hidden min-[375px]:inline">
                                 {getIndustryWebsiteLabel(industry.link)}
                               </span>
-                              <ExternalLink className="h-3 w-3" />
+                              <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                             </a>
                           )}
                         </div>
@@ -282,37 +285,40 @@ export function Step4IndustryPlacement({
                     variant="outline"
                     role="combobox"
                     className={cn(
-                      "w-full justify-between",
+                      "w-full justify-between text-xs sm:text-sm",
                       !field.value && "text-muted-foreground",
                     )}
                     disabled={!industryPreference1 || isLoadingIndustries}
                   >
-                    {field.value
-                      ? field.value === "__none__"
-                        ? "None"
-                        : getIndustryName(field.value)
-                      : !industryPreference1
-                        ? "Select first preference first"
-                        : "Select second preference"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <span className="truncate mr-2">
+                      {field.value
+                        ? field.value === "__none__"
+                          ? "None"
+                          : getIndustryName(field.value)
+                        : !industryPreference1
+                          ? "Select first preference first"
+                          : "Select second preference"}
+                    </span>
+                    <ChevronsUpDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-80" align="start">
+              <PopoverContent className="w-[calc(100vw-1rem)] sm:w-full p-0 max-h-[70vh] sm:max-h-80" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search industries..."
                     value={industrySearch2.value}
                     onValueChange={industrySearch2.setValue}
+                    className="text-sm sm:text-base"
                   />
-                  <CommandEmpty>
+                  <CommandEmpty className="text-xs sm:text-sm py-2">
                     {isLoadingIndustries
                       ? "Loading..."
                       : industry2Options.length === 0
                         ? "No industries found."
                         : "No industries match your search."}
                   </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-y-auto">
+                  <CommandGroup className="max-h-[50vh] sm:max-h-64 overflow-y-auto">
                     <CommandItem
                       value="__none__"
                       onSelect={() => {
@@ -376,37 +382,40 @@ export function Step4IndustryPlacement({
                     variant="outline"
                     role="combobox"
                     className={cn(
-                      "w-full justify-between",
+                      "w-full justify-between text-xs sm:text-sm",
                       !field.value && "text-muted-foreground",
                     )}
                     disabled={!industryPreference1 || isLoadingIndustries}
                   >
-                    {field.value
-                      ? field.value === "__none__"
-                        ? "None"
-                        : getIndustryName(field.value)
-                      : !industryPreference1
-                        ? "Select first preference first"
-                        : "Select third preference"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <span className="truncate mr-2">
+                      {field.value
+                        ? field.value === "__none__"
+                          ? "None"
+                          : getIndustryName(field.value)
+                        : !industryPreference1
+                          ? "Select first preference first"
+                          : "Select third preference"}
+                    </span>
+                    <ChevronsUpDown className="h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-80" align="start">
+              <PopoverContent className="w-[calc(100vw-1rem)] sm:w-full p-0 max-h-[70vh] sm:max-h-80" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search industries..."
                     value={industrySearch3.value}
                     onValueChange={industrySearch3.setValue}
+                    className="text-sm sm:text-base"
                   />
-                  <CommandEmpty>
+                  <CommandEmpty className="text-xs sm:text-sm py-2">
                     {isLoadingIndustries
                       ? "Loading..."
                       : industry3Options.length === 0
                         ? "No industries found."
                         : "No industries match your search."}
                   </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-y-auto">
+                  <CommandGroup className="max-h-[50vh] sm:max-h-64 overflow-y-auto">
                     <CommandItem
                       value="__none__"
                       onSelect={() => {

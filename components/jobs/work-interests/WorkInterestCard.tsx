@@ -91,7 +91,7 @@ export function WorkInterestCard({
       <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-xs text-slate-500">
         <span className="inline-flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-slate-400" />
-          <span className="truncate max-w-[220px] sm:max-w-xs">
+          <span className="truncate max-w-[60vw] sm:max-w-xs">
             {locationsLabel}
           </span>
         </span>
