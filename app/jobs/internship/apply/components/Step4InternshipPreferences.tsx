@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { motion } from "framer-motion";
 import {
@@ -19,6 +20,26 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import {
+  Check,
+  ChevronsUpDown,
+  ExternalLink,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
 import { DEPARTMENTS } from "../constants";
 import type { InternshipFormValues } from "../types";
 
@@ -34,13 +55,67 @@ interface Step4InternshipPreferencesProps {
   form: UseFormReturn<InternshipFormValues>;
   industries: Industry[];
   isLoadingIndustries: boolean;
+  onSearchIndustries?: (search: string) => void;
 }
+
+// Normalize API link values to a safe, clickable URL
+const getIndustryWebsiteUrl = (
+  rawLink: string | undefined | null,
+): string | null => {
+  if (!rawLink) return null;
+  const trimmed = rawLink.trim();
+  if (!trimmed) return null;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return `https://${trimmed}`;
+};
+
+const getIndustryWebsiteLabel = (
+  rawLink: string | undefined | null,
+): string | null => {
+  const url = getIndustryWebsiteUrl(rawLink);
+  if (!url) return null;
+
+  return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+};
 
 export function Step4InternshipPreferences({
   form,
   industries,
   isLoadingIndustries,
+  onSearchIndustries,
 }: Step4InternshipPreferencesProps) {
+  const [industrySearchOpen, setIndustrySearchOpen] = useState(false);
+  const [industrySearchValue, setIndustrySearchValue] = useState("");
+  const debouncedIndustrySearch = useDebounce(industrySearchValue, 300);
+  const hasSearchedRef = useRef(false);
+
+  // Trigger API search when user types in the industry search input
+  useEffect(() => {
+    if (!onSearchIndustries || !industrySearchOpen) return;
+
+    const search = debouncedIndustrySearch.trim();
+    if (search.length >= 2) {
+      hasSearchedRef.current = true;
+      onSearchIndustries(search);
+    } else if (search.length === 0 && hasSearchedRef.current) {
+      // Only reload default industries if user previously searched
+      onSearchIndustries("");
+      hasSearchedRef.current = false;
+    }
+  }, [debouncedIndustrySearch, onSearchIndustries, industrySearchOpen]);
+
+  // Reset local search value when popover closes
+  useEffect(() => {
+    if (!industrySearchOpen) {
+      setIndustrySearchValue("");
+      hasSearchedRef.current = false;
+    }
+  }, [industrySearchOpen]);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -54,43 +129,90 @@ export function Step4InternshipPreferences({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Preferred Industry / Company *</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              defaultValue={field.value}
-              disabled={isLoadingIndustries}
+            <Popover
+              open={industrySearchOpen}
+              onOpenChange={setIndustrySearchOpen}
+              modal={true}
             >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      isLoadingIndustries
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-full justify-between",
+                      !field.value && "text-muted-foreground",
+                    )}
+                    disabled={isLoadingIndustries}
+                  >
+                    {field.value
+                      ? industries.find(
+                          (ind) => ind.id.toString() === field.value,
+                        )?.name || "Select preferred industry"
+                      : isLoadingIndustries
                         ? "Loading industries..."
-                        : "Select preferred industry"
-                    }
+                        : "Select preferred industry"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 max-h-80" align="start">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Search industries..."
+                    value={industrySearchValue}
+                    onValueChange={setIndustrySearchValue}
                   />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {isLoadingIndustries ? (
-                  <SelectItem value="loading" disabled>
-                    Loading industries...
-                  </SelectItem>
-                ) : industries.length === 0 ? (
-                  <SelectItem value="none" disabled>
-                    No industries available
-                  </SelectItem>
-                ) : (
-                  industries.map((industry) => (
-                    <SelectItem
-                      key={industry.id}
-                      value={industry.id.toString()}
-                    >
-                      {industry.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+                  <CommandEmpty>
+                    {isLoadingIndustries
+                      ? "Loading..."
+                      : industries.length === 0
+                        ? "No industries found."
+                        : "No industries match your search."}
+                  </CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-y-auto">
+                    {industries.map((industry) => (
+                      <CommandItem
+                        key={industry.id}
+                        value={industry.id.toString()}
+                        onSelect={() => {
+                          field.onChange(industry.id.toString());
+                          setIndustrySearchOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            industry.id.toString() === field.value
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        <div className="flex items-center justify-between gap-3 w-full">
+                          <span className="truncate">{industry.name}</span>
+                          {getIndustryWebsiteUrl(industry.link) && (
+                            <a
+                              href={
+                                getIndustryWebsiteUrl(industry.link) as string
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline flex-shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <span className="hidden sm:inline">
+                                {getIndustryWebsiteLabel(industry.link)}
+                              </span>
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
             <FormMessage />
           </FormItem>
         )}

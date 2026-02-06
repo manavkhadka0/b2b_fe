@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -90,6 +90,7 @@ export default function ApprenticeshipApplyPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [industries, setIndustries] = useState<Industry[]>([]);
   const [isLoadingIndustries, setIsLoadingIndustries] = useState(true);
+  const industriesLoadedRef = useRef(false);
 
   const form = useForm<ApprenticeshipFormValues>({
     resolver: zodResolver(apprenticeshipFormSchema),
@@ -119,29 +120,37 @@ export default function ApprenticeshipApplyPage() {
     },
   });
 
-  // Fetch industries on component mount
-  useEffect(() => {
-    const fetchIndustries = async () => {
-      setIsLoadingIndustries(true);
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/industries/`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch industries");
-        }
-        const data = await response.json();
-        setIndustries(data.results || []);
-      } catch (error) {
-        console.error("Failed to fetch industries:", error);
-        toast.error("Failed to load industries. Please refresh the page.");
-      } finally {
-        setIsLoadingIndustries(false);
-      }
-    };
+  // Fetch industries (supports optional search query)
+  const fetchIndustries = useCallback(async (search?: string) => {
+    setIsLoadingIndustries(true);
+    try {
+      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/industries/`;
+      const url =
+        search && search.trim().length > 0
+          ? `${baseUrl}?search=${encodeURIComponent(search.trim())}`
+          : baseUrl;
 
-    fetchIndustries();
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch industries");
+      }
+      const data = await response.json();
+      setIndustries(data.results || []);
+    } catch (error) {
+      console.error("Failed to fetch industries:", error);
+      toast.error("Failed to load industries. Please refresh the page.");
+    } finally {
+      setIsLoadingIndustries(false);
+    }
   }, []);
+
+  // Initial industries load - only once
+  useEffect(() => {
+    if (!industriesLoadedRef.current) {
+      industriesLoadedRef.current = true;
+      fetchIndustries();
+    }
+  }, [fetchIndustries]);
 
   const getFieldsForStep = (
     step: number
@@ -456,6 +465,7 @@ export default function ApprenticeshipApplyPage() {
                     form={form}
                     industries={industries}
                     isLoadingIndustries={isLoadingIndustries}
+                    onSearchIndustries={fetchIndustries}
                   />
                 )}
                 {currentStep === 5 && (
