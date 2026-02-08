@@ -9,7 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/sections/layout/language-switcher";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -75,11 +75,7 @@ export function DefaultNav() {
 
   const handleLogoutClick = async () => {
     try {
-      if (session) {
-        await signOut({ redirect: false });
-      } else {
-        logout();
-      }
+      await logout();
       router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
