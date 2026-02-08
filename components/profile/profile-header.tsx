@@ -31,10 +31,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           </h1>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-gray-300">
-              <MapPin className="w-4 h-4 shrink-0 text-gray-400" />
-              <span>{address || "Add a home location"}</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-300">
               <Mail className="w-4 h-4 shrink-0 text-gray-400" />
               <span>{user.email}</span>
             </div>
