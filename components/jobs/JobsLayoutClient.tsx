@@ -50,7 +50,9 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
   };
 
   if (!showSidebar) {
-    return <>{children}</>;
+    return (
+      <WorkInterestsFiltersProvider>{children}</WorkInterestsFiltersProvider>
+    );
   }
 
   const closeSidebar = () => setSidebarOpen(false);
