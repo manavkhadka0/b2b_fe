@@ -208,8 +208,11 @@ export function PostJobForm({
       salary_range_max: parseInt(
         initialData?.salary_range_max?.toString() || "0",
       ),
-      location:
-        initialData?.location?.map((l) => l.name).join(", ") || "",
+      location: Array.isArray(initialData?.location)
+        ? initialData.location.map((l) => (typeof l === "object" && l?.name ? l.name : String(l))).join(", ")
+        : initialData?.location
+          ? String(initialData.location)
+          : "",
       deadline: initialData?.deadline
         ? new Date(initialData.deadline)
         : new Date(),
