@@ -15,9 +15,8 @@ import {
   getSkills,
   type WorkInterestSkill,
 } from "@/services/workInterests";
-import { getLocations, getUnitGroups } from "@/services/jobs";
+import { getUnitGroups } from "@/services/jobs";
 import type { UnitGroup } from "@/types/unit-groups";
-import type { Location } from "@/types/auth";
 import type { CreateWorkInterestPayload } from "@/services/workInterests";
 import { toast } from "@/hooks/use-toast";
 
@@ -30,7 +29,7 @@ const initialFormData: WorkInterestFormData = {
   unit_group: "",
   proficiency_level: "Intermediate",
   availability: "Full Time",
-  preferred_locations: [],
+  preferred_locations: "",
   skills: [],
 };
 
@@ -39,7 +38,6 @@ export default function CreateWorkInterestPage() {
   const { user, isLoading: authLoading } = useAuth();
 
   const [unitGroups, setUnitGroups] = useState<UnitGroup[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
   const [formData, setFormData] =
     useState<WorkInterestFormData>(initialFormData);
   const [skillSuggestions, setSkillSuggestions] = useState<WorkInterestSkill[]>(
@@ -79,16 +77,12 @@ export default function CreateWorkInterestPage() {
     }
   }, [user, authLoading]);
 
-  // Load initial unit groups & locations
+  // Load initial unit groups
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [groups, locs] = await Promise.all([
-          getUnitGroups(),
-          getLocations(),
-        ]);
+        const groups = await getUnitGroups();
         setUnitGroups(groups);
-        setLocations(locs);
         setUnitGroupsForForm(groups);
 
         const grouped: Record<string, UnitGroup[]> = {};
@@ -100,7 +94,7 @@ export default function CreateWorkInterestPage() {
         });
         setGroupedUnitGroupsForForm(grouped);
       } catch (err) {
-        console.warn("Failed to load unit groups/locations", err);
+        console.warn("Failed to load unit groups", err);
       }
     };
     void fetchData();
@@ -221,7 +215,6 @@ export default function CreateWorkInterestPage() {
         <WorkInterestForm
           formData={formData}
           setFormData={setFormData}
-          locations={locations}
           unitGroups={unitGroups}
           unitGroupsForForm={unitGroupsForForm}
           groupedUnitGroupsForForm={groupedUnitGroupsForForm}
@@ -252,4 +245,3 @@ export default function CreateWorkInterestPage() {
     </>
   );
 }
-

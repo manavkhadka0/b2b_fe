@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -21,8 +20,6 @@ import type {
   WorkInterestSkill,
 } from "@/services/workInterests";
 import type { UnitGroup } from "@/types/unit-groups";
-import type { Location } from "@/types/auth";
-import { LocationsSelect } from "./LocationsSelect";
 import { UnitGroupSelect } from "./UnitGroupSelect";
 import { SkillsSelect } from "./SkillsSelect";
 import { toast } from "@/hooks/use-toast";
@@ -41,44 +38,23 @@ const AVAILABILITY_OPTIONS: AvailabilityOption[] = [
 ];
 
 const workInterestPayloadSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Full name is required"),
-  email: z
-    .string()
-    .trim()
-    .email("Please enter a valid email address"),
-  phone: z
-    .string()
-    .trim()
-    .min(5, "Phone must be at least 5 characters"),
+  name: z.string().trim().min(2, "Full name is required"),
+  email: z.string().trim().email("Please enter a valid email address"),
+  phone: z.string().trim().min(5, "Phone must be at least 5 characters"),
   title: z
     .string()
     .trim()
     .min(3, "Desired title must be at least 3 characters"),
-  summary: z
-    .string()
-    .trim()
-    .min(10, "Summary must be at least 10 characters"),
-  unit_group: z
-    .number()
-    .int()
-    .positive("Unit group is required"),
+  summary: z.string().trim().min(10, "Summary must be at least 10 characters"),
+  unit_group: z.number().int().positive("Unit group is required"),
   proficiency_level: z.enum(["Beginner", "Intermediate", "Expert"], {
     required_error: "Proficiency level is required",
   }),
-  availability: z.enum(
-    ["Full Time", "Part Time", "Internship", "Freelance"],
-    {
-      required_error: "Availability is required",
-    },
-  ),
-  // Only locations can be omitted
-  preferred_locations: z.array(z.number()).optional(),
-  skills: z
-    .array(z.number())
-    .min(1, "Please select at least one skill"),
+  availability: z.enum(["Full Time", "Part Time", "Internship", "Freelance"], {
+    required_error: "Availability is required",
+  }),
+  preferred_locations: z.string().optional(),
+  skills: z.array(z.number()).min(1, "Please select at least one skill"),
 });
 
 export interface WorkInterestFormData {
@@ -90,14 +66,13 @@ export interface WorkInterestFormData {
   unit_group: string;
   proficiency_level: ProficiencyLevel;
   availability: AvailabilityOption;
-  preferred_locations: number[];
+  preferred_locations: string;
   skills: number[];
 }
 
 interface WorkInterestFormProps {
   formData: WorkInterestFormData;
   setFormData: React.Dispatch<React.SetStateAction<WorkInterestFormData>>;
-  locations: Location[];
   unitGroups: UnitGroup[];
   unitGroupsForForm: UnitGroup[];
   groupedUnitGroupsForForm: Record<string, UnitGroup[]>;
@@ -122,7 +97,6 @@ interface WorkInterestFormProps {
 export function WorkInterestForm({
   formData,
   setFormData,
-  locations,
   unitGroups,
   unitGroupsForForm,
   groupedUnitGroupsForForm,
@@ -143,19 +117,10 @@ export function WorkInterestForm({
   onAddSkill,
   onSubmit,
 }: WorkInterestFormProps) {
-  type FormErrors = Partial<Record<keyof WorkInterestFormData | "form", string>>;
+  type FormErrors = Partial<
+    Record<keyof WorkInterestFormData | "form", string>
+  >;
   const [errors, setErrors] = useState<FormErrors>({});
-  const toggleLocation = (id: number) => {
-    setFormData((prev) => {
-      const exists = prev.preferred_locations.includes(id);
-      return {
-        ...prev,
-        preferred_locations: exists
-          ? prev.preferred_locations.filter((loc) => loc !== id)
-          : [...prev.preferred_locations, id],
-      };
-    });
-  };
 
   const removeSkill = (id: number) => {
     setFormData((prev) => ({
@@ -175,10 +140,7 @@ export function WorkInterestForm({
       unit_group: Number(formData.unit_group),
       proficiency_level: formData.proficiency_level,
       availability: formData.availability,
-      preferred_locations:
-        formData.preferred_locations.length > 0
-          ? formData.preferred_locations
-          : undefined,
+      preferred_locations: formData.preferred_locations?.trim() || undefined,
       skills: formData.skills.length > 0 ? formData.skills : undefined,
     };
     try {
@@ -190,12 +152,16 @@ export function WorkInterestForm({
         const fieldErrors: FormErrors = {};
         for (const issue of err.errors) {
           const field = issue.path[0];
-          if (typeof field === "string" && !fieldErrors[field as keyof FormErrors]) {
+          if (
+            typeof field === "string" &&
+            !fieldErrors[field as keyof FormErrors]
+          ) {
             fieldErrors[field as keyof FormErrors] = issue.message;
           }
         }
         setErrors(fieldErrors);
-        const message = err.errors[0]?.message ?? "Please check the form fields.";
+        const message =
+          err.errors[0]?.message ?? "Please check the form fields.";
         toast({
           title: "Could not submit interest",
           description: message,
@@ -215,18 +181,20 @@ export function WorkInterestForm({
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">Full Name</label>
+          <label className="text-sm font-medium text-slate-700">
+            Full Name
+          </label>
           <Input
             placeholder="Your name"
             value={formData.name}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, name: e.target.value }))
             }
-            className={errors.name ? "border-red-500 focus-visible:ring-red-500" : ""}
+            className={
+              errors.name ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
           />
-          {errors.name && (
-            <p className="text-xs text-red-500">{errors.name}</p>
-          )}
+          {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Email</label>
@@ -237,7 +205,9 @@ export function WorkInterestForm({
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, email: e.target.value }))
             }
-            className={errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}
+            className={
+              errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email}</p>
@@ -251,7 +221,9 @@ export function WorkInterestForm({
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, phone: e.target.value }))
             }
-            className={errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}
+            className={
+              errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
           />
           {errors.phone && (
             <p className="text-xs text-red-500">{errors.phone}</p>
@@ -267,7 +239,9 @@ export function WorkInterestForm({
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
-            className={errors.title ? "border-red-500 focus-visible:ring-red-500" : ""}
+            className={
+              errors.title ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
           />
           {errors.title && (
             <p className="text-xs text-red-500">{errors.title}</p>
@@ -275,40 +249,25 @@ export function WorkInterestForm({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <label className="text-sm font-medium text-slate-700">
           Preferred Locations (optional)
         </label>
-        <LocationsSelect
-          selectedIds={formData.preferred_locations}
-          onToggle={toggleLocation}
-          locations={locations}
+        <Input
+          placeholder="e.g., Kathmandu, Lalitpur, Morang"
+          value={formData.preferred_locations}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              preferred_locations: e.target.value,
+            }))
+          }
+          className={
+            errors.preferred_locations
+              ? "border-red-500 focus-visible:ring-red-500"
+              : ""
+          }
         />
-        {formData.preferred_locations.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {formData.preferred_locations.map((id) => {
-              const loc = locations.find((l) => l.id === id);
-              if (!loc) return null;
-              return (
-                <Badge
-                  key={id}
-                  variant="outline"
-                  className="flex items-center gap-1 bg-white border-slate-200"
-                >
-                  {loc.name}
-                  <button
-                    type="button"
-                    onClick={() => toggleLocation(id)}
-                    className="text-slate-400 hover:text-slate-700"
-                    aria-label={`Remove ${loc.name}`}
-                  >
-                    ×
-                  </button>
-                </Badge>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -322,7 +281,9 @@ export function WorkInterestForm({
           </label>
           <UnitGroupSelect
             value={formData.unit_group}
-            onChange={(v) => setFormData((prev) => ({ ...prev, unit_group: v }))}
+            onChange={(v) =>
+              setFormData((prev) => ({ ...prev, unit_group: v }))
+            }
             unitGroups={unitGroups}
             unitGroupsForForm={unitGroupsForForm}
             groupedUnitGroupsForForm={groupedUnitGroupsForForm}

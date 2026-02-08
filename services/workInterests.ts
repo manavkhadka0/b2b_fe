@@ -27,7 +27,7 @@ export interface WorkInterest {
   skills: WorkInterestSkill[];
   proficiency_level: ProficiencyLevel;
   availability: AvailabilityOption;
-  preferred_locations: Location[];
+  preferred_locations?: string | Location[] | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -56,7 +56,7 @@ export interface CreateWorkInterestPayload {
   skills?: Array<number | string>;
   proficiency_level: ProficiencyLevel;
   availability: AvailabilityOption;
-  preferred_locations?: number[];
+  preferred_locations?: string;
 }
 
 export interface HireWorkInterestPayload {

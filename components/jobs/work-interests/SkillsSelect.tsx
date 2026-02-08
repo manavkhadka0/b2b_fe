@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, Check, Loader2 } from "lucide-react";
+import { ChevronsUpDown, Check, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -73,6 +73,17 @@ export function SkillsSelect({
               placeholder="Search skills..."
               value={searchInput}
               onValueChange={onSearchInputChange}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  searchInput.trim() &&
+                  !isCreatingSkill &&
+                  skillSuggestions.length === 0
+                ) {
+                  e.preventDefault();
+                  void onAddSkill(searchInput.trim());
+                }
+              }}
             />
             <CommandList>
               {isLoading ? (
@@ -83,18 +94,32 @@ export function SkillsSelect({
                 <>
                   <CommandEmpty>
                     {searchInput ? (
-                      <button
-                        type="button"
-                        className="w-full text-left px-3 py-2 text-sm text-blue-700 hover:bg-blue-50"
-                        onClick={() => void onAddSkill(searchInput)}
-                        disabled={isCreatingSkill}
-                      >
-                        {isCreatingSkill
-                          ? "Creating skill..."
-                          : `Create "${searchInput}"`}
-                      </button>
+                      <div className="p-2">
+                        <button
+                          type="button"
+                          className={cn(
+                            "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors",
+                            "border-2 border-dashed border-blue-300 bg-blue-50/80 text-blue-700 hover:bg-blue-100 hover:border-blue-400",
+                            "disabled:opacity-60 disabled:pointer-events-none disabled:cursor-not-allowed",
+                          )}
+                          onClick={() => void onAddSkill(searchInput)}
+                          disabled={isCreatingSkill}
+                        >
+                          {isCreatingSkill ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Creating &quot;{searchInput}&quot;...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4" />
+                              Create new skill: &quot;{searchInput}&quot;
+                            </>
+                          )}
+                        </button>
+                      </div>
                     ) : (
-                      "No skills found."
+                      "No skills found. Type to search or create a new skill."
                     )}
                   </CommandEmpty>
                   <CommandGroup>

@@ -3,7 +3,6 @@
 import { MapPin, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { WorkInterest } from "@/services/workInterests";
-import type { Location } from "@/types/auth";
 
 function formatDate(value?: string) {
   if (!value) return "Recently added";
@@ -33,12 +32,14 @@ export function WorkInterestCard({
     ? `${interest.unit_group.code} · ${interest.unit_group.title}`
     : "Unit group not set";
 
-  const locationsLabel =
-    interest.preferred_locations && interest.preferred_locations.length > 0
-      ? interest.preferred_locations
-          .map((loc) => (loc as Location).name ?? String(loc))
-          .join(", ")
-      : "Any location";
+  const locationsLabel = (() => {
+    const loc = interest.preferred_locations;
+    if (typeof loc === "string" && loc.trim()) return loc.trim();
+    if (Array.isArray(loc) && loc.length > 0) {
+      return loc.map((l) => (typeof l === "object" && l?.name ? l.name : String(l))).join(", ");
+    }
+    return "Any location";
+  })();
 
   const handleClick = () => {
     if (onClick) onClick(interest);

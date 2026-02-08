@@ -12,8 +12,6 @@ import {
   getWorkInterests,
   hireWorkInterest,
 } from "@/services/workInterests";
-import { getLocations } from "@/services/jobs";
-import { Location } from "@/types/auth";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { WorkInterestCard } from "@/components/jobs/work-interests";
@@ -54,7 +52,6 @@ export function WorkInterestsView() {
   const [error, setError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 500);
 
-  const [locations, setLocations] = useState<Location[]>([]);
   const hireSchema = z
     .object({
       name: z.string().trim().min(1, "Please enter your name."),
@@ -113,32 +110,10 @@ export function WorkInterestsView() {
     fetchWorkInterests();
   }, [fetchWorkInterests]);
 
-  useEffect(() => {
-    const loadMeta = async () => {
-      try {
-        const locs = await getLocations();
-        setLocations(locs);
-      } catch (err) {
-        console.warn("Failed to load dropdown data", err);
-      }
-    };
-    loadMeta();
-  }, []);
-
   const activeFilters = useMemo(
     () => availability || proficiency || debouncedSearch,
     [availability, proficiency, debouncedSearch],
   );
-
-  const locationIdToName = useMemo(() => {
-    const map = new Map<number, string>();
-    locations.forEach((loc) => {
-      if (loc.id != null) {
-        map.set(loc.id, loc.name);
-      }
-    });
-    return map;
-  }, [locations]);
 
   const handleCardClick = (interest: WorkInterest) => {
     setSelectedInterest(interest);
@@ -422,25 +397,43 @@ export function WorkInterestsView() {
                 </div>
 
                 {/* Preferred locations */}
-                {selectedInterest.preferred_locations &&
-                  selectedInterest.preferred_locations.length > 0 && (
+                {(() => {
+                  const loc = selectedInterest.preferred_locations;
+                  const hasString =
+                    typeof loc === "string" && loc.trim().length > 0;
+                  const hasArray = Array.isArray(loc) && loc.length > 0;
+                  if (!hasString && !hasArray) return null;
+                  return (
                     <div className="flex-1 min-w-0 rounded-lg border border-slate-100 bg-slate-50/50 px-4 py-3">
                       <p className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase mb-2">
                         Preferred locations
                       </p>
                       <div className="flex flex-wrap gap-1.5">
-                        {selectedInterest.preferred_locations.map(
-                          (locRef, idx) => {
-                            const asLocation = locRef as Location;
+                        {hasString ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-white text-slate-700 border-slate-200 text-[11px]"
+                          >
+                            {loc.trim()}
+                          </Badge>
+                        ) : (
+                          (
+                            loc as Array<
+                              number | { id?: number; name?: string }
+                            >
+                          ).map((locRef, idx) => {
+                            const asLocation = locRef as {
+                              id?: number;
+                              name?: string;
+                            };
                             const id =
                               typeof locRef === "number"
                                 ? locRef
-                                : (asLocation.id ?? idx);
+                                : (asLocation?.id ?? idx);
                             const name =
                               typeof locRef === "number"
-                                ? (locationIdToName.get(locRef) ??
-                                  `Location #${locRef}`)
-                                : (asLocation.name ?? `Location #${id}`);
+                                ? `Location #${locRef}`
+                                : (asLocation?.name ?? `Location #${id}`);
                             return (
                               <Badge
                                 key={id}
@@ -450,11 +443,12 @@ export function WorkInterestsView() {
                                 {name}
                               </Badge>
                             );
-                          },
+                          })
                         )}
                       </div>
                     </div>
-                  )}
+                  );
+                })()}
               </div>
 
               {/* Summary (left) | Person details (right) */}
