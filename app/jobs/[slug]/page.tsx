@@ -30,12 +30,7 @@ interface JobDetailResponse {
   title: string;
   company_name: string | null;
   company?: { id: number; name: string } | null;
-  location: Array<{
-    id: number;
-    name: string;
-    slug: string;
-    description?: string;
-  }>;
+  location: string | null;
   unit_group: {
     id: number;
     code: string;
@@ -183,8 +178,8 @@ export default function JobDetailPage() {
     "Company";
 
   const locationStr =
-    job?.location && job.location.length > 0
-      ? job.location.map((loc) => loc.name).join(", ")
+    job?.location && String(job.location).trim()
+      ? String(job.location).trim()
       : "Not specified";
 
   const salaryStr =

@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/command";
 import { Card, CardContent } from "@/components/ui/card";
 import { UnitGroup } from "@/types/unit-groups";
-import { Location } from "@/types/auth";
 import { Job } from "@/types/job";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getUnitGroups } from "@/services/jobs";
@@ -81,7 +80,7 @@ const postJobSchema = z
     show_salary: z.boolean(),
     salary_range_min: z.number().optional(),
     salary_range_max: z.number().optional(),
-    location: z.array(z.number()).min(1, "At least one location is required"),
+    location: z.string().min(1, "Location is required"),
     deadline: z.date({
       required_error: "Deadline is required",
     }),
@@ -147,7 +146,6 @@ const employmentTypes = [
 
 interface PostJobFormProps {
   unitGroups: UnitGroup[];
-  locations: Location[];
   initialData?: Job;
   isEditing?: boolean;
   onSuccess?: () => void;
@@ -155,7 +153,6 @@ interface PostJobFormProps {
 
 export function PostJobForm({
   unitGroups,
-  locations,
   initialData,
   isEditing,
   onSuccess,
@@ -211,7 +208,8 @@ export function PostJobForm({
       salary_range_max: parseInt(
         initialData?.salary_range_max?.toString() || "0",
       ),
-      location: initialData?.location?.map((location) => location.id) || [],
+      location:
+        initialData?.location?.map((l) => l.name).join(", ") || "",
       deadline: initialData?.deadline
         ? new Date(initialData.deadline)
         : new Date(),
@@ -876,108 +874,14 @@ export function PostJobForm({
                     name="location"
                     render={({ field }) => (
                       <FormItem className="col-span-full">
-                        <FormLabel>Job Locations</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between border-slate-200",
-                                  !field.value?.length &&
-                                    "text-muted-foreground",
-                                )}
-                              >
-                                {field.value?.length > 0
-                                  ? `${field.value.length} location${
-                                      field.value.length > 1 ? "s" : ""
-                                    } selected`
-                                  : "Select locations"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[450px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search locations..." />
-                              <CommandList>
-                                <CommandEmpty>No location found.</CommandEmpty>
-                                <CommandGroup>
-                                  {locations.map((location) => {
-                                    const isSelected = field.value?.includes(
-                                      location.id,
-                                    );
-                                    return (
-                                      <CommandItem
-                                        key={location.id}
-                                        value={location.name}
-                                        onSelect={() => {
-                                          const newValue = isSelected
-                                            ? field.value.filter(
-                                                (id) => id !== location.id,
-                                              )
-                                            : [
-                                                ...(field.value || []),
-                                                location.id,
-                                              ];
-                                          form.setValue("location", newValue);
-                                          form.clearErrors("location");
-                                        }}
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          <div className="flex items-center justify-center w-4 h-4 border rounded">
-                                            {isSelected && (
-                                              <Check className="w-3 h-3" />
-                                            )}
-                                          </div>
-                                          <div className="flex flex-col">
-                                            <span>{location.name}</span>
-                                            {location.description && (
-                                              <span className="text-xs text-muted-foreground">
-                                                {location.description}
-                                              </span>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </CommandItem>
-                                    );
-                                  })}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {field.value?.map((locationId) => {
-                            const location = locations.find(
-                              (l) => l.id === locationId,
-                            );
-                            if (!location) return null;
-                            return (
-                              <div
-                                key={location.id}
-                                className="flex items-center gap-1 bg-slate-100 text-slate-700 rounded-full px-3 py-1 text-sm border border-slate-200"
-                              >
-                                {location.name}
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-4 w-4 p-0 hover:bg-slate-200"
-                                  onClick={() => {
-                                    const newValue = field.value.filter(
-                                      (id) => id !== location.id,
-                                    );
-                                    form.setValue("location", newValue);
-                                  }}
-                                >
-                                  ×
-                                </Button>
-                              </div>
-                            );
-                          })}
-                        </div>
+                        <FormLabel>Job Location</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Kathmandu, Lalitpur"
+                            {...field}
+                            className="border-slate-200"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

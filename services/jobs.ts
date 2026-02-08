@@ -50,7 +50,8 @@ export async function getJobs(
   minor_groups?: string[],
   listing_time?: ListingTimeFilter,
   salary_min?: string,
-  salary_max?: string
+  salary_max?: string,
+  page?: number
 ): Promise<JobsApiResponse> {
   try {
     const params = new URLSearchParams();
@@ -74,6 +75,9 @@ export async function getJobs(
     }
     if (salary_max && salary_max.trim()) {
       params.append("salary_max", salary_max.trim());
+    }
+    if (page != null && page > 1) {
+      params.append("page", String(page));
     }
     const queryString = params.toString();
     const url = `/api/jobs/${queryString ? `?${queryString}` : ""}`;

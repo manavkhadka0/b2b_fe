@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PostJobForm } from "@/components/jobs/PostJobForm";
-import { getUnitGroups, getLocations } from "@/services/jobs";
+import { getUnitGroups } from "@/services/jobs";
 import { UnitGroup } from "@/types/unit-groups";
-import { Location } from "@/types/auth";
 import { useSearchParams } from "next/navigation";
 import { getJobBySlug } from "@/services/jobs";
 import { Job } from "@/types/job";
@@ -16,7 +15,6 @@ export default function CreateJobPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [unitGroups, setUnitGroups] = useState<UnitGroup[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
   const [jobData, setJobData] = useState<Job | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -42,13 +40,8 @@ export default function CreateJobPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [unitGroupsData, locationsData] = await Promise.all([
-          getUnitGroups(),
-          getLocations(),
-        ]);
-
+        const unitGroupsData = await getUnitGroups();
         setUnitGroups(unitGroupsData);
-        setLocations(locationsData);
 
         // If editing, fetch job data
         if (slug) {
@@ -103,7 +96,6 @@ export default function CreateJobPage() {
     <>
       <PostJobForm
         unitGroups={unitGroups}
-        locations={locations}
         initialData={jobData}
         isEditing={!!slug}
         onSuccess={handleSuccess}

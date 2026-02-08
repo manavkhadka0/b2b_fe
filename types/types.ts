@@ -91,7 +91,7 @@ export interface JobApiResponse {
   company_name: string | null;
   user: JobUser;
   slug: string;
-  location: JobLocation[];
+  location: string | null;
   status: string;
   posted_date: string;
   deadline: string;
@@ -104,7 +104,7 @@ export interface JobApiResponse {
   unit_group: UnitGroup;
   has_already_saved: boolean;
   total_applicant_count: number;
-  job_post_count: number;
+  job_post_count?: number;
   is_applied?: boolean;
 }
 

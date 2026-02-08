@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   FilterX,
   ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { JobCard } from "@/components/jobs/JobCard";
@@ -62,10 +63,34 @@ export function JobsSeekerContent({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<{
+    count: number;
+    next: string | null;
+    previous: string | null;
+  }>({ count: 0, next: null, previous: null });
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const debouncedSalaryMin = useDebounce(salaryMin, 500);
   const debouncedSalaryMax = useDebounce(salaryMax, 500);
+
+  const isFirstFilterRun = useRef(true);
+  // Reset to page 1 when filters change (not on initial mount)
+  useEffect(() => {
+    if (isFirstFilterRun.current) {
+      isFirstFilterRun.current = false;
+      return;
+    }
+    setPage(1);
+  }, [
+    debouncedSearch,
+    selectedEmploymentType,
+    selectedUnitGroupCodes,
+    selectedMinorGroupCodes,
+    listingTime,
+    debouncedSalaryMin,
+    debouncedSalaryMax,
+  ]);
 
   // Sync URL -> state on mount and when user navigates (e.g. back/forward)
   useEffect(() => {
@@ -79,6 +104,8 @@ export function JobsSeekerContent({
     const lt = searchParams.get("listing_time") ?? "";
     const smin = searchParams.get("salary_min") ?? "";
     const smax = searchParams.get("salary_max") ?? "";
+    const pageParam = searchParams.get("page");
+    const pageNum = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
 
     setSearchQuery(search);
     setSelectedEmploymentType(
@@ -95,6 +122,7 @@ export function JobsSeekerContent({
     );
     setSalaryMin(smin);
     setSalaryMax(smax);
+    setPage(pageNum);
   }, [searchParams]);
 
   // Sync state -> URL when filters change
@@ -113,6 +141,7 @@ export function JobsSeekerContent({
       params.set("salary_min", debouncedSalaryMin.trim());
     if (debouncedSalaryMax.trim())
       params.set("salary_max", debouncedSalaryMax.trim());
+    if (page > 1) params.set("page", String(page));
 
     const qs = params.toString();
     const newUrl = qs ? `?${qs}` : window.location.pathname;
@@ -127,6 +156,7 @@ export function JobsSeekerContent({
     listingTime,
     debouncedSalaryMin,
     debouncedSalaryMax,
+    page,
   ]);
 
   const lastFetchedRef = useRef<string>("");
@@ -140,6 +170,7 @@ export function JobsSeekerContent({
       listing_time?: ListingTimeFilter,
       salary_min?: string,
       salary_max?: string,
+      pageNum?: number,
     ) => {
       setIsLoading(true);
       try {
@@ -151,12 +182,19 @@ export function JobsSeekerContent({
           listing_time || undefined,
           salary_min?.trim() || undefined,
           salary_max?.trim() || undefined,
+          pageNum,
         );
         const transformed = transformJobs(response.results);
         setJobs(transformed);
+        setPagination({
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+        });
       } catch (error) {
         console.error("Error fetching jobs:", error);
         setJobs([]);
+        setPagination({ count: 0, next: null, previous: null });
       } finally {
         setIsLoading(false);
       }
@@ -173,6 +211,7 @@ export function JobsSeekerContent({
       listing_time: listingTime,
       salary_min: debouncedSalaryMin.trim(),
       salary_max: debouncedSalaryMax.trim(),
+      page,
     });
     if (lastFetchedRef.current === fetchKey) return;
     lastFetchedRef.current = fetchKey;
@@ -185,6 +224,7 @@ export function JobsSeekerContent({
       listingTime || undefined,
       debouncedSalaryMin.trim() || undefined,
       debouncedSalaryMax.trim() || undefined,
+      page,
     );
   }, [
     debouncedSearch,
@@ -194,6 +234,7 @@ export function JobsSeekerContent({
     listingTime,
     debouncedSalaryMin,
     debouncedSalaryMax,
+    page,
     fetchJobs,
   ]);
 
@@ -206,7 +247,11 @@ export function JobsSeekerContent({
     setSalaryMin("");
     setSalaryMax("");
     setSearchQuery("");
+    setPage(1);
   };
+
+  const hasNextPage = !!pagination.next;
+  const hasPreviousPage = !!pagination.previous;
 
   const hasGroupFilter =
     selectedUnitGroupCodes.length > 0 || selectedMinorGroupCodes.length > 0;
@@ -419,17 +464,61 @@ export function JobsSeekerContent({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  onApply={onApply}
-                  onClick={(j) => router.push(`/jobs/${j.slug}`)}
-                  showApplyButton={true}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {jobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onApply={onApply}
+                    onClick={(j) => router.push(`/jobs/${j.slug}`)}
+                    showApplyButton={true}
+                  />
+                ))}
+              </div>
+              {(hasNextPage || hasPreviousPage) && (
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-6">
+                  <p className="text-sm text-slate-500">
+                    {pagination.count > 0 && (
+                      <span>
+                        Showing page {page}
+                        {pagination.count > 0 && (
+                          <span>
+                            {" "}
+                            · {pagination.count} total job
+                            {pagination.count !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={!hasPreviousPage || isLoading}
+                      className="gap-1.5"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => p + 1)}
+                      disabled={!hasNextPage || isLoading}
+                      className="gap-1.5"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

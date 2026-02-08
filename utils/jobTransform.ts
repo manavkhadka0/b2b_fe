@@ -8,10 +8,10 @@ export const transformJobs = (apiJobs: JobApiResponse[]): Job[] => {
       `${apiJob.user.first_name} ${apiJob.user.last_name}`.trim() ||
       apiJob.user.username;
 
-    // Get location from location array
+    // Get location (API returns string or null)
     const location =
-      apiJob.location.length > 0
-        ? apiJob.location.map((loc) => loc.name).join(", ")
+      apiJob.location && String(apiJob.location).trim()
+        ? String(apiJob.location).trim()
         : "Not specified";
 
     // Format salary range
@@ -82,10 +82,10 @@ export const transformAppliedJobs = (applications: JobApplication[]): Job[] => {
       `${apiJob.user.first_name} ${apiJob.user.last_name}`.trim() ||
       apiJob.user.username;
 
-    // Get location from location array
+    // Get location (API returns string or null)
     const location =
-      apiJob.location.length > 0
-        ? apiJob.location.map((loc) => loc.name).join(", ")
+      apiJob.location && String(apiJob.location).trim()
+        ? String(apiJob.location).trim()
         : "Not specified";
 
     // Format salary range

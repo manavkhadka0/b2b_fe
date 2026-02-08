@@ -11,19 +11,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Building,
   Check,
   ChevronsUpDown,
-  MapPin,
   ExternalLink,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -39,7 +32,6 @@ import {
 } from "@/components/ui/command";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
-import { PREFERRED_LOCATIONS } from "../constants";
 import type { ApprenticeshipFormValues } from "../types";
 
 interface Industry {
@@ -466,29 +458,14 @@ export function Step4IndustryPlacement({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Preferred Location (Optional)</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value === "__none__" ? undefined : value);
-              }}
-              value={field.value || undefined}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select preferred location" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="__none__">None</SelectItem>
-                {PREFERRED_LOCATIONS.map((location) => (
-                  <SelectItem key={location} value={location}>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span>{location}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value || undefined)}
+                placeholder="e.g., Morang, Sunsari, Jhapa"
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
