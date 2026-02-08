@@ -21,10 +21,10 @@ import type { Job } from "@/types/types";
 import { emptyCvProfile } from "@/types/cv";
 import type { CvProfile } from "@/types/cv";
 import {
+  hasJobseekerProfile,
   getJobseekerProfile,
   mapApiToCvProfile,
   createJobseekerProfile,
-  isProfileNotFoundError,
 } from "@/services/jobseeker";
 
 export default function ProfilePage() {
@@ -61,16 +61,18 @@ export default function ProfilePage() {
     setCvProfileLoading(true);
     setCvProfileNotFound(false);
     try {
-      const data = await getJobseekerProfile(user.username);
-      setCvProfile(mapApiToCvProfile(data));
-    } catch (err) {
-      if (isProfileNotFoundError(err)) {
+      const has = await hasJobseekerProfile();
+      if (!has) {
         setCvProfileNotFound(true);
         setCvProfile(emptyCvProfile());
-      } else {
-        console.error("Error fetching CV profile:", err);
-        setCvProfile(emptyCvProfile());
+        return;
       }
+      const data = await getJobseekerProfile();
+      setCvProfile(mapApiToCvProfile(data));
+    } catch (err) {
+      console.error("Error fetching CV profile:", err);
+      setCvProfileNotFound(true);
+      setCvProfile(emptyCvProfile());
     } finally {
       setCvProfileLoading(false);
     }

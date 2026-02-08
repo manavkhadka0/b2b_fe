@@ -8,10 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JobsSeekerContent } from "@/components/jobs/JobsSeekerContent";
 import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-import {
-  getJobseekerProfile,
-  isProfileNotFoundError,
-} from "@/services/jobseeker";
+import { hasJobseekerProfile } from "@/services/jobseeker";
 import {
   Dialog,
   DialogContent,
@@ -36,22 +33,42 @@ const JobsView: React.FC = () => {
   >(null);
   const [createCvDialogOpen, setCreateCvDialogOpen] = useState(false);
   const [cvCheckLoading, setCvCheckLoading] = useState(false);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
 
   const checkCvAndOpenApply = useCallback(async () => {
     if (!user?.username) return;
     setCvCheckLoading(true);
     try {
-      await getJobseekerProfile(user.username);
-      setApplyDialogOpen(true);
-    } catch (err) {
-      if (isProfileNotFoundError(err)) {
-        setCreateCvDialogOpen(true);
+      const has = await hasJobseekerProfile();
+      if (has) {
+        setApplyDialogOpen(true);
       } else {
-        console.error("Error checking CV profile:", err);
+        setCreateCvDialogOpen(true);
       }
+    } catch (err) {
+      console.error("Error checking CV profile:", err);
+      setCreateCvDialogOpen(true);
     } finally {
       setCvCheckLoading(false);
     }
+  }, [user?.username]);
+
+  useEffect(() => {
+    if (!user?.username) {
+      setHasProfile(null);
+      return;
+    }
+    let cancelled = false;
+    hasJobseekerProfile()
+      .then((has) => {
+        if (!cancelled) setHasProfile(has);
+      })
+      .catch(() => {
+        if (!cancelled) setHasProfile(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user?.username]);
 
   useEffect(() => {
@@ -118,6 +135,16 @@ const JobsView: React.FC = () => {
 
   return (
     <div className="max-w-7xl px-4 sm:px-8 mx-auto min-h-screen">
+      {hasProfile === false && user && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between flex-wrap gap-3">
+          <p className="text-amber-800 text-sm">
+            Create your CV in your profile to apply for jobs.
+          </p>
+          <Button variant="outline" size="sm" onClick={goToProfile}>
+            Create CV
+          </Button>
+        </div>
+      )}
       <Suspense
         fallback={
           <div className="min-h-[400px] flex items-center justify-center">

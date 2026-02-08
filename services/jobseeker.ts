@@ -19,7 +19,13 @@ import { emptyCvProfile } from "@/types/cv";
 /** API response shape for jobseeker profile (matches backend). */
 export interface JobSeekerProfileApi {
   id: number;
-  user: { username: string; first_name?: string; last_name?: string; email?: string; address?: string };
+  user: {
+    username: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    address?: string;
+  };
   bio?: string;
   education: Array<{
     id: number;
@@ -112,19 +118,23 @@ export const PROFILE_NOT_FOUND_CODE = "profile_not_found";
 
 export function isProfileNotFoundError(err: unknown): boolean {
   if (!err || typeof err !== "object" || !("response" in err)) return false;
-  const res = (err as { response?: { status?: number; data?: { code?: string } } })
-    .response;
+  const res = (
+    err as { response?: { status?: number; data?: { code?: string } } }
+  ).response;
   const code = res?.data?.code;
   if (code === PROFILE_NOT_FOUND_CODE) return true;
   if (res?.status === 404 && code == null) return true;
   return false;
 }
 
-export async function getJobseekerProfile(
-  username: string
-): Promise<JobSeekerProfileApi> {
+export async function hasJobseekerProfile(): Promise<boolean> {
+  const { data } = await api.get<boolean>(`/api/has-profile/`);
+  return Boolean(data);
+}
+
+export async function getJobseekerProfile(): Promise<JobSeekerProfileApi> {
   const { data } = await api.get<JobSeekerProfileApi>(
-    `/api/jobseekers/${username}/`
+    `/api/jobseekers/detail/`,
   );
   return data;
 }
@@ -139,7 +149,6 @@ export async function createJobseekerProfile(): Promise<JobSeekerProfileApi> {
 }
 
 export async function updateJobseekerProfile(
-  username: string,
   payload: Partial<{
     bio: string;
     work_experience: number | string;
@@ -147,15 +156,17 @@ export async function updateJobseekerProfile(
     remote_work_preference: boolean;
     preferred_salary_range_from: number;
     preferred_salary_range_to: number;
-  }>
+  }>,
 ): Promise<JobSeekerProfileApi> {
   const body: Record<string, unknown> = { ...payload };
   if (typeof body.work_experience === "number") {
-    body.work_experience = formatWorkExperienceForApi(body.work_experience as number);
+    body.work_experience = formatWorkExperienceForApi(
+      body.work_experience as number,
+    );
   }
   const { data } = await api.patch<JobSeekerProfileApi>(
-    `/api/jobseekers/${username}/`,
-    body
+    `/api/jobseekers/detail/`,
+    body,
   );
   return data;
 }
@@ -167,18 +178,18 @@ export async function addEducation(
     institution: string;
     year_of_completion?: string;
     course_highlights?: string;
-  }
+  },
 ): Promise<JobSeekerProfileApi> {
   await api.post("/api/education/", payload);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function deleteEducation(
   username: string,
-  id: number
+  id: number,
 ): Promise<JobSeekerProfileApi> {
   await api.delete(`/api/education/${id}/`);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function addCareerHistory(
@@ -189,18 +200,18 @@ export async function addCareerHistory(
     start_date: string;
     end_date?: string;
     description?: string;
-  }
+  },
 ): Promise<JobSeekerProfileApi> {
   await api.post("/api/career-history/", payload);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function deleteCareerHistory(
   username: string,
-  id: number
+  id: number,
 ): Promise<JobSeekerProfileApi> {
   await api.delete(`/api/career-history/${id}/`);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function addCertification(
@@ -211,7 +222,7 @@ export async function addCertification(
     issue_date?: string;
     expiry_date?: string;
     description?: string;
-  }
+  },
 ): Promise<JobSeekerProfileApi> {
   const formData = new FormData();
   formData.append("name", payload.name);
@@ -222,29 +233,29 @@ export async function addCertification(
   await api.post("/api/certifications/", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function deleteCertification(
   username: string,
-  id: number
+  id: number,
 ): Promise<JobSeekerProfileApi> {
   await api.delete(`/api/certifications/${id}/`);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function addSkill(
   username: string,
-  payload: { name: string }
+  payload: { name: string },
 ): Promise<JobSeekerProfileApi> {
   await api.post("/api/skills/", payload);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }
 
 export async function deleteSkill(
   username: string,
-  id: number
+  id: number,
 ): Promise<JobSeekerProfileApi> {
   await api.delete(`/api/skills/${id}/`);
-  return getJobseekerProfile(username);
+  return getJobseekerProfile();
 }

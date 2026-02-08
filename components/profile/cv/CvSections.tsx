@@ -90,7 +90,7 @@ export function CvSections({
     if (username) {
       setSavingBio(true);
       try {
-        const updated = await updateJobseekerProfile(username, {
+        const updated = await updateJobseekerProfile({
           bio: bioDraft,
         });
         onProfileUpdate(mapApiToCvProfile(updated));
@@ -195,7 +195,7 @@ export function CvSections({
                       try {
                         const updated = await apiDeleteEducation(
                           username,
-                          edu.id
+                          edu.id,
                         );
                         onProfileUpdate(mapApiToCvProfile(updated));
                         toast.success("Education deleted");
@@ -206,7 +206,7 @@ export function CvSections({
                       onProfileUpdate({
                         ...profile,
                         education: profile.education.filter(
-                          (e) => e.id !== edu.id
+                          (e) => e.id !== edu.id,
                         ),
                       });
                     }
@@ -274,7 +274,7 @@ export function CvSections({
                       try {
                         const updated = await apiDeleteCareerHistory(
                           username,
-                          career.id
+                          career.id,
                         );
                         onProfileUpdate(mapApiToCvProfile(updated));
                         toast.success("Career history deleted");
@@ -285,7 +285,7 @@ export function CvSections({
                       onProfileUpdate({
                         ...profile,
                         career_history: profile.career_history.filter(
-                          (c) => c.id !== career.id
+                          (c) => c.id !== career.id,
                         ),
                       });
                     }
@@ -351,7 +351,7 @@ export function CvSections({
                       try {
                         const updated = await apiDeleteCertification(
                           username,
-                          cert.id
+                          cert.id,
                         );
                         onProfileUpdate(mapApiToCvProfile(updated));
                         toast.success("Certification deleted");
@@ -362,7 +362,7 @@ export function CvSections({
                       onProfileUpdate({
                         ...profile,
                         certifications: profile.certifications.filter(
-                          (c) => c.id !== cert.id
+                          (c) => c.id !== cert.id,
                         ),
                       });
                     }
@@ -417,7 +417,7 @@ export function CvSections({
                       try {
                         const updated = await apiDeleteSkill(
                           username,
-                          skill.id
+                          skill.id,
                         );
                         onProfileUpdate(mapApiToCvProfile(updated));
                         toast.success("Skill removed");
@@ -543,10 +543,9 @@ function EducationForm({
       <div className="space-y-2">
         <Label>Year of completion</Label>
         <Input
-          type="text"
+          type="date"
           value={year}
           onChange={(e) => setYear(e.target.value)}
-          placeholder="e.g. 2020"
         />
       </div>
       <div className="space-y-2">
@@ -667,19 +666,17 @@ function CareerForm({
         <div className="space-y-2">
           <Label>Start date</Label>
           <Input
-            type="text"
+            type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            placeholder="e.g. 2020-01 or Jan 2020"
           />
         </div>
         <div className="space-y-2">
           <Label>End date</Label>
           <Input
-            type="text"
+            type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            placeholder="Present or YYYY-MM-DD"
           />
         </div>
       </div>
@@ -790,19 +787,17 @@ function CertificationForm({
         <div className="space-y-2">
           <Label>Issue date</Label>
           <Input
-            type="text"
+            type="date"
             value={issueDate}
             onChange={(e) => setIssueDate(e.target.value)}
-            placeholder="e.g. 2022"
           />
         </div>
         <div className="space-y-2">
           <Label>Expiry date</Label>
           <Input
-            type="text"
+            type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
-            placeholder="Optional"
           />
         </div>
       </div>
@@ -895,14 +890,14 @@ function WorkPreferencesSection({
   const [open, setOpen] = useState(false);
   const [years, setYears] = useState(String(profile.work_experience || 0));
   const [availability, setAvailability] = useState<CvAvailability>(
-    profile.availability
+    profile.availability,
   );
   const [remote, setRemote] = useState(profile.remote_work_preference);
   const [salaryFrom, setSalaryFrom] = useState(
-    String(profile.preferred_salary_range_from || "")
+    String(profile.preferred_salary_range_from || ""),
   );
   const [salaryTo, setSalaryTo] = useState(
-    String(profile.preferred_salary_range_to || "")
+    String(profile.preferred_salary_range_to || ""),
   );
   const [saving, setSaving] = useState(false);
 
@@ -917,7 +912,7 @@ function WorkPreferencesSection({
     if (username) {
       setSaving(true);
       try {
-        const updated = await updateJobseekerProfile(username, {
+        const updated = await updateJobseekerProfile({
           ...payload,
           work_experience: payload.work_experience,
         });
