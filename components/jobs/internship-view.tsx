@@ -29,6 +29,7 @@ export default function InternshipView() {
   const [companies, setCompanies] = useState<Industry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Industry | null>(null);
 
   const handleToggleCompanies = async () => {
     const shouldLoad = !showCompanies && companies.length === 0;
@@ -54,6 +55,10 @@ export default function InternshipView() {
       }
     }
 
+    if (showCompanies) {
+      setSelectedCompany(null);
+    }
+
     setShowCompanies((prev) => !prev);
   };
 
@@ -61,6 +66,40 @@ export default function InternshipView() {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
     return `https://${url}`;
+  };
+
+  const getCompanyVideoEmbedUrl = (fileLink: string | null | undefined) => {
+    if (!fileLink) return null;
+
+    try {
+      const url = new URL(fileLink);
+
+      // Handle shortened YouTube URLs (e.g. https://youtu.be/RyQmmmzWjfU)
+      if (url.hostname.includes("youtu.be")) {
+        const videoId = url.pathname.replace("/", "");
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      // Handle standard YouTube URLs (e.g. https://www.youtube.com/watch?v=...)
+      if (url.hostname.includes("youtube.com")) {
+        const videoId = url.searchParams.get("v");
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+
+        // Already an embed URL
+        if (url.pathname.startsWith("/embed/")) {
+          return url.href;
+        }
+      }
+
+      // Fallback: use the original URL in an iframe
+      return url.href;
+    } catch {
+      return null;
+    }
   };
 
   const handleApply = () => {
@@ -177,6 +216,9 @@ export default function InternshipView() {
                               <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                                 Website
                               </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                                Intro video
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -222,6 +264,21 @@ export default function InternshipView() {
                                     </span>
                                   )}
                                 </td>
+                                <td className="px-4 py-2 align-top text-slate-700">
+                                  {getCompanyVideoEmbedUrl(company.file_link) ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedCompany(company)}
+                                      className="text-blue-700 hover:text-blue-800 text-xs sm:text-sm font-medium underline underline-offset-2"
+                                    >
+                                      View video
+                                    </button>
+                                  ) : (
+                                    <span className="text-slate-400 text-xs">
+                                      Not available
+                                    </span>
+                                  )}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -230,6 +287,40 @@ export default function InternshipView() {
                     )}
                   </div>
                 </div>
+                {selectedCompany &&
+                  selectedCompany.file_link &&
+                  getCompanyVideoEmbedUrl(selectedCompany.file_link) && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-slate-500 font-semibold">
+                            Company introduction
+                          </p>
+                          <p className="text-sm font-semibold text-slate-900">
+                            {selectedCompany.name}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCompany(null)}
+                          className="text-xs font-medium text-slate-500 hover:text-slate-700"
+                        >
+                          Close
+                        </button>
+                      </div>
+                      <div className="relative w-full pt-[56.25%] overflow-hidden rounded-lg bg-black/5">
+                        <iframe
+                          src={getCompanyVideoEmbedUrl(
+                            selectedCompany.file_link,
+                          )!}
+                          className="absolute inset-0 h-full w-full rounded-lg border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          title={`${selectedCompany.name} introduction video`}
+                        />
+                      </div>
+                    </div>
+                  )}
               </div>
             )}
 
