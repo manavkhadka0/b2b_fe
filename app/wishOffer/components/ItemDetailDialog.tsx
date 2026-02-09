@@ -10,6 +10,8 @@ import {
   Calendar,
   Globe,
   Package,
+  Phone,
+  Mail,
 } from "lucide-react";
 import type { ItemWithSource } from "@/types/wish";
 
@@ -51,6 +53,16 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const hasPhone = Boolean(item.mobile_no);
+  const hasEmail = Boolean(item.email);
+  const hasWebsite = Boolean(item.company_website);
+
+  const formatWebsiteUrl = (url: string | null | undefined) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `https://${url}`;
+  };
 
   const handleAction = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -151,27 +163,47 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
               <p className="text-sm text-slate-700">{locationStr}</p>
             </div>
 
-            {item.company_website && (
+            {(hasPhone || hasEmail || hasWebsite) && (
               <div>
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
-                  Website
+                  Contact
                 </h3>
                 <ul className="space-y-1.5 text-sm text-slate-700">
-                  <li className="flex items-center gap-2">
-                    <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <a
-                      href={
-                        item.company_website.startsWith("http")
-                          ? item.company_website
-                          : `https://${item.company_website}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline truncate block min-w-0"
-                    >
-                      {item.company_website}
-                    </a>
-                  </li>
+                  {hasPhone && (
+                    <li className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <a
+                        href={`tel:${item.mobile_no}`}
+                        className="hover:text-blue-600 transition-colors"
+                      >
+                        {item.mobile_no}
+                      </a>
+                    </li>
+                  )}
+                  {hasEmail && (
+                    <li className="flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <a
+                        href={`mailto:${item.email}`}
+                        className="hover:text-blue-600 transition-colors break-all"
+                      >
+                        {item.email}
+                      </a>
+                    </li>
+                  )}
+                  {hasWebsite && (
+                    <li className="flex items-center gap-2">
+                      <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <a
+                        href={formatWebsiteUrl(item.company_website)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline truncate block min-w-0"
+                      >
+                        {item.company_website}
+                      </a>
+                    </li>
+                  )}
                 </ul>
               </div>
             )}
