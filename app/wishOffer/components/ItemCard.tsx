@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { MapPin, ChevronRight } from "lucide-react";
+import { MapPin, ChevronRight, Phone, Mail } from "lucide-react";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
 
 function formatTimeAgo(createdAt: string): string {
@@ -48,6 +48,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   const avatarLetter = (postedBy || "?").charAt(0).toUpperCase();
   const words = postedBy.trim().split(/\s+/).filter(Boolean);
   const postedByDisplay = words.length > 1 ? `${words[0]}...` : postedBy;
+  const contactNumber = item.mobile_no || item.alternate_no || "";
+  const contactEmail = item.email || "";
 
   return (
     <div
@@ -89,6 +91,31 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           </span>
           <span>{timeAgo}</span>
         </div>
+
+        {(contactNumber || contactEmail) && (
+          <div className="flex flex-col gap-0.5 text-xs text-slate-500">
+            {contactNumber && (
+              <a
+                href={`tel:${contactNumber}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                <Phone className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{contactNumber}</span>
+              </a>
+            )}
+            {contactEmail && (
+              <a
+                href={`mailto:${contactEmail}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              >
+                <Mail className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{contactEmail}</span>
+              </a>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
           <div className="flex items-center gap-2 min-w-0 flex-1">
