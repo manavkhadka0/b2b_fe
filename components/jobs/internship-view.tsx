@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +13,55 @@ import {
 
 const HIRING_COMPANIES_PDF_URL = `${process.env.NEXT_PUBLIC_API_URL || ""}/static/pdf/industries.pdf`;
 
+type Industry = {
+  id: number;
+  name: string;
+  email: string;
+  website_link: string;
+  slug: string;
+  file_link: string | null;
+};
+
 export default function InternshipView() {
   const router = useRouter();
+
+  const [showCompanies, setShowCompanies] = useState(false);
+  const [companies, setCompanies] = useState<Industry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleToggleCompanies = async () => {
+    const shouldLoad = !showCompanies && companies.length === 0;
+
+    if (shouldLoad) {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/industries/`,
+        );
+        if (!res.ok) {
+          throw new Error("Failed to load industries");
+        }
+
+        const data: { results?: Industry[] } = await res.json();
+        setCompanies(data.results ?? []);
+      } catch (e) {
+        setError("Unable to load hiring companies. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    setShowCompanies((prev) => !prev);
+  };
+
+  const formatWebsiteUrl = (url: string | null | undefined) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `https://${url}`;
+  };
 
   const handleApply = () => {
     router.push("/jobs/internship/apply");
@@ -57,15 +104,134 @@ export default function InternshipView() {
               the industry of your choice based on your interest, education
               level, and skill area.
             </p>
-            <a
-              href={HIRING_COMPANIES_PDF_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={handleToggleCompanies}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800"
             >
               <FileText className="h-4 w-4" />
-              See hiring companies
-            </a>
+              {showCompanies ? "Hide hiring companies" : "See hiring companies"}
+            </button>
+
+            {showCompanies && (
+              <div className="space-y-4">
+                {HIRING_COMPANIES_PDF_URL && (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-slate-700" />
+                      <p className="text-xs sm:text-sm text-slate-700">
+                        Prefer a printable version? View the full list as PDF.
+                      </p>
+                    </div>
+                    <a
+                      href={HIRING_COMPANIES_PDF_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs sm:text-sm font-medium text-blue-700 hover:text-blue-800 whitespace-nowrap"
+                    >
+                      Open PDF
+                    </a>
+                  </div>
+                )}
+
+                <div className="rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="bg-slate-50 px-4 py-3">
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Hiring companies
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-600">
+                      List of industries currently associated with internships.
+                    </p>
+                  </div>
+
+                  <div className="divide-y divide-slate-100">
+                    {isLoading && (
+                      <div className="px-4 py-6 text-sm text-slate-600">
+                        Loading companies...
+                      </div>
+                    )}
+
+                    {!isLoading && error && (
+                      <div className="px-4 py-6 text-sm text-red-600">
+                        {error}
+                      </div>
+                    )}
+
+                    {!isLoading && !error && companies.length === 0 && (
+                      <div className="px-4 py-6 text-sm text-slate-600">
+                        No hiring companies found at the moment.
+                      </div>
+                    )}
+
+                    {!isLoading && !error && companies.length > 0 && (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead className="bg-slate-50">
+                            <tr>
+                              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                                Company
+                              </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                                Email
+                              </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                                Website
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {companies.map((company) => (
+                              <tr
+                                key={company.id}
+                                className="hover:bg-slate-50/80 transition-colors"
+                              >
+                                <td className="px-4 py-2 align-top text-slate-900">
+                                  <div className="font-medium">
+                                    {company.name}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-2 align-top text-slate-700">
+                                  {company.email ? (
+                                    <a
+                                      href={`mailto:${company.email}`}
+                                      className="text-blue-700 hover:text-blue-800"
+                                    >
+                                      {company.email}
+                                    </a>
+                                  ) : (
+                                    <span className="text-slate-400">
+                                      Not provided
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-2 align-top text-slate-700">
+                                  {company.website_link ? (
+                                    <a
+                                      href={formatWebsiteUrl(
+                                        company.website_link,
+                                      )}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-700 hover:text-blue-800 break-all"
+                                    >
+                                      {company.website_link}
+                                    </a>
+                                  ) : (
+                                    <span className="text-slate-400">
+                                      Not provided
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="rounded-xl bg-blue-50/80 border border-blue-100 p-4 sm:p-5">
               <div className="flex gap-3">
