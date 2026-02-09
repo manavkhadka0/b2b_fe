@@ -86,7 +86,8 @@ export default function ApprenticeshipView() {
         }
 
         const data: { results?: Industry[] } = await res.json();
-        setCompanies(data.results ?? []);
+        const list = data.results ?? [];
+        setCompanies(list.slice().reverse());
       } catch (e) {
         setError("Unable to load hiring companies. Please try again.");
       } finally {
