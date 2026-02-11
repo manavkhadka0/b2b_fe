@@ -26,6 +26,11 @@ import {
   mapApiToCvProfile,
   createJobseekerProfile,
 } from "@/services/jobseeker";
+import {
+  getInstituteDetail,
+  isInstituteNotFoundError,
+} from "@/services/institute";
+import type { Institute } from "@/types/institute";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -49,6 +54,10 @@ export default function ProfilePage() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState("wishes");
+
+  // Institute (for Jobbriz section)
+  const [institute, setInstitute] = useState<Institute | null>(null);
+  const [instituteLoading, setInstituteLoading] = useState(false);
 
   // CV profile (fetched from jobseeker API when user exists)
   const [cvProfile, setCvProfile] = useState<CvProfile>(() => emptyCvProfile());
@@ -94,6 +103,29 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user?.username) fetchCvProfile();
   }, [user?.username, fetchCvProfile]);
+
+  const fetchInstitute = useCallback(async () => {
+    if (!user?.username) return;
+    setInstituteLoading(true);
+    setInstitute(null);
+    try {
+      const data = await getInstituteDetail();
+      setInstitute(data);
+    } catch (err) {
+      if (isInstituteNotFoundError(err)) {
+        setInstitute(null);
+      } else {
+        console.error("Error fetching institute:", err);
+        setInstitute(null);
+      }
+    } finally {
+      setInstituteLoading(false);
+    }
+  }, [user?.username]);
+
+  useEffect(() => {
+    if (user?.username) fetchInstitute();
+  }, [user?.username, fetchInstitute]);
 
   const {
     editingWish,
@@ -297,6 +329,8 @@ export default function ProfilePage() {
                 onDeleteOffer={handleDeleteOffer}
                 onConvertWish={handleConvertWish}
                 onConvertOffer={handleConvertOffer}
+                institute={institute}
+                instituteLoading={instituteLoading}
               />
             </div>
           </div>

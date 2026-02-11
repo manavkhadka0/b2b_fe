@@ -14,6 +14,7 @@ const SIDEBAR_ROUTES = [
   "apprenticeship",
   "create",
   "work-interests",
+  "roster",
 ] as const;
 
 function shouldShowSidebar(pathname: string): boolean {
@@ -36,8 +37,8 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
   const mode: JobsViewMode = pathname.includes("/employer")
     ? "employer"
     : pathname.includes("/work-interests")
-    ? "work-interests"
-    : "jobs";
+      ? "work-interests"
+      : "jobs";
 
   const handleModeChange = (nextMode: JobsViewMode) => {
     if (nextMode === "employer") {

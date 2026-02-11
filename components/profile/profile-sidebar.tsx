@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Heart, Package, Briefcase, FileCheck, FileText } from "lucide-react";
+import { Heart, Package, Briefcase, FileCheck, FileText, Building2 } from "lucide-react";
 
 interface ProfileSidebarProps {
   activeTab: string;
@@ -17,6 +17,7 @@ const jobbrizTabs = [
   { id: "my-jobs", label: "My Jobs", icon: Briefcase, color: "text-purple-600" },
   { id: "applied-jobs", label: "Applied Jobs", icon: FileCheck, color: "text-orange-600" },
   { id: "cv", label: "CV", icon: FileText, color: "text-teal-600" },
+  { id: "institute", label: "Institute", icon: Building2, color: "text-indigo-600" },
 ];
 
 export function ProfileSidebar({ activeTab, onTabChange }: ProfileSidebarProps) {
