@@ -87,6 +87,15 @@ export async function createInstitute(
   return data;
 }
 
+/**
+ * Resend institute email verification for the current user's institute.
+ * POST /api/institutes/resend-verification/
+ * Uses the authenticated axios client so the access token is sent automatically.
+ */
+export async function resendInstituteVerificationEmail(): Promise<void> {
+  await api.post("/api/institutes/resend-verification/");
+}
+
 const getApiBase = (): string => {
   if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL)
     return process.env.NEXT_PUBLIC_API_URL;

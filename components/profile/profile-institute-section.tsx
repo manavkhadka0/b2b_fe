@@ -32,6 +32,7 @@ import {
   getAllGraduatesForInstitution,
   updateGraduate,
 } from "@/services/graduates";
+import { resendInstituteVerificationEmail } from "@/services/institute";
 import { toast } from "sonner";
 
 interface ProfileInstituteSectionProps {
@@ -51,6 +52,8 @@ export function ProfileInstituteSection({
   );
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+   const [resendVerificationLoading, setResendVerificationLoading] =
+    useState(false);
 
   useEffect(() => {
     if (!institute || !institute.institute_name) return;
@@ -120,6 +123,20 @@ export function ProfileInstituteSection({
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!institute) return;
+    setResendVerificationLoading(true);
+    try {
+      await resendInstituteVerificationEmail();
+      toast.success("Verification email resent.");
+    } catch (err) {
+      console.error("Failed to resend verification email:", err);
+      toast.error("Failed to resend verification email.");
+    } finally {
+      setResendVerificationLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="py-20 flex items-center justify-center">
@@ -170,10 +187,23 @@ export function ProfileInstituteSection({
               Verified
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-sm font-medium">
-              <Clock className="w-4 h-4" />
-              Pending verification
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-sm font-medium">
+                <Clock className="w-4 h-4" />
+                Pending verification
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleResendVerification}
+                disabled={resendVerificationLoading}
+              >
+                {resendVerificationLoading && (
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                )}
+                Resend verification
+              </Button>
+            </div>
           )}
         </div>
         <div className="p-5 space-y-3 text-sm">
