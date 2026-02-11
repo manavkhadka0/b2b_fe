@@ -83,6 +83,31 @@ export async function getGraduates(
   };
 }
 
+/**
+ * Convenience helper to fetch all graduates for a given institution name.
+ * This will follow DRF pagination under the hood and return a flat list.
+ */
+export async function getAllGraduatesForInstitution(
+  institutionName: string,
+): Promise<GraduateRoster[]> {
+  const trimmed = institutionName.trim();
+  if (!trimmed) return [];
+
+  let page: number | null = 1;
+  const all: GraduateRoster[] = [];
+
+  while (page != null) {
+    const res = await getGraduates({
+      page,
+      institution_name: trimmed,
+    });
+    all.push(...(res.results ?? []));
+    page = parsePageFromUrl(res.next);
+  }
+
+  return all;
+}
+
 /** Extract page number from DRF next/previous URL, or null */
 export function parsePageFromUrl(url: string | null): number | null {
   if (!url) return null;

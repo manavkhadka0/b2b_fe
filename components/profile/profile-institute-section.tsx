@@ -1,7 +1,12 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Institute } from "@/types/institute";
+import type {
+  GraduateRoster,
+  CreateGraduateRosterPayload,
+} from "@/types/graduate-roster";
 import {
   Building2,
   CheckCircle,
@@ -9,8 +14,25 @@ import {
   Mail,
   MapPin,
   Phone,
+  Users,
+  Pencil,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { GraduateRosterForm } from "@/components/jobs/roster/GraduateRosterForm";
+import {
+  deleteGraduate,
+  getAllGraduatesForInstitution,
+  updateGraduate,
+} from "@/services/graduates";
+import { toast } from "sonner";
 
 interface ProfileInstituteSectionProps {
   institute: Institute | null;
@@ -21,6 +43,83 @@ export function ProfileInstituteSection({
   institute,
   loading,
 }: ProfileInstituteSectionProps) {
+  const [graduates, setGraduates] = useState<GraduateRoster[]>([]);
+  const [graduatesLoading, setGraduatesLoading] = useState(false);
+  const [graduatesError, setGraduatesError] = useState<string | null>(null);
+  const [editingGraduate, setEditingGraduate] = useState<GraduateRoster | null>(
+    null,
+  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!institute || !institute.institute_name) return;
+
+    let cancelled = false;
+
+    async function loadGraduates(currentInstituteName: string) {
+      setGraduatesLoading(true);
+      setGraduatesError(null);
+      try {
+        const all = await getAllGraduatesForInstitution(currentInstituteName);
+        if (!cancelled) {
+          setGraduates(all);
+        }
+      } catch (err) {
+        console.error("Failed to load graduates for institute:", err);
+        if (!cancelled) {
+          setGraduatesError("Failed to load graduates.");
+        }
+      } finally {
+        if (!cancelled) {
+          setGraduatesLoading(false);
+        }
+      }
+    }
+
+    loadGraduates(institute.institute_name);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [institute]);
+
+  const handleOpenEdit = (graduate: GraduateRoster) => {
+    setEditingGraduate(graduate);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (payload: CreateGraduateRosterPayload) => {
+    if (!editingGraduate) return;
+    try {
+      const updated = await updateGraduate(editingGraduate.id, payload);
+      setGraduates((prev) =>
+        prev.map((g) => (g.id === updated.id ? updated : g)),
+      );
+      toast.success("Graduate updated.");
+      setEditDialogOpen(false);
+      setEditingGraduate(null);
+    } catch (err) {
+      console.error("Failed to update graduate:", err);
+      toast.error("Failed to update graduate.");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Remove this graduate from the roster?")) return;
+    setDeletingId(id);
+    try {
+      await deleteGraduate(id);
+      setGraduates((prev) => prev.filter((g) => g.id !== id));
+      toast.success("Graduate removed from roster.");
+    } catch (err) {
+      console.error("Failed to delete graduate:", err);
+      toast.error("Failed to remove graduate.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="py-20 flex items-center justify-center">
@@ -46,8 +145,10 @@ export function ProfileInstituteSection({
     );
   }
 
+  const hasGraduates = graduates.length > 0;
+
   return (
-    <div className="py-4">
+    <div className="py-4 space-y-6">
       <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -129,11 +230,181 @@ export function ProfileInstituteSection({
               <Link href="/jobs/roster/create">Add graduate</Link>
             </Button>
           )}
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/jobs/roster">Manage roster</Link>
-          </Button>
         </div>
       </div>
+
+      {institute.is_verified && (
+        <div className="rounded-xl border border-gray-200 bg-white">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-indigo-50 p-2">
+                <Users className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Graduate roster
+                </h3>
+                <p className="text-xs text-gray-500">
+                  View, edit, and remove graduates linked to this institute.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 py-4">
+            {graduatesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+              </div>
+            ) : graduatesError ? (
+              <p className="text-sm text-red-600">{graduatesError}</p>
+            ) : !hasGraduates ? (
+              <p className="text-sm text-gray-500">
+                No graduates have been added for this institute yet.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm table-fixed border-separate border-spacing-0">
+                  <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                      <th className="px-4 py-2 text-left font-semibold first:rounded-tl-lg">
+                        Name & contact
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Trade / level
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Current location
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Job status
+                      </th>
+                      <th className="px-4 py-2 text-right font-semibold last:rounded-tr-lg">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {graduates.map((g) => (
+                      <tr
+                        key={g.id}
+                        className="hover:bg-gray-50/70 transition-colors"
+                      >
+                        <td className="px-4 py-3 align-middle">
+                          <div className="font-medium text-gray-900 mb-0.5">
+                            {g.name}
+                          </div>
+                          <div className="text-xs text-gray-500">{g.email}</div>
+                          <div className="text-xs text-gray-500">
+                            {g.phone_number}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-middle">
+                          <div className="text-gray-800 mb-0.5">
+                            {g.subject_trade_stream || "—"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {g.level_completed || "Level not specified"}
+                            {g.passed_year ? ` · ${g.passed_year}` : ""}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-middle">
+                          {g.current_municipality || g.current_district ? (
+                            <>
+                              <div className="text-gray-800 mb-0.5">
+                                {g.current_municipality || "—"},{" "}
+                                {g.current_district || "—"}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Province: {g.current_province || "—"}, Ward:{" "}
+                                {g.current_ward || "—"}
+                              </div>
+                            </>
+                          ) : (
+                            <span className="text-xs text-gray-500">
+                              Not specified
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 align-middle">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap ${
+                              g.job_status === "Available for Job"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                : "bg-slate-50 text-slate-600 border border-slate-100"
+                            }`}
+                          >
+                            {g.job_status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 align-middle">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleOpenEdit(g)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                              <span className="sr-only">Edit graduate</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDelete(g.id)}
+                              disabled={deletingId === g.id}
+                            >
+                              {deletingId === g.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                              <span className="sr-only">Delete graduate</span>
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <Dialog
+        open={editDialogOpen && !!editingGraduate}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) {
+            setEditingGraduate(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-3xl w-[95%] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base sm:text-lg">
+              Edit graduate
+            </DialogTitle>
+          </DialogHeader>
+          {editingGraduate && (
+            <div className="mt-2">
+              <GraduateRosterForm
+                defaultInstituteId={
+                  typeof editingGraduate.institute === "number"
+                    ? editingGraduate.institute
+                    : editingGraduate.institute?.id
+                }
+                defaultValues={editingGraduate}
+                onSubmit={handleEditSubmit}
+                submitLabel="Save changes"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
