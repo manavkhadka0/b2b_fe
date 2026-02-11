@@ -6,6 +6,9 @@ import { api } from "@/lib/api";
 import type {
   GraduateRoster,
   CreateGraduateRosterPayload,
+  LevelCompleted,
+  JobStatus,
+  CertifyingAgency,
 } from "@/types/graduate-roster";
 
 export interface GraduatesListResponse {
@@ -18,6 +21,15 @@ export interface GraduatesListResponse {
 export interface GetGraduatesParams {
   page?: number;
   search?: string;
+  trade_stream?: string;
+  level?: LevelCompleted | "";
+  passed_year_min?: number;
+  passed_year_max?: number;
+  district?: string;
+  municipality?: string;
+  status?: JobStatus | "";
+  certifying_agency?: CertifyingAgency | "";
+  institution_name?: string;
 }
 
 export async function getGraduates(
@@ -26,6 +38,34 @@ export async function getGraduates(
   const searchParams = new URLSearchParams();
   if (params?.page != null) searchParams.set("page", String(params.page));
   if (params?.search?.trim()) searchParams.set("search", params.search.trim());
+   // Django Filter fields
+  if (params?.trade_stream?.trim()) {
+    searchParams.set("trade_stream", params.trade_stream.trim());
+  }
+  if (params?.level) {
+    searchParams.set("level", params.level);
+  }
+  if (params?.passed_year_min != null) {
+    searchParams.set("passed_year_min", String(params.passed_year_min));
+  }
+  if (params?.passed_year_max != null) {
+    searchParams.set("passed_year_max", String(params.passed_year_max));
+  }
+  if (params?.district?.trim()) {
+    searchParams.set("district", params.district.trim());
+  }
+  if (params?.municipality?.trim()) {
+    searchParams.set("municipality", params.municipality.trim());
+  }
+  if (params?.status) {
+    searchParams.set("status", params.status);
+  }
+  if (params?.certifying_agency) {
+    searchParams.set("certifying_agency", params.certifying_agency);
+  }
+  if (params?.institution_name?.trim()) {
+    searchParams.set("institution_name", params.institution_name.trim());
+  }
 
   const qs = searchParams.toString();
   const url = qs ? `/api/graduates/?${qs}` : "/api/graduates/";

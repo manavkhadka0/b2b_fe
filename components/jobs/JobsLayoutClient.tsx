@@ -7,6 +7,7 @@ import { X, SlidersHorizontal } from "lucide-react";
 import { JOBS_SIDEBAR } from "./jobs-sidebar-styles";
 import type { JobsViewMode } from "./ModeToggle";
 import { WorkInterestsFiltersProvider } from "@/contexts/work-interests-filters";
+import { RosterFiltersProvider } from "@/contexts/roster-filters";
 
 const SIDEBAR_ROUTES = [
   "career-guidance",
@@ -52,7 +53,9 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
 
   if (!showSidebar) {
     return (
-      <WorkInterestsFiltersProvider>{children}</WorkInterestsFiltersProvider>
+      <WorkInterestsFiltersProvider>
+        <RosterFiltersProvider>{children}</RosterFiltersProvider>
+      </WorkInterestsFiltersProvider>
     );
   }
 
@@ -60,6 +63,7 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
 
   return (
     <WorkInterestsFiltersProvider>
+      <RosterFiltersProvider>
       <div className="max-w-7xl px-4 sm:px-8 mx-auto py-10 min-h-screen">
         {sidebarOpen && (
           <div
@@ -108,6 +112,7 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
+      </RosterFiltersProvider>
     </WorkInterestsFiltersProvider>
   );
 }

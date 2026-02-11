@@ -24,6 +24,7 @@ import { RosterControls } from "./RosterControls";
 import { RosterCards } from "./RosterCards";
 import { GraduateDetailsDialog } from "./GraduateDetailsDialog";
 import { RosterFiltersSidebar } from "./RosterFiltersSidebar";
+import { useRosterFilters } from "@/contexts/roster-filters";
 
 export default function RosterView() {
   const { user, isLoading: authLoading } = useAuth();
@@ -50,10 +51,34 @@ export default function RosterView() {
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const lastFetchKeyRef = useRef<string | null>(null);
+  const {
+    tradeStream,
+    level,
+    passedYearMin,
+    passedYearMax,
+    district,
+    municipality,
+    status,
+    certifyingAgency,
+    institutionName,
+  } = useRosterFilters();
   const fetchGraduates = useCallback(
     async (pageNum: number = 1) => {
       const searchValue = debouncedSearch.trim();
-      const key = `${pageNum}-${searchValue}`;
+      const filtersKey = JSON.stringify({
+        page: pageNum,
+        search: searchValue,
+        tradeStream,
+        level,
+        passedYearMin,
+        passedYearMax,
+        district,
+        municipality,
+        status,
+        certifyingAgency,
+        institutionName,
+      });
+      const key = filtersKey;
       if (lastFetchKeyRef.current === key) {
         return;
       }
@@ -63,6 +88,15 @@ export default function RosterView() {
         const res = await getGraduates({
           page: pageNum,
           search: searchValue || undefined,
+          trade_stream: tradeStream || undefined,
+          level: level || undefined,
+          passed_year_min: passedYearMin ? Number(passedYearMin) : undefined,
+          passed_year_max: passedYearMax ? Number(passedYearMax) : undefined,
+          district: district || undefined,
+          municipality: municipality || undefined,
+          status: status || undefined,
+          certifying_agency: certifyingAgency || undefined,
+          institution_name: institutionName || undefined,
         });
         setGraduates(res.results ?? []);
         setPagination({
@@ -78,7 +112,18 @@ export default function RosterView() {
         setGraduatesLoading(false);
       }
     },
-    [debouncedSearch],
+    [
+      debouncedSearch,
+      tradeStream,
+      level,
+      passedYearMin,
+      passedYearMax,
+      district,
+      municipality,
+      status,
+      certifyingAgency,
+      institutionName,
+    ],
   );
 
   const fetchInstituteStatus = useCallback(async () => {
@@ -119,7 +164,18 @@ export default function RosterView() {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [
+    debouncedSearch,
+    tradeStream,
+    level,
+    passedYearMin,
+    passedYearMax,
+    district,
+    municipality,
+    status,
+    certifyingAgency,
+    institutionName,
+  ]);
 
   const handleDeleteGraduate = useCallback(async (id: number) => {
     if (!confirm("Remove this graduate from the roster?")) return;
