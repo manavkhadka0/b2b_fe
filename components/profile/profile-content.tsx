@@ -4,10 +4,12 @@ import { Loader2 } from "lucide-react";
 import type { Wish, Offer } from "@/types/wish";
 import type { Job } from "@/types/types";
 import type { CvProfile } from "@/types/cv";
+import type { Institute } from "@/types/institute";
 import { ProfileWishesTable } from "./profile-wishes-table";
 import { ProfileOffersTable } from "./profile-offers-table";
 import { ProfileJobsTable } from "./profile-jobs-table";
 import { CvSections } from "./cv/CvSections";
+import { ProfileInstituteSection } from "./profile-institute-section";
 
 interface ProfileContentProps {
   activeTab: string;
@@ -36,6 +38,8 @@ interface ProfileContentProps {
   onDeleteOffer: (id: number) => void;
   onConvertWish: (wish: Wish) => void;
   onConvertOffer: (offer: Offer) => void;
+  institute: Institute | null;
+  instituteLoading: boolean;
 }
 
 export function ProfileContent({
@@ -65,6 +69,8 @@ export function ProfileContent({
   onDeleteOffer,
   onConvertWish,
   onConvertOffer,
+  institute,
+  instituteLoading,
 }: ProfileContentProps) {
   const renderContent = () => {
     switch (activeTab) {
@@ -162,6 +168,14 @@ export function ProfileContent({
           <ProfileJobsTable
             jobs={appliedJobs}
             showEditButton={false}
+          />
+        );
+
+      case "institute":
+        return (
+          <ProfileInstituteSection
+            institute={institute}
+            loading={instituteLoading}
           />
         );
 

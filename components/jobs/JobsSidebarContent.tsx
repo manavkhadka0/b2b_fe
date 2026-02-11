@@ -13,6 +13,7 @@ import {
   DollarSign,
   ChevronRight,
 } from "lucide-react";
+import { JOBS_QUICK_LINKS } from "./jobs-quick-links";
 import { FilterOption } from "@/app/wishOffer/components/FilterOption";
 import {
   type EmploymentTypeFilter,
@@ -154,30 +155,13 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
       <div className={JOBS_SIDEBAR.sectionBordered}>
         <h2 className={JOBS_SIDEBAR.sectionHeading}>Quick Links</h2>
         <div className={JOBS_SIDEBAR.linksContainer}>
-          <Link
-            href="/jobs/career-guidance"
-            className={JOBS_SIDEBAR.link}
-          >
-            <Briefcase className={JOBS_SIDEBAR.linkIcon} />
-            <span className="truncate">Career Guidance</span>
-            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
-          </Link>
-          <Link
-            href="/jobs/internship"
-            className={JOBS_SIDEBAR.link}
-          >
-            <GraduationCap className={JOBS_SIDEBAR.linkIcon} />
-            <span className="truncate">Internship Opportunities</span>
-            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
-          </Link>
-          <Link
-            href="/jobs/apprenticeship"
-            className={JOBS_SIDEBAR.link}
-          >
-            <GraduationCap className={JOBS_SIDEBAR.linkIcon} />
-            <span className="truncate">Apprenticeship Opportunities</span>
-            <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
-          </Link>
+          {JOBS_QUICK_LINKS.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className={JOBS_SIDEBAR.link}>
+              <Icon className={JOBS_SIDEBAR.linkIcon} />
+              <span className="truncate">{label}</span>
+              <ChevronRight className={JOBS_SIDEBAR.linkChevron} />
+            </Link>
+          ))}
         </div>
       </div>
 
