@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,14 +33,14 @@ import { Step3CurrentAddress } from "./components/Step3CurrentAddress";
 import { Step4Education } from "./components/Step4Education";
 import { Step5JobAvailability } from "./components/Step5JobAvailability";
 import { Step6Review } from "./components/Step6Review";
-import { createGraduate } from "@/services/graduates";
+import { createGraduate, getGraduate, updateGraduate } from "@/services/graduates";
 import {
   getInstitutes,
   getInstituteDetail,
   isInstituteNotFoundError,
 } from "@/services/institute";
 import { useAuth } from "@/contexts/AuthContext";
-import type { CreateGraduateRosterPayload } from "@/types/graduate-roster";
+import type { CreateGraduateRosterPayload, GraduateRoster } from "@/types/graduate-roster";
 import type { Institute } from "@/types/institute";
 
 const STEPS = [
@@ -87,14 +87,56 @@ function toPayload(
   };
 }
 
+function graduateToFormValues(graduate: GraduateRoster): RosterFormValues {
+  const instituteId =
+    typeof graduate.institute === "object" && graduate.institute
+      ? graduate.institute.id
+      : graduate.institute ?? null;
+
+  return {
+    institute: instituteId,
+    name: graduate.name,
+    phone_number: graduate.phone_number,
+    email: graduate.email,
+    gender: graduate.gender,
+    date_of_birth: graduate.date_of_birth,
+    permanent_province: graduate.permanent_province,
+    permanent_district: graduate.permanent_district,
+    permanent_municipality: graduate.permanent_municipality,
+    permanent_ward: graduate.permanent_ward,
+    sameAsPermanent: false,
+    current_province: graduate.current_province ?? "",
+    current_district: graduate.current_district ?? "",
+    current_municipality: graduate.current_municipality ?? "",
+    current_ward: graduate.current_ward ?? "",
+    level_completed: graduate.level_completed ?? "",
+    subject_trade_stream: graduate.subject_trade_stream ?? "",
+    specialization_key_skills: graduate.specialization_key_skills ?? "",
+    passed_year: graduate.passed_year ?? undefined,
+    certifying_agency: graduate.certifying_agency ?? "",
+    certifying_agency_name: graduate.certifying_agency_name ?? "",
+    certificate_id: graduate.certificate_id ?? "",
+    job_status: graduate.job_status,
+    available_from: graduate.available_from ?? "",
+    declaration: false,
+  };
+}
+
 export default function RosterCreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editIdParam = searchParams.get("editId");
+  const editId = editIdParam ? Number(editIdParam) : null;
+  const isEditing = !!editIdParam && !Number.isNaN(editId);
+
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [sameAsPermanent, setSameAsPermanent] = useState(false);
   const [institutes, setInstitutes] = useState<Array<{ id: number; institute_name: string }>>([]);
   const [institute, setInstitute] = useState<Institute | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingGraduate, setLoadingGraduate] = useState(false);
+  const [editingGraduate, setEditingGraduate] = useState<GraduateRoster | null>(null);
 
   useEffect(() => {
     if (!user?.username) return;
@@ -112,9 +154,12 @@ export default function RosterCreatePage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login?returnTo=/jobs/roster/create");
+      const returnTo = isEditing
+        ? `/jobs/roster/create?editId=${editIdParam}`
+        : "/jobs/roster/create";
+      router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`);
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, router, isEditing, editIdParam]);
 
   const form = useForm<RosterFormValues>({
     resolver: zodResolver(rosterFormSchema),
@@ -147,11 +192,28 @@ export default function RosterCreatePage() {
     },
   });
 
+  // When editing, load graduate and reset form with existing values
   useEffect(() => {
+    if (!isEditing || !editId) return;
+    setLoadingGraduate(true);
+    getGraduate(editId)
+      .then((g) => {
+        setEditingGraduate(g);
+        form.reset(graduateToFormValues(g));
+      })
+      .catch((err) => {
+        console.error("Error loading graduate for edit:", err);
+        setEditingGraduate(null);
+      })
+      .finally(() => setLoadingGraduate(false));
+  }, [isEditing, editId, form]);
+
+  useEffect(() => {
+    if (isEditing) return;
     if (institute?.id) {
       form.setValue("institute", institute.id);
     }
-  }, [institute?.id, form]);
+  }, [institute?.id, form, isEditing]);
 
   const getFieldsForStep = (step: number): (keyof RosterFormValues)[] => {
     switch (step) {
@@ -188,9 +250,16 @@ export default function RosterCreatePage() {
     setIsSubmitting(true);
     try {
       const payload = toPayload(data, sameAsPermanent);
-      const withInstitute = institute ? { ...payload, institute: institute.id } : payload;
-      await createGraduate(withInstitute);
-      toast.success("Graduate added to roster.");
+      const finalPayload =
+        !isEditing && institute ? { ...payload, institute: institute.id } : payload;
+
+      if (isEditing && editId) {
+        await updateGraduate(editId, finalPayload);
+        toast.success("Graduate updated.");
+      } else {
+        await createGraduate(finalPayload);
+        toast.success("Graduate added to roster.");
+      }
       router.push("/jobs/roster");
     } catch (err) {
       console.error("Create graduate error:", err);
@@ -220,6 +289,22 @@ export default function RosterCreatePage() {
 
   if (!user) return null;
 
+  if (isEditing && !loadingGraduate && !editingGraduate) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="text-slate-600">Graduate not found.</p>
+      </div>
+    );
+  }
+
+  if (isEditing && loadingGraduate) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-800 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-4 px-2 sm:py-6 sm:px-4 lg:py-8 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -233,10 +318,12 @@ export default function RosterCreatePage() {
             Back to roster
           </Link>
           <h1 className="text-xl min-[375px]:text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2 px-2">
-            Add graduate
+            {isEditing ? "Edit graduate" : "Add graduate"}
           </h1>
           <p className="text-slate-600 text-xs min-[375px]:text-sm sm:text-base px-2">
-            Complete all steps to add a graduate to your roster
+            {isEditing
+              ? "Update graduate details in your roster."
+              : "Complete all steps to add a graduate to your roster"}
           </p>
         </div>
 
@@ -381,12 +468,16 @@ export default function RosterCreatePage() {
                       {isSubmitting ? (
                         <>
                           <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          <span className="text-xs sm:text-sm">Adding...</span>
+                          <span className="text-xs sm:text-sm">
+                            {isEditing ? "Saving..." : "Adding..."}
+                          </span>
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span className="text-xs sm:text-sm">Add graduate</span>
+                          <span className="text-xs sm:text-sm">
+                            {isEditing ? "Save changes" : "Add graduate"}
+                          </span>
                         </>
                       )}
                     </Button>
