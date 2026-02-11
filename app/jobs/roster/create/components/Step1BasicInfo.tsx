@@ -22,10 +22,9 @@ import type { RosterFormValues } from "../types";
 
 interface Step1BasicInfoProps {
   form: UseFormReturn<RosterFormValues>;
-  institutes: Array<{ id: number; institute_name: string }>;
 }
 
-export function Step1BasicInfo({ form, institutes }: Step1BasicInfoProps) {
+export function Step1BasicInfo({ form }: Step1BasicInfoProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -33,38 +32,6 @@ export function Step1BasicInfo({ form, institutes }: Step1BasicInfoProps) {
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      {institutes.length > 0 && (
-        <FormField
-          control={form.control}
-          name="institute"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Institute</FormLabel>
-              <Select
-                value={field.value != null ? String(field.value) : ""}
-                onValueChange={(v) =>
-                  field.onChange(v === "" ? null : Number(v))
-                }
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select institute" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {institutes.map((i) => (
-                    <SelectItem key={i.id} value={String(i.id)}>
-                      {i.institute_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
-
       <FormField
         control={form.control}
         name="name"

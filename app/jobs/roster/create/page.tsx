@@ -32,22 +32,44 @@ import { Step2Address } from "./components/Step2Address";
 import { Step4Education } from "./components/Step4Education";
 import { Step5JobAvailability } from "./components/Step5JobAvailability";
 import { Step6Review } from "./components/Step6Review";
-import { createGraduate, getGraduate, updateGraduate } from "@/services/graduates";
 import {
-  getInstitutes,
+  createGraduate,
+  getGraduate,
+  updateGraduate,
+} from "@/services/graduates";
+import {
   getInstituteDetail,
   isInstituteNotFoundError,
 } from "@/services/institute";
 import { useAuth } from "@/contexts/AuthContext";
-import type { CreateGraduateRosterPayload, GraduateRoster } from "@/types/graduate-roster";
+import type {
+  CreateGraduateRosterPayload,
+  GraduateRoster,
+} from "@/types/graduate-roster";
 import type { Institute } from "@/types/institute";
 
 const STEPS = [
   { title: "Basic information", description: "Personal details", icon: User },
-  { title: "Address", description: "Province, district, municipality", icon: MapPin },
-  { title: "Education", description: "Qualifications and skills", icon: GraduationCap },
-  { title: "Job availability", description: "Status and availability", icon: Briefcase },
-  { title: "Review & submit", description: "Confirm and add", icon: CheckCircle2 },
+  {
+    title: "Address",
+    description: "Province, district, municipality",
+    icon: MapPin,
+  },
+  {
+    title: "Education",
+    description: "Qualifications and skills",
+    icon: GraduationCap,
+  },
+  {
+    title: "Job availability",
+    description: "Status and availability",
+    icon: Briefcase,
+  },
+  {
+    title: "Review & submit",
+    description: "Confirm and add",
+    icon: CheckCircle2,
+  },
 ];
 
 function toPayload(values: RosterFormValues): CreateGraduateRosterPayload {
@@ -70,11 +92,15 @@ function toPayload(values: RosterFormValues): CreateGraduateRosterPayload {
     current_district: values.permanent_district,
     current_municipality: values.permanent_municipality,
     current_ward: values.permanent_ward,
-    level_completed: (values.level_completed as CreateGraduateRosterPayload["level_completed"]) || null,
+    level_completed:
+      (values.level_completed as CreateGraduateRosterPayload["level_completed"]) ||
+      null,
     subject_trade_stream: values.subject_trade_stream?.trim() || null,
     specialization_key_skills: values.specialization_key_skills?.trim() || null,
     passed_year: values.passed_year ?? null,
-    certifying_agency: (values.certifying_agency as CreateGraduateRosterPayload["certifying_agency"]) || null,
+    certifying_agency:
+      (values.certifying_agency as CreateGraduateRosterPayload["certifying_agency"]) ||
+      null,
     certifying_agency_name: values.certifying_agency_name?.trim() || null,
     certificate_id: values.certificate_id?.trim() || null,
     job_status: values.job_status as CreateGraduateRosterPayload["job_status"],
@@ -86,7 +112,7 @@ function graduateToFormValues(graduate: GraduateRoster): RosterFormValues {
   const instituteId =
     typeof graduate.institute === "object" && graduate.institute
       ? graduate.institute.id
-      : graduate.institute ?? null;
+      : (graduate.institute ?? null);
 
   return {
     institute: instituteId,
@@ -126,11 +152,12 @@ export default function RosterCreatePage() {
 
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [institutes, setInstitutes] = useState<Array<{ id: number; institute_name: string }>>([]);
   const [institute, setInstitute] = useState<Institute | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingGraduate, setLoadingGraduate] = useState(false);
-  const [editingGraduate, setEditingGraduate] = useState<GraduateRoster | null>(null);
+  const [editingGraduate, setEditingGraduate] = useState<GraduateRoster | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!user?.username) return;
@@ -141,10 +168,6 @@ export default function RosterCreatePage() {
         setInstitute(null);
       });
   }, [user?.username]);
-
-  useEffect(() => {
-    getInstitutes().then(setInstitutes).catch(() => setInstitutes([]));
-  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -212,11 +235,24 @@ export default function RosterCreatePage() {
   const getFieldsForStep = (step: number): (keyof RosterFormValues)[] => {
     switch (step) {
       case 1:
-        return ["institute", "name", "phone_number", "email", "gender", "date_of_birth"];
+        return ["name", "phone_number", "email", "gender", "date_of_birth"];
       case 2:
-        return ["permanent_province", "permanent_district", "permanent_municipality", "permanent_ward"];
+        return [
+          "permanent_province",
+          "permanent_district",
+          "permanent_municipality",
+          "permanent_ward",
+        ];
       case 3:
-        return ["level_completed", "subject_trade_stream", "specialization_key_skills", "passed_year", "certifying_agency", "certifying_agency_name", "certificate_id"];
+        return [
+          "level_completed",
+          "subject_trade_stream",
+          "specialization_key_skills",
+          "passed_year",
+          "certifying_agency",
+          "certifying_agency_name",
+          "certificate_id",
+        ];
       case 4:
         return ["job_status", "available_from"];
       case 5:
@@ -243,7 +279,9 @@ export default function RosterCreatePage() {
     try {
       const payload = toPayload(data);
       const finalPayload =
-        !isEditing && institute ? { ...payload, institute: institute.id } : payload;
+        !isEditing && institute
+          ? { ...payload, institute: institute.id }
+          : payload;
 
       if (isEditing && editId) {
         await updateGraduate(editId, finalPayload);
@@ -255,7 +293,8 @@ export default function RosterCreatePage() {
       router.push("/jobs/roster");
     } catch (err) {
       console.error("Create graduate error:", err);
-      const data = (err as { response?: { data?: Record<string, unknown> } })?.response?.data;
+      const data = (err as { response?: { data?: Record<string, unknown> } })
+        ?.response?.data;
       if (data && typeof data === "object") {
         const msgs = Object.entries(data)
           .map(([k, v]) => (Array.isArray(v) ? v.join(" ") : String(v)))
@@ -302,13 +341,13 @@ export default function RosterCreatePage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6 lg:mb-8 text-center">
-          <Link
+          {/* <Link
             href="/jobs/roster"
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to roster
-          </Link>
+          </Link> */}
           <h1 className="text-xl min-[375px]:text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2 px-2">
             {isEditing ? "Edit graduate" : "Add graduate"}
           </h1>
@@ -410,9 +449,7 @@ export default function RosterCreatePage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4 sm:space-y-6"
               >
-                {currentStep === 1 && (
-                  <Step1BasicInfo form={form} institutes={institutes} />
-                )}
+                {currentStep === 1 && <Step1BasicInfo form={form} />}
                 {currentStep === 2 && <Step2Address form={form} />}
                 {currentStep === 3 && <Step4Education form={form} />}
                 {currentStep === 4 && <Step5JobAvailability form={form} />}
