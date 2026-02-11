@@ -18,6 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface RosterFiltersProps {
   tradeStream: string;
@@ -103,27 +112,81 @@ export function RosterFilters({
           <Label className="text-xs font-semibold text-slate-600">
             Passed year (min)
           </Label>
-          <Input
-            type="number"
-            inputMode="numeric"
-            value={passedYearMin}
-            onChange={(e) => onPassedYearMinChange(e.target.value)}
-            placeholder="From"
-            className="h-8 text-sm"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "h-8 text-sm justify-start text-left font-normal",
+                  !passedYearMin && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {passedYearMin || "From"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={
+                  passedYearMin
+                    ? new Date(parseInt(passedYearMin), 0, 1)
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    onPassedYearMinChange(date.getFullYear().toString());
+                  } else {
+                    onPassedYearMinChange("");
+                  }
+                }}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-semibold text-slate-600">
             Passed year (max)
           </Label>
-          <Input
-            type="number"
-            inputMode="numeric"
-            value={passedYearMax}
-            onChange={(e) => onPassedYearMaxChange(e.target.value)}
-            placeholder="To"
-            className="h-8 text-sm"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "h-8 text-sm justify-start text-left font-normal",
+                  !passedYearMax && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {passedYearMax || "To"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={
+                  passedYearMax
+                    ? new Date(parseInt(passedYearMax), 0, 1)
+                    : undefined
+                }
+                onSelect={(date) => {
+                  if (date) {
+                    onPassedYearMaxChange(date.getFullYear().toString());
+                  } else {
+                    onPassedYearMaxChange("");
+                  }
+                }}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
