@@ -256,7 +256,7 @@ export default function RosterView() {
           ) : (
             <div className="overflow-hidden">
               <div className="py-6">
-                {institute && (
+                {/* {institute && (
                   <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-slate-700">
                       {institute.institute_name}
@@ -273,7 +273,7 @@ export default function RosterView() {
                       </span>
                     )}
                   </div>
-                )}
+                )} */}
                 <RosterCards
                   graduates={graduates}
                   graduatesLoading={graduatesLoading}
