@@ -1,8 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  getProvinces,
+  getDistricts,
+  getMunicipalities,
+} from "@manavkhadka0/nepal-address";
 import {
   LEVEL_COMPLETED_CHOICES,
   JOB_STATUS_CHOICES,
@@ -18,7 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
+import { ChevronsUpDown } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -69,6 +83,13 @@ export function RosterFilters({
   institutionName,
   onInstitutionNameChange,
 }: RosterFiltersProps) {
+  const { allDistricts, allMunicipalities } = useMemo(() => {
+    const provinces = getProvinces();
+    const districts = [...new Set(provinces.flatMap((p) => getDistricts(p)))].sort();
+    const municipalities = [...new Set(districts.flatMap((d) => getMunicipalities(d)))].sort();
+    return { allDistricts: districts, allMunicipalities: municipalities };
+  }, []);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
@@ -192,26 +213,92 @@ export function RosterFilters({
 
       <div className="flex flex-col gap-2">
         <Label className="text-xs font-semibold text-slate-600">
-          Current district
+          District
         </Label>
-        <Input
-          value={district}
-          onChange={(e) => onDistrictChange(e.target.value)}
-          placeholder="Search district"
-          className="h-8 text-sm"
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "h-8 text-sm justify-between font-normal",
+                !district && "text-muted-foreground"
+              )}
+            >
+              {district || "Any district"}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search district..." />
+              <CommandList>
+                <CommandEmpty>No district found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    value="Any district"
+                    onSelect={() => onDistrictChange("")}
+                  >
+                    Any district
+                  </CommandItem>
+                  {allDistricts.map((d) => (
+                    <CommandItem
+                      key={d}
+                      value={d}
+                      onSelect={() => onDistrictChange(d)}
+                    >
+                      {d}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex flex-col gap-2">
         <Label className="text-xs font-semibold text-slate-600">
-          Current municipality
+          Municipality
         </Label>
-        <Input
-          value={municipality}
-          onChange={(e) => onMunicipalityChange(e.target.value)}
-          placeholder="Search municipality"
-          className="h-8 text-sm"
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "h-8 text-sm justify-between font-normal",
+                !municipality && "text-muted-foreground"
+              )}
+            >
+              {municipality || "Any municipality"}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search municipality..." />
+              <CommandList>
+                <CommandEmpty>No municipality found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    value="Any municipality"
+                    onSelect={() => onMunicipalityChange("")}
+                  >
+                    Any municipality
+                  </CommandItem>
+                  {allMunicipalities.map((m) => (
+                    <CommandItem
+                      key={m}
+                      value={m}
+                      onSelect={() => onMunicipalityChange(m)}
+                    >
+                      {m}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex flex-col gap-2">
