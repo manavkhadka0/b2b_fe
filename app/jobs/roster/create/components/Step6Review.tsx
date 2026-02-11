@@ -63,7 +63,8 @@ export function Step6Review({ form }: Step6ReviewProps) {
             </FormControl>
             <div className="space-y-1 leading-none">
               <FormLabel className="text-sm font-normal cursor-pointer">
-                I confirm that the information provided is accurate and complete.
+                Graduate consent received to publish profile for employment
+                opportunities
               </FormLabel>
               <FormMessage />
             </div>

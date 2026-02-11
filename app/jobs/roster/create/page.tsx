@@ -28,8 +28,7 @@ import { cn } from "@/lib/utils";
 import { rosterFormSchema } from "./schema";
 import type { RosterFormValues } from "./types";
 import { Step1BasicInfo } from "./components/Step1BasicInfo";
-import { Step2PermanentAddress } from "./components/Step2PermanentAddress";
-import { Step3CurrentAddress } from "./components/Step3CurrentAddress";
+import { Step2Address } from "./components/Step2Address";
 import { Step4Education } from "./components/Step4Education";
 import { Step5JobAvailability } from "./components/Step5JobAvailability";
 import { Step6Review } from "./components/Step6Review";
@@ -45,17 +44,13 @@ import type { Institute } from "@/types/institute";
 
 const STEPS = [
   { title: "Basic information", description: "Personal details", icon: User },
-  { title: "Permanent address", description: "Province, district, municipality", icon: MapPin },
-  { title: "Current address", description: "If different from permanent", icon: MapPin },
+  { title: "Address", description: "Province, district, municipality", icon: MapPin },
   { title: "Education", description: "Qualifications and skills", icon: GraduationCap },
   { title: "Job availability", description: "Status and availability", icon: Briefcase },
   { title: "Review & submit", description: "Confirm and add", icon: CheckCircle2 },
 ];
 
-function toPayload(
-  values: RosterFormValues,
-  sameAsPermanent: boolean,
-): CreateGraduateRosterPayload {
+function toPayload(values: RosterFormValues): CreateGraduateRosterPayload {
   const instituteId =
     values.institute != null && values.institute !== ""
       ? Number(values.institute)
@@ -71,10 +66,10 @@ function toPayload(
     permanent_district: values.permanent_district,
     permanent_municipality: values.permanent_municipality,
     permanent_ward: values.permanent_ward,
-    current_province: sameAsPermanent ? values.permanent_province : (values.current_province || null),
-    current_district: sameAsPermanent ? values.permanent_district : (values.current_district || null),
-    current_municipality: sameAsPermanent ? values.permanent_municipality : (values.current_municipality || null),
-    current_ward: sameAsPermanent ? values.permanent_ward : (values.current_ward || null),
+    current_province: values.permanent_province,
+    current_district: values.permanent_district,
+    current_municipality: values.permanent_municipality,
+    current_ward: values.permanent_ward,
     level_completed: (values.level_completed as CreateGraduateRosterPayload["level_completed"]) || null,
     subject_trade_stream: values.subject_trade_stream?.trim() || null,
     specialization_key_skills: values.specialization_key_skills?.trim() || null,
@@ -131,7 +126,6 @@ export default function RosterCreatePage() {
 
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [sameAsPermanent, setSameAsPermanent] = useState(false);
   const [institutes, setInstitutes] = useState<Array<{ id: number; institute_name: string }>>([]);
   const [institute, setInstitute] = useState<Institute | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -222,12 +216,10 @@ export default function RosterCreatePage() {
       case 2:
         return ["permanent_province", "permanent_district", "permanent_municipality", "permanent_ward"];
       case 3:
-        return sameAsPermanent ? [] : ["current_province", "current_district", "current_municipality", "current_ward"];
-      case 4:
         return ["level_completed", "subject_trade_stream", "specialization_key_skills", "passed_year", "certifying_agency", "certifying_agency_name", "certificate_id"];
-      case 5:
+      case 4:
         return ["job_status", "available_from"];
-      case 6:
+      case 5:
         return ["declaration"];
       default:
         return [];
@@ -238,7 +230,7 @@ export default function RosterCreatePage() {
     const fieldsToValidate = getFieldsForStep(currentStep);
     const isValid = await form.trigger(fieldsToValidate, { shouldFocus: true });
     if (isValid) {
-      setCurrentStep((prev) => Math.min(prev + 1, 6));
+      setCurrentStep((prev) => Math.min(prev + 1, 5));
     }
   };
 
@@ -249,7 +241,7 @@ export default function RosterCreatePage() {
   const onSubmit = async (data: RosterFormValues) => {
     setIsSubmitting(true);
     try {
-      const payload = toPayload(data, sameAsPermanent);
+      const payload = toPayload(data);
       const finalPayload =
         !isEditing && institute ? { ...payload, institute: institute.id } : payload;
 
@@ -421,17 +413,10 @@ export default function RosterCreatePage() {
                 {currentStep === 1 && (
                   <Step1BasicInfo form={form} institutes={institutes} />
                 )}
-                {currentStep === 2 && <Step2PermanentAddress form={form} />}
-                {currentStep === 3 && (
-                  <Step3CurrentAddress
-                    form={form}
-                    sameAsPermanent={sameAsPermanent}
-                    onSameAsPermanentChange={setSameAsPermanent}
-                  />
-                )}
-                {currentStep === 4 && <Step4Education form={form} />}
-                {currentStep === 5 && <Step5JobAvailability form={form} />}
-                {currentStep === 6 && <Step6Review form={form} />}
+                {currentStep === 2 && <Step2Address form={form} />}
+                {currentStep === 3 && <Step4Education form={form} />}
+                {currentStep === 4 && <Step5JobAvailability form={form} />}
+                {currentStep === 5 && <Step6Review form={form} />}
 
                 {/* Navigation buttons */}
                 <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 pt-4 sm:pt-6 border-t">
@@ -446,7 +431,7 @@ export default function RosterCreatePage() {
                     Previous
                   </Button>
 
-                  {currentStep < 6 ? (
+                  {currentStep < 5 ? (
                     <Button
                       type="button"
                       onClick={nextStep}

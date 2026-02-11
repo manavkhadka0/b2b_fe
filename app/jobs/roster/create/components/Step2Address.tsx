@@ -24,11 +24,11 @@ import {
 } from "@manavkhadka0/nepal-address";
 import type { RosterFormValues } from "../types";
 
-interface Step2PermanentAddressProps {
+interface Step2AddressProps {
   form: UseFormReturn<RosterFormValues>;
 }
 
-export function Step2PermanentAddress({ form }: Step2PermanentAddressProps) {
+export function Step2Address({ form }: Step2AddressProps) {
   const province = form.watch("permanent_province");
   const district = form.watch("permanent_district");
   const provinces = getProvinces();
@@ -43,7 +43,7 @@ export function Step2PermanentAddress({ form }: Step2PermanentAddressProps) {
       className="space-y-4"
     >
       <FormLabel className="text-base font-medium mb-2 block">
-        Permanent address *
+        Address *
       </FormLabel>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField

@@ -293,7 +293,10 @@ export default function RosterView() {
         </div>
       </div>
 
-      <RosterFiltersSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <RosterFiltersSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       <AuthDialog
         open={authDialogOpen}
