@@ -370,10 +370,12 @@ export function AuthDialog({
                       <div className="relative group">
                         <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                         <Input
-                          type="email"
                           className="pl-10 h-10 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                           placeholder="you@example.com"
-                          {...field}
+                          name={field.name}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          onChange={(e) => field.onChange(e.target.value)}
                         />
                       </div>
                     </FormControl>
