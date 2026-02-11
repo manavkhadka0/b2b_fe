@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Loader2, CheckCircle, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
@@ -17,11 +18,11 @@ import type { Institute } from "@/types/institute";
 import type { GraduateRoster } from "@/types/graduate-roster";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
-import { RosterEmptyState } from "./RosterEmptyState";
 import { CreateInstituteDialog } from "./CreateInstituteDialog";
 import { RosterHeader } from "./RosterHeader";
 import { RosterControls } from "./RosterControls";
 import { RosterCards } from "./RosterCards";
+import { RosterCreateButton } from "./RosterCreateButton";
 import { GraduateDetailsDialog } from "./GraduateDetailsDialog";
 import { RosterFiltersSidebar } from "./RosterFiltersSidebar";
 import { useRosterFilters } from "@/contexts/roster-filters";
@@ -177,21 +178,6 @@ export default function RosterView() {
     institutionName,
   ]);
 
-  const handleDeleteGraduate = useCallback(async (id: number) => {
-    if (!confirm("Remove this graduate from the roster?")) return;
-    setDeletingId(id);
-    try {
-      await deleteGraduate(id);
-      setGraduates((prev) => prev.filter((g) => g.id !== id));
-      toast.success("Graduate removed from roster.");
-    } catch (err) {
-      console.error("Error deleting graduate:", err);
-      toast.error("Failed to remove graduate.");
-    } finally {
-      setDeletingId(null);
-    }
-  }, []);
-
   useEffect(() => {
     if (user?.username && pendingCreateInstitute && !instituteCheckLoading) {
       setCreateDialogOpen(true);
@@ -232,14 +218,14 @@ export default function RosterView() {
         <div className="flex-1 min-w-0">
           <RosterHeader />
 
-          <RosterControls
+          {/* <RosterControls
             showControls={instituteCheck !== false || isContentLoading}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onClearSearch={() => setSearchQuery("")}
             onOpenFilters={() => setSidebarOpen(true)}
             institute={institute}
-          />
+          /> */}
 
           {/* Content Area */}
           {isContentLoading ? (
@@ -248,14 +234,26 @@ export default function RosterView() {
                 <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
               </div>
             </div>
-          ) : instituteCheck === false ? (
-            <RosterEmptyState
-              onCreateClick={handleCreateInstituteClick}
-              isCreating={false}
-            />
           ) : (
             <div className="overflow-hidden">
-              <div className="py-6">
+              <div className="py-6 space-y-4">
+                <div className="flex justify-end">
+                  {instituteCheck === false ? (
+                    <Button
+                      onClick={handleCreateInstituteClick}
+                      className="bg-blue-800 text-white hover:bg-blue-900"
+                    >
+                      Create institute
+                    </Button>
+                  ) : institute ? (
+                    <RosterCreateButton
+                      isVerified={institute.is_verified ?? false}
+                      variant="default"
+                      size="sm"
+                      className="bg-blue-800 hover:bg-blue-900"
+                    />
+                  ) : null}
+                </div>
                 {/* {institute && (
                   <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-slate-700">
