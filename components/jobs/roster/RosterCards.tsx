@@ -62,8 +62,19 @@ export function RosterCards({
           const locationMunicipality =
             g.current_municipality || g.permanent_municipality;
           const locationDistrict = g.current_district || g.permanent_district;
-          const availableFromLabel = g.available_from
-            ? new Date(g.available_from).toLocaleDateString()
+          const availableFromDate = g.available_from
+            ? new Date(g.available_from)
+            : null;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const availableDateOnly = availableFromDate
+            ? new Date(availableFromDate.getFullYear(), availableFromDate.getMonth(), availableFromDate.getDate())
+            : null;
+          const isDatePassed =
+            !availableDateOnly || availableDateOnly <= today;
+          const showDateInBadge = !!availableFromDate && !isDatePassed;
+          const availableFromLabel = availableFromDate
+            ? availableFromDate.toLocaleDateString()
             : "Not specified";
           const skillsPreview =
             g.specialization_key_skills ||
@@ -97,15 +108,21 @@ export function RosterCards({
                     {g.subject_trade_stream || "No specialization specified"}
                   </p>
                 </div>
-                <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
-                    g.job_status === "Available for Job"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                      : "bg-slate-50 text-slate-600 border border-slate-100"
-                  }`}
-                >
-                  {g.job_status}
-                </span>
+                {showDateInBadge ? (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide shrink-0 bg-amber-50 text-amber-700 border border-amber-100">
+                    Available from {availableFromLabel}
+                  </span>
+                ) : (
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
+                      g.job_status === "Available for Job"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                        : "bg-slate-50 text-slate-600 border border-slate-100"
+                    }`}
+                  >
+                    {g.job_status}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -122,10 +139,12 @@ export function RosterCards({
                     <span>{g.level_completed}</span>
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span>Available from {availableFromLabel}</span>
-                </span>
+                {!showDateInBadge && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span>Available from {availableFromLabel}</span>
+                  </span>
+                )}
               </div>
 
               <div className="mt-2 pt-2 border-t border-slate-100">
