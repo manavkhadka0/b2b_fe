@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import type { Institute } from "@/types/institute";
-import { Building2, CheckCircle, Clock, Mail, MapPin, Phone } from "lucide-react";
+import {
+  Building2,
+  CheckCircle,
+  Clock,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ProfileInstituteSectionProps {
@@ -51,7 +58,9 @@ export function ProfileInstituteSection({
               <h2 className="font-semibold text-gray-900">
                 {institute.institute_name}
               </h2>
-              <p className="text-sm text-gray-500">{institute.institute_type}</p>
+              <p className="text-sm text-gray-500">
+                {institute.institute_type}
+              </p>
             </div>
           </div>
           {institute.is_verified ? (
@@ -70,8 +79,8 @@ export function ProfileInstituteSection({
           <div className="flex items-start gap-3 text-gray-600">
             <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" />
             <span>
-              {institute.municipality}, {institute.district}, {institute.province}{" "}
-              · Ward {institute.ward_no}
+              {institute.municipality}, {institute.district},{" "}
+              {institute.province} · Ward {institute.ward_no}
             </span>
           </div>
           <div className="flex items-center gap-3 text-gray-600">
@@ -114,7 +123,12 @@ export function ProfileInstituteSection({
             </p>
           </div>
         </div>
-        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
+        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-2">
+          {institute.is_verified && (
+            <Button size="sm" asChild>
+              <Link href="/jobs/roster/create">Add graduate</Link>
+            </Button>
+          )}
           <Button variant="outline" size="sm" asChild>
             <Link href="/jobs/roster">Manage roster</Link>
           </Button>

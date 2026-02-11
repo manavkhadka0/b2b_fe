@@ -58,6 +58,25 @@ export async function hasInstitute(): Promise<boolean> {
   }
 }
 
+/** Institute list item for dropdowns */
+export interface InstituteListItem {
+  id: number;
+  institute_name: string;
+}
+
+/**
+ * List institutes (for dropdowns). GET /api/institutes/
+ */
+export async function getInstitutes(): Promise<InstituteListItem[]> {
+  const { data } = await api.get<
+    InstituteListItem[] | { results: InstituteListItem[] }
+  >("/api/institutes/");
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object" && "results" in data)
+    return (data as { results: InstituteListItem[] }).results ?? [];
+  return [];
+}
+
 /**
  * Create institute for the current user. Requires auth.
  */
