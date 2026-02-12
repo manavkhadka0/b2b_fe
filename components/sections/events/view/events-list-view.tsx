@@ -1,6 +1,6 @@
 import { EventGridSection } from "../events-list/event-grid-section";
 import type { EventResponse } from "@/types/events";
-import { ResponsiveContainer } from "../../common/responsive-container";
+import { CimZoneSection } from "../cim-zone-section";
 
 interface EventsListViewProps {
   eventsResponse: EventResponse;
@@ -14,6 +14,8 @@ export const EventsListView = ({
   return (
     <>
       <EventGridSection eventsResponse={eventsResponse} />
+
+      <CimZoneSection />
 
       <EventGridSection
         eventsResponse={pastEventsResponse}
