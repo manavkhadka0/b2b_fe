@@ -1,5 +1,32 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
+export type OccupancyItem = {
+  month: string;
+  occupied_seats: number;
+  remaining_seats: number;
+  waitlisted_count: number;
+  is_full: boolean;
+};
+
+export async function fetchOccupancy(): Promise<OccupancyItem[]> {
+  const res = await fetch(`${API_BASE}/api/occupancy/`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch occupancy");
+  }
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+export function formatPreferredMonthForOccupancy(preferredMonth: string): string {
+  const [year, month] = preferredMonth.split("-");
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  const monthName = monthNames[parseInt(month || "01", 10) - 1];
+  return `${monthName} ${year}`;
+}
+
 export type ExperienceZoneBookingPayload = {
   title?: string;
   company_name: string;

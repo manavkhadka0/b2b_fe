@@ -23,7 +23,11 @@ import { ZoneStep2Details } from "./steps/step-2-details";
 import { ZoneStep3Company } from "./steps/step-3-company";
 import { ZoneStep4Personal } from "./steps/step-4-personal";
 import { ZoneStep5Review } from "./steps/step-5-review";
-import { createExperienceZoneBooking } from "@/services/experienceZoneBooking";
+import {
+  createExperienceZoneBooking,
+  fetchOccupancy,
+  formatPreferredMonthForOccupancy,
+} from "@/services/experienceZoneBooking";
 
 type SuccessPayload = {
   message?: string;
@@ -276,6 +280,23 @@ export function ExperienceZoneBookingForm() {
 
     setIsSubmitting(true);
     try {
+      // Check occupancy for selected preferred month before submitting
+      const occupancyList = await fetchOccupancy();
+      const monthLabel = formatPreferredMonthForOccupancy(data.preferred_month);
+      const monthOccupancy = occupancyList.find(
+        (item) => item.month.toLowerCase() === monthLabel.toLowerCase()
+      );
+
+      if (monthOccupancy) {
+        if (monthOccupancy.is_full || monthOccupancy.remaining_seats <= 0) {
+          toast.error(
+            `${monthLabel} is full. No available seats. Please select another month.`
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const buildAddress = () => {
         if (data.country === "Nepal" && data.province && data.district && data.municipality && data.ward) {
           return `${data.address}, Ward ${data.ward}, ${data.municipality}, ${data.district}, ${data.province}, Nepal`;
