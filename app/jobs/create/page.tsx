@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PostJobForm } from "@/components/jobs/PostJobForm";
 import { getUnitGroups } from "@/services/jobs";
@@ -20,6 +20,7 @@ export default function CreateJobPage() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const hasFetchedUnitGroups = useRef(false);
 
   // If not authenticated (no user and no token), show auth dialog instead of redirecting away
   useEffect(() => {
@@ -37,14 +38,20 @@ export default function CreateJobPage() {
     // Don't fetch until we know user is authenticated
     if (authLoading || (!user && typeof window !== "undefined" && !localStorage.getItem("accessToken"))) return;
 
+    const needsUnitGroups = !hasFetchedUnitGroups.current;
+    const needsJob = !!slug;
+    if (!needsUnitGroups && !needsJob) return;
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const unitGroupsData = await getUnitGroups();
-        setUnitGroups(unitGroupsData);
+        if (needsUnitGroups) {
+          hasFetchedUnitGroups.current = true;
+          const unitGroupsData = await getUnitGroups();
+          setUnitGroups(unitGroupsData);
+        }
 
-        // If editing, fetch job data
-        if (slug) {
+        if (needsJob) {
           try {
             const job = await getJobBySlug(slug);
             setJobData(job);
