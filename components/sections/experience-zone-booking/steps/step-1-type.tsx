@@ -46,7 +46,7 @@ export function ZoneStep1Type({ form }: Step1TypeProps) {
           <FormItem>
             <FormControl>
               <Textarea
-                placeholder="Description (optional)"
+                placeholder="Details about products, innovations, or skills to be displayed"
                 className="min-h-[100px] resize-none"
                 {...field}
               />

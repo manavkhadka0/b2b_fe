@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const experienceZoneBookingSchema = z
   .object({
-    title: z.string().optional(),
+    title: z.string().min(1, "Title is required"),
     type: z.enum(["Product", "Service"], {
       required_error: "Please select a type",
     }),
@@ -10,7 +10,7 @@ export const experienceZoneBookingSchema = z
     service: z.string().optional(),
     category: z.string().optional(),
     subcategory: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string().min(1, "Description is required"),
     contact_person: z.string().min(2, "Contact person is required"),
     designation: z.string().optional(),
     email: z.string().email("Invalid email address"),

@@ -215,7 +215,7 @@ export function ExperienceZoneBookingForm() {
   ): (keyof ExperienceZoneBookingFormValues)[] => {
     switch (step) {
       case 1:
-        return ["type", "description"];
+        return ["title", "type", "description"];
       case 2: {
         const wishType = form.getValues("type");
         if (!wishType) return [];
@@ -234,6 +234,7 @@ export function ExperienceZoneBookingForm() {
         return ["contact_person", "designation", "email", "phone", "preferred_month"];
       default:
         return [
+          "title",
           "type",
           "description",
           "product",
