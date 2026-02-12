@@ -4,6 +4,7 @@ import { ResponsiveContainer } from "../common/responsive-container";
 import { HeaderSubtitle } from "../common/header-subtitle";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Calendar } from "lucide-react";
+import { CimZoneBookingsList } from "./cim-zone-bookings-list";
 
 const OPPORTUNITIES = [
   "CIM Member Industries",
@@ -84,6 +85,9 @@ export function CimZoneSection() {
           </Link>
         </Button>
       </div>
+
+      {/* Existing confirmed bookings */}
+      <CimZoneBookingsList />
     </ResponsiveContainer>
   );
 }

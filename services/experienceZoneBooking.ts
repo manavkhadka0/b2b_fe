@@ -62,3 +62,40 @@ export async function createExperienceZoneBooking(
 
   return res.json();
 }
+
+export type ExperienceZoneBooking = {
+  id: number;
+  title: string;
+  company_name: string;
+  address: string;
+  email: string;
+  phone: string;
+  contact_person: string;
+  designation: string | null;
+  logo: string | null;
+  preferred_month: string;
+  description: string;
+  type: "Product" | "Service";
+  status: string;
+  created_at: string;
+  updated_at: string;
+  subcategory: number | null;
+  product: number | null;
+};
+
+export type ExperienceZoneBookingListResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ExperienceZoneBooking[];
+};
+
+export async function fetchExperienceZoneBookings(): Promise<ExperienceZoneBookingListResponse> {
+  const res = await fetch(`${API_BASE}/api/bookings/`, { cache: "no-store" });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch bookings");
+  }
+
+  return res.json();
+}
