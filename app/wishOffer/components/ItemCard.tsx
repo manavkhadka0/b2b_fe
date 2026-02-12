@@ -56,14 +56,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       className="flex flex-col rounded-xl border border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm group cursor-pointer transition-colors h-full overflow-hidden"
       onClick={onOpen}
     >
-      <div className="w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-slate-50 relative">
+      <div className="w-full aspect-[16/9] flex-shrink-0 overflow-hidden bg-slate-50 relative">
         <Image
           src={imageUrl || "/no-image.png"}
           alt={item.title}
           fill
-          className={
-            imageUrl ? "object-cover" : "object-contain p-14 bg-white h-5"
-          }
+          className={imageUrl ? "" : "object-contain p-12 bg-white h-5"}
         />
         <span
           className="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm"

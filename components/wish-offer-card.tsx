@@ -53,7 +53,7 @@ const WishOfferCard = ({
             <img
               src={image}
               alt={title}
-              className="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24 lg:w-24 lg:h-28 object-cover rounded-lg"
+              className="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24 lg:w-24 lg:h-28 rounded-lg"
             />
           </div>
         )}

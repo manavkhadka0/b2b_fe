@@ -89,9 +89,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
             src={imageUrl || "/no-image.png"}
             alt={item.title}
             fill
-            className={
-              imageUrl ? "object-cover" : "object-contain p-24 bg-white"
-            }
+            className={imageUrl ? "" : "object-contain p-24 bg-white"}
           />
           <span className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md bg-white/95 text-slate-700 shadow-sm">
             {isWish ? "Wish" : "Offer"}
