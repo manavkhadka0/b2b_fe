@@ -120,9 +120,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         params: {
           prompt: oauth_google.prompt,
           access_type: oauth_google.access_type,
-          response_type: oauth_google.response_type,
+          scope: oauth_google.scopes,
         },
       },
+      checks: ["state"],
     }),
   ],
   callbacks: {
