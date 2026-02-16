@@ -7,22 +7,47 @@ import {
   Clock,
   FileSignature,
   GraduationCap,
-  Search,
   Loader2,
   Calendar,
   DollarSign,
   ChevronRight,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react";
 import { JOBS_QUICK_LINKS } from "./jobs-quick-links";
 import { FilterOption } from "@/app/wishOffer/components/FilterOption";
 import {
   type EmploymentTypeFilter,
   type ListingTimeFilter,
-  searchGroups,
-  type SearchGroupResponse,
+  getMajorGroups,
+  getSubMajorGroups,
+  getMinorGroups,
+  getUnitGroups,
 } from "@/services/jobs";
+import type {
+  MajorGroup,
+  SubMajorGroup,
+  MinorGroup,
+  UnitGroup,
+} from "@/types/unit-groups";
 import Link from "next/link";
 import { JOBS_SIDEBAR } from "./jobs-sidebar-styles";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 const LISTING_TIME_OPTIONS: { value: ListingTimeFilter | ""; label: string }[] =
   [
@@ -37,6 +62,10 @@ const LISTING_TIME_OPTIONS: { value: ListingTimeFilter | ""; label: string }[] =
 export type JobsSidebarContentProps = {
   selectedEmploymentType: EmploymentTypeFilter;
   setSelectedEmploymentType: (t: EmploymentTypeFilter) => void;
+  selectedMajorGroupCodes: string[];
+  setSelectedMajorGroupCodes: (codes: string[]) => void;
+  selectedSubMajorGroupCodes: string[];
+  setSelectedSubMajorGroupCodes: (codes: string[]) => void;
   selectedUnitGroupCodes: string[];
   setSelectedUnitGroupCodes: (codes: string[]) => void;
   selectedMinorGroupCodes: string[];
@@ -87,6 +116,10 @@ function toggleCode(codes: string[], code: string): string[] {
 export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
   selectedEmploymentType,
   setSelectedEmploymentType,
+  selectedMajorGroupCodes,
+  setSelectedMajorGroupCodes,
+  selectedSubMajorGroupCodes,
+  setSelectedSubMajorGroupCodes,
   selectedUnitGroupCodes,
   setSelectedUnitGroupCodes,
   selectedMinorGroupCodes,
@@ -99,55 +132,179 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
   setSalaryMax,
   onFilterClick,
 }) => {
-  const [groupSearchTerm, setGroupSearchTerm] = useState("");
-  const [searchResults, setSearchResults] =
-    useState<SearchGroupResponse | null>(null);
-  const [isSearchingGroups, setIsSearchingGroups] = useState(false);
+  // Cascade state for occupation filter
+  const [majorCode, setMajorCode] = useState("");
+  const [subMajorCode, setSubMajorCode] = useState("");
+  const [minorCode, setMinorCode] = useState("");
+
+  const [majorSearch, setMajorSearch] = useState("");
+  const [subMajorSearch, setSubMajorSearch] = useState("");
+  const [minorSearch, setMinorSearch] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
+
+  const debouncedMajor = useDebounce(majorSearch, 300);
+  const debouncedSubMajor = useDebounce(subMajorSearch, 300);
+  const debouncedMinor = useDebounce(minorSearch, 300);
+  const debouncedUnit = useDebounce(unitSearch, 300);
+
+  const [majorGroups, setMajorGroups] = useState<MajorGroup[]>([]);
+  const [subMajorGroups, setSubMajorGroups] = useState<SubMajorGroup[]>([]);
+  const [minorGroups, setMinorGroups] = useState<MinorGroup[]>([]);
+  const [unitGroups, setUnitGroups] = useState<UnitGroup[]>([]);
+
+  const [loadingMajor, setLoadingMajor] = useState(false);
+  const [loadingSubMajor, setLoadingSubMajor] = useState(false);
+  const [loadingMinor, setLoadingMinor] = useState(false);
+  const [loadingUnit, setLoadingUnit] = useState(false);
+
+  const [majorOpen, setMajorOpen] = useState(false);
+  const [subMajorOpen, setSubMajorOpen] = useState(false);
+  const [minorOpen, setMinorOpen] = useState(false);
+  const [unitOpen, setUnitOpen] = useState(false);
 
   useEffect(() => {
-    if (!groupSearchTerm.trim()) {
-      setSearchResults(null);
-      return;
-    }
+    if (!majorOpen) return;
     let cancelled = false;
-    const timer = setTimeout(async () => {
-      setIsSearchingGroups(true);
-      try {
-        const data = await searchGroups(groupSearchTerm);
-        if (!cancelled && data) setSearchResults(data);
-        else if (!cancelled) setSearchResults(null);
-      } catch {
-        if (!cancelled) setSearchResults(null);
-      } finally {
-        if (!cancelled) setIsSearchingGroups(false);
-      }
-    }, 300);
+    setLoadingMajor(true);
+    getMajorGroups(debouncedMajor || undefined)
+      .then((data) => {
+        if (!cancelled) setMajorGroups(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMajor(false);
+      });
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
-  }, [groupSearchTerm]);
+  }, [majorOpen, debouncedMajor]);
+
+  useEffect(() => {
+    if (!subMajorOpen || !majorCode) return;
+    let cancelled = false;
+    setLoadingSubMajor(true);
+    getSubMajorGroups(majorCode, debouncedSubMajor || undefined)
+      .then((data) => {
+        if (!cancelled) setSubMajorGroups(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSubMajor(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [subMajorOpen, majorCode, debouncedSubMajor]);
+
+  useEffect(() => {
+    if (!minorOpen || !subMajorCode) return;
+    let cancelled = false;
+    setLoadingMinor(true);
+    getMinorGroups(subMajorCode, debouncedMinor || undefined)
+      .then((data) => {
+        if (!cancelled) setMinorGroups(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMinor(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [minorOpen, subMajorCode, debouncedMinor]);
+
+  useEffect(() => {
+    if (!unitOpen || !minorCode) return;
+    let cancelled = false;
+    setLoadingUnit(true);
+    getUnitGroups(debouncedUnit || undefined, minorCode)
+      .then((data) => {
+        if (!cancelled) setUnitGroups(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingUnit(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [unitOpen, minorCode, debouncedUnit]);
+
+  const selectedMajor = majorGroups.find((g) => g.code === majorCode);
+  const selectedSubMajor = subMajorGroups.find((g) => g.code === subMajorCode);
+  const selectedMinor = minorGroups.find((g) => g.code === minorCode);
+  const selectedUnitLabel =
+    selectedUnitGroupCodes.length > 0
+      ? selectedUnitGroupCodes.length === 1
+        ? (unitGroups.find((g) => g.code === selectedUnitGroupCodes[0])
+            ?.title ?? selectedUnitGroupCodes[0])
+        : `${selectedUnitGroupCodes.length} unit groups`
+      : null;
 
   const wrap = (fn: () => void) => () => {
     fn();
     onFilterClick?.();
   };
 
-  const handleUnitGroupToggle = (code: string) => {
-    setSelectedUnitGroupCodes(toggleCode(selectedUnitGroupCodes, code));
+  const clearCascade = () => {
+    setMajorCode("");
+    setSubMajorCode("");
+    setMinorCode("");
+    setMajorSearch("");
+    setSubMajorSearch("");
+    setMinorSearch("");
+    setUnitSearch("");
   };
 
-  const handleMinorGroupToggle = (code: string) => {
+  const handleMajorSelect = (code: string) => {
+    setMajorCode(code);
+    setSubMajorCode("");
+    setMinorCode("");
+    setSubMajorSearch("");
+    setMinorSearch("");
+    setUnitSearch("");
+  };
+
+  const handleSubMajorSelect = (code: string) => {
+    setSubMajorCode(code);
+    setMinorCode("");
+    setMinorSearch("");
+    setUnitSearch("");
+  };
+
+  const handleMinorSelect = (code: string) => {
+    setMinorCode(code);
+    setUnitSearch("");
+  };
+
+  const handleMajorFilterSelect = (code: string) => {
+    setSelectedMajorGroupCodes(toggleCode(selectedMajorGroupCodes, code));
+    setSelectedSubMajorGroupCodes([]);
+    setSelectedMinorGroupCodes([]);
+    setSelectedUnitGroupCodes([]);
+    wrap(() => {})();
+  };
+
+  const handleSubMajorFilterSelect = (code: string) => {
+    setSelectedSubMajorGroupCodes(toggleCode(selectedSubMajorGroupCodes, code));
+    setSelectedMinorGroupCodes([]);
+    setSelectedUnitGroupCodes([]);
+    wrap(() => {})();
+  };
+
+  const handleUnitSelect = (code: string) => {
+    setSelectedUnitGroupCodes(toggleCode(selectedUnitGroupCodes, code));
+    setSelectedMinorGroupCodes([]);
+    wrap(() => {})();
+  };
+
+  const handleMinorFilterSelect = (code: string) => {
     setSelectedMinorGroupCodes(toggleCode(selectedMinorGroupCodes, code));
+    setSelectedUnitGroupCodes([]);
+    wrap(() => {})();
   };
 
   const hasGroupsSelected =
-    selectedUnitGroupCodes.length > 0 || selectedMinorGroupCodes.length > 0;
-
-  const hasUnitResults =
-    searchResults && searchResults.results.unit_groups.length > 0;
-  const hasMinorResults =
-    searchResults && searchResults.results.minor_groups.length > 0;
+    selectedMajorGroupCodes.length > 0 ||
+    selectedSubMajorGroupCodes.length > 0 ||
+    selectedUnitGroupCodes.length > 0 ||
+    selectedMinorGroupCodes.length > 0;
 
   return (
     <div className="space-y-6">
@@ -169,80 +326,334 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
       <div>
         <h4 className={JOBS_SIDEBAR.sectionHeadingLarge}>Filters</h4>
 
-        {/* Groups Filter */}
+        {/* Groups Filter - cascading dropdowns */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <LayoutGrid className="w-4 h-4 text-slate-600" />
+          <div className="flex items-center gap-2 mb-3">
+            <LayoutGrid className="w-4 h-4 text-slate-600 shrink-0" />
             <h3 className="text-slate-900 font-semibold text-sm">Groups</h3>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <FilterOption
-              label="All categories"
+              label="All"
               isActive={!hasGroupsSelected}
               onClick={wrap(() => {
+                setSelectedMajorGroupCodes([]);
+                setSelectedSubMajorGroupCodes([]);
                 setSelectedUnitGroupCodes([]);
                 setSelectedMinorGroupCodes([]);
+                clearCascade();
               })}
             />
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search by code or title..."
-                value={groupSearchTerm}
-                onChange={(e) => setGroupSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-8 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-300"
-              />
-              {isSearchingGroups && (
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                </div>
-              )}
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Major group
+              </label>
+              <Popover
+                open={majorOpen}
+                onOpenChange={(o) => {
+                  setMajorOpen(o);
+                  if (!o) setMajorSearch("");
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-between font-normal h-9 border-slate-200 text-sm",
+                      !majorCode && "text-slate-500",
+                    )}
+                  >
+                    <span className="truncate">
+                      {selectedMajor?.title ?? "Select major"}
+                    </span>
+                    <ChevronsUpDown className="ml-1.5 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] p-0"
+                  align="start"
+                >
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search major..."
+                      value={majorSearch}
+                      onValueChange={setMajorSearch}
+                    />
+                    <CommandList>
+                      {loadingMajor && (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                        </div>
+                      )}
+                      {!loadingMajor && (
+                        <>
+                          <CommandEmpty>No major group found.</CommandEmpty>
+                          <CommandGroup>
+                            {majorGroups.map((g) => (
+                              <CommandItem
+                                key={g.code}
+                                value={g.code}
+                                onSelect={() => {
+                                  handleMajorSelect(g.code);
+                                  handleMajorFilterSelect(g.code);
+                                  setMajorOpen(false);
+                                }}
+                              >
+                                <span className="truncate">{g.title}</span>
+                                <Check
+                                  className={cn(
+                                    "ml-auto h-4 w-4 shrink-0",
+                                    g.code === majorCode ||
+                                      selectedMajorGroupCodes.includes(g.code)
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
-            {(hasMinorResults || hasUnitResults) && (
-              <div className="space-y-3 pt-1">
-                {hasMinorResults && (
-                  <div className="space-y-1.5">
-                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide px-1">
-                      Minor groups
-                    </p>
-                    <div className="space-y-1">
-                      {searchResults!.results.minor_groups.map((group) => (
-                        <FilterOption
-                          key={group.code}
-                          label={`${group.code} · ${group.title}`}
-                          isActive={selectedMinorGroupCodes.includes(
-                            group.code,
-                          )}
-                          onClick={wrap(() =>
-                            handleMinorGroupToggle(group.code),
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {hasUnitResults && (
-                  <div className="space-y-1.5">
-                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide px-1">
-                      Unit groups
-                    </p>
-                    <div className="space-y-1">
-                      {searchResults!.results.unit_groups.map((group) => (
-                        <FilterOption
-                          key={group.code}
-                          label={`${group.code} · ${group.title}`}
-                          isActive={selectedUnitGroupCodes.includes(group.code)}
-                          onClick={wrap(() =>
-                            handleUnitGroupToggle(group.code),
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Sub-major group
+              </label>
+              <Popover
+                open={subMajorOpen}
+                onOpenChange={(o) => {
+                  setSubMajorOpen(o);
+                  if (!o) setSubMajorSearch("");
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!majorCode}
+                    className={cn(
+                      "w-full justify-between font-normal h-9 border-slate-200 text-sm",
+                      !subMajorCode && "text-slate-500",
+                    )}
+                  >
+                    <span className="truncate">
+                      {selectedSubMajor?.title ?? "Select sub-major"}
+                    </span>
+                    <ChevronsUpDown className="ml-1.5 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] p-0"
+                  align="start"
+                >
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search sub-major..."
+                      value={subMajorSearch}
+                      onValueChange={setSubMajorSearch}
+                    />
+                    <CommandList>
+                      {loadingSubMajor && (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                        </div>
+                      )}
+                      {!loadingSubMajor && (
+                        <>
+                          <CommandEmpty>No sub-major group found.</CommandEmpty>
+                          <CommandGroup>
+                            {subMajorGroups.map((g) => (
+                              <CommandItem
+                                key={g.code}
+                                value={g.code}
+                                onSelect={() => {
+                                  handleSubMajorSelect(g.code);
+                                  handleSubMajorFilterSelect(g.code);
+                                  setSubMajorOpen(false);
+                                }}
+                              >
+                                <span className="truncate">{g.title}</span>
+                                <Check
+                                  className={cn(
+                                    "ml-auto h-4 w-4 shrink-0",
+                                    g.code === subMajorCode ||
+                                      selectedSubMajorGroupCodes.includes(
+                                        g.code,
+                                      )
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Minor group
+              </label>
+              <Popover
+                open={minorOpen}
+                onOpenChange={(o) => {
+                  setMinorOpen(o);
+                  if (!o) setMinorSearch("");
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!subMajorCode}
+                    className={cn(
+                      "w-full justify-between font-normal h-9 border-slate-200 text-sm",
+                      !minorCode && "text-slate-500",
+                    )}
+                  >
+                    <span className="truncate">
+                      {selectedMinor?.title ?? "Select minor"}
+                    </span>
+                    <ChevronsUpDown className="ml-1.5 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] p-0"
+                  align="start"
+                >
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search minor..."
+                      value={minorSearch}
+                      onValueChange={setMinorSearch}
+                    />
+                    <CommandList>
+                      {loadingMinor && (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                        </div>
+                      )}
+                      {!loadingMinor && (
+                        <>
+                          <CommandEmpty>No minor group found.</CommandEmpty>
+                          <CommandGroup>
+                            {minorGroups.map((g) => (
+                              <CommandItem
+                                key={g.code}
+                                value={g.code}
+                                onSelect={() => {
+                                  handleMinorSelect(g.code);
+                                  handleMinorFilterSelect(g.code);
+                                  setMinorOpen(false);
+                                }}
+                              >
+                                <span className="truncate">{g.title}</span>
+                                <Check
+                                  className={cn(
+                                    "ml-auto h-4 w-4 shrink-0",
+                                    selectedMinorGroupCodes.includes(g.code)
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Unit group
+              </label>
+              <Popover
+                open={unitOpen}
+                onOpenChange={(o) => {
+                  setUnitOpen(o);
+                  if (!o) setUnitSearch("");
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!minorCode}
+                    className={cn(
+                      "w-full justify-between font-normal h-9 border-slate-200 text-sm",
+                      !selectedUnitLabel && "text-slate-500",
+                    )}
+                  >
+                    <span className="truncate">
+                      {selectedUnitLabel ?? "Select unit"}
+                    </span>
+                    <ChevronsUpDown className="ml-1.5 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] p-0"
+                  align="start"
+                >
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search unit..."
+                      value={unitSearch}
+                      onValueChange={setUnitSearch}
+                    />
+                    <CommandList>
+                      {loadingUnit && (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                        </div>
+                      )}
+                      {!loadingUnit && (
+                        <>
+                          <CommandEmpty>No unit group found.</CommandEmpty>
+                          <CommandGroup>
+                            {unitGroups.map((g) => (
+                              <CommandItem
+                                key={g.code}
+                                value={g.code}
+                                onSelect={() => {
+                                  handleUnitSelect(g.code);
+                                  setUnitOpen(false);
+                                }}
+                              >
+                                <span className="truncate">{g.title}</span>
+                                <Check
+                                  className={cn(
+                                    "ml-auto h-4 w-4 shrink-0",
+                                    selectedUnitGroupCodes.includes(g.code)
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
 

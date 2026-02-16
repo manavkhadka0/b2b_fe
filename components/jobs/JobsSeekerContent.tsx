@@ -51,6 +51,12 @@ export function JobsSeekerContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmploymentType, setSelectedEmploymentType] =
     useState<EmploymentTypeFilter>("All");
+  const [selectedMajorGroupCodes, setSelectedMajorGroupCodes] = useState<
+    string[]
+  >([]);
+  const [selectedSubMajorGroupCodes, setSelectedSubMajorGroupCodes] = useState<
+    string[]
+  >([]);
   const [selectedUnitGroupCodes, setSelectedUnitGroupCodes] = useState<
     string[]
   >([]);
@@ -85,6 +91,8 @@ export function JobsSeekerContent({
   }, [
     debouncedSearch,
     selectedEmploymentType,
+    selectedMajorGroupCodes,
+    selectedSubMajorGroupCodes,
     selectedUnitGroupCodes,
     selectedMinorGroupCodes,
     listingTime,
@@ -97,6 +105,10 @@ export function JobsSeekerContent({
     const search = searchParams.get("search") ?? "";
     const emp = (searchParams.get("employment_type") ??
       "All") as EmploymentTypeFilter;
+    const majors =
+      searchParams.get("major_groups")?.split(",").filter(Boolean) ?? [];
+    const subMajors =
+      searchParams.get("sub_major_groups")?.split(",").filter(Boolean) ?? [];
     const units =
       searchParams.get("unit_groups")?.split(",").filter(Boolean) ?? [];
     const minors =
@@ -113,6 +125,8 @@ export function JobsSeekerContent({
         ? emp
         : "All",
     );
+    setSelectedMajorGroupCodes(majors);
+    setSelectedSubMajorGroupCodes(subMajors);
     setSelectedUnitGroupCodes(units);
     setSelectedMinorGroupCodes(minors);
     setListingTime(
@@ -132,10 +146,14 @@ export function JobsSeekerContent({
     if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
     if (selectedEmploymentType !== "All")
       params.set("employment_type", selectedEmploymentType);
-    if (selectedUnitGroupCodes.length)
-      params.set("unit_groups", selectedUnitGroupCodes.join(","));
+    if (selectedMajorGroupCodes.length)
+      params.set("major_groups", selectedMajorGroupCodes.join(","));
+    if (selectedSubMajorGroupCodes.length)
+      params.set("sub_major_groups", selectedSubMajorGroupCodes.join(","));
     if (selectedMinorGroupCodes.length)
       params.set("minor_groups", selectedMinorGroupCodes.join(","));
+    if (selectedUnitGroupCodes.length)
+      params.set("unit_groups", selectedUnitGroupCodes.join(","));
     if (listingTime) params.set("listing_time", listingTime);
     if (debouncedSalaryMin.trim())
       params.set("salary_min", debouncedSalaryMin.trim());
@@ -151,6 +169,8 @@ export function JobsSeekerContent({
   }, [
     debouncedSearch,
     selectedEmploymentType,
+    selectedMajorGroupCodes,
+    selectedSubMajorGroupCodes,
     selectedUnitGroupCodes,
     selectedMinorGroupCodes,
     listingTime,
@@ -167,6 +187,8 @@ export function JobsSeekerContent({
       employment_type?: EmploymentTypeFilter,
       unit_groups?: string[],
       minor_groups?: string[],
+      major_groups?: string[],
+      sub_major_groups?: string[],
       listing_time?: ListingTimeFilter,
       salary_min?: string,
       salary_max?: string,
@@ -179,6 +201,10 @@ export function JobsSeekerContent({
           employment_type,
           unit_groups && unit_groups.length > 0 ? unit_groups : undefined,
           minor_groups && minor_groups.length > 0 ? minor_groups : undefined,
+          major_groups && major_groups.length > 0 ? major_groups : undefined,
+          sub_major_groups && sub_major_groups.length > 0
+            ? sub_major_groups
+            : undefined,
           listing_time || undefined,
           salary_min?.trim() || undefined,
           salary_max?.trim() || undefined,
@@ -206,6 +232,8 @@ export function JobsSeekerContent({
     const fetchKey = JSON.stringify({
       search: debouncedSearch.trim(),
       employment_type: selectedEmploymentType,
+      major_groups: selectedMajorGroupCodes,
+      sub_major_groups: selectedSubMajorGroupCodes,
       unit_groups: selectedUnitGroupCodes,
       minor_groups: selectedMinorGroupCodes,
       listing_time: listingTime,
@@ -221,6 +249,8 @@ export function JobsSeekerContent({
       selectedEmploymentType,
       selectedUnitGroupCodes,
       selectedMinorGroupCodes,
+      selectedMajorGroupCodes,
+      selectedSubMajorGroupCodes,
       listingTime || undefined,
       debouncedSalaryMin.trim() || undefined,
       debouncedSalaryMax.trim() || undefined,
@@ -229,6 +259,8 @@ export function JobsSeekerContent({
   }, [
     debouncedSearch,
     selectedEmploymentType,
+    selectedMajorGroupCodes,
+    selectedSubMajorGroupCodes,
     selectedUnitGroupCodes,
     selectedMinorGroupCodes,
     listingTime,
@@ -241,6 +273,8 @@ export function JobsSeekerContent({
   const clearSearch = () => setSearchQuery("");
   const clearAllFilters = () => {
     setSelectedEmploymentType("All");
+    setSelectedMajorGroupCodes([]);
+    setSelectedSubMajorGroupCodes([]);
     setSelectedUnitGroupCodes([]);
     setSelectedMinorGroupCodes([]);
     setListingTime("");
@@ -254,7 +288,10 @@ export function JobsSeekerContent({
   const hasPreviousPage = !!pagination.previous;
 
   const hasGroupFilter =
-    selectedUnitGroupCodes.length > 0 || selectedMinorGroupCodes.length > 0;
+    selectedMajorGroupCodes.length > 0 ||
+    selectedSubMajorGroupCodes.length > 0 ||
+    selectedUnitGroupCodes.length > 0 ||
+    selectedMinorGroupCodes.length > 0;
   const hasSalaryFilter = salaryMin.trim() !== "" || salaryMax.trim() !== "";
   const hasListingTimeFilter = listingTime !== "";
   const hasActiveFilters =
@@ -306,6 +343,10 @@ export function JobsSeekerContent({
         <JobsSidebarContent
           selectedEmploymentType={selectedEmploymentType}
           setSelectedEmploymentType={setSelectedEmploymentType}
+          selectedMajorGroupCodes={selectedMajorGroupCodes}
+          setSelectedMajorGroupCodes={setSelectedMajorGroupCodes}
+          selectedSubMajorGroupCodes={selectedSubMajorGroupCodes}
+          setSelectedSubMajorGroupCodes={setSelectedSubMajorGroupCodes}
           selectedUnitGroupCodes={selectedUnitGroupCodes}
           setSelectedUnitGroupCodes={setSelectedUnitGroupCodes}
           selectedMinorGroupCodes={selectedMinorGroupCodes}
@@ -331,6 +372,10 @@ export function JobsSeekerContent({
           <JobsSidebarContent
             selectedEmploymentType={selectedEmploymentType}
             setSelectedEmploymentType={setSelectedEmploymentType}
+            selectedMajorGroupCodes={selectedMajorGroupCodes}
+            setSelectedMajorGroupCodes={setSelectedMajorGroupCodes}
+            selectedSubMajorGroupCodes={selectedSubMajorGroupCodes}
+            setSelectedSubMajorGroupCodes={setSelectedSubMajorGroupCodes}
             selectedUnitGroupCodes={selectedUnitGroupCodes}
             setSelectedUnitGroupCodes={setSelectedUnitGroupCodes}
             selectedMinorGroupCodes={selectedMinorGroupCodes}
@@ -355,7 +400,7 @@ export function JobsSeekerContent({
               <Link href="/jobs/employer">
                 <Button
                   size="default"
-                  className="w-full sm:w-auto bg-blue-800 text-white"
+                  className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white"
                 >
                   Post Your Job
                   <ChevronRight className="w-4 h-4" />
@@ -416,7 +461,9 @@ export function JobsSeekerContent({
               {hasGroupFilter && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium">
                   Groups:{" "}
-                  {selectedUnitGroupCodes.length +
+                  {selectedMajorGroupCodes.length +
+                    selectedSubMajorGroupCodes.length +
+                    selectedUnitGroupCodes.length +
                     selectedMinorGroupCodes.length}{" "}
                   selected
                 </span>

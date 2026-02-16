@@ -1,10 +1,28 @@
 import { JobsApiResponse, AppliedJobsApiResponse } from "@/types/types";
 import { api } from "@/lib/api";
 import type { Content } from "@tiptap/react";
-import { UnitGroup } from "@/types/unit-groups";
+import {
+  UnitGroup,
+  MajorGroup,
+  SubMajorGroup,
+  MinorGroup,
+} from "@/types/unit-groups";
 import { Location } from "@/types/auth";
 
-export type EmploymentTypeFilter = "Full Time" | "Part Time" | "Contract" | "Internship" | "All";
+/** Paginated API response */
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+export type EmploymentTypeFilter =
+  | "Full Time"
+  | "Part Time"
+  | "Contract"
+  | "Internship"
+  | "All";
 
 export type ListingTimeFilter =
   | "Last 24 hours"
@@ -30,11 +48,13 @@ export interface SearchGroupResponse {
   };
 }
 
-export async function searchGroups(query: string): Promise<SearchGroupResponse | null> {
+export async function searchGroups(
+  query: string,
+): Promise<SearchGroupResponse | null> {
   if (!query || !query.trim()) return null;
   try {
     const response = await api.get<SearchGroupResponse>(
-      `/api/search-groups/?search_group=${encodeURIComponent(query.trim())}`
+      `/api/search-groups/?search_group=${encodeURIComponent(query.trim())}`,
     );
     return response.data;
   } catch (error) {
@@ -48,10 +68,12 @@ export async function getJobs(
   employment_type?: EmploymentTypeFilter,
   unit_groups?: string[],
   minor_groups?: string[],
+  major_groups?: string[],
+  sub_major_groups?: string[],
   listing_time?: ListingTimeFilter,
   salary_min?: string,
   salary_max?: string,
-  page?: number
+  page?: number,
 ): Promise<JobsApiResponse> {
   try {
     const params = new URLSearchParams();
@@ -61,11 +83,17 @@ export async function getJobs(
     if (employment_type && employment_type !== "All") {
       params.append("employment_type", employment_type);
     }
-    if (unit_groups && unit_groups.length > 0) {
-      params.append("unit_groups", unit_groups.join(","));
+    if (major_groups && major_groups.length > 0) {
+      params.append("major_groups", major_groups.join(","));
+    }
+    if (sub_major_groups && sub_major_groups.length > 0) {
+      params.append("sub_major_groups", sub_major_groups.join(","));
     }
     if (minor_groups && minor_groups.length > 0) {
       params.append("minor_groups", minor_groups.join(","));
+    }
+    if (unit_groups && unit_groups.length > 0) {
+      params.append("unit_groups", unit_groups.join(","));
     }
     if (listing_time) {
       params.append("listing_time", listing_time);
@@ -94,22 +122,25 @@ export async function getJobs(
   }
 }
 
-export async function applyToJob(jobSlug: string, coverLetter: Content): Promise<void> {
+export async function applyToJob(
+  jobSlug: string,
+  coverLetter: Content,
+): Promise<void> {
   try {
     // Convert cover letter to HTML string
     // The editor outputs HTML when output="html" is set
     let coverLetterHtml: string;
-    
-    if (typeof coverLetter === 'string') {
+
+    if (typeof coverLetter === "string") {
       coverLetterHtml = coverLetter;
-    } else if (coverLetter && typeof coverLetter === 'object') {
+    } else if (coverLetter && typeof coverLetter === "object") {
       // If it's JSON content, we need to convert it to HTML
       // For now, stringify it - backend should handle it
       coverLetterHtml = JSON.stringify(coverLetter);
     } else {
-      coverLetterHtml = '';
+      coverLetterHtml = "";
     }
-    
+
     await api.post(`/api/jobs/${jobSlug}/apply/`, {
       cover_letter: coverLetterHtml,
     });
@@ -119,9 +150,65 @@ export async function applyToJob(jobSlug: string, coverLetter: Content): Promise
   }
 }
 
-export async function getUnitGroups(search?: string): Promise<UnitGroup[]> {
+export async function getMajorGroups(search?: string): Promise<MajorGroup[]> {
   try {
     const params = new URLSearchParams();
+    if (search?.trim()) params.append("search", search.trim());
+    const query = params.toString();
+    const response = await api.get<PaginatedResponse<MajorGroup>>(
+      `/api/major-groups/${query ? `?${query}` : ""}`,
+    );
+    return response.data.results || [];
+  } catch (error) {
+    console.error("Failed to fetch major groups:", error);
+    return [];
+  }
+}
+
+export async function getSubMajorGroups(
+  majorGroupCode: string,
+  search?: string,
+): Promise<SubMajorGroup[]> {
+  try {
+    const params = new URLSearchParams();
+    params.append("major_groups", majorGroupCode);
+    if (search?.trim()) params.append("search", search.trim());
+    const response = await api.get<PaginatedResponse<SubMajorGroup>>(
+      `/api/sub-major-groups/?${params.toString()}`,
+    );
+    return response.data.results || [];
+  } catch (error) {
+    console.error("Failed to fetch sub-major groups:", error);
+    return [];
+  }
+}
+
+export async function getMinorGroups(
+  subMajorGroupCode: string,
+  search?: string,
+): Promise<MinorGroup[]> {
+  try {
+    const params = new URLSearchParams();
+    params.append("sub_major_groups", subMajorGroupCode);
+    if (search?.trim()) params.append("search", search.trim());
+    const response = await api.get<PaginatedResponse<MinorGroup>>(
+      `/api/minor-groups/?${params.toString()}`,
+    );
+    return response.data.results || [];
+  } catch (error) {
+    console.error("Failed to fetch minor groups:", error);
+    return [];
+  }
+}
+
+export async function getUnitGroups(
+  search?: string,
+  minorGroupCode?: string,
+): Promise<UnitGroup[]> {
+  try {
+    const params = new URLSearchParams();
+    if (minorGroupCode?.trim())
+      params.append("minor_groups", minorGroupCode.trim());
     if (search?.trim()) params.append("search", search.trim());
     const query = params.toString();
     const response = await api.get<{ results: UnitGroup[] }>(
@@ -171,7 +258,8 @@ export async function getMyJobs(): Promise<JobsApiResponse> {
 
 export async function getAppliedJobs(): Promise<AppliedJobsApiResponse> {
   try {
-    const response = await api.get<AppliedJobsApiResponse>("/api/applied-jobs/");
+    const response =
+      await api.get<AppliedJobsApiResponse>("/api/applied-jobs/");
     return response.data;
   } catch (error) {
     console.error("Failed to fetch applied jobs:", error);

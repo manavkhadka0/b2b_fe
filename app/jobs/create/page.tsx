@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PostJobForm } from "@/components/jobs/PostJobForm";
-import { getUnitGroups } from "@/services/jobs";
-import { UnitGroup } from "@/types/unit-groups";
 import { useSearchParams } from "next/navigation";
 import { getJobBySlug } from "@/services/jobs";
 import { Job } from "@/types/job";
@@ -14,13 +12,11 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 export default function CreateJobPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [unitGroups, setUnitGroups] = useState<UnitGroup[]>([]);
   const [jobData, setJobData] = useState<Job | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const hasFetchedUnitGroups = useRef(false);
 
   // If not authenticated (no user and no token), show auth dialog instead of redirecting away
   useEffect(() => {
@@ -37,36 +33,24 @@ export default function CreateJobPage() {
   useEffect(() => {
     // Don't fetch until we know user is authenticated
     if (authLoading || (!user && typeof window !== "undefined" && !localStorage.getItem("accessToken"))) return;
+    if (!slug) {
+      setIsLoading(false);
+      return;
+    }
 
-    const needsUnitGroups = !hasFetchedUnitGroups.current;
-    const needsJob = !!slug;
-    if (!needsUnitGroups && !needsJob) return;
-
-    const fetchData = async () => {
+    const fetchJob = async () => {
       setIsLoading(true);
       try {
-        if (needsUnitGroups) {
-          hasFetchedUnitGroups.current = true;
-          const unitGroupsData = await getUnitGroups();
-          setUnitGroups(unitGroupsData);
-        }
-
-        if (needsJob) {
-          try {
-            const job = await getJobBySlug(slug);
-            setJobData(job);
-          } catch (error) {
-            console.error("Failed to fetch job:", error);
-          }
-        }
+        const job = await getJobBySlug(slug);
+        setJobData(job);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to fetch job:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchJob();
   }, [slug, authLoading, user]);
 
   // Show loading while checking auth or when unauthenticated
@@ -102,7 +86,6 @@ export default function CreateJobPage() {
   return (
     <>
       <PostJobForm
-        unitGroups={unitGroups}
         initialData={jobData}
         isEditing={!!slug}
         onSuccess={handleSuccess}
