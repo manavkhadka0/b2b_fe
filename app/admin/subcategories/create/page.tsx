@@ -158,7 +158,7 @@ export default function CreateSubCategoryPage() {
               htmlFor="example_items"
               className="block text-sm font-medium text-slate-700"
             >
-              Example Items
+              Example Items(eg: 6802, 6810)
             </label>
             <textarea
               id="example_items"
@@ -177,7 +177,7 @@ export default function CreateSubCategoryPage() {
               htmlFor="reference"
               className="block text-sm font-medium text-slate-700"
             >
-              Reference
+              Reference(eg: ISIC 7110/7490)
             </label>
             <input
               id="reference"
