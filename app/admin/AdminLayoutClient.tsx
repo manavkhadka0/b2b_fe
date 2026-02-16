@@ -7,6 +7,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 const SIDEBAR_LINKS = [
   { href: "/admin/events", label: "Events" },
+  { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/experience-zone", label: "Experience Zone" },
   { href: "/admin/wishes-offers", label: "Wishes & Offers" },
   { href: "/admin/services", label: "Services" },

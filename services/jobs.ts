@@ -241,6 +241,15 @@ export async function getJobBySlug(slug: string) {
   }
 }
 
+export async function deleteJob(slug: string): Promise<void> {
+  try {
+    await api.delete(`/api/jobs/${slug}/`);
+  } catch (error) {
+    console.error("Failed to delete job:", error);
+    throw error;
+  }
+}
+
 export async function getMyJobs(): Promise<JobsApiResponse> {
   try {
     const response = await api.get<JobsApiResponse>("/api/my-jobs/");
