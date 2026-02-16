@@ -158,6 +158,17 @@ export function CimZoneSection() {
             </div>
           </div>
 
+          <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-gray-900 aspect-video">
+            <iframe
+              className="w-full h-full rounded-lg"
+              src="https://www.youtube.com/embed/s9cLHPQnXV0?autoplay=1&mute=1&loop=1&playlist=s9cLHPQnXV0&si=AnbTk9MmHX1spuUT"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+
           {/* CTA Section */}
           <div className="bg-gradient-to-r from-blue-700 to-blue-800 rounded-2xl p-8 sm:p-12 text-center shadow-xl">
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
