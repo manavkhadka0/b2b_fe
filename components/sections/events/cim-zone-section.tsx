@@ -161,8 +161,8 @@ export function CimZoneSection() {
           <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-gray-900 aspect-video">
             <iframe
               className="w-full h-full rounded-lg"
-              src="https://www.youtube.com/embed/s9cLHPQnXV0?autoplay=1&mute=1&loop=1&playlist=s9cLHPQnXV0&si=AnbTk9MmHX1spuUT"
-              title="YouTube video player"
+              src="https://www.youtube.com/embed/1LA4RNf5D-c?autoplay=1&mute=1&loop=1&playlist=1LA4RNf5D-c&si=_naz6BwKHdSprJ3r"
+              title="CIM Industry Experience Zone"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
