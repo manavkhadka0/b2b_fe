@@ -7,12 +7,17 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 const SIDEBAR_LINKS = [
   { href: "/admin/events", label: "Events" },
-  { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/experience-zone", label: "Experience Zone" },
   { href: "/admin/wishes-offers", label: "Wishes & Offers" },
   { href: "/admin/services", label: "Services" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/subcategories", label: "Subcategories" },
+] as const;
+
+const SIDEBAR_JOBBRIZE_LINKS = [
+  { href: "/admin/jobs", label: "Jobs" },
+  { href: "/admin/apprenticeships", label: "Apprenticeships" },
+  { href: "/admin/internships", label: "Internships" },
 ] as const;
 
 const SIDEBAR_MDMU_LINKS = [
@@ -45,6 +50,27 @@ function AdminSidebar() {
             </Link>
           );
         })}
+        <div className="mt-4 pt-3 border-t border-slate-200">
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            Jobbrize
+          </p>
+          {SIDEBAR_JOBBRIZE_LINKS.map(({ href, label }) => {
+            const isActive = pathname?.startsWith(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors block ${
+                  isActive
+                    ? "bg-sky-100 text-sky-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </div>
         <div className="mt-4 pt-3 border-t border-slate-200">
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
             MDMU
