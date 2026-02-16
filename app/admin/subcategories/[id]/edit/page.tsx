@@ -110,7 +110,7 @@ export default function EditSubCategoryPage() {
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to update subcategory. Please try again."
+          "Failed to update subcategory. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -178,7 +178,9 @@ export default function EditSubCategoryPage() {
               }
             >
               <option value="">
-                {isLoadingCategories ? "Loading categories..." : "Select a category"}
+                {isLoadingCategories
+                  ? "Loading categories..."
+                  : "Select a category"}
               </option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>

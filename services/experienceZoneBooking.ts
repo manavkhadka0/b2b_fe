@@ -17,11 +17,23 @@ export async function fetchOccupancy(): Promise<OccupancyItem[]> {
   return Array.isArray(data) ? data : [];
 }
 
-export function formatPreferredMonthForOccupancy(preferredMonth: string): string {
+export function formatPreferredMonthForOccupancy(
+  preferredMonth: string,
+): string {
   const [year, month] = preferredMonth.split("-");
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const monthName = monthNames[parseInt(month || "01", 10) - 1];
   return `${monthName} ${year}`;
@@ -93,6 +105,8 @@ export type ExperienceZoneBookingListResponse = {
 export type FetchExperienceZoneBookingsOptions = {
   /** Filter by month (1–12). Used by admin only. */
   month?: number;
+  /** Page number (1-based) for pagination. */
+  page?: number;
 };
 
 export async function fetchExperienceZoneBookings(
@@ -102,8 +116,13 @@ export async function fetchExperienceZoneBookings(
   if (options?.month != null && options.month >= 1 && options.month <= 12) {
     params.set("month", String(options.month));
   }
+  if (options?.page != null && options.page > 1) {
+    params.set("page", String(options.page));
+  }
   const query = params.toString();
-  const url = query ? `${API_BASE}/api/bookings/?${query}` : `${API_BASE}/api/bookings/`;
+  const url = query
+    ? `${API_BASE}/api/bookings/?${query}`
+    : `${API_BASE}/api/bookings/`;
   const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) {
@@ -128,9 +147,10 @@ export async function getExperienceZoneBooking(
   return res.json();
 }
 
-export type ExperienceZoneBookingUpdatePayload = Partial<ExperienceZoneBookingPayload> & {
-  status?: string;
-};
+export type ExperienceZoneBookingUpdatePayload =
+  Partial<ExperienceZoneBookingPayload> & {
+    status?: string;
+  };
 
 export async function updateExperienceZoneBooking(
   id: number,
@@ -144,25 +164,19 @@ export async function updateExperienceZoneBooking(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      err.detail || err.message || "Failed to update booking",
-    );
+    throw new Error(err.detail || err.message || "Failed to update booking");
   }
 
   return res.json();
 }
 
-export async function deleteExperienceZoneBooking(
-  id: number,
-): Promise<void> {
+export async function deleteExperienceZoneBooking(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/api/bookings/${id}/`, {
     method: "DELETE",
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      err.detail || err.message || "Failed to delete booking",
-    );
+    throw new Error(err.detail || err.message || "Failed to delete booking");
   }
 }

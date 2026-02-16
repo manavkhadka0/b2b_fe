@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { addEventImages, deleteEvent, getEventBySlug, getAdminEvents } from "@/services/events";
+import {
+  addEventImages,
+  deleteEvent,
+  getEventBySlug,
+  getAdminEvents,
+} from "@/services/events";
 import type { Event, EventImage } from "@/types/events";
 import {
   AlertDialog,
@@ -26,12 +31,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TablePagination } from "@/components/admin/TablePagination";
 import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
 
 export default function AdminEventsPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [rowError, setRowError] = useState<string | null>(null);
 
@@ -53,15 +64,30 @@ export default function AdminEventsPage() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const data = await getAdminEvents("1");
-      setEvents(data.results);
-      setIsLoading(false);
+      setIsLoading(true);
+      try {
+        const data = await getAdminEvents(String(page));
+        setEvents(data.results ?? []);
+        setCount(data.count ?? 0);
+        setHasNext(!!data.next);
+        setHasPrevious(!!data.previous);
+        if ((data.results?.length ?? 0) > 0 && (data.next || page === 1)) {
+          setPageSize(data.results!.length);
+        }
+      } catch {
+        setEvents([]);
+        setCount(0);
+        setHasNext(false);
+        setHasPrevious(false);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     if (isAuthenticated) {
       fetchEvents();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, page]);
 
   if (!isAuthenticated && !isChecking) {
     return null;
@@ -74,6 +100,7 @@ export default function AdminEventsPage() {
     try {
       await deleteEvent(deleteTarget.slug);
       setEvents((prev) => prev.filter((e) => e.slug !== deleteTarget.slug));
+      setCount((c) => Math.max(0, c - 1));
       setDeleteTarget(null);
     } catch (err: any) {
       const message =
@@ -98,7 +125,9 @@ export default function AdminEventsPage() {
       if (full?.images) {
         setImagesPreview(full.images);
         setEvents((prev) =>
-          prev.map((e) => (e.slug === full.slug ? { ...e, images: full.images } : e))
+          prev.map((e) =>
+            e.slug === full.slug ? { ...e, images: full.images } : e,
+          ),
         );
       }
     } catch {
@@ -123,8 +152,8 @@ export default function AdminEventsPage() {
         setImagesPreview(refreshed.images);
         setEvents((prev) =>
           prev.map((e) =>
-            e.slug === refreshed.slug ? { ...e, images: refreshed.images } : e
-          )
+            e.slug === refreshed.slug ? { ...e, images: refreshed.images } : e,
+          ),
         );
       }
       setIsAddImagesOpen(false);
@@ -249,6 +278,20 @@ export default function AdminEventsPage() {
           </tbody>
         </table>
       </div>
+
+      {events.length > 0 && (
+        <TablePagination
+          page={page}
+          count={count}
+          resultsLength={events.length}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          entityLabel="events"
+          isLoading={isLoading}
+        />
+      )}
 
       <AlertDialog
         open={!!deleteTarget}

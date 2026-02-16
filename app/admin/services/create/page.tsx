@@ -68,7 +68,7 @@ export default function CreateServicePage() {
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to create service. Please try again."
+          "Failed to create service. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -82,9 +82,7 @@ export default function CreateServicePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">
-          Create Service
-        </h2>
+        <h2 className="text-xl font-semibold text-slate-900">Create Service</h2>
         <p className="text-sm text-slate-500">
           Add a new service to the system.
         </p>

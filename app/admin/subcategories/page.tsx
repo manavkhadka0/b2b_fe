@@ -4,17 +4,23 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import {
-  getSubCategories,
+  getSubCategoriesPaginated,
   deleteSubCategory,
   getCategories,
 } from "@/services/categories";
 import type { SubCategory, Category } from "@/types/create-wish-type";
+import { TablePagination } from "@/components/admin/TablePagination";
 
 export default function AdminSubCategoriesPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,42 +33,47 @@ export default function AdminSubCategoriesPage() {
   }, [isAuthenticated, isChecking, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategories = async () => {
       try {
-        const [subcatsData, catsData] = await Promise.all([
-          getSubCategories(),
-          getCategories(),
-        ]);
-        setSubcategories(subcatsData);
-        setCategories(catsData);
-      } catch (error) {
-        console.error("Failed to fetch subcategories:", error);
+        const data = await getCategories();
+        setCategories(data);
+      } catch {
+        setCategories([]);
+      }
+    };
+    if (isAuthenticated) fetchCategories();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const fetchSubcategories = async () => {
+      setIsLoading(true);
+      try {
+        const categoryFilter =
+          selectedCategory === "" ? undefined : (selectedCategory as number);
+        const data = await getSubCategoriesPaginated(categoryFilter, page);
+        setSubcategories(data.results || []);
+        setCount(data.count ?? 0);
+        setHasNext(!!data.next);
+        setHasPrevious(!!data.previous);
+        if ((data.results?.length ?? 0) > 0 && (data.next || page === 1)) {
+          setPageSize(data.results!.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch subcategories:", err);
         setError("Failed to load subcategories. Please try again.");
+        setSubcategories([]);
+        setCount(0);
+        setHasNext(false);
+        setHasPrevious(false);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (isAuthenticated) {
-      fetchData();
+      fetchSubcategories();
     }
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    const fetchFiltered = async () => {
-      if (selectedCategory === "") {
-        const data = await getSubCategories();
-        setSubcategories(data);
-      } else {
-        const data = await getSubCategories(selectedCategory as number);
-        setSubcategories(data);
-      }
-    };
-
-    if (isAuthenticated) {
-      fetchFiltered();
-    }
-  }, [selectedCategory, isAuthenticated]);
+  }, [isAuthenticated, selectedCategory, page]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this subcategory?")) {
@@ -72,7 +83,8 @@ export default function AdminSubCategoriesPage() {
     setIsDeleting(id);
     try {
       await deleteSubCategory(id);
-      setSubcategories(subcategories.filter((subcat) => subcat.id !== id));
+      setSubcategories((prev) => prev.filter((subcat) => subcat.id !== id));
+      setCount((c) => Math.max(0, c - 1));
     } catch (error) {
       console.error("Failed to delete subcategory:", error);
       alert("Failed to delete subcategory. Please try again.");
@@ -120,11 +132,12 @@ export default function AdminSubCategoriesPage() {
         <select
           id="category-filter"
           value={selectedCategory}
-          onChange={(e) =>
+          onChange={(e) => {
             setSelectedCategory(
-              e.target.value === "" ? "" : parseInt(e.target.value)
-            )
-          }
+              e.target.value === "" ? "" : parseInt(e.target.value),
+            );
+            setPage(1);
+          }}
           className="w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
         >
           <option value="">All Categories</option>
@@ -207,7 +220,7 @@ export default function AdminSubCategoriesPage() {
                       <button
                         onClick={() => {
                           router.push(
-                            `/admin/subcategories/${subcategory.id}/edit`
+                            `/admin/subcategories/${subcategory.id}/edit`,
                           );
                         }}
                         className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -231,6 +244,20 @@ export default function AdminSubCategoriesPage() {
           </tbody>
         </table>
       </div>
+
+      {subcategories.length > 0 && (
+        <TablePagination
+          page={page}
+          count={count}
+          resultsLength={subcategories.length}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          entityLabel="subcategories"
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 }

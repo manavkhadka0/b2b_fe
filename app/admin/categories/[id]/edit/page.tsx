@@ -96,7 +96,7 @@ export default function EditCategoryPage() {
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to update category. Please try again."
+          "Failed to update category. Please try again.",
       );
     } finally {
       setIsSubmitting(false);

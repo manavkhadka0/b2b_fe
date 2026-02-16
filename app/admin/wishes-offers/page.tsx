@@ -4,20 +4,35 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import {
-  getAllWishes,
-  getAllOffers,
+  getWishesPaginated,
+  getOffersPaginated,
   deleteWish,
   deleteOffer,
 } from "@/services/wishOffer";
 import type { Wish, Offer } from "@/types/wish";
+import { TablePagination } from "@/components/admin/TablePagination";
 
 export default function AdminWishesOffersPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
-  const [wishes, setWishes] = useState<Wish[]>([]);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"wishes" | "offers">("wishes");
+
+  const [wishes, setWishes] = useState<Wish[]>([]);
+  const [wishesPage, setWishesPage] = useState(1);
+  const [wishesCount, setWishesCount] = useState(0);
+  const [wishesPageSize, setWishesPageSize] = useState(10);
+  const [wishesHasNext, setWishesHasNext] = useState(false);
+  const [wishesHasPrevious, setWishesHasPrevious] = useState(false);
+
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offersPage, setOffersPage] = useState(1);
+  const [offersCount, setOffersCount] = useState(0);
+  const [offersPageSize, setOffersPageSize] = useState(10);
+  const [offersHasNext, setOffersHasNext] = useState(false);
+  const [offersHasPrevious, setOffersHasPrevious] = useState(false);
+
+  const [isLoadingWishes, setIsLoadingWishes] = useState(true);
+  const [isLoadingOffers, setIsLoadingOffers] = useState(true);
   const [deletingWishId, setDeletingWishId] = useState<number | null>(null);
   const [deletingOfferId, setDeletingOfferId] = useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -35,25 +50,52 @@ export default function AdminWishesOffersPage() {
   }, [isAuthenticated, isChecking, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    if (!isAuthenticated) return;
+    const fetchWishes = async () => {
+      setIsLoadingWishes(true);
       try {
-        const [wishesData, offersData] = await Promise.all([
-          getAllWishes(),
-          getAllOffers(),
-        ]);
-        setWishes(wishesData);
-        setOffers(offersData);
+        const data = await getWishesPaginated(wishesPage);
+        setWishes(data.results || []);
+        setWishesCount(data.count ?? 0);
+        setWishesHasNext(!!data.next);
+        setWishesHasPrevious(!!data.previous);
+        if (
+          (data.results?.length ?? 0) > 0 &&
+          (data.next || wishesPage === 1)
+        ) {
+          setWishesPageSize(data.results!.length);
+        }
       } catch (error) {
-        console.error("Failed to fetch wishes and offers:", error);
+        console.error("Failed to fetch wishes:", error);
+        setWishes([]);
       } finally {
-        setIsLoading(false);
+        setIsLoadingWishes(false);
       }
     };
-
-    if (isAuthenticated) {
-      fetchData();
-    }
-  }, [isAuthenticated]);
+    const fetchOffers = async () => {
+      setIsLoadingOffers(true);
+      try {
+        const data = await getOffersPaginated(offersPage);
+        setOffers(data.results || []);
+        setOffersCount(data.count ?? 0);
+        setOffersHasNext(!!data.next);
+        setOffersHasPrevious(!!data.previous);
+        if (
+          (data.results?.length ?? 0) > 0 &&
+          (data.next || offersPage === 1)
+        ) {
+          setOffersPageSize(data.results!.length);
+        }
+      } catch (error) {
+        console.error("Failed to fetch offers:", error);
+        setOffers([]);
+      } finally {
+        setIsLoadingOffers(false);
+      }
+    };
+    if (activeTab === "wishes") fetchWishes();
+    else fetchOffers();
+  }, [isAuthenticated, activeTab, wishesPage, offersPage]);
 
   if (!isAuthenticated && !isChecking) {
     return null;
@@ -62,7 +104,7 @@ export default function AdminWishesOffersPage() {
   const formatAddress = (
     province?: string | null,
     municipality?: string | null,
-    ward?: string | null
+    ward?: string | null,
   ) => {
     const parts: string[] = [];
     if (province) parts.push(province);
@@ -74,7 +116,7 @@ export default function AdminWishesOffersPage() {
   const openConfirmDialog = (
     type: "wish" | "offer",
     id: number,
-    title: string
+    title: string,
   ) => {
     setConfirmTarget({ type, id, title });
     setConfirmError(null);
@@ -97,15 +139,17 @@ export default function AdminWishesOffersPage() {
         setDeletingWishId(confirmTarget.id);
         await deleteWish(confirmTarget.id);
         setWishes((prev) =>
-          prev.filter((wish) => wish.id !== confirmTarget.id)
+          prev.filter((wish) => wish.id !== confirmTarget.id),
         );
+        setWishesCount((c) => Math.max(0, c - 1));
         setDeletingWishId(null);
       } else {
         setDeletingOfferId(confirmTarget.id);
         await deleteOffer(confirmTarget.id);
         setOffers((prev) =>
-          prev.filter((offer) => offer.id !== confirmTarget.id)
+          prev.filter((offer) => offer.id !== confirmTarget.id),
         );
+        setOffersCount((c) => Math.max(0, c - 1));
         setDeletingOfferId(null);
       }
       closeConfirmDialog();
@@ -139,7 +183,7 @@ export default function AdminWishesOffersPage() {
                 : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
             }`}
           >
-            Wishes ({wishes.length})
+            Wishes ({wishesCount})
           </button>
           <button
             onClick={() => setActiveTab("offers")}
@@ -149,7 +193,7 @@ export default function AdminWishesOffersPage() {
                 : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
             }`}
           >
-            Offers ({offers.length})
+            Offers ({offersCount})
           </button>
         </nav>
       </div>
@@ -184,7 +228,7 @@ export default function AdminWishesOffersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {isLoading ? (
+              {isLoadingWishes ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -222,7 +266,7 @@ export default function AdminWishesOffersPage() {
                       {formatAddress(
                         wish.province,
                         wish.municipality,
-                        wish.ward
+                        wish.ward,
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">
@@ -231,8 +275,8 @@ export default function AdminWishesOffersPage() {
                           wish.match_percentage >= 80
                             ? "bg-green-100 text-green-800"
                             : wish.match_percentage >= 50
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         }`}
                       >
                         {wish.match_percentage}%
@@ -258,6 +302,20 @@ export default function AdminWishesOffersPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {activeTab === "wishes" && wishes.length > 0 && (
+        <TablePagination
+          page={wishesPage}
+          count={wishesCount}
+          resultsLength={wishes.length}
+          hasNext={wishesHasNext}
+          hasPrevious={wishesHasPrevious}
+          pageSize={wishesPageSize}
+          onPageChange={setWishesPage}
+          entityLabel="wishes"
+          isLoading={isLoadingWishes}
+        />
       )}
 
       {/* Offers Table */}
@@ -290,7 +348,7 @@ export default function AdminWishesOffersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {isLoading ? (
+              {isLoadingOffers ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -328,7 +386,7 @@ export default function AdminWishesOffersPage() {
                       {formatAddress(
                         offer.province,
                         offer.municipality,
-                        offer.ward
+                        offer.ward,
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">
@@ -337,8 +395,8 @@ export default function AdminWishesOffersPage() {
                           (offer.match_percentage || 0) >= 80
                             ? "bg-green-100 text-green-800"
                             : (offer.match_percentage || 0) >= 50
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         }`}
                       >
                         {offer.match_percentage || 0}%
@@ -367,6 +425,21 @@ export default function AdminWishesOffersPage() {
           </table>
         </div>
       )}
+
+      {activeTab === "offers" && offers.length > 0 && (
+        <TablePagination
+          page={offersPage}
+          count={offersCount}
+          resultsLength={offers.length}
+          hasNext={offersHasNext}
+          hasPrevious={offersHasPrevious}
+          pageSize={offersPageSize}
+          onPageChange={setOffersPage}
+          entityLabel="offers"
+          isLoading={isLoadingOffers}
+        />
+      )}
+
       {confirmOpen && confirmTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">

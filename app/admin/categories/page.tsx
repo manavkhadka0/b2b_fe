@@ -3,13 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { getCategories, deleteCategory } from "@/services/categories";
+import { getCategoriesPaginated, deleteCategory } from "@/services/categories";
 import type { Category } from "@/types/create-wish-type";
+import { TablePagination } from "@/components/admin/TablePagination";
 
 export default function AdminCategoriesPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +28,23 @@ export default function AdminCategoriesPage() {
 
   useEffect(() => {
     const fetchCategories = async () => {
+      setIsLoading(true);
       try {
-        const data = await getCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        const data = await getCategoriesPaginated(page);
+        setCategories(data.results || []);
+        setCount(data.count ?? 0);
+        setHasNext(!!data.next);
+        setHasPrevious(!!data.previous);
+        if ((data.results?.length ?? 0) > 0 && (data.next || page === 1)) {
+          setPageSize(data.results!.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
         setError("Failed to load categories. Please try again.");
+        setCategories([]);
+        setCount(0);
+        setHasNext(false);
+        setHasPrevious(false);
       } finally {
         setIsLoading(false);
       }
@@ -36,7 +53,7 @@ export default function AdminCategoriesPage() {
     if (isAuthenticated) {
       fetchCategories();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, page]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this category?")) {
@@ -46,7 +63,8 @@ export default function AdminCategoriesPage() {
     setIsDeleting(id);
     try {
       await deleteCategory(id);
-      setCategories(categories.filter((cat) => cat.id !== id));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      setCount((c) => Math.max(0, c - 1));
     } catch (error) {
       console.error("Failed to delete category:", error);
       alert("Failed to delete category. Please try again.");
@@ -165,6 +183,20 @@ export default function AdminCategoriesPage() {
           </tbody>
         </table>
       </div>
+
+      {categories.length > 0 && (
+        <TablePagination
+          page={page}
+          count={count}
+          resultsLength={categories.length}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          entityLabel="categories"
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 }

@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TablePagination } from "@/components/admin/TablePagination";
 
 const MONTHS = [
   { value: "01", label: "January" },
@@ -105,6 +106,11 @@ export default function AdminExperienceZonePage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [bookings, setBookings] = useState<ExperienceZoneBooking[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [rowError, setRowError] = useState<string | null>(null);
 
@@ -140,20 +146,31 @@ export default function AdminExperienceZonePage() {
       try {
         const monthNum =
           filterMonth === "all" ? undefined : parseInt(filterMonth, 10);
-        const data = await fetchExperienceZoneBookings(
-          monthNum != null && monthNum >= 1 && monthNum <= 12
+        const data = await fetchExperienceZoneBookings({
+          ...(monthNum != null && monthNum >= 1 && monthNum <= 12
             ? { month: monthNum }
-            : undefined,
-        );
+            : {}),
+          page,
+        });
         setBookings(data.results ?? []);
+        setCount(data.count ?? 0);
+        setHasNext(!!data.next);
+        setHasPrevious(!!data.previous);
+        if ((data.results?.length ?? 0) > 0 && (data.next || page === 1)) {
+          setPageSize(data.results!.length);
+        }
       } catch {
         setRowError("Failed to load experience zone bookings.");
+        setBookings([]);
+        setCount(0);
+        setHasNext(false);
+        setHasPrevious(false);
       } finally {
         setIsLoading(false);
       }
     };
     if (isAuthenticated) load();
-  }, [isAuthenticated, filterMonth]);
+  }, [isAuthenticated, filterMonth, page]);
 
   if (!isAuthenticated && !isChecking) {
     return null;
@@ -166,6 +183,7 @@ export default function AdminExperienceZonePage() {
     try {
       await deleteExperienceZoneBooking(deleteTarget.id);
       setBookings((prev) => prev.filter((b) => b.id !== deleteTarget.id));
+      setCount((c) => Math.max(0, c - 1));
       setDeleteTarget(null);
     } catch (err: unknown) {
       const message =
@@ -242,7 +260,13 @@ export default function AdminExperienceZonePage() {
           >
             Filter by month
           </Label>
-          <Select value={filterMonth} onValueChange={setFilterMonth}>
+          <Select
+            value={filterMonth}
+            onValueChange={(v) => {
+              setFilterMonth(v);
+              setPage(1);
+            }}
+          >
             <SelectTrigger id="filter-month" className="w-[180px]">
               <SelectValue placeholder="All months" />
             </SelectTrigger>
@@ -384,6 +408,20 @@ export default function AdminExperienceZonePage() {
           </tbody>
         </table>
       </div>
+
+      {bookings.length > 0 && (
+        <TablePagination
+          page={page}
+          count={count}
+          resultsLength={bookings.length}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          entityLabel="bookings"
+          isLoading={isLoading}
+        />
+      )}
 
       {/* View dialog */}
       <Dialog

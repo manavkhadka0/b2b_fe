@@ -21,12 +21,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { TablePagination } from "@/components/admin/TablePagination";
 import { format } from "date-fns";
 
 export default function AdminJobsPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [jobs, setJobs] = useState<JobApiResponse[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,15 +51,33 @@ export default function AdminJobsPage() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const data = await getJobs();
+      setIsLoading(true);
+      const data = await getJobs(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        page,
+      );
       setJobs(data.results);
+      setCount(data.count);
+      setHasNext(!!data.next);
+      setHasPrevious(!!data.previous);
+      if (data.results.length > 0 && (data.next || page === 1)) {
+        setPageSize(data.results.length);
+      }
       setIsLoading(false);
     };
 
     if (isAuthenticated) {
       fetchJobs();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, page]);
 
   useEffect(() => {
     if (!viewTarget) {
@@ -81,6 +105,7 @@ export default function AdminJobsPage() {
     try {
       await deleteJob(deleteTarget.slug);
       setJobs((prev) => prev.filter((j) => j.slug !== deleteTarget.slug));
+      setCount((c) => Math.max(0, c - 1));
       setDeleteTarget(null);
     } catch (err: unknown) {
       const message =
@@ -222,6 +247,20 @@ export default function AdminJobsPage() {
           </tbody>
         </table>
       </div>
+
+      {jobs.length > 0 && (
+        <TablePagination
+          page={page}
+          count={count}
+          resultsLength={jobs.length}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          entityLabel="jobs"
+          isLoading={isLoading}
+        />
+      )}
 
       <AlertDialog
         open={!!deleteTarget}

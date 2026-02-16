@@ -49,7 +49,10 @@ export default function EditServicePage() {
 
         // Check for lowercase `subcategory` first (as per API response)
         if (serviceAny.subcategory) {
-          if (typeof serviceAny.subcategory === "object" && serviceAny.subcategory.id) {
+          if (
+            typeof serviceAny.subcategory === "object" &&
+            serviceAny.subcategory.id
+          ) {
             subCategoryId = serviceAny.subcategory.id;
           } else if (typeof serviceAny.subcategory === "number") {
             subCategoryId = serviceAny.subcategory;
@@ -57,7 +60,10 @@ export default function EditServicePage() {
         }
         // Fallback to uppercase `SubCategory` if lowercase doesn't exist
         else if (serviceAny.SubCategory) {
-          if (typeof serviceAny.SubCategory === "object" && serviceAny.SubCategory.id) {
+          if (
+            typeof serviceAny.SubCategory === "object" &&
+            serviceAny.SubCategory.id
+          ) {
             subCategoryId = serviceAny.SubCategory.id;
           } else if (typeof serviceAny.SubCategory === "number") {
             subCategoryId = serviceAny.SubCategory;
@@ -108,7 +114,7 @@ export default function EditServicePage() {
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to update service. Please try again."
+          "Failed to update service. Please try again.",
       );
     } finally {
       setIsSubmitting(false);

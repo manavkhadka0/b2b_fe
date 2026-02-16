@@ -73,7 +73,7 @@ export default function CreateSubCategoryPage() {
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to create subcategory. Please try again."
+          "Failed to create subcategory. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -121,7 +121,9 @@ export default function CreateSubCategoryPage() {
               }
             >
               <option value="">
-                {isLoadingCategories ? "Loading categories..." : "Select a category"}
+                {isLoadingCategories
+                  ? "Loading categories..."
+                  : "Select a category"}
               </option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>

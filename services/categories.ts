@@ -12,9 +12,25 @@ import type {
 export async function getCategories(): Promise<Category[]> {
   try {
     const response = await api.get<CategoryResponse>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/`,
     );
     return response.data.results || [];
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    throw error;
+  }
+}
+
+export async function getCategoriesPaginated(
+  page?: number,
+): Promise<CategoryResponse> {
+  try {
+    const params = new URLSearchParams();
+    if (page != null && page > 1) params.set("page", String(page));
+    const query = params.toString();
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/${query ? `?${query}` : ""}`;
+    const response = await api.get<CategoryResponse>(url);
+    return response.data;
   } catch (error) {
     console.error("Failed to fetch categories:", error);
     throw error;
@@ -24,7 +40,7 @@ export async function getCategories(): Promise<Category[]> {
 export async function getCategoryById(id: number): Promise<Category> {
   try {
     const response = await api.get<Category>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/${id}/`,
     );
     return response.data;
   } catch (error) {
@@ -55,7 +71,7 @@ export async function createCategory(data: {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -71,7 +87,7 @@ export async function updateCategory(
     description?: string;
     type?: string;
     image?: File | null;
-  }
+  },
 ): Promise<Category> {
   try {
     const formData = new FormData();
@@ -90,7 +106,7 @@ export async function updateCategory(
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -102,7 +118,7 @@ export async function updateCategory(
 export async function deleteCategory(id: number): Promise<void> {
   try {
     await api.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/categories/${id}/`,
     );
   } catch (error) {
     console.error(`Failed to delete category with id ${id}:`, error);
@@ -112,7 +128,7 @@ export async function deleteCategory(id: number): Promise<void> {
 
 // SubCategory CRUD operations
 export async function getSubCategories(
-  categoryId?: number
+  categoryId?: number,
 ): Promise<SubCategory[]> {
   try {
     const url = categoryId
@@ -126,10 +142,28 @@ export async function getSubCategories(
   }
 }
 
+export async function getSubCategoriesPaginated(
+  categoryId?: number,
+  page?: number,
+): Promise<SubCategoryResponse> {
+  try {
+    const params = new URLSearchParams();
+    if (categoryId) params.set("category", String(categoryId));
+    if (page != null && page > 1) params.set("page", String(page));
+    const query = params.toString();
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/${query ? `?${query}` : ""}`;
+    const response = await api.get<SubCategoryResponse>(url);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch subcategories:", error);
+    throw error;
+  }
+}
+
 export async function getSubCategoryById(id: number): Promise<SubCategory> {
   try {
     const response = await api.get<SubCategory>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/${id}/`,
     );
     return response.data;
   } catch (error) {
@@ -162,7 +196,7 @@ export async function createSubCategory(data: {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -179,7 +213,7 @@ export async function updateSubCategory(
     reference?: string;
     category?: number;
     image?: File | null;
-  }
+  },
 ): Promise<SubCategory> {
   try {
     const formData = new FormData();
@@ -201,7 +235,7 @@ export async function updateSubCategory(
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -213,7 +247,7 @@ export async function updateSubCategory(
 export async function deleteSubCategory(id: number): Promise<void> {
   try {
     await api.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/sub-categories/${id}/`,
     );
   } catch (error) {
     console.error(`Failed to delete subcategory with id ${id}:`, error);
@@ -224,7 +258,7 @@ export async function deleteSubCategory(id: number): Promise<void> {
 // Service CRUD operations
 export async function getServices(
   subCategoryId?: number,
-  page?: number
+  page?: number,
 ): Promise<ServiceResponse> {
   try {
     const params: Record<string, string | number> = {};
@@ -232,7 +266,7 @@ export async function getServices(
     if (page) params.page = page;
 
     const query = new URLSearchParams(
-      params as Record<string, string>
+      params as Record<string, string>,
     ).toString();
 
     const url = query
@@ -250,7 +284,7 @@ export async function getServices(
 export async function getServiceById(id: number): Promise<Service> {
   try {
     const response = await api.get<Service>(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`,
     );
     return response.data;
   } catch (error) {
@@ -269,7 +303,7 @@ export async function createService(data: {
       {
         name: data.name,
         SubCategory: data.SubCategory,
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -283,12 +317,12 @@ export async function updateService(
   data: {
     name?: string;
     SubCategory?: number;
-  }
+  },
 ): Promise<Service> {
   try {
     const response = await api.patch<Service>(
       `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`,
-      data
+      data,
     );
     return response.data;
   } catch (error) {
@@ -300,7 +334,7 @@ export async function updateService(
 export async function deleteService(id: number): Promise<void> {
   try {
     await api.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/services/${id}/`,
     );
   } catch (error) {
     console.error(`Failed to delete service with id ${id}:`, error);

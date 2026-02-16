@@ -69,4 +69,3 @@ export default function AdminEditEventPage({
 
   return <AdminEventForm mode="edit" slug={params.slug} initialData={event} />;
 }
-
