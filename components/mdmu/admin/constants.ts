@@ -1,7 +1,7 @@
 export const STATUS_COLORS = {
-  Pending: "bg-yellow-100 text-yellow-800",
-  Approved: "bg-green-100 text-green-800",
-  Rejected: "bg-red-100 text-red-800",
+  Pending: "bg-amber-50 text-amber-700",
+  Approved: "bg-emerald-50 text-emerald-700",
+  Rejected: "bg-rose-50 text-rose-700",
 } as const;
 
 export const ALL_OPTION = "all";

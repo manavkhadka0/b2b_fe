@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 const MONTHS = [
   { value: "01", label: "January" },
@@ -288,7 +289,7 @@ export default function AdminExperienceZonePage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[640px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -407,7 +408,7 @@ export default function AdminExperienceZonePage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       {bookings.length > 0 && (
         <TablePagination

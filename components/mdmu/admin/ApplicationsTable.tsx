@@ -22,17 +22,27 @@ export function ApplicationsTable({
   onPrint,
 }: ApplicationsTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Company</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Contact</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
+    <Table className="min-w-full divide-y divide-slate-200">
+      <TableHeader className="bg-slate-50">
+        <TableRow className="border-0 hover:bg-transparent">
+          <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Company
+          </TableHead>
+          <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Category
+          </TableHead>
+          <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Contact
+          </TableHead>
+          <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Status
+          </TableHead>
+          <TableHead className="h-auto px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody className="divide-y divide-slate-100 bg-white">
         {applications.map((app) => (
           <ApplicationRow
             key={app.id}

@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
 
 export default function AdminEventsPage() {
@@ -196,7 +197,7 @@ export default function AdminEventsPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[520px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -277,7 +278,7 @@ export default function AdminEventsPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       {events.length > 0 && (
         <TablePagination

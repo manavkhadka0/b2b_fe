@@ -18,6 +18,7 @@ import { ApplicationFilters } from "@/components/mdmu/admin/ApplicationFilters";
 import { ApplicationsTable } from "@/components/mdmu/admin/ApplicationsTable";
 import { ViewApplicationDialog } from "@/components/mdmu/admin/ViewApplicationDialog";
 import { StatusUpdateDialog } from "@/components/mdmu/admin/StatusUpdateDialog";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 export default function AdminMDMUApplicationsPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -133,18 +134,25 @@ export default function AdminMDMUApplicationsPage() {
   const hasFilters = Object.values(filters).some((f) => f !== "");
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-slate-900">
           MDMU Applications
-        </h1>
+        </h2>
+        <p className="text-sm text-slate-500">
+          View and manage MDMU registration applications.
+        </p>
+      </div>
 
+      <div className="rounded-xl border bg-white p-4 shadow-sm">
         <ApplicationFilters
           filters={filters}
           uniqueCategories={uniqueCategories}
           onFilterChange={setFilters}
         />
+      </div>
 
+      <AdminTableWrapper minWidthClass="min-w-[560px]">
         {filteredApplications.length === 0 ? (
           <EmptyState hasFilters={hasFilters} />
         ) : (
@@ -155,7 +163,7 @@ export default function AdminMDMUApplicationsPage() {
             onPrint={handlePrintFile}
           />
         )}
-      </div>
+      </AdminTableWrapper>
 
       <ViewApplicationDialog
         application={viewApplication}

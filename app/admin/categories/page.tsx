@@ -6,6 +6,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { getCategoriesPaginated, deleteCategory } from "@/services/categories";
 import type { Category } from "@/types/create-wish-type";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 export default function AdminCategoriesPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -102,7 +103,7 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[560px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -182,7 +183,7 @@ export default function AdminCategoriesPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       {categories.length > 0 && (
         <TablePagination

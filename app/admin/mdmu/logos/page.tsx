@@ -28,7 +28,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
 import {
@@ -39,6 +38,7 @@ import {
 import { toast } from "sonner";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import LogoForm from "./logo-form";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/mdmu/company-logo/`;
 
@@ -129,15 +129,18 @@ export default function AdminMDMULogosPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Loader2 className="animate-spin w-12 h-12 text-blue-500" />
+      <div className="flex min-h-[320px] items-center justify-center">
+        <p className="flex items-center gap-2 text-sm text-slate-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Loading logos...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 min-h-[400px] flex items-center justify-center">
+      <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
         Failed to load logos: {error.message}
       </div>
     );
@@ -145,63 +148,89 @@ export default function AdminMDMULogosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Company Logos</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage company logos displayed on the website
+          <h2 className="text-xl font-semibold text-slate-900">
+            Company Logos
+          </h2>
+          <p className="text-sm text-slate-500">
+            Manage company logos displayed on the website.
           </p>
         </div>
-        <Button onClick={handleCreate} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Logo
-        </Button>
+        <button
+          type="button"
+          onClick={handleCreate}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800"
+        >
+          <Plus className="h-4 w-4" />
+          Add logo
+        </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="rounded-xl border bg-white p-4 shadow-sm">
+        <label
+          htmlFor="logo-search"
+          className="mb-1.5 block text-xs font-medium text-slate-500"
+        >
+          Search
+        </label>
         <Input
+          id="logo-search"
           placeholder="Search logos by name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-md"
+          className="max-w-md border-slate-200"
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <AdminTableWrapper minWidthClass="min-w-[480px]">
         {filteredLogos.length === 0 ? (
-          <div className="text-center py-12">
-            <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg">
+          <div className="px-4 py-12 text-center">
+            <ImageIcon className="mx-auto mb-4 h-12 w-12 text-slate-400" />
+            <p className="text-sm font-medium text-slate-900">
               {searchQuery
                 ? "No logos found matching your search."
                 : "No logos found."}
             </p>
             {!searchQuery && (
-              <p className="text-gray-500 text-sm mt-2">
-                Click &quot;Add New Logo&quot; to get started.
+              <p className="mt-1 text-sm text-slate-500">
+                Click &quot;Add logo&quot; to get started.
               </p>
             )}
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-20">Logo</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+          <Table className="min-w-full divide-y divide-slate-200">
+            <TableHeader className="bg-slate-50">
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead className="h-auto w-20 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Logo
+                </TableHead>
+                <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Name
+                </TableHead>
+                <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Slug
+                </TableHead>
+                <TableHead className="h-auto px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Created
+                </TableHead>
+                <TableHead className="h-auto px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="divide-y divide-slate-100 bg-white">
               {filteredLogos.map((logo) => (
-                <TableRow key={logo.id}>
-                  <TableCell>
-                    <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                <TableRow
+                  key={logo.id}
+                  className="border-0 transition-colors hover:bg-slate-50/50"
+                >
+                  <TableCell className="px-4 py-3">
+                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-slate-100">
                       <img
                         src={logo.logo}
                         alt={logo.name}
-                        className="max-w-full max-h-full object-contain"
+                        className="max-h-full max-w-full object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = "none";
@@ -209,27 +238,31 @@ export default function AdminMDMULogosPage() {
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{logo.name}</TableCell>
-                  <TableCell className="text-gray-600">{logo.slug}</TableCell>
-                  <TableCell className="text-gray-600">
+                  <TableCell className="px-4 py-3 text-sm font-medium text-slate-900">
+                    {logo.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-sm text-slate-600">
+                    {logo.slug}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-sm text-slate-600">
                     {new Date(logo.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
+                  <TableCell className="px-4 py-3 text-right">
+                    <div className="inline-flex items-center gap-2">
+                      <button
+                        type="button"
                         onClick={() => handleEdit(logo)}
+                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
                       >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
+                        Edit
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setDeleteLogo(logo)}
+                        className="rounded-md border border-rose-200 px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        Delete
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -237,7 +270,7 @@ export default function AdminMDMULogosPage() {
             </TableBody>
           </Table>
         )}
-      </div>
+      </AdminTableWrapper>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -268,18 +301,22 @@ export default function AdminMDMULogosPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete logo?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              logo for <strong>{deleteLogo?.name}</strong>.
+              Are you sure you want to delete the logo for{" "}
+              <span className="font-medium">{deleteLogo?.name}</span>? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90"
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
             >
               {isDeleting ? (
                 <>

@@ -37,26 +37,24 @@ export function StatusUpdateDialog({
           <Button
             disabled={isLoading}
             variant="outline"
-            className="w-full"
+            className="w-full border-slate-200"
             onClick={() => onStatusUpdate("Approved")}
           >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              "Approve"
-            )}
+            ) : null}
+            Approve
           </Button>
           <Button
             disabled={isLoading}
             variant="destructive"
-            className="w-full"
+            className="w-full bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90"
             onClick={() => onStatusUpdate("Rejected")}
           >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              "Reject"
-            )}
+            ) : null}
+            Reject
           </Button>
         </div>
       </DialogContent>

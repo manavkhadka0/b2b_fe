@@ -172,7 +172,7 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
               <FormControl>
                 <div className="space-y-4">
                   {previewUrl && (
-                    <div className="relative w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
+                    <div className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-200 bg-slate-50">
                       <img
                         src={previewUrl}
                         alt="Logo preview"
@@ -182,7 +182,7 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
                         <button
                           type="button"
                           onClick={removeFile}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                          className="absolute right-2 top-2 rounded-full bg-rose-500 p-1 text-white transition-colors hover:bg-rose-600"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -192,7 +192,7 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
                   <div className="flex items-center gap-4">
                     <label
                       htmlFor="logo-upload"
-                      className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex cursor-pointer items-center justify-center rounded-md border border-slate-200 px-4 py-2 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Upload className="h-4 w-4 mr-2" />
                       {logo && !selectedFile ? "Change Logo" : "Upload Logo"}
@@ -206,13 +206,13 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
                       />
                     </label>
                     {logo && !selectedFile && (
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-slate-500">
                         Current logo will be kept if no new file is selected
                       </span>
                     )}
                   </div>
                   {!logo && !selectedFile && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-rose-600">
                       Logo image is required
                     </p>
                   )}
@@ -223,7 +223,7 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
           )}
         />
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
           <Button
             type="button"
             variant="outline"

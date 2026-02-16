@@ -10,6 +10,7 @@ import {
 } from "@/services/categories";
 import type { Service, SubCategory } from "@/types/create-wish-type";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 export default function AdminServicesPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -170,7 +171,7 @@ export default function AdminServicesPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[480px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -237,7 +238,7 @@ export default function AdminServicesPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       {services.length > 0 && (
         <TablePagination

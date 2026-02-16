@@ -4,7 +4,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ message }: ErrorStateProps) {
   return (
-    <div className="text-center text-red-500 min-h-screen flex items-center justify-center">
+    <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
       Failed to load applications: {message}
     </div>
   );

@@ -11,6 +11,7 @@ import {
 } from "@/services/wishOffer";
 import type { Wish, Offer } from "@/types/wish";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 
 export default function AdminWishesOffersPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -200,7 +201,7 @@ export default function AdminWishesOffersPage() {
 
       {/* Wishes Table */}
       {activeTab === "wishes" && (
-        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+        <AdminTableWrapper minWidthClass="min-w-[640px]">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>
@@ -301,7 +302,7 @@ export default function AdminWishesOffersPage() {
               )}
             </tbody>
           </table>
-        </div>
+        </AdminTableWrapper>
       )}
 
       {activeTab === "wishes" && wishes.length > 0 && (
@@ -320,7 +321,7 @@ export default function AdminWishesOffersPage() {
 
       {/* Offers Table */}
       {activeTab === "offers" && (
-        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+        <AdminTableWrapper minWidthClass="min-w-[640px]">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr>
@@ -423,7 +424,7 @@ export default function AdminWishesOffersPage() {
               )}
             </tbody>
           </table>
-        </div>
+        </AdminTableWrapper>
       )}
 
       {activeTab === "offers" && offers.length > 0 && (

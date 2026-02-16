@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TablePagination } from "@/components/admin/TablePagination";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import { format } from "date-fns";
 
 export default function AdminJobsPage() {
@@ -154,7 +155,7 @@ export default function AdminJobsPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[640px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -246,7 +247,7 @@ export default function AdminJobsPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       {jobs.length > 0 && (
         <TablePagination

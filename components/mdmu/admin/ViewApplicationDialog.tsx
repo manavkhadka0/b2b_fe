@@ -39,13 +39,13 @@ export function ViewApplicationDialog({
           {application.company_logo &&
             typeof application.company_logo === "object" &&
             "logo" in application.company_logo && (
-              <Card>
+              <Card className="border-slate-200">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <h3 className="mb-4 text-base font-semibold text-slate-900">
                     Company Logo
                   </h3>
                   <div className="flex justify-center">
-                    <div className="relative w-full max-w-xs h-48 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                    <div className="relative flex h-48 w-full max-w-xs items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                       <img
                         src={`${API_BASE_URL}/${
                           (application.company_logo as { logo: string }).logo
@@ -61,7 +61,7 @@ export function ViewApplicationDialog({
                           const parent = target.parentElement;
                           if (parent) {
                             parent.innerHTML =
-                              '<p class="text-sm text-gray-400">Failed to load logo</p>';
+                              '<p class="text-sm text-slate-400">Failed to load logo</p>';
                           }
                         }}
                       />
@@ -72,58 +72,58 @@ export function ViewApplicationDialog({
             )}
 
           {/* Company Information */}
-          <Card>
+          <Card className="border-slate-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="mb-4 text-base font-semibold text-slate-900">
                 Company Information
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Company Name
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.name_of_company || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.name_of_company || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Province
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.address_province || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.address_province || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     District
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.address_district || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.address_district || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Municipality
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.address_municipality || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.address_municipality || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Ward
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.address_ward || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.address_ward || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Street Address
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.address_street || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.address_street || "—"}
                   </p>
                 </div>
               </div>
@@ -131,50 +131,50 @@ export function ViewApplicationDialog({
           </Card>
 
           {/* Contact Information */}
-          <Card>
+          <Card className="border-slate-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="mb-4 text-base font-semibold text-slate-900">
                 Contact Information
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Contact Person
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.contact_name || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.contact_name || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Contact Number
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.contact_number || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.contact_number || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Designation
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.contact_designation || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.contact_designation || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Alternate Number
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.contact_alternate_number || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.contact_alternate_number || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Email
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.contact_email || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.contact_email || "—"}
                   </p>
                 </div>
               </div>
@@ -182,52 +182,52 @@ export function ViewApplicationDialog({
           </Card>
 
           {/* Business Details */}
-          <Card>
+          <Card className="border-slate-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="mb-4 text-base font-semibold text-slate-900">
                 Business Details
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Industry Category
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {application.nature_of_industry_sub_category_detail
-                      ?.category?.name || "-"}
+                      ?.category?.name || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Sub Category
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {application.nature_of_industry_sub_category_detail?.name ||
-                      "-"}
+                      "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Product Market
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.product_market || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.product_market || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Raw Material
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.raw_material || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.raw_material || "—"}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Industry Size
                   </label>
-                  <p className="text-sm text-gray-900">
-                    {application.industry_size || "-"}
+                  <p className="text-sm text-slate-700">
+                    {application.industry_size || "—"}
                   </p>
                 </div>
               </div>
@@ -235,54 +235,54 @@ export function ViewApplicationDialog({
           </Card>
 
           {/* Additional Information */}
-          <Card>
+          <Card className="border-slate-200">
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="mb-4 text-base font-semibold text-slate-900">
                 Additional Information
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Member of CIM
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {formatBoolean(application.member_of_cim)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Know About MDMU
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {formatBoolean(application.know_about_mdmu)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Already Used Logo
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {formatBoolean(application.already_used_logo)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Interested in Logo
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {formatBoolean(application.interested_in_logo)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Self Declaration
                   </label>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-slate-700">
                     {formatBoolean(application.self_declaration)}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Status
                   </label>
                   <p className="text-sm">
@@ -290,10 +290,10 @@ export function ViewApplicationDialog({
                       className={
                         STATUS_COLORS[
                           application.status as keyof typeof STATUS_COLORS
-                        ] || "bg-gray-100 text-gray-800"
+                        ] || "bg-slate-100 text-slate-800"
                       }
                     >
-                      {application.status || "-"}
+                      {application.status || "—"}
                     </Badge>
                   </p>
                 </div>

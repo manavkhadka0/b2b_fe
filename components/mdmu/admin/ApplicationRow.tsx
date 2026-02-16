@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Edit, Printer, Eye } from "lucide-react";
 import { MDMUResponse } from "@/components/mdmu/mdmu/components/mdmu-form/types";
 import { STATUS_COLORS } from "./constants";
 
@@ -19,53 +17,57 @@ export function ApplicationRow({
   onPrint,
 }: ApplicationRowProps) {
   return (
-    <TableRow key={application.id}>
-      <TableCell>{application.name_of_company}</TableCell>
-      <TableCell>
-        {application.nature_of_industry_sub_category_detail?.category?.name ||
-          "N/A"}
+    <TableRow
+      key={application.id}
+      className="border-0 transition-colors hover:bg-slate-50/50"
+    >
+      <TableCell className="px-4 py-3 text-sm font-medium text-slate-900">
+        {application.name_of_company}
       </TableCell>
-      <TableCell>{application.contact_email}</TableCell>
-      <TableCell>
+      <TableCell className="px-4 py-3 text-sm text-slate-600">
+        {application.nature_of_industry_sub_category_detail?.category?.name ||
+          "—"}
+      </TableCell>
+      <TableCell className="px-4 py-3 text-sm text-slate-600">
+        {application.contact_email || "—"}
+      </TableCell>
+      <TableCell className="px-4 py-3">
         <Badge
           className={
             STATUS_COLORS[application.status as keyof typeof STATUS_COLORS] ||
-            "bg-gray-100 text-gray-800"
+            "bg-slate-100 text-slate-800"
           }
         >
           {application.status}
         </Badge>
       </TableCell>
-      <TableCell>
-        <div className="flex space-x-2">
-          <Button
-            size="icon"
-            variant="outline"
+      <TableCell className="px-4 py-3 text-right">
+        <div className="inline-flex items-center gap-2">
+          <button
+            type="button"
             onClick={() => onView(application)}
-            title="View Application"
+            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            <Eye className="h-4 w-4" />
-          </Button>
+            View
+          </button>
           {application.status === "Approved" && application.file_url && (
-            <Button
-              size="icon"
-              variant="outline"
+            <button
+              type="button"
               onClick={() =>
                 onPrint(`https://cim.baliyoventures.com${application.file_url}`)
               }
-              title="Print Certificate"
+              className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              <Printer className="h-4 w-4" />
-            </Button>
+              Print
+            </button>
           )}
-          <Button
-            size="icon"
-            variant="outline"
+          <button
+            type="button"
             onClick={() => onEdit(application)}
-            title="Update Status"
+            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            <Edit className="h-4 w-4" />
-          </Button>
+            Update status
+          </button>
         </div>
       </TableCell>
     </TableRow>

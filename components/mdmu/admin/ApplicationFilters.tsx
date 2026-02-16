@@ -28,46 +28,74 @@ export function ApplicationFilters({
   onFilterChange,
 }: ApplicationFiltersProps) {
   return (
-    <div className="grid md:grid-cols-3 gap-4 mb-6">
-      <Input
-        placeholder="Search by Company Name"
-        value={filters.company}
-        onChange={(e) =>
-          onFilterChange({ ...filters, company: e.target.value })
-        }
-      />
-      <Select
-        value={filters.category}
-        onValueChange={(value) =>
-          onFilterChange({ ...filters, category: value })
-        }
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Select Category" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value={ALL_OPTION}>All Categories</SelectItem>
-          {uniqueCategories.map((category) => (
-            <SelectItem key={category} value={category}>
-              {category}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select
-        value={filters.status}
-        onValueChange={(value) => onFilterChange({ ...filters, status: value })}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Select Status" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value={ALL_OPTION}>All Status</SelectItem>
-          <SelectItem value="Pending">Pending</SelectItem>
-          <SelectItem value="Approved">Approved</SelectItem>
-          <SelectItem value="Rejected">Rejected</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="grid gap-4 md:grid-cols-3">
+      <div>
+        <label
+          htmlFor="filter-company"
+          className="mb-1.5 block text-xs font-medium text-slate-500"
+        >
+          Company
+        </label>
+        <Input
+          id="filter-company"
+          placeholder="Search by company name"
+          value={filters.company}
+          onChange={(e) =>
+            onFilterChange({ ...filters, company: e.target.value })
+          }
+          className="border-slate-200"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor="filter-category"
+          className="mb-1.5 block text-xs font-medium text-slate-500"
+        >
+          Category
+        </label>
+        <Select
+          value={filters.category}
+          onValueChange={(value) =>
+            onFilterChange({ ...filters, category: value })
+          }
+        >
+          <SelectTrigger id="filter-category" className="border-slate-200">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_OPTION}>All categories</SelectItem>
+            {uniqueCategories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <label
+          htmlFor="filter-status"
+          className="mb-1.5 block text-xs font-medium text-slate-500"
+        >
+          Status
+        </label>
+        <Select
+          value={filters.status}
+          onValueChange={(value) =>
+            onFilterChange({ ...filters, status: value })
+          }
+        >
+          <SelectTrigger id="filter-status" className="border-slate-200">
+            <SelectValue placeholder="All status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_OPTION}>All status</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Approved">Approved</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
