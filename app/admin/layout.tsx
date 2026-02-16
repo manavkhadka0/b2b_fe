@@ -3,93 +3,73 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import { AdminAuthProvider, useAdminAuth } from "@/contexts/AdminAuthContext";
 
-function AdminHeaderNav() {
+const SIDEBAR_LINKS = [
+  { href: "/admin/events", label: "Events" },
+  { href: "/admin/experience-zone", label: "Experience Zone" },
+  { href: "/admin/wishes-offers", label: "Wishes & Offers" },
+  { href: "/admin/services", label: "Services" },
+  { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/subcategories", label: "Subcategories" },
+] as const;
+
+function AdminSidebar() {
   const pathname = usePathname();
 
-  const linkBaseClasses =
-    "text-sm font-medium px-3 py-1.5 rounded-md transition-colors";
-
   return (
-    <nav className="flex items-center gap-2 flex-wrap">
-      <Link
-        href="/admin/events"
-        className={`${linkBaseClasses} ${
-          pathname?.startsWith("/admin/events")
-            ? "bg-sky-100 text-sky-700"
-            : "text-slate-600 hover:bg-slate-100"
-        }`}
-      >
-        Events
-      </Link>
-      <Link
-        href="/admin/wishes-offers"
-        className={`${linkBaseClasses} ${
-          pathname?.startsWith("/admin/wishes-offers")
-            ? "bg-sky-100 text-sky-700"
-            : "text-slate-600 hover:bg-slate-100"
-        }`}
-      >
-        Wishes &amp; Offers
-      </Link>
-      <Link
-        href="/admin/services"
-        className={`${linkBaseClasses} ${
-          pathname?.startsWith("/admin/services")
-            ? "bg-sky-100 text-sky-700"
-            : "text-slate-600 hover:bg-slate-100"
-        }`}
-      >
-        Services
-      </Link>
-      <Link
-        href="/admin/categories"
-        className={`${linkBaseClasses} ${
-          pathname?.startsWith("/admin/categories")
-            ? "bg-sky-100 text-sky-700"
-            : "text-slate-600 hover:bg-slate-100"
-        }`}
-      >
-        Categories
-      </Link>
-      <Link
-        href="/admin/subcategories"
-        className={`${linkBaseClasses} ${
-          pathname?.startsWith("/admin/subcategories")
-            ? "bg-sky-100 text-sky-700"
-            : "text-slate-600 hover:bg-slate-100"
-        }`}
-      >
-        Subcategories
-      </Link>
-    </nav>
+    <aside className="fixed left-0 top-0 z-10 flex h-full w-56 flex-col border-r border-slate-200 bg-white">
+      <div className="flex flex-col gap-0.5 p-3 pt-6">
+        {SIDEBAR_LINKS.map(({ href, label }) => {
+          const isActive = pathname?.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-sky-100 text-sky-700"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              {label}
+            </Link>
+          );
+        })}
+      </div>
+    </aside>
   );
 }
 
 function AdminLayoutContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { logout } = useAdminAuth();
   const isLoginPage = pathname === "/admin";
+
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {!isLoginPage && (
-        <header className="border-b bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-semibold text-slate-900">
-                Admin Panel
-              </h1>
-              <p className="text-xs text-slate-500">
-                Internal tools for managing events, wishes, offers, categories
-                &amp; subcategories
-              </p>
-            </div>
-            <AdminHeaderNav />
-          </div>
+      <AdminSidebar />
+      <div className="pl-56">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+          <h1 className="text-base font-semibold text-slate-900">Admin Panel</h1>
+          <button
+            type="button"
+            onClick={logout}
+            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Logout
+          </button>
         </header>
-      )}
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+        <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      </div>
     </div>
   );
 }

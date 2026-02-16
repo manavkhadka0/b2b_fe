@@ -90,12 +90,79 @@ export type ExperienceZoneBookingListResponse = {
   results: ExperienceZoneBooking[];
 };
 
-export async function fetchExperienceZoneBookings(): Promise<ExperienceZoneBookingListResponse> {
-  const res = await fetch(`${API_BASE}/api/bookings/`, { cache: "no-store" });
+export type FetchExperienceZoneBookingsOptions = {
+  /** Filter by month (1–12). Used by admin only. */
+  month?: number;
+};
+
+export async function fetchExperienceZoneBookings(
+  options?: FetchExperienceZoneBookingsOptions,
+): Promise<ExperienceZoneBookingListResponse> {
+  const params = new URLSearchParams();
+  if (options?.month != null && options.month >= 1 && options.month <= 12) {
+    params.set("month", String(options.month));
+  }
+  const query = params.toString();
+  const url = query ? `${API_BASE}/api/bookings/?${query}` : `${API_BASE}/api/bookings/`;
+  const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) {
     throw new Error("Failed to fetch bookings");
   }
 
   return res.json();
+}
+
+export async function getExperienceZoneBooking(
+  id: number,
+): Promise<ExperienceZoneBooking> {
+  const res = await fetch(`${API_BASE}/api/bookings/${id}/`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || err.message || "Failed to fetch booking");
+  }
+
+  return res.json();
+}
+
+export type ExperienceZoneBookingUpdatePayload = Partial<ExperienceZoneBookingPayload> & {
+  status?: string;
+};
+
+export async function updateExperienceZoneBooking(
+  id: number,
+  payload: ExperienceZoneBookingUpdatePayload,
+): Promise<ExperienceZoneBooking> {
+  const res = await fetch(`${API_BASE}/api/bookings/${id}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      err.detail || err.message || "Failed to update booking",
+    );
+  }
+
+  return res.json();
+}
+
+export async function deleteExperienceZoneBooking(
+  id: number,
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/bookings/${id}/`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      err.detail || err.message || "Failed to delete booking",
+    );
+  }
 }

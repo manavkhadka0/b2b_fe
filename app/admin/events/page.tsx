@@ -29,7 +29,7 @@ import { Label } from "@/components/ui/label";
 import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
 
 export default function AdminEventsPage() {
-  const { isAuthenticated, isChecking, logout } = useAdminAuth();
+  const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -153,20 +153,12 @@ export default function AdminEventsPage() {
             View, edit, create, and delete events.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push("/admin/events/create")}
-            className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800"
-          >
-            Create event
-          </button>
-          <button
-            onClick={logout}
-            className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          onClick={() => router.push("/admin/events/create")}
+          className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800"
+        >
+          Create event
+        </button>
       </div>
 
       {rowError && (

@@ -119,7 +119,7 @@ function ThankYouSection({ message }: SuccessPayload) {
 export function ExperienceZoneBookingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successPayload, setSuccessPayload] = useState<SuccessPayload | null>(
-    null
+    null,
   );
 
   const STEPS = [
@@ -143,7 +143,9 @@ export function ExperienceZoneBookingForm() {
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const [categorySearchOpen, setCategorySearchOpen] = useState(false);
   const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
   const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(false);
@@ -215,7 +217,7 @@ export function ExperienceZoneBookingForm() {
   }, [productSearchValue, searchProducts, form.watch("subcategory")]);
 
   const getFieldsForStep = (
-    step: number
+    step: number,
   ): (keyof ExperienceZoneBookingFormValues)[] => {
     switch (step) {
       case 1:
@@ -235,7 +237,13 @@ export function ExperienceZoneBookingForm() {
           "ward",
         ];
       case 4:
-        return ["contact_person", "designation", "email", "phone", "preferred_month"];
+        return [
+          "contact_person",
+          "designation",
+          "email",
+          "phone",
+          "preferred_month",
+        ];
       default:
         return [
           "title",
@@ -284,13 +292,13 @@ export function ExperienceZoneBookingForm() {
       const occupancyList = await fetchOccupancy();
       const monthLabel = formatPreferredMonthForOccupancy(data.preferred_month);
       const monthOccupancy = occupancyList.find(
-        (item) => item.month.toLowerCase() === monthLabel.toLowerCase()
+        (item) => item.month.toLowerCase() === monthLabel.toLowerCase(),
       );
 
       if (monthOccupancy) {
         if (monthOccupancy.is_full || monthOccupancy.remaining_seats <= 0) {
           toast.error(
-            `${monthLabel} is full. No available seats. Please select another month.`
+            `${monthLabel} is full. No available seats. Please select another month.`,
           );
           setIsSubmitting(false);
           return;
@@ -298,7 +306,13 @@ export function ExperienceZoneBookingForm() {
       }
 
       const buildAddress = () => {
-        if (data.country === "Nepal" && data.province && data.district && data.municipality && data.ward) {
+        if (
+          data.country === "Nepal" &&
+          data.province &&
+          data.district &&
+          data.municipality &&
+          data.ward
+        ) {
           return `${data.address}, Ward ${data.ward}, ${data.municipality}, ${data.district}, ${data.province}, Nepal`;
         }
         return data.address;
@@ -324,7 +338,7 @@ export function ExperienceZoneBookingForm() {
           product: data.product ? parseInt(data.product, 10) : null,
           type: data.type,
         },
-        token
+        token,
       );
 
       const message = "Your booking request has been submitted successfully.";
@@ -470,9 +484,7 @@ export function ExperienceZoneBookingForm() {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   if (successPayload) {
-    return (
-      <ThankYouSection message={successPayload.message} />
-    );
+    return <ThankYouSection message={successPayload.message} />;
   }
 
   const renderStep = () => {
