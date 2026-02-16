@@ -35,11 +35,12 @@ import {
   CompanyLogo,
   CompanyLogoResponse,
 } from "@/components/mdmu/mdmu/components/types";
-import LogoForm from "./logo-form";
-import { toast } from "sonner";
-import { useMDMUAdminAuth } from "@/contexts/MDMUAdminAuthContext";
 
-const API_URL = "https://cim.baliyoventures.com/api/mdmu/company-logo/";
+import { toast } from "sonner";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import LogoForm from "./logo-form";
+
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/mdmu/company-logo/`;
 
 const fetcher = async (url: string) => {
   const response = await fetch(url);
@@ -50,8 +51,8 @@ const fetcher = async (url: string) => {
   return data.results || [];
 };
 
-export default function AdminLogosPage() {
-  const { isAuthenticated, isChecking } = useMDMUAdminAuth();
+export default function AdminMDMULogosPage() {
+  const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingLogo, setEditingLogo] = useState<CompanyLogo | null>(null);
@@ -61,7 +62,7 @@ export default function AdminLogosPage() {
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
-      router.push("/mdmu/admin/login");
+      router.push("/admin");
     }
   }, [isAuthenticated, isChecking, router]);
 
@@ -144,7 +145,6 @@ export default function AdminLogosPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Company Logos</h1>
@@ -158,7 +158,6 @@ export default function AdminLogosPage() {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="bg-white rounded-lg shadow-sm p-4">
         <Input
           placeholder="Search logos by name..."
@@ -168,7 +167,6 @@ export default function AdminLogosPage() {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {filteredLogos.length === 0 ? (
           <div className="text-center py-12">
@@ -241,7 +239,6 @@ export default function AdminLogosPage() {
         )}
       </div>
 
-      {/* Create/Edit Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -265,7 +262,6 @@ export default function AdminLogosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={!!deleteLogo}
         onOpenChange={(open) => !open && setDeleteLogo(null)}

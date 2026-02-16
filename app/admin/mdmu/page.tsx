@@ -10,7 +10,7 @@ import {
   ALL_OPTION,
   API_BASE_URL,
 } from "@/components/mdmu/admin/constants";
-import { useMDMUAdminAuth } from "@/contexts/MDMUAdminAuthContext";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { LoadingState } from "@/components/mdmu/admin/LoadingState";
 import { ErrorState } from "@/components/mdmu/admin/ErrorState";
 import { EmptyState } from "@/components/mdmu/admin/EmptyState";
@@ -19,8 +19,8 @@ import { ApplicationsTable } from "@/components/mdmu/admin/ApplicationsTable";
 import { ViewApplicationDialog } from "@/components/mdmu/admin/ViewApplicationDialog";
 import { StatusUpdateDialog } from "@/components/mdmu/admin/StatusUpdateDialog";
 
-export default function AdminPage() {
-  const { isAuthenticated, isChecking } = useMDMUAdminAuth();
+export default function AdminMDMUApplicationsPage() {
+  const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [selectedApplication, setSelectedApplication] =
     useState<MDMUResponse | null>(null);
@@ -36,7 +36,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
-      router.push("/mdmu/admin/login");
+      router.push("/admin");
     }
   }, [isAuthenticated, isChecking, router]);
 
@@ -50,7 +50,6 @@ export default function AdminPage() {
     errorRetryCount: 2,
   });
 
-  // Memoize unique categories
   const uniqueCategories = useMemo(() => {
     if (!Array.isArray(applications)) return [];
     return Array.from(
@@ -64,7 +63,6 @@ export default function AdminPage() {
     );
   }, [applications]);
 
-  // Memoize filtered applications
   const filteredApplications = useMemo(() => {
     if (!Array.isArray(applications)) return [];
 
@@ -91,7 +89,7 @@ export default function AdminPage() {
       return companyMatch && categoryMatch && statusMatch;
     });
   }, [applications, filters]);
-  // Memoize handlers
+
   const handleStatusUpdate = useCallback(
     async (status: "Pending" | "Approved" | "Rejected") => {
       if (!selectedApplication) return;
@@ -120,30 +118,14 @@ export default function AdminPage() {
     window.open(fileUrl, "_blank");
   }, []);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Raw applications data:", applications);
-    console.log("Applications type:", typeof applications);
-    console.log("Is Array:", Array.isArray(applications));
-
-    if (Array.isArray(applications)) {
-      console.log("Applications length:", applications.length);
-      if (applications.length > 0) {
-        console.log("First application:", applications[0]);
-      }
-    }
-  }, [applications]);
-
   if (!isAuthenticated && !isChecking) {
     return null;
   }
 
-  // Render loading state
   if (isLoading) {
     return <LoadingState />;
   }
 
-  // Render error state
   if (error) {
     return <ErrorState message={error.message} />;
   }

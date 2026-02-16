@@ -46,7 +46,6 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
     },
   });
 
-  // Set preview when editing or when file is selected
   useEffect(() => {
     if (logo?.logo && !selectedFile) {
       setPreviewUrl(logo.logo);
@@ -62,12 +61,10 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         toast.error("Please select an image file");
         return;
       }
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("File size must be less than 5MB");
         return;
@@ -93,7 +90,6 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
       const formData = new FormData();
       formData.append("name", data.name);
 
-      // For create, logo file is required
       if (!logo && !selectedFile) {
         form.setError("logo", {
           type: "manual",
@@ -103,20 +99,17 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
         return;
       }
 
-      // Append logo file if selected (for both create and edit)
       if (selectedFile) {
         formData.append("logo", selectedFile);
       }
 
       let response: Response;
       if (logo) {
-        // Update existing logo - try PATCH first, fallback to PUT
         response = await fetch(`${API_URL}${logo.slug}/`, {
           method: "PATCH",
           body: formData,
         });
 
-        // If PATCH fails, try PUT
         if (!response.ok && response.status === 405) {
           response = await fetch(`${API_URL}${logo.slug}/`, {
             method: "PUT",
@@ -124,7 +117,6 @@ export default function LogoForm({ logo, onSuccess, onCancel }: LogoFormProps) {
           });
         }
       } else {
-        // Create new logo
         response = await fetch(API_URL, {
           method: "POST",
           body: formData,
