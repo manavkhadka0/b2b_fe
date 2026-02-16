@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Mail, Lock, User, Phone, MapPin } from "lucide-react";
+import { Mail, Lock, User, Phone, MapPin, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import type { LoginCredentials, SignupData, UserType } from "@/types/auth";
@@ -65,6 +65,8 @@ export function AuthDialog({
   const pathname = usePathname();
   const { login, signup } = useAuth();
   const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
   const [isSubmittingRegister, setIsSubmittingRegister] = useState(false);
 
@@ -185,9 +187,7 @@ export function AuthDialog({
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Welcome Back
           </h2>
-          <p className="text-lg text-gray-600">
-            Sign in to your B2B account
-          </p>
+          <p className="text-lg text-gray-600">Sign in to your B2B account</p>
         </div>
 
         <Form {...loginForm}>
@@ -229,13 +229,29 @@ export function AuthDialog({
                     </FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
                         <Input
-                          type="password"
-                          className="pl-10 h-12 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all"
+                          type={showLoginPassword ? "text" : "password"}
+                          className="pl-10 pr-10 h-12 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all"
                           placeholder="Enter your password"
                           {...field}
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-500 transition-colors focus:outline-none"
+                          aria-label={
+                            showLoginPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showLoginPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -392,13 +408,31 @@ export function AuthDialog({
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors pointer-events-none" />
                         <Input
-                          type="password"
-                          className="pl-10 h-10 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
+                          type={showRegisterPassword ? "text" : "password"}
+                          className="pl-10 pr-10 h-10 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                           placeholder="At least 8 characters"
                           {...field}
                         />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowRegisterPassword((prev) => !prev)
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-500 transition-colors focus:outline-none"
+                          aria-label={
+                            showRegisterPassword
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {showRegisterPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </FormControl>
                     <FormMessage />
