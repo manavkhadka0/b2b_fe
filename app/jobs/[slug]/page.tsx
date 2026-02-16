@@ -185,9 +185,9 @@ export default function JobDetailPage() {
   const salaryStr =
     job?.show_salary && job?.salary_range_min && job?.salary_range_max
       ? `NRs. ${parseFloat(
-          job.salary_range_min
+          job.salary_range_min,
         ).toLocaleString()} - ${parseFloat(
-          job.salary_range_max
+          job.salary_range_max,
         ).toLocaleString()}`
       : null;
 
@@ -200,8 +200,8 @@ export default function JobDetailPage() {
         job.unit_group.title,
       ].filter(Boolean)
     : job?.unit_group?.title
-    ? [job.unit_group.title]
-    : [];
+      ? [job.unit_group.title]
+      : [];
 
   if (isLoading) {
     return (
@@ -345,12 +345,12 @@ export default function JobDetailPage() {
                   {job.applications_count !== 1 ? "s" : ""}
                 </span>
               )}
-              {job.views_count != null && (
+              {/* {job.views_count != null && (
                 <span className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4 text-slate-400" />
                   {job.views_count} view{job.views_count !== 1 ? "s" : ""}
                 </span>
-              )}
+              )} */}
             </div>
 
             {!job.has_already_applied && (
@@ -482,7 +482,7 @@ export default function JobDetailPage() {
           jobTitle={job.title}
           onSuccess={() => {
             setJob((prev) =>
-              prev ? { ...prev, has_already_applied: true } : prev
+              prev ? { ...prev, has_already_applied: true } : prev,
             );
           }}
         />
