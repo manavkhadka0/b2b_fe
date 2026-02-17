@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import {
@@ -9,9 +9,10 @@ import {
   deleteWish,
   deleteOffer,
 } from "@/services/wishOffer";
-import type { Wish, Offer } from "@/types/wish";
+import type { Wish, Offer, ItemWithSource } from "@/types/wish";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
+import { ItemDetailDialog } from "@/app/wishOffer/components/ItemDetailDialog";
 
 export default function AdminWishesOffersPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -43,6 +44,8 @@ export default function AdminWishesOffersPage() {
     title: string;
   } | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
+  const hasInitialLoad = useRef(false);
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -50,52 +53,110 @@ export default function AdminWishesOffersPage() {
     }
   }, [isAuthenticated, isChecking, router]);
 
+  // Fetch both counts and initial data on mount so tabs show numbers immediately
   useEffect(() => {
     if (!isAuthenticated) return;
-    const fetchWishes = async () => {
+    let cancelled = false;
+    const loadInitial = async () => {
       setIsLoadingWishes(true);
-      try {
-        const data = await getWishesPaginated(wishesPage);
-        setWishes(data.results || []);
-        setWishesCount(data.count ?? 0);
-        setWishesHasNext(!!data.next);
-        setWishesHasPrevious(!!data.previous);
-        if (
-          (data.results?.length ?? 0) > 0 &&
-          (data.next || wishesPage === 1)
-        ) {
-          setWishesPageSize(data.results!.length);
-        }
-      } catch (error) {
-        console.error("Failed to fetch wishes:", error);
-        setWishes([]);
-      } finally {
-        setIsLoadingWishes(false);
-      }
-    };
-    const fetchOffers = async () => {
       setIsLoadingOffers(true);
       try {
-        const data = await getOffersPaginated(offersPage);
-        setOffers(data.results || []);
-        setOffersCount(data.count ?? 0);
-        setOffersHasNext(!!data.next);
-        setOffersHasPrevious(!!data.previous);
+        const [wishesData, offersData] = await Promise.all([
+          getWishesPaginated(1),
+          getOffersPaginated(1),
+        ]);
+        if (cancelled) return;
+        setWishesCount(wishesData.count ?? 0);
+        setOffersCount(offersData.count ?? 0);
+        setWishes(wishesData.results || []);
+        setOffers(offersData.results || []);
+        setWishesHasNext(!!wishesData.next);
+        setWishesHasPrevious(!!wishesData.previous);
+        setOffersHasNext(!!offersData.next);
+        setOffersHasPrevious(!!offersData.previous);
         if (
-          (data.results?.length ?? 0) > 0 &&
-          (data.next || offersPage === 1)
+          (wishesData.results?.length ?? 0) > 0 &&
+          (wishesData.next || wishesPage === 1)
         ) {
-          setOffersPageSize(data.results!.length);
+          setWishesPageSize(wishesData.results!.length);
+        }
+        if (
+          (offersData.results?.length ?? 0) > 0 &&
+          (offersData.next || offersPage === 1)
+        ) {
+          setOffersPageSize(offersData.results!.length);
         }
       } catch (error) {
-        console.error("Failed to fetch offers:", error);
-        setOffers([]);
+        if (!cancelled) {
+          console.error("Failed to fetch wishes/offers:", error);
+          setWishes([]);
+          setOffers([]);
+        }
       } finally {
-        setIsLoadingOffers(false);
+        if (!cancelled) {
+          setIsLoadingWishes(false);
+          setIsLoadingOffers(false);
+          hasInitialLoad.current = true;
+        }
       }
     };
-    if (activeTab === "wishes") fetchWishes();
-    else fetchOffers();
+    loadInitial();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  // Fetch when pagination or tab changes (after initial load)
+  useEffect(() => {
+    if (!isAuthenticated || !hasInitialLoad.current) return;
+
+    if (activeTab === "wishes") {
+      const fetchWishes = async () => {
+        setIsLoadingWishes(true);
+        try {
+          const data = await getWishesPaginated(wishesPage);
+          setWishes(data.results || []);
+          setWishesCount(data.count ?? 0);
+          setWishesHasNext(!!data.next);
+          setWishesHasPrevious(!!data.previous);
+          if (
+            (data.results?.length ?? 0) > 0 &&
+            (data.next || wishesPage === 1)
+          ) {
+            setWishesPageSize(data.results!.length);
+          }
+        } catch (error) {
+          console.error("Failed to fetch wishes:", error);
+          setWishes([]);
+        } finally {
+          setIsLoadingWishes(false);
+        }
+      };
+      fetchWishes();
+    } else if (activeTab === "offers") {
+      const fetchOffers = async () => {
+        setIsLoadingOffers(true);
+        try {
+          const data = await getOffersPaginated(offersPage);
+          setOffers(data.results || []);
+          setOffersCount(data.count ?? 0);
+          setOffersHasNext(!!data.next);
+          setOffersHasPrevious(!!data.previous);
+          if (
+            (data.results?.length ?? 0) > 0 &&
+            (data.next || offersPage === 1)
+          ) {
+            setOffersPageSize(data.results!.length);
+          }
+        } catch (error) {
+          console.error("Failed to fetch offers:", error);
+          setOffers([]);
+        } finally {
+          setIsLoadingOffers(false);
+        }
+      };
+      fetchOffers();
+    }
   }, [isAuthenticated, activeTab, wishesPage, offersPage]);
 
   if (!isAuthenticated && !isChecking) {
@@ -287,15 +348,28 @@ export default function AdminWishesOffersPage() {
                       {new Date(wish.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-sm text-right">
-                      <button
-                        onClick={() =>
-                          openConfirmDialog("wish", wish.id, wish.title)
-                        }
-                        disabled={deletingWishId === wish.id}
-                        className="inline-flex items-center rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {deletingWishId === wish.id ? "Deleting..." : "Delete"}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedItem({
+                              ...wish,
+                              _source: "wish" as const,
+                            })
+                          }
+                          className="inline-flex items-center rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() =>
+                            openConfirmDialog("wish", wish.id, wish.title)
+                          }
+                          disabled={deletingWishId === wish.id}
+                          className="inline-flex items-center rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {deletingWishId === wish.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -407,17 +481,30 @@ export default function AdminWishesOffersPage() {
                       {new Date(offer.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-sm text-right">
-                      <button
-                        onClick={() =>
-                          openConfirmDialog("offer", offer.id, offer.title)
-                        }
-                        disabled={deletingOfferId === offer.id}
-                        className="inline-flex items-center rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {deletingOfferId === offer.id
-                          ? "Deleting..."
-                          : "Delete"}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedItem({
+                              ...offer,
+                              _source: "offer" as const,
+                            })
+                          }
+                          className="inline-flex items-center rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() =>
+                            openConfirmDialog("offer", offer.id, offer.title)
+                          }
+                          disabled={deletingOfferId === offer.id}
+                          className="inline-flex items-center rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {deletingOfferId === offer.id
+                            ? "Deleting..."
+                            : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -438,6 +525,13 @@ export default function AdminWishesOffersPage() {
           onPageChange={setOffersPage}
           entityLabel="offers"
           isLoading={isLoadingOffers}
+        />
+      )}
+
+      {selectedItem && (
+        <ItemDetailDialog
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
         />
       )}
 

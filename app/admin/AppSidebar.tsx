@@ -103,7 +103,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Jobbrize</SidebarGroupLabel>
+          <SidebarGroupLabel>Jobbriz</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {SIDEBAR_JOBBRIZE_LINKS.map(({ href, label }) => {
