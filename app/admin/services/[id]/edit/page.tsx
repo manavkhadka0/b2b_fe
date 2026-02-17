@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import {
   getServiceById,
@@ -147,6 +148,14 @@ export default function EditServicePage() {
 
   return (
     <div className="space-y-6">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 -ml-2"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back
+      </button>
       <div>
         <h2 className="text-xl font-semibold text-slate-900">Edit Service</h2>
         <p className="text-sm text-slate-500">Update service information.</p>

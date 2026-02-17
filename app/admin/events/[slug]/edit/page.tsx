@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { getEventBySlug } from "@/services/events";
 import { Event } from "@/types/events";
@@ -52,7 +53,15 @@ export default function AdminEditEventPage({
 
   if (loading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-6">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 -ml-2"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </button>
         <p className="text-sm text-slate-500">Loading event...</p>
       </div>
     );
@@ -60,9 +69,19 @@ export default function AdminEditEventPage({
 
   if (error || !event) {
     return (
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-slate-900">Edit event</h2>
-        <p className="text-sm text-rose-600">{error ?? "Event not found."}</p>
+      <div className="space-y-6">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 -ml-2"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </button>
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-slate-900">Edit event</h2>
+          <p className="text-sm text-rose-600">{error ?? "Event not found."}</p>
+        </div>
       </div>
     );
   }
