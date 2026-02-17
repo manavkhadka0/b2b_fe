@@ -22,6 +22,7 @@ const SIDEBAR_LINKS = [
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/subcategories", label: "Subcategories" },
   { href: "/admin/services", label: "Services" },
+  { href: "/admin/contacts", label: "Contacts" },
 ] as const;
 
 const SIDEBAR_JOBBRIZE_LINKS = [
