@@ -7,7 +7,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { getApprenticeshipApplicationById } from "@/services/apprenticeship";
 import type { ApprenticeshipApplication } from "@/types/apprenticeship";
 import { format } from "date-fns";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export default function ApprenticeshipDetailPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -64,7 +64,7 @@ export default function ApprenticeshipDetailPage() {
           href="/admin/apprenticeships"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" />
           Back to applications
         </Link>
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -110,14 +110,15 @@ export default function ApprenticeshipDetailPage() {
             href="/admin/apprenticeships"
             className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
             Back to applications
           </Link>
           <h1 className="text-xl font-semibold text-slate-900">
             {application.full_name}
           </h1>
           <p className="text-sm text-slate-500">
-            Applied {format(new Date(application.created_at), "MMM d, yyyy 'at' HH:mm")}
+            Applied{" "}
+            {format(new Date(application.created_at), "MMM d, yyyy 'at' HH:mm")}
           </p>
         </div>
       </div>
@@ -146,7 +147,10 @@ export default function ApprenticeshipDetailPage() {
         </InfoSection>
 
         <InfoSection title="Education">
-          <InfoRow label="Education level" value={application.education_level} />
+          <InfoRow
+            label="Education level"
+            value={application.education_level}
+          />
           <InfoRow label="School name" value={application.school_name} />
           <InfoRow
             label="Year of SEE completion"
@@ -222,11 +226,11 @@ export default function ApprenticeshipDetailPage() {
                   </ul>
                 </div>
               )}
-              {!application.citizenship &&
-                (!application.uploaded_documents ||
-                  application.uploaded_documents.length === 0) && (
-                  <p className="text-sm text-slate-500">No documents uploaded.</p>
-                )}
+            {!application.citizenship &&
+              (!application.uploaded_documents ||
+                application.uploaded_documents.length === 0) && (
+                <p className="text-sm text-slate-500">No documents uploaded.</p>
+              )}
           </div>
         </section>
       </div>

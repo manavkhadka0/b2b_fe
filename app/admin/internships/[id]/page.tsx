@@ -8,12 +8,9 @@ import {
   getInternshipRegistrationById,
   getIndustries,
 } from "@/services/internship";
-import type {
-  InternshipRegistration,
-  Industry,
-} from "@/types/internship";
+import type { InternshipRegistration, Industry } from "@/types/internship";
 import { format } from "date-fns";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export default function InternshipDetailPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
@@ -80,7 +77,7 @@ export default function InternshipDetailPage() {
           href="/admin/internships"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" />
           Back to applications
         </Link>
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -126,7 +123,7 @@ export default function InternshipDetailPage() {
             href="/admin/internships"
             className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
             Back to applications
           </Link>
           <h1 className="text-xl font-semibold text-slate-900">
@@ -158,33 +155,54 @@ export default function InternshipDetailPage() {
         <InfoSection title="Permanent address">
           <InfoRow label="Province" value={registration.permanent_province} />
           <InfoRow label="District" value={registration.permanent_district} />
-          <InfoRow label="Municipality" value={registration.permanent_municipality} />
+          <InfoRow
+            label="Municipality"
+            value={registration.permanent_municipality}
+          />
           <InfoRow label="Ward" value={registration.permanent_ward} />
         </InfoSection>
 
         <InfoSection title="Current address">
           <InfoRow label="Province" value={registration.current_province} />
           <InfoRow label="District" value={registration.current_district} />
-          <InfoRow label="Municipality" value={registration.current_municipality} />
+          <InfoRow
+            label="Municipality"
+            value={registration.current_municipality}
+          />
           <InfoRow label="Ward" value={registration.current_ward} />
         </InfoSection>
 
         <InfoSection title="Supervisor">
-          <InfoRow label="Supervisor name" value={registration.supervisor_name} />
-          <InfoRow label="Supervisor email" value={registration.supervisor_email} />
-          <InfoRow label="Supervisor phone" value={registration.supervisor_phone} />
+          <InfoRow
+            label="Supervisor name"
+            value={registration.supervisor_name}
+          />
+          <InfoRow
+            label="Supervisor email"
+            value={registration.supervisor_email}
+          />
+          <InfoRow
+            label="Supervisor phone"
+            value={registration.supervisor_phone}
+          />
         </InfoSection>
 
         <InfoSection title="Internship preferences">
           <InfoRow label="Industry" value={industryName} />
-          <InfoRow label="Preferred department" value={registration.preferred_department} />
+          <InfoRow
+            label="Preferred department"
+            value={registration.preferred_department}
+          />
           <InfoRow label="Duration" value={registration.internship_duration} />
           <InfoRow label="Months" value={registration.internship_month} />
           <InfoRow
             label="Preferred start date"
             value={
               registration.preferred_start_date
-                ? format(new Date(registration.preferred_start_date), "MMM d, yyyy")
+                ? format(
+                    new Date(registration.preferred_start_date),
+                    "MMM d, yyyy",
+                  )
                 : null
             }
           />

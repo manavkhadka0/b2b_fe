@@ -9,9 +9,9 @@ const SIDEBAR_LINKS = [
   { href: "/admin/events", label: "Events" },
   { href: "/admin/experience-zone", label: "Experience Zone" },
   { href: "/admin/wishes-offers", label: "Wishes & Offers" },
-  { href: "/admin/services", label: "Services" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/subcategories", label: "Subcategories" },
+  { href: "/admin/services", label: "Services" },
 ] as const;
 
 const SIDEBAR_JOBBRIZE_LINKS = [
@@ -22,7 +22,7 @@ const SIDEBAR_JOBBRIZE_LINKS = [
 
 const SIDEBAR_MDMU_LINKS = [
   { href: "/admin/mdmu", label: "Applications" },
-  { href: "/admin/mdmu/logos", label: "Logos" },
+  { href: "/admin/mdmu/logos", label: "Endorsements" },
 ] as const;
 
 function AdminSidebar() {
@@ -129,7 +129,7 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
             Logout
           </button>
         </header>
-        <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+        <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
       </div>
     </div>
   );

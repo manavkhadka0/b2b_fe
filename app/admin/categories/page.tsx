@@ -113,9 +113,6 @@ export default function AdminCategoriesPage() {
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Type
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Description
-              </th>
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Actions
               </th>
@@ -150,14 +147,6 @@ export default function AdminCategoriesPage() {
                     <span className="inline-block rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
                       {category.type || "-"}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">
-                    <div
-                      className="max-w-md truncate"
-                      title={category.description ?? ""}
-                    >
-                      {category.description || "-"}
-                    </div>
                   </td>
                   <td className="px-4 py-3 text-right text-sm">
                     <div className="inline-flex items-center gap-2">
