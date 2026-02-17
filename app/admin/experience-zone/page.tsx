@@ -132,8 +132,15 @@ export default function AdminExperienceZonePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
-  /** Admin filter: 1–12 for month, or "all" for no filter. */
-  const [filterMonth, setFilterMonth] = useState<string>("all");
+  /** Admin filter: "01"-"12" for month. Defaults to current month. */
+  const [filterMonth, setFilterMonth] = useState<string>(() => {
+    const m = new Date().getMonth() + 1;
+    return m < 10 ? `0${m}` : `${m}`;
+  });
+  /** Admin filter: year. Defaults to current year. */
+  const [filterYear, setFilterYear] = useState<number>(() =>
+    new Date().getFullYear(),
+  );
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -145,12 +152,10 @@ export default function AdminExperienceZonePage() {
     const load = async () => {
       setIsLoading(true);
       try {
-        const monthNum =
-          filterMonth === "all" ? undefined : parseInt(filterMonth, 10);
+        const monthNum = parseInt(filterMonth, 10);
         const data = await fetchExperienceZoneBookings({
-          ...(monthNum != null && monthNum >= 1 && monthNum <= 12
-            ? { month: monthNum }
-            : {}),
+          ...(monthNum >= 1 && monthNum <= 12 ? { month: monthNum } : {}),
+          year: filterYear,
           page,
         });
         setBookings(data.results ?? []);
@@ -171,7 +176,7 @@ export default function AdminExperienceZonePage() {
       }
     };
     if (isAuthenticated) load();
-  }, [isAuthenticated, filterMonth, page]);
+  }, [isAuthenticated, filterMonth, filterYear, page]);
 
   if (!isAuthenticated && !isChecking) {
     return null;
@@ -241,12 +246,16 @@ export default function AdminExperienceZonePage() {
   };
 
   const preferredMonthOptions = useMemo(() => getPreferredMonthOptions(), []);
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
+  }, []);
 
   return (
     <div className="min-w-0 space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
             Experience Zone Bookings
           </h2>
           <p className="text-sm text-slate-500">
@@ -254,32 +263,60 @@ export default function AdminExperienceZonePage() {
             Experience Zone.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Label
-            htmlFor="filter-month"
-            className="text-sm text-slate-600 shrink-0"
-          >
-            Filter by month
-          </Label>
-          <Select
-            value={filterMonth}
-            onValueChange={(v) => {
-              setFilterMonth(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger id="filter-month" className="w-[180px]">
-              <SelectValue placeholder="All months" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All months</SelectItem>
-              {MONTHS.map((m) => (
-                <SelectItem key={m.value} value={m.value}>
-                  {m.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex w-full min-w-0 flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:w-auto sm:flex-row sm:items-center sm:gap-3 sm:p-4">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial">
+            <Label
+              htmlFor="filter-year"
+              className="w-14 shrink-0 text-sm font-medium text-slate-700 sm:w-auto"
+            >
+              Year
+            </Label>
+            <Select
+              value={String(filterYear)}
+              onValueChange={(v) => {
+                setFilterYear(parseInt(v, 10));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger id="filter-year" className="min-w-0 flex-1 sm:w-[100px] sm:flex-initial">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {yearOptions.map((y) => (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="hidden h-4 w-px bg-slate-200 sm:block" aria-hidden />
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial">
+            <Label
+              htmlFor="filter-month"
+              className="w-14 shrink-0 text-sm font-medium text-slate-700 sm:w-auto"
+            >
+              Month
+            </Label>
+            <Select
+              value={filterMonth}
+              onValueChange={(v) => {
+                setFilterMonth(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger id="filter-month" className="min-w-0 flex-1 sm:w-[140px] sm:flex-initial">
+                <SelectValue placeholder="Select month" />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -518,7 +555,7 @@ export default function AdminExperienceZonePage() {
           </DialogHeader>
           <div className="space-y-6 py-2">
             {/* Type & details (same as zone-booking step 1) */}
-            <div className="space-y-3  border-slate-100">
+            <div className="space-y-3 border-slate-100">
               <p className="text-sm font-medium text-slate-700">
                 Type &amp; details
               </p>

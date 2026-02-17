@@ -105,6 +105,8 @@ export type ExperienceZoneBookingListResponse = {
 export type FetchExperienceZoneBookingsOptions = {
   /** Filter by month (1–12). Used by admin only. */
   month?: number;
+  /** Filter by year (e.g. 2026). Used by admin only. */
+  year?: number;
   /** Page number (1-based) for pagination. */
   page?: number;
 };
@@ -115,6 +117,9 @@ export async function fetchExperienceZoneBookings(
   const params = new URLSearchParams();
   if (options?.month != null && options.month >= 1 && options.month <= 12) {
     params.set("month", String(options.month));
+  }
+  if (options?.year != null) {
+    params.set("year", String(options.year));
   }
   if (options?.page != null && options.page > 1) {
     params.set("page", String(options.page));
