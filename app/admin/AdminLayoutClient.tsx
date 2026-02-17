@@ -27,12 +27,9 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="min-w-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-3 sm:px-6">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-[5px] sm:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <SidebarTrigger
-              className="-ml-1"
-              aria-label="Toggle sidebar"
-            />
+            <SidebarTrigger className="-ml-1" aria-label="Toggle sidebar" />
             <h1 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
               Admin Panel
             </h1>

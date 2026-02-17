@@ -29,6 +29,7 @@ const SIDEBAR_JOBBRIZE_LINKS = [
   { href: "/admin/jobs", label: "Jobs" },
   { href: "/admin/apprenticeships", label: "Apprenticeships" },
   { href: "/admin/internships", label: "Internships" },
+  { href: "/admin/industry", label: "Industries" },
 ] as const;
 
 const SIDEBAR_MDMU_LINKS = [
@@ -69,8 +70,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="border-b border-sidebar-border">
+    <Sidebar collapsible="offcanvas" className="border-slate-200">
+      <SidebarHeader className="border-b border-slate-200">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="cursor-default" isActive={false}>
