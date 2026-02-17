@@ -134,9 +134,9 @@ export default function AdminMDMUApplicationsPage() {
   const hasFilters = Object.values(filters).some((f) => f !== "");
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
           MDMU Applications
         </h2>
         <p className="text-sm text-slate-500">
@@ -144,7 +144,7 @@ export default function AdminMDMUApplicationsPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="min-w-0 rounded-xl border bg-white p-4 shadow-sm">
         <ApplicationFilters
           filters={filters}
           uniqueCategories={uniqueCategories}

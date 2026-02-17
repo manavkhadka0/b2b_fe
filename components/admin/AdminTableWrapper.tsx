@@ -17,7 +17,7 @@ export function AdminTableWrapper({
   minWidthClass = "min-w-[600px]",
 }: AdminTableWrapperProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border bg-white shadow-sm [-webkit-overflow-scrolling:touch]">
+    <div className="min-w-0 w-full overflow-x-auto rounded-xl border bg-white shadow-sm [-webkit-overflow-scrolling:touch]">
       <div className={minWidthClass}>{children}</div>
     </div>
   );

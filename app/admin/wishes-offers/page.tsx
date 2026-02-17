@@ -163,9 +163,9 @@ export default function AdminWishesOffersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
           Wishes and Offers Management
         </h2>
         <p className="text-sm text-slate-500">
@@ -174,8 +174,8 @@ export default function AdminWishesOffersPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200">
-        <nav className="-mb-px flex space-x-8">
+      <div className="min-w-0 overflow-x-auto border-b border-slate-200 [-webkit-overflow-scrolling:touch]">
+        <nav className="-mb-px flex min-w-0 gap-4 sm:gap-8">
           <button
             onClick={() => setActiveTab("wishes")}
             className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${
@@ -442,8 +442,8 @@ export default function AdminWishesOffersPage() {
       )}
 
       {confirmOpen && confirmTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm min-w-0 rounded-lg bg-white p-4 shadow-lg sm:p-6">
             <h3 className="text-base font-semibold text-slate-900">
               Are you sure you want to delete?
             </h3>

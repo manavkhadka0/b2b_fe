@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import { Trash2 } from "lucide-react";
 
 export default function AdminInternshipsPage() {
@@ -107,9 +108,9 @@ export default function AdminInternshipsPage() {
   const displayRegistrations = registrations.filter((r) => r.id != null);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
           Internship Applications
         </h2>
         <p className="mt-1 text-sm text-slate-500">
@@ -123,7 +124,7 @@ export default function AdminInternshipsPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <AdminTableWrapper minWidthClass="min-w-[640px]">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
@@ -214,7 +215,7 @@ export default function AdminInternshipsPage() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminTableWrapper>
 
       <AlertDialog
         open={!!deleteTarget}

@@ -104,10 +104,10 @@ export default function AdminSubCategoriesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">
+    <div className="min-w-0 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
             Subcategories Management
           </h2>
           <p className="text-sm text-slate-500">
@@ -116,17 +116,17 @@ export default function AdminSubCategoriesPage() {
         </div>
         <button
           onClick={() => router.push("/admin/subcategories/create")}
-          className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800"
+          className="shrink-0 self-start rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 sm:px-4"
         >
           Create subcategory
         </button>
       </div>
 
       {/* Filter by Category */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="min-w-0 rounded-xl border bg-white p-4 shadow-sm">
         <label
           htmlFor="category-filter"
-          className="block text-sm font-medium text-slate-700 mb-2"
+          className="mb-2 block text-sm font-medium text-slate-700"
         >
           Filter by Category
         </label>
@@ -139,7 +139,7 @@ export default function AdminSubCategoriesPage() {
             );
             setPage(1);
           }}
-          className="w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+          className="w-full min-w-0 max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
         >
           <option value="">All Categories</option>
           {categories.map((category) => (

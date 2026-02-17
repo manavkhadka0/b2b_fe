@@ -63,7 +63,7 @@ export default function CreateCategoryPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <button
         type="button"
         onClick={() => router.back()}
@@ -81,7 +81,7 @@ export default function CreateCategoryPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="min-w-0 rounded-xl border bg-white p-4 shadow-sm sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -149,7 +149,7 @@ export default function CreateCategoryPage() {
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="submit"
               disabled={isSubmitting}

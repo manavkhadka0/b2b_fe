@@ -147,7 +147,7 @@ export default function AdminMDMULogosPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">Endorsements</h2>
@@ -165,7 +165,7 @@ export default function AdminMDMULogosPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="min-w-0 rounded-xl border bg-white p-4 shadow-sm">
         <label
           htmlFor="logo-search"
           className="mb-1.5 block text-xs font-medium text-slate-500"

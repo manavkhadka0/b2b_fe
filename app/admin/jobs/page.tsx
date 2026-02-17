@@ -106,16 +106,14 @@ export default function AdminJobsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">
-            Jobs Management
-          </h2>
-          <p className="text-sm text-slate-500">
-            View, edit, and delete job listings.
-          </p>
-        </div>
+    <div className="min-w-0 space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+          Jobs Management
+        </h2>
+        <p className="text-sm text-slate-500">
+          View, edit, and delete job listings.
+        </p>
       </div>
 
       {error && (

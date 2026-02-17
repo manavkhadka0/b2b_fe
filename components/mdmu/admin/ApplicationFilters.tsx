@@ -28,7 +28,7 @@ export function ApplicationFilters({
   onFilterChange,
 }: ApplicationFiltersProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
       <div>
         <label
           htmlFor="filter-company"

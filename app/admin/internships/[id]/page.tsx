@@ -94,7 +94,7 @@ export default function InternshipDetailPage() {
     title: string;
     children: React.ReactNode;
   }) => (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <h3 className="mb-4 text-base font-semibold text-slate-900">{title}</h3>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
     </section>
@@ -116,7 +116,7 @@ export default function InternshipDetailPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
@@ -210,7 +210,7 @@ export default function InternshipDetailPage() {
         </InfoSection>
 
         {registration.motivational_letter && (
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
             <h3 className="mb-4 text-base font-semibold text-slate-900">
               Motivational letter
             </h3>

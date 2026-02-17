@@ -48,7 +48,7 @@ export function TablePagination({
   const totalPages = Math.ceil(count / pageSize);
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-slate-500">
         Showing{" "}
         <span className="font-medium text-slate-700">
@@ -58,8 +58,8 @@ export function TablePagination({
         {entityLabel}
       </p>
 
-      <Pagination className="mx-0 w-auto">
-        <PaginationContent className="gap-1">
+      <Pagination className="mx-0 w-auto min-w-0">
+        <PaginationContent className="flex flex-wrap gap-1">
           <PaginationItem>
             <button
               type="button"

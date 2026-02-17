@@ -79,10 +79,10 @@ export default function AdminCategoriesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">
+    <div className="min-w-0 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
             Categories Management
           </h2>
           <p className="text-sm text-slate-500">
@@ -91,7 +91,7 @@ export default function AdminCategoriesPage() {
         </div>
         <button
           onClick={() => router.push("/admin/categories/create")}
-          className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800"
+          className="shrink-0 self-start rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 sm:px-4"
         >
           Create category
         </button>
