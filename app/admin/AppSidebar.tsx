@@ -15,14 +15,24 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
 
-const SIDEBAR_LINKS = [
+const SIDEBAR_MAIN_LINKS = [
   { href: "/admin/events", label: "Events" },
+  { href: "/admin/contacts", label: "Contacts" },
+] as const;
+
+const SIDEBAR_EXPERIENCE_ZONE_LINKS = [
   { href: "/admin/experience-zone", label: "Experience Zone" },
+] as const;
+
+const SIDEBAR_CO_WORKING_LINKS = [
+  { href: "/admin/co-working-space", label: "Co-Working Space" },
+] as const;
+
+const SIDEBAR_WISHES_OFFERS_LINKS = [
   { href: "/admin/wishes-offers", label: "Wishes & Offers" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/subcategories", label: "Subcategories" },
   { href: "/admin/services", label: "Services" },
-  { href: "/admin/contacts", label: "Contacts" },
 ] as const;
 
 const SIDEBAR_JOBBRIZE_LINKS = [
@@ -87,7 +97,64 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {SIDEBAR_LINKS.map(({ href, label }) => {
+              {SIDEBAR_MAIN_LINKS.map(({ href, label }) => {
+                const isActive = pathname?.startsWith(href);
+                return (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    isActive={isActive}
+                    onNavigate={closeOnNavigate}
+                  />
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Experience Zone</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SIDEBAR_EXPERIENCE_ZONE_LINKS.map(({ href, label }) => {
+                const isActive = pathname?.startsWith(href);
+                return (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    isActive={isActive}
+                    onNavigate={closeOnNavigate}
+                  />
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Co-Working</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SIDEBAR_CO_WORKING_LINKS.map(({ href, label }) => {
+                const isActive = pathname?.startsWith(href);
+                return (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    label={label}
+                    isActive={isActive}
+                    onNavigate={closeOnNavigate}
+                  />
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Wishes & Offers</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SIDEBAR_WISHES_OFFERS_LINKS.map(({ href, label }) => {
                 const isActive = pathname?.startsWith(href);
                 return (
                   <NavLink

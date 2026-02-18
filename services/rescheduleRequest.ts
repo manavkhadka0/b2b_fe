@@ -1,4 +1,20 @@
+import { api } from "@/lib/api";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
+export type RescheduleRequest = {
+  id: number;
+  booking: number;
+  new_booking_date: string | null;
+  new_start_time: string | null;
+  new_end_time: string | null;
+  new_room_category: string | null;
+  new_booking_type: string | null;
+  reason: string | null;
+  status: "Pending" | "Approved" | "Rejected";
+  created_at?: string;
+  updated_at?: string;
+};
 
 export type RescheduleRequestPayload = {
   booking: number;
@@ -31,4 +47,31 @@ export async function createRescheduleRequest(
   }
 
   return res.json();
+}
+
+export interface RescheduleRequestListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: RescheduleRequest[];
+}
+
+export async function getRescheduleRequests(
+  bookingId: number
+): Promise<RescheduleRequest[]> {
+  const response = await api.get<RescheduleRequestListResponse>(
+    `/api/reschedule-request/?booking=${bookingId}`
+  );
+  return response.data.results ?? [];
+}
+
+export async function updateRescheduleRequest(
+  id: number,
+  payload: { status: "Approved" | "Rejected" }
+): Promise<RescheduleRequest> {
+  const response = await api.patch<RescheduleRequest>(
+    `/api/reschedule-request/${id}/`,
+    payload
+  );
+  return response.data;
 }
