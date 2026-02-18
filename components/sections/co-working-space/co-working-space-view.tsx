@@ -11,8 +11,7 @@ const ROOMS = [
     letter: "A",
     name: "The Big Brain Room",
     capacity: "Up to 15 persons",
-    bestFor:
-      "Idea pitch, masterclass sessions, staff meetings, presentations",
+    bestFor: "Idea pitch, masterclass sessions, staff meetings, presentations",
     facilities: [
       "Round table with comfortable chairs",
       "Air conditioning",
@@ -215,15 +214,27 @@ export default function CoWorkingSpaceView() {
                     className="border-blue-800 text-blue-800 hover:bg-blue-50 w-fit mt-auto shrink-0 self-center"
                     asChild
                   >
-                    <Link
-                      href={`/co-working-space/booking?room=${room.id}`}
-                    >
+                    <Link href={`/co-working-space/booking?room=${room.id}`}>
                       Book Now
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+
+        {/* media video section */}
+        <div className="space-y-6">
+          <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-gray-900 aspect-video">
+            <iframe
+              className="w-full h-full rounded-lg"
+              src="https://www.youtube.com/embed/Av2kZV5AL4k?autoplay=1&mute=1&loop=1&playlist=Av2kZV5AL4k&si=RnpVfJ_EOFeKk2NF"
+              title="Biratnagar Incubation Center - Co-Working Space"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
           </div>
         </div>
 
