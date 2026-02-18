@@ -46,8 +46,8 @@ const FEATURES = [
 
 export function CimZoneSection() {
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white">
-      <ResponsiveContainer className="py-16 lg:py-24">
+    <div className="">
+      <ResponsiveContainer className="py-8">
         <div className="max-w-6xl mx-auto space-y-12">
           {/* Header Section */}
           <div className="text-center space-y-4">

@@ -38,20 +38,34 @@ export default function WishOfferSection() {
       <>
         {/* Desktop: Image Grid Section at Top */}
         <div className="hidden md:flex justify-between items-center gap-4 mb-6 lg:mb-8 xl:mb-10">
-          <Image
-            src="/wishes1.svg"
-            alt="Wisher"
-            width={136}
-            height={108}
-            className="w-auto h-28 md:h-32 lg:h-[200px]"
-          />
-          <Image
-            src="/offers1.svg"
-            alt="Offers"
-            width={454}
-            height={316}
-            className="w-auto h-28 md:h-32 lg:h-[200px]"
-          />
+          <button
+            type="button"
+            onClick={() => router.push("/wishOffer?type=WISH")}
+            className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
+            aria-label="View wishes"
+          >
+            <Image
+              src="/wishes1.svg"
+              alt="Wisher"
+              width={136}
+              height={108}
+              className="w-auto h-28 md:h-32 lg:h-[200px]"
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/wishOffer?type=OFFER")}
+            className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
+            aria-label="View offers"
+          >
+            <Image
+              src="/offers1.svg"
+              alt="Offers"
+              width={454}
+              height={316}
+              className="w-auto h-28 md:h-32 lg:h-[200px]"
+            />
+          </button>
         </div>
 
         {/* Mobile Layout: Stacked with Images on Top of Each Section */}
@@ -60,7 +74,12 @@ export default function WishOfferSection() {
           {wishes.length > 0 && (
             <div className="bg-white rounded-lg">
               {/* Wishes SVG at Top */}
-              <div className="flex justify-center mb-3 sm:mb-4">
+              <button
+                type="button"
+                onClick={() => router.push("/wishOffer?type=WISH")}
+                className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+                aria-label="View wishes"
+              >
                 <Image
                   src="/wishes1.svg"
                   alt="Wisher"
@@ -68,7 +87,7 @@ export default function WishOfferSection() {
                   height={108}
                   className="w-auto h-16 sm:h-20 max-w-[35%] sm:max-w-[40%]"
                 />
-              </div>
+              </button>
               <div className="grid grid-cols-1 gap-y-3 sm:gap-y-4 md:gap-y-6 px-1 sm:px-0">
                 {wishes.map((wish) => (
                   <WishOfferCard
@@ -94,7 +113,12 @@ export default function WishOfferSection() {
           {offers.length > 0 && (
             <div className="bg-white rounded-lg">
               {/* Offers SVG at Top */}
-              <div className="flex justify-center mb-3 sm:mb-4">
+              <button
+                type="button"
+                onClick={() => router.push("/wishOffer?type=OFFER")}
+                className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+                aria-label="View offers"
+              >
                 <Image
                   src="/offers1.svg"
                   alt="Offers"
@@ -102,7 +126,7 @@ export default function WishOfferSection() {
                   height={316}
                   className="w-auto h-16 sm:h-20 max-w-[35%] sm:max-w-[40%]"
                 />
-              </div>
+              </button>
               <div className="grid grid-cols-1 gap-y-3 sm:gap-y-4 md:gap-y-6 px-1 sm:px-0">
                 {offers.map((offer) => (
                   <WishOfferCard

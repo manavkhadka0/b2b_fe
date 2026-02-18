@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   useWishes,
   useOffers,
@@ -36,7 +37,19 @@ import useSWR from "swr";
 
 export function WishOfferContent() {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
-  const [selectedType, setSelectedType] = useState<ItemType>("ALL");
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+  const [selectedType, setSelectedType] = useState<ItemType>(() =>
+    typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL"
+  );
+
+  // Sync selectedType when URL changes (e.g. back/forward navigation)
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type === "WISH" || type === "OFFER") {
+      setSelectedType(type);
+    }
+  }, [searchParams]);
   const [selectedCategoryType, setSelectedCategoryType] =
     useState<CategoryType>("ALL");
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);

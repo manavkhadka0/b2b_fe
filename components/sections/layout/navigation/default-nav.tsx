@@ -99,6 +99,7 @@ export function DefaultNav() {
   ];
 
   const moreNavItems = [
+    { label: "CIM Zone", href: "/cim-zone" },
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
   ];
