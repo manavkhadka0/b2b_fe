@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { getJobBySlug } from "@/services/jobs";
 import { PostJobForm } from "@/components/jobs/PostJobForm";
@@ -47,7 +49,14 @@ export default function AdminEditJobPage({
 
   if (loading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-4">
+        <Link
+          href="/admin/jobs"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to jobs
+        </Link>
         <p className="text-sm text-slate-500">Loading job...</p>
       </div>
     );
@@ -55,18 +64,36 @@ export default function AdminEditJobPage({
 
   if (error || !job) {
     return (
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-slate-900">Edit job</h2>
-        <p className="text-sm text-rose-600">{error ?? "Job not found."}</p>
+      <div className="space-y-4">
+        <Link
+          href="/admin/jobs"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to jobs
+        </Link>
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-slate-900">Edit job</h2>
+          <p className="text-sm text-rose-600">{error ?? "Job not found."}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <PostJobForm
-      initialData={job as Parameters<typeof PostJobForm>[0]["initialData"]}
-      isEditing
-      onSuccess={() => router.push("/admin/jobs")}
-    />
+    <div className="space-y-4">
+      <Link
+        href="/admin/jobs"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to jobs
+      </Link>
+      <PostJobForm
+        initialData={job as Parameters<typeof PostJobForm>[0]["initialData"]}
+        isEditing
+        onSuccess={() => router.push("/admin/jobs")}
+      />
+    </div>
   );
 }

@@ -42,6 +42,7 @@ export default function AdminIndustryPage() {
           page,
           abortController.signal,
         );
+        setError(null);
         setIndustries(data.results || []);
         setCount(data.count ?? 0);
         setHasNext(!!data.next);
