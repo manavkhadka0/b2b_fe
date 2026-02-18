@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import type { IncubationCenterBookingFormValues } from "@/types/schemas/incubation-center-booking-schema";
 import {
@@ -53,7 +54,20 @@ interface Step5ServicesProps {
   form: UseFormReturn<IncubationCenterBookingFormValues>;
 }
 
+const BIG_BRAIN_ROOM = "The Big Brain Room";
+
 export function IncubationStep5Services({ form }: Step5ServicesProps) {
+  const bookingType = form.watch("booking_type");
+  const roomCategory = form.watch("room_category");
+  const isBigBrainRoom =
+    bookingType === "Private Room" && roomCategory === BIG_BRAIN_ROOM;
+
+  useEffect(() => {
+    if (!isBigBrainRoom && form.getValues("interactive_board")) {
+      form.setValue("interactive_board", false);
+    }
+  }, [isBigBrainRoom, form]);
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">
@@ -62,7 +76,10 @@ export function IncubationStep5Services({ form }: Step5ServicesProps) {
       <p className="text-sm text-gray-600">Select all that apply:</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {SERVICE_OPTIONS.map((opt) => (
+        {SERVICE_OPTIONS.filter(
+          (opt) =>
+            opt.name !== "interactive_board" || isBigBrainRoom
+        ).map((opt) => (
           <FormField
             key={opt.name}
             control={form.control}

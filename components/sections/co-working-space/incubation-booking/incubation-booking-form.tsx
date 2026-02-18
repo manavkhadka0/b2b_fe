@@ -124,16 +124,29 @@ export function IncubationBookingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successPayload, setSuccessPayload] =
     useState<SuccessPayload | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(
+    preselectedRoom ? 2 : 1
+  );
 
+  // Flow: 1 → 4 → 3 → 2 → 5 → 6 (Booking Type → Booking Details → Organization → Applicant → Services → Review)
   const STEPS = [
     { title: "What to Book", description: "Co-working or Private Room" },
-    { title: "Applicant", description: "Your information" },
-    { title: "Company / Idea", description: "Organization details" },
     { title: "Booking Details", description: "Date, time & capacity" },
+    { title: "Company / Idea", description: "Organization details" },
+    { title: "Applicant", description: "Your information" },
     { title: "Services", description: "Optional add-ons" },
     { title: "Review", description: "Confirm & submit" },
   ];
+
+  // Maps display step (1-6) to actual step content for validation/rendering
+  const DISPLAY_TO_CONTENT: Record<number, number> = {
+    1: 1, // Booking Type
+    2: 4, // Booking Details
+    3: 3, // Organization
+    4: 2, // Applicant
+    5: 5, // Services
+    6: 6, // Review
+  };
 
   const form = useForm<IncubationCenterBookingFormValues>({
     resolver: zodResolver(incubationCenterBookingSchema),
@@ -169,10 +182,11 @@ export function IncubationBookingForm({
   });
 
   const getFieldsForStep = (
-    step: number
+    displayStep: number
   ): (keyof IncubationCenterBookingFormValues)[] => {
+    const contentStep = DISPLAY_TO_CONTENT[displayStep] ?? displayStep;
     const bookingType = form.getValues("booking_type");
-    switch (step) {
+    switch (contentStep) {
       case 1:
         return ["booking_type"];
       case 2:
@@ -271,7 +285,8 @@ export function IncubationBookingForm({
   const typedForm = form as UseFormReturn<IncubationCenterBookingFormValues>;
 
   const renderStep = () => {
-    switch (currentStep) {
+    const contentStep = DISPLAY_TO_CONTENT[currentStep] ?? currentStep;
+    switch (contentStep) {
       case 1:
         return <IncubationStep1BookingType form={typedForm} />;
       case 2:

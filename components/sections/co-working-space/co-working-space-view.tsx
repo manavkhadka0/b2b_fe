@@ -163,43 +163,29 @@ export default function CoWorkingSpaceView() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
             {ROOMS.map((room) => (
               <Card
                 key={room.id}
-                className="border border-gray-200 shadow-sm bg-white overflow-hidden"
+                className="border border-gray-200 shadow-sm bg-white overflow-hidden flex flex-col min-w-0"
               >
-                <CardHeader className="border-b border-gray-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-blue-800 text-blue-800 flex items-center justify-center font-bold text-lg">
-                        {room.letter}
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl md:text-2xl font-semibold text-blue-800">
-                          {room.name}
-                        </CardTitle>
-                        <p className="text-sm text-gray-600 mt-0.5">
-                          {room.capacity}
-                        </p>
-                      </div>
+                <CardHeader className="border-b border-gray-100 shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-blue-800 text-blue-800 flex items-center justify-center font-bold text-lg">
+                      {room.letter}
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-blue-800 text-blue-800 hover:bg-blue-50 shrink-0"
-                      asChild
-                    >
-                      <Link
-                        href={`/co-working-space/booking?room=${room.id}`}
-                      >
-                        Book Now
-                      </Link>
-                    </Button>
+                    <div className="min-w-0">
+                      <CardTitle className="text-lg sm:text-xl font-semibold text-blue-800">
+                        {room.name}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-0.5">
+                        {room.capacity}
+                      </p>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="p-6 md:p-8">
-                  <div className="space-y-4">
+                <CardContent className="p-4 sm:p-6 flex-1 flex flex-col min-w-0 gap-4">
+                  <div className="space-y-4 flex-1">
                     <div>
                       <h4 className="text-sm font-semibold text-gray-800 mb-1">
                         Best for:
@@ -223,6 +209,18 @@ export default function CoWorkingSpaceView() {
                       </ul>
                     </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-800 text-blue-800 hover:bg-blue-50 w-fit mt-auto shrink-0 self-center"
+                    asChild
+                  >
+                    <Link
+                      href={`/co-working-space/booking?room=${room.id}`}
+                    >
+                      Book Now
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
