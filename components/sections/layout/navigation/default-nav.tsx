@@ -94,6 +94,8 @@ export function DefaultNav() {
     { label: t("navigation.home"), href: "/" },
     { label: t("navigation.b2bEvents"), href: "/events" },
     { label: t("navigation.wishOffer"), href: "/wishOffer" },
+    { label: "Jobbriz", href: "/jobs" },
+    { label: "Co-working Space", href: "/co-working-space" },
   ];
 
   const moreNavItems = [
@@ -155,7 +157,7 @@ export function DefaultNav() {
             <Link href="/" className="flex items-center shrink-0">
               <img
                 src="/b2blogo.png"
-                alt="Jobbriz"
+                alt="Birat Bazaar"
                 className="h-7 sm:h-8 md:h-9 lg:h-11 w-auto max-w-[140px] sm:max-w-[180px] object-contain object-left"
               />
             </Link>
@@ -169,7 +171,6 @@ export function DefaultNav() {
             {navItems.map((item) => (
               <NavLink key={item.href} {...item} />
             ))}
-            <NavLink href="/jobs" label="Jobbriz" />
             <DropdownMenu
               open={mdmuOpen}
               onOpenChange={(open) => {
