@@ -1,18 +1,31 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { createSubCategory, getCategories } from "@/services/categories";
-import type { Category } from "@/types/create-wish-type";
+import {
+  getSubCategoryById,
+  updateSubCategory,
+  getCategories,
+  getCategoryById,
+} from "@/services/categories";
+import type { SubCategory, Category } from "@/types/create-wish-type";
 
-export default function CreateSubCategoryPage() {
+export default function EditSubCategoryPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const params = useParams();
+  const categoryId = parseInt(params.id as string);
+  const subcategoryId = parseInt(params.subcategoryId as string);
+  const returnUrl = `/admin/categories/${categoryId}`;
+
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [subcategory, setSubcategory] = useState<SubCategory | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,6 +33,8 @@ export default function CreateSubCategoryPage() {
     reference: "",
     category: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -28,22 +43,60 @@ export default function CreateSubCategoryPage() {
   }, [isAuthenticated, isChecking, router]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getCategories();
-        setCategories(data);
+        const [subcatData, catsData] = await Promise.all([
+          getSubCategoryById(subcategoryId),
+          getCategories(),
+        ]);
+        setSubcategory(subcatData);
+        setCategories(catsData);
+        setFormData({
+          name: subcatData.name,
+          example_items: subcatData.example_items || "",
+          reference: subcatData.reference || "",
+          category: subcatData.category.toString(),
+        });
+        if (subcatData.image) {
+          setImagePreview(subcatData.image);
+        }
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
-        setError("Failed to load categories. Please try again.");
+        console.error("Failed to fetch subcategory:", error);
+        setError("Failed to load subcategory. Please try again.");
       } finally {
+        setIsLoading(false);
         setIsLoadingCategories(false);
       }
     };
 
-    if (isAuthenticated) {
-      fetchCategories();
+    if (isAuthenticated && subcategoryId) {
+      fetchData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, subcategoryId]);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const data = await getCategoryById(categoryId);
+        setCategory(data);
+      } catch {
+        setCategory(null);
+      }
+    };
+    if (isAuthenticated && categoryId) fetchCategory();
+  }, [isAuthenticated, categoryId]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -61,20 +114,20 @@ export default function CreateSubCategoryPage() {
 
     setIsSubmitting(true);
     try {
-      await createSubCategory({
+      await updateSubCategory(subcategoryId, {
         name: formData.name.trim(),
         example_items: formData.example_items.trim(),
         reference: formData.reference.trim(),
         category: parseInt(formData.category),
-        image: null,
+        image: imageFile,
       });
-      router.push("/admin/subcategories");
+      router.push(returnUrl);
     } catch (error: any) {
-      console.error("Failed to create subcategory:", error);
+      console.error("Failed to update subcategory:", error);
       setError(
         error.response?.data?.message ||
           error.response?.data?.detail ||
-          "Failed to create subcategory. Please try again.",
+          "Failed to update subcategory. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -85,22 +138,47 @@ export default function CreateSubCategoryPage() {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center text-sm text-slate-500">
+          Loading subcategory...
+        </div>
+      </div>
+    );
+  }
+
+  if (!subcategory) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          Subcategory not found.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => router.push(returnUrl)}
         className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 -ml-2"
       >
         <ChevronLeft className="h-4 w-4" />
-        Back
+        Back to Subcategories
       </button>
       <div>
         <h2 className="text-xl font-semibold text-slate-900">
-          Create Subcategory
+          Edit Subcategory
+          {category && (
+            <span className="ml-2 text-base font-normal text-slate-600">
+              in {category.name}
+            </span>
+          )}
         </h2>
         <p className="text-sm text-slate-500">
-          Add a new subcategory to the system.
+          Update subcategory information.
         </p>
       </div>
 
@@ -134,9 +212,9 @@ export default function CreateSubCategoryPage() {
                   ? "Loading categories..."
                   : "Select a category"}
               </option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -167,7 +245,7 @@ export default function CreateSubCategoryPage() {
               htmlFor="example_items"
               className="block text-sm font-medium text-slate-700"
             >
-              Example Items(eg: 6802, 6810)
+              Example Items
             </label>
             <textarea
               id="example_items"
@@ -186,7 +264,7 @@ export default function CreateSubCategoryPage() {
               htmlFor="reference"
               className="block text-sm font-medium text-slate-700"
             >
-              Reference(eg: ISIC 7110/7490)
+              Reference
             </label>
             <input
               id="reference"
@@ -200,17 +278,42 @@ export default function CreateSubCategoryPage() {
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Image
+            </label>
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+              onChange={handleImageChange}
+            />
+            {imagePreview && (
+              <div className="mt-3">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-32 w-32 rounded-md object-cover"
+                />
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center gap-3">
             <button
               type="submit"
               disabled={isSubmitting || isLoadingCategories}
               className="inline-flex items-center rounded-md bg-sky-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Creating..." : "Create Subcategory"}
+              {isSubmitting ? "Updating..." : "Update Subcategory"}
             </button>
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => router.push(returnUrl)}
               className="inline-flex items-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
             >
               Cancel

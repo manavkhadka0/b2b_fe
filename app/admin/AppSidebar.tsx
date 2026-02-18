@@ -30,9 +30,8 @@ const SIDEBAR_CO_WORKING_LINKS = [
 
 const SIDEBAR_WISHES_OFFERS_LINKS = [
   { href: "/admin/wishes-offers", label: "Wishes & Offers" },
-  { href: "/admin/categories", label: "Categories" },
-  { href: "/admin/subcategories", label: "Subcategories" },
-  { href: "/admin/services", label: "Services" },
+  // { href: "/admin/categories", label: "Categories" },
+  // { href: "/admin/services", label: "Services" },
 ] as const;
 
 const SIDEBAR_JOBBRIZE_LINKS = [

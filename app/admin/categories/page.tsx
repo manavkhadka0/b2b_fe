@@ -152,6 +152,14 @@ export default function AdminCategoriesPage() {
                     <div className="inline-flex items-center gap-2">
                       <button
                         onClick={() => {
+                          router.push(`/admin/categories/${category.id}`);
+                        }}
+                        className="rounded-md border border-sky-200 px-2.5 py-1 text-xs font-medium text-sky-700 hover:bg-sky-50"
+                      >
+                        Subcategories
+                      </button>
+                      <button
+                        onClick={() => {
                           router.push(`/admin/categories/${category.id}/edit`);
                         }}
                         className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
