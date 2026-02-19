@@ -2,8 +2,21 @@
 
 import React from "react";
 import Image from "next/image";
-import { MapPin, ChevronRight, Phone, Mail } from "lucide-react";
+import {
+  MapPin,
+  ChevronRight,
+  Phone,
+  Mail,
+  Package,
+  Briefcase,
+} from "lucide-react";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
+
+// Derive wish vs offer from model_type (combined API) or _source (search/tagged)
+function getIsWish(item: ItemWithSource | Wish | Offer): boolean {
+  const src = item as ItemWithSource;
+  return src.model_type === "wish" || src._source === "wish";
+}
 
 function formatTimeAgo(createdAt: string): string {
   const created = new Date(createdAt);
@@ -28,7 +41,7 @@ function formatTimeAgo(createdAt: string): string {
 
 export type ItemCardProps = {
   item: Wish | Offer | ItemWithSource;
-  isWish: boolean;
+  isWish?: boolean; // Optional: derived from model_type/_source when not provided
   onOpen: () => void;
   onCreateOffer?: () => void;
   onCreateWish?: () => void;
@@ -36,12 +49,17 @@ export type ItemCardProps = {
 
 export const ItemCard: React.FC<ItemCardProps> = ({
   item,
-  isWish,
+  isWish: isWishProp,
   onOpen,
   onCreateOffer,
   onCreateWish,
 }) => {
-  const imageUrl = item.image || (isWish ? item.product?.image : null) || null;
+  const isWish = isWishProp ?? getIsWish(item as ItemWithSource);
+  const imageUrl =
+    item.image ||
+    (item as any).product?.image ||
+    (item as any).service?.image ||
+    null;
   const postedBy = item.company_name || item.full_name || "Unknown";
   const location = item.province || item.municipality || item.country || "N/A";
   const timeAgo = formatTimeAgo(item.created_at);
@@ -63,12 +81,36 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           fill
           className={imageUrl ? "" : "object-contain p-12 bg-white h-5"}
         />
-        <span
-          className="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm"
-          aria-hidden
-        >
-          {isWish ? "Wish" : "Offer"}
-        </span>
+        <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1.5">
+          <span
+            className="text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm"
+            aria-hidden
+          >
+            {isWish ? "Wish" : "Offer"}
+          </span>
+          {item.type && (
+            <span
+              className="text-xs font-medium px-2 py-0.5 rounded-md bg-slate-100/95 text-slate-600 shadow-sm backdrop-blur-sm flex items-center gap-1"
+              aria-hidden
+            >
+              {item.type === "Product" ? (
+                <Package className="w-3 h-3" />
+              ) : (
+                <Briefcase className="w-3 h-3" />
+              )}
+              {item.type}
+            </span>
+          )}
+          {typeof (item as any).match_percentage === "number" &&
+            (item as any).match_percentage > 0 && (
+              <span
+                className="text-xs font-medium px-2 py-0.5 rounded-md bg-blue-100/95 text-blue-700 shadow-sm backdrop-blur-sm"
+                aria-hidden
+              >
+                {(item as any).match_percentage}% match
+              </span>
+            )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 p-3 flex-1 min-w-0">
@@ -81,6 +123,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             {item.description}
           </p>
         )}
+        {!(item.description ?? "").trim() &&
+          ((item as any).product?.description ||
+            (item as any).service?.name) && (
+            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+              {(item as any).product?.description ||
+                (item as any).service?.name}
+            </p>
+          )}
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-500">
           <span className="flex items-center gap-1 min-w-0" title={location}>
@@ -138,7 +188,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             }}
             className="text-xs font-semibold text-slate-900 hover:text-blue-600 transition-colors flex items-center gap-1 shrink-0"
           >
-            {isWish ? "Create Offer" : "Request"}
+            {isWish ? "Create Offer" : "Create Wish"}
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>

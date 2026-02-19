@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
-  useWishes,
-  useOffers,
+  useCombinedWishesOffers,
   useWishOfferCategories,
   useSearchWishesOffers,
 } from "@/app/utils/wishOffer";
@@ -38,23 +37,43 @@ import useSWR from "swr";
 export function WishOfferContent() {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const typeParam = searchParams.get("type");
   const [selectedType, setSelectedType] = useState<ItemType>(() =>
-    typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL"
+    typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL",
   );
 
-  // Sync selectedType when URL changes (e.g. back/forward navigation)
+  // Sync selectedType when URL changes (e.g. navigation from landing, back/forward)
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "WISH" || type === "OFFER") {
       setSelectedType(type);
+    } else {
+      setSelectedType("ALL");
     }
   }, [searchParams]);
+
+  // Update URL when type filter changes (triggers API with model_type - no frontend filter)
+  const handleSetSelectedType = useCallback(
+    (type: ItemType) => {
+      setSelectedType(type);
+      const params = new URLSearchParams(searchParams?.toString() || "");
+      if (type === "ALL") {
+        params.delete("type");
+      } else {
+        params.set("type", type);
+      }
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    },
+    [searchParams, router, pathname],
+  );
   const [selectedCategoryType, setSelectedCategoryType] =
     useState<CategoryType>("ALL");
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(
-    null
+    null,
   );
   const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
@@ -79,65 +98,52 @@ export function WishOfferContent() {
 
   const { data: events, isLoading: isLoadingEvents } = useSWR<Event[]>(
     "wishOfferEvents",
-    eventFetcher
+    eventFetcher,
   );
 
-  // Infinite Scroll Hooks
-  const {
-    wishes: allWishes,
-    isLoading: wishLoading,
-    isLoadingMore: isWishLoadingMore,
-    size: wishSize,
-    setSize: setWishSize,
-    isReachingEnd: isWishReachingEnd,
-  } = useWishes(
-    activeSubcategoryId ? null : activeCategoryId,
-    activeSubcategoryId,
-    activeEventSlug
-  );
+  // Map selectedType to API model_type param (API filtering, not frontend)
+  const modelTypeParam =
+    selectedType === "WISH"
+      ? ("wish" as const)
+      : selectedType === "OFFER"
+        ? ("offer" as const)
+        : null;
 
+  // Combined API - single call for wishes and offers (model_type sent to API)
   const {
-    offers: allOffers,
-    isLoading: offerLoading,
-    isLoadingMore: isOfferLoadingMore,
-    size: offerSize,
-    setSize: setOfferSize,
-    isReachingEnd: isOfferReachingEnd,
-  } = useOffers(
+    allResults: combinedResults,
+    isLoading: combinedLoading,
+    isLoadingMore: isCombinedLoadingMore,
+    size: combinedSize,
+    setSize: setCombinedSize,
+    isReachingEnd: isCombinedReachingEnd,
+  } = useCombinedWishesOffers(
     activeSubcategoryId ? null : activeCategoryId,
     activeSubcategoryId,
-    activeEventSlug
+    activeEventSlug,
+    modelTypeParam,
   );
 
   // Intersection Observer
   const { ref, inView } = useInView();
 
-  // Load more when scrolled to bottom
+  // Load more when scrolled to bottom (combined API - single pagination)
   React.useEffect(() => {
-    if (inView && !searchQuery.trim()) {
-      if (selectedType === "ALL") {
-        if (!isWishReachingEnd && !isWishLoadingMore) setWishSize(wishSize + 1);
-        if (!isOfferReachingEnd && !isOfferLoadingMore)
-          setOfferSize(offerSize + 1);
-      } else if (selectedType === "WISH") {
-        if (!isWishReachingEnd && !isWishLoadingMore) setWishSize(wishSize + 1);
-      } else if (selectedType === "OFFER") {
-        if (!isOfferReachingEnd && !isOfferLoadingMore)
-          setOfferSize(offerSize + 1);
-      }
+    if (
+      inView &&
+      !searchQuery.trim() &&
+      !isCombinedReachingEnd &&
+      !isCombinedLoadingMore
+    ) {
+      setCombinedSize(combinedSize + 1);
     }
   }, [
     inView,
     searchQuery,
-    selectedType,
-    isWishReachingEnd,
-    isOfferReachingEnd,
-    isWishLoadingMore,
-    isOfferLoadingMore,
-    wishSize,
-    offerSize,
-    setWishSize,
-    setOfferSize,
+    isCombinedReachingEnd,
+    isCombinedLoadingMore,
+    combinedSize,
+    setCombinedSize,
   ]);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
@@ -175,7 +181,7 @@ export function WishOfferContent() {
     ) {
       // Category changed to a different category, check if subcategory belongs to new category
       const parentCategory = availableCategories.find((cat) =>
-        cat.subcategories?.some((sub) => sub.id === activeSubcategoryId)
+        cat.subcategories?.some((sub) => sub.id === activeSubcategoryId),
       );
       // Only clear if the subcategory doesn't belong to the new category
       if (!parentCategory || parentCategory.id !== activeCategoryId) {
@@ -209,21 +215,22 @@ export function WishOfferContent() {
       }));
       items = [...taggedWishes, ...taggedOffers];
     } else {
-      // If NOT Searching: Use `allWishes` and `allOffers`.
-      // NOTE: These are already filtered by `activeCategoryId` via the API hooks.
-      // So we generally TRUST the API here and do NOT need to re-filter by category
-      // (which avoids issues where client-side filter expects different structure).
-      items = [
-        ...allWishes.map((w) => ({ ...w, _source: "wish" as const })),
-        ...allOffers.map((o) => ({ ...o, _source: "offer" as const })),
-      ];
+      // If NOT Searching: Use combined results in original API order.
+      // API already filters by model_type when WISH/OFFER selected - no frontend filtering.
+      items = (combinedResults || []).map((r) => ({
+        ...r,
+        _source: r.model_type === "wish" ? ("wish" as const) : ("offer" as const),
+        model_type: r.model_type,
+      }));
     }
 
-    // 2. Filter by Type (Wishes / Offers / All)
-    if (selectedType === "WISH") {
-      items = items.filter((i) => i._source === "wish");
-    } else if (selectedType === "OFFER") {
-      items = items.filter((i) => i._source === "offer");
+    // 2. Filter by Type - only when Searching (search API returns both; combined API filters server-side)
+    if (isSearching) {
+      if (selectedType === "WISH") {
+        items = items.filter((i) => i._source === "wish");
+      } else if (selectedType === "OFFER") {
+        items = items.filter((i) => i._source === "offer");
+      }
     }
 
     // 3. Filter by Category/Subcategory/Event (Only needed if Searching)
@@ -291,8 +298,7 @@ export function WishOfferContent() {
     activeCategoryId,
     activeSubcategoryId,
     activeEventSlug,
-    allWishes,
-    allOffers,
+    combinedResults,
     swrSearchResults,
     searchQuery,
   ]);
@@ -300,7 +306,7 @@ export function WishOfferContent() {
   const clearSearch = () => setSearchQuery("");
 
   const clearAllFilters = () => {
-    setSelectedType("ALL");
+    handleSetSelectedType("ALL");
     setSelectedCategoryType("ALL");
     setActiveCategoryId(null);
     setActiveSubcategoryId(null);
@@ -313,7 +319,7 @@ export function WishOfferContent() {
       activeCategoryId
         ? availableCategories.find((c) => c.id === activeCategoryId)
         : null,
-    [activeCategoryId, availableCategories]
+    [activeCategoryId, availableCategories],
   );
 
   const activeSubcategory = useMemo(
@@ -321,13 +327,13 @@ export function WishOfferContent() {
       activeSubcategoryId
         ? allSubcategories.find((sc) => sc.id === activeSubcategoryId)
         : null,
-    [activeSubcategoryId, allSubcategories]
+    [activeSubcategoryId, allSubcategories],
   );
 
   const activeEvent = useMemo(
     () =>
       activeEventSlug ? events?.find((e) => e.slug === activeEventSlug) : null,
-    [activeEventSlug, events]
+    [activeEventSlug, events],
   );
 
   const hasActiveFilters =
@@ -342,14 +348,14 @@ export function WishOfferContent() {
     selectedType === "ALL"
       ? null
       : selectedType === "WISH"
-      ? "Wishes"
-      : "Offers";
+        ? "Wishes"
+        : "Offers";
   const categoryTypeLabel =
     selectedCategoryType === "ALL"
       ? null
       : selectedCategoryType === "Product"
-      ? "Products"
-      : "Services";
+        ? "Products"
+        : "Services";
 
   const handleCreateOffer = (wish: Wish) => {
     setRelatedItem(wish);
@@ -403,7 +409,7 @@ export function WishOfferContent() {
         </div>
         <SidebarContent
           selectedType={selectedType}
-          setSelectedType={setSelectedType}
+          setSelectedType={handleSetSelectedType}
           selectedCategoryType={selectedCategoryType}
           setSelectedCategoryType={setSelectedCategoryType}
           activeCategoryId={activeCategoryId}
@@ -422,7 +428,7 @@ export function WishOfferContent() {
         <aside className="hidden lg:block w-64 flex-shrink-0 self-start sticky top-24 border-r border-slate-200 pr-6 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
           <SidebarContent
             selectedType={selectedType}
-            setSelectedType={setSelectedType}
+            setSelectedType={handleSetSelectedType}
             selectedCategoryType={selectedCategoryType}
             setSelectedCategoryType={setSelectedCategoryType}
             activeCategoryId={activeCategoryId}
@@ -530,7 +536,7 @@ export function WishOfferContent() {
             </div>
           )}
 
-          {wishLoading || offerLoading ? (
+          {combinedLoading ? (
             <div className="flex justify-center items-center min-h-[400px] bg-white ">
               <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
             </div>
@@ -543,12 +549,12 @@ export function WishOfferContent() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredItems.map((item) => {
-                const isWish = item._source === "wish";
+                const isWish =
+                  item.model_type === "wish" || item._source === "wish";
                 return (
                   <ItemCard
-                    key={`${item._source}-${item.id}`} // Ensure unique keys with source
+                    key={`${item.model_type ?? item._source}-${item.id}`}
                     item={item}
-                    isWish={isWish}
                     onOpen={() => setSelectedItem(item)}
                     onCreateOffer={
                       isWish ? () => handleCreateOffer(item as Wish) : undefined
@@ -563,7 +569,7 @@ export function WishOfferContent() {
               })}
 
               {/* Skeleton Loaders for Infinite Scroll */}
-              {(isWishLoadingMore || isOfferLoadingMore) &&
+              {isCombinedLoadingMore &&
                 Array.from({ length: 3 }).map((_, i) => (
                   <SkeletonCard key={`skeleton-${i}`} />
                 ))}
@@ -587,12 +593,12 @@ export function WishOfferContent() {
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
           onCreateOffer={
-            selectedItem._source === "wish"
+            (selectedItem.model_type ?? selectedItem._source) === "wish"
               ? () => handleCreateOffer(selectedItem as Wish)
               : undefined
           }
           onCreateWish={
-            selectedItem._source === "offer"
+            (selectedItem.model_type ?? selectedItem._source) === "offer"
               ? () => handleCreateWish(selectedItem as Offer)
               : undefined
           }

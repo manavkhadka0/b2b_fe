@@ -15,7 +15,7 @@ export type Wish = {
   image?: string | null;
   title: string;
   description?: string | null;
-  event: number;
+  event?: number | null;
   product?: {
     id: number;
     name?: string;
@@ -39,7 +39,9 @@ export type Wish = {
   match_percentage: number; // Reflects `match_percentage` from API
   created_at: string;
   updated_at: string;
-  offers: Offer[];
+  offers?: Offer[];
+  subcategory?: number | null;
+  model_type?: "wish" | "offer";
 };
 
 export type Offer = {
@@ -89,6 +91,9 @@ export type Offer = {
   created_at: string;
   updated_at: string;
   wishes?: Wish[];
+  subcategory?: number | null;
+  event?: number | null;
+  model_type?: "wish" | "offer";
 };
 
 export type WishAndOffer = {
@@ -99,4 +104,7 @@ export type WishAndOffer = {
 export type ItemType = "WISH" | "OFFER" | "ALL";
 export type CategoryType = "Product" | "Service" | "ALL";
 
-export type ItemWithSource = (Wish | Offer) & { _source: "wish" | "offer" };
+export type ItemWithSource = (Wish | Offer) & {
+  _source?: "wish" | "offer";
+  model_type?: "wish" | "offer";
+};

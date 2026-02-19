@@ -28,7 +28,10 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
   onCreateOffer,
   onCreateWish,
 }) => {
-  const isWish = item._source === "wish";
+  const isWish =
+    (item as { model_type?: string; _source?: string }).model_type ===
+      "wish" ||
+    (item as { model_type?: string; _source?: string })._source === "wish";
   const imageUrl = item.image || (isWish ? item.product?.image : null) || null;
   const postedBy = item.company_name || item.full_name || "Unknown";
   const locationParts = [

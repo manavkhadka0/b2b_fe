@@ -16,6 +16,10 @@ type PaginatedResponse<T> = {
 type WishResponse = PaginatedResponse<Wish>;
 type OfferResponse = PaginatedResponse<Offer>;
 
+// Combined API returns items with model_type to distinguish wish vs offer
+type CombinedItem = (Wish | Offer) & { model_type: "wish" | "offer" };
+type CombinedResponse = PaginatedResponse<CombinedItem>;
+
 // Axios Fetcher for SWR (public, no auth)
 const fetcher = (url: string) =>
   axios
@@ -77,6 +81,52 @@ const getGetKey =
         return `${baseUrl}${nextUrl.search}`;
       } catch (e) {
         // Fallback if next is not a valid URL
+        return previousPageData.next;
+      }
+    }
+
+    return null;
+  };
+
+// Helper for combined API - includes model_type filter
+const getGetKeyCombined =
+  (
+    baseUrl: string,
+    categoryId?: number | null,
+    subcategoryId?: number | null,
+    eventSlug?: string | null,
+    modelType?: "wish" | "offer" | null
+  ) =>
+  (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
+    if (previousPageData && !previousPageData.next) return null;
+
+    if (pageIndex === 0) {
+      const params = new URLSearchParams();
+      if (subcategoryId) {
+        params.append("subcategory_id", subcategoryId.toString());
+      } else if (categoryId) {
+        params.append("category_id", categoryId.toString());
+      }
+      if (eventSlug) {
+        params.append("event_slug", eventSlug);
+      }
+      if (modelType) {
+        params.append("model_type", modelType);
+      }
+      const queryString = params.toString();
+      return queryString ? `${baseUrl}?${queryString}` : `${baseUrl}`;
+    }
+
+    if (previousPageData?.next) {
+      try {
+        const nextUrl = new URL(previousPageData.next);
+        const params = new URLSearchParams(nextUrl.search);
+        if (modelType) {
+          params.set("model_type", modelType);
+        }
+        const queryString = params.toString();
+        return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+      } catch (e) {
         return previousPageData.next;
       }
     }
@@ -148,6 +198,51 @@ export function useOffers(
     isReachingEnd,
     error,
     mutate,
+    size,
+    setSize,
+  };
+}
+
+// Combined hook for Wishes & Offers (single API call)
+export function useCombinedWishesOffers(
+  categoryId?: number | null,
+  subcategoryId?: number | null,
+  eventSlug?: string | null,
+  modelType?: "wish" | "offer" | null
+) {
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/combined/`;
+
+  const { data, error, isLoading, size, setSize, mutate } =
+    useSWRInfinite<CombinedResponse>(
+      getGetKeyCombined(baseUrl, categoryId, subcategoryId, eventSlug, modelType),
+      fetcher,
+      {
+        revalidateFirstPage: false,
+      }
+    );
+
+  // Flatten - preserve API order (allResults); split for backwards compatibility
+  const allResults = data ? data.flatMap((page) => page.results) : [];
+  const wishes = allResults.filter(
+    (r): r is CombinedItem & Wish => r.model_type === "wish"
+  ) as Wish[];
+  const offers = allResults.filter(
+    (r): r is CombinedItem & Offer => r.model_type === "offer"
+  ) as Offer[];
+
+  const isEmpty = data?.[0]?.results.length === 0;
+  const isReachingEnd = isEmpty || (data && !data[data.length - 1]?.next);
+
+  return {
+    allResults, // Original API order
+    wishes,
+    offers,
+    isLoading,
+    isLoadingMore:
+      isLoading || (size > 0 && data && typeof data[size - 1] === "undefined"),
+    isReachingEnd,
+    mutate,
+    error,
     size,
     setSize,
   };
