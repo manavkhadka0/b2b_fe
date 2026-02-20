@@ -57,14 +57,33 @@ export type ExperienceZoneBookingPayload = {
 export async function createExperienceZoneBooking(
   payload: ExperienceZoneBookingPayload,
   token?: string | null,
+  logo?: File | null,
 ): Promise<{ message?: string }> {
+  const headers: Record<string, string> = token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+
+  let body: string | FormData;
+
+  if (logo) {
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value != null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append("logo", logo);
+    body = formData;
+    // Do not set Content-Type - browser will set multipart/form-data with boundary
+  } else {
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(payload);
+  }
+
   const res = await fetch(`${API_BASE}/api/bookings/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(payload),
+    headers,
+    body,
   });
 
   if (!res.ok) {
@@ -143,6 +162,20 @@ export async function getExperienceZoneBooking(
   const res = await fetch(`${API_BASE}/api/bookings/${id}/`, {
     cache: "no-store",
   });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || err.message || "Failed to fetch booking");
+  }
+
+  return res.json();
+}
+
+/** Client-side fetch for booking details (use in "use client" components) */
+export async function fetchBookingById(
+  id: number,
+): Promise<ExperienceZoneBooking> {
+  const res = await fetch(`${API_BASE}/api/bookings/${id}/`);
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

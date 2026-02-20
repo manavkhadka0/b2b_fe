@@ -183,7 +183,7 @@ export function CimZoneSection() {
               size="lg"
               className="bg-white hover:bg-white/90 text-blue-700 gap-2 shadow-lg px-8 py-3 text-base font-semibold"
             >
-              <Link href="/events/zone-booking">
+              <Link href="/cim-zone/zone-booking">
                 <Calendar className="w-5 h-5" />
                 Book a Display Slot
               </Link>

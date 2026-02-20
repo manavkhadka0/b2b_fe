@@ -5,6 +5,7 @@ import type {
   ExperienceZoneBookingFormValues,
   HSCode,
   Service,
+  ImageUpload,
 } from "@/types/experience-zone-booking-type";
 
 const MONTHS = [
@@ -26,12 +27,14 @@ interface ZoneStep5ReviewProps {
   form: UseFormReturn<ExperienceZoneBookingFormValues>;
   selectedProduct: HSCode | null;
   selectedService: Service | null;
+  image: ImageUpload | null;
 }
 
 export function ZoneStep5Review({
   form,
   selectedProduct,
   selectedService,
+  image,
 }: ZoneStep5ReviewProps) {
   const values = form.getValues();
 
@@ -74,6 +77,18 @@ export function ZoneStep5Review({
                     return `${mo?.label || m} ${y}`;
                   })()}
                 </p>
+              </div>
+            )}
+            {image && (
+              <div className="col-span-full">
+                <span className="text-sm text-gray-500">Logo:</span>
+                <div className="mt-2">
+                  <img
+                    src={image.url}
+                    alt="Logo preview"
+                    className="w-32 h-32 object-cover rounded-lg border"
+                  />
+                </div>
               </div>
             )}
           </div>

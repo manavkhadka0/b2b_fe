@@ -8,6 +8,7 @@ import type {
   Service,
   Category,
   SubCategory,
+  ImageUpload,
 } from "@/types/experience-zone-booking-type";
 import {
   FormControl,
@@ -38,6 +39,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ServiceForm } from "../../create-wish/service-form";
+import { ImageUploadSection } from "../../create-wish/create-wish-steps/image-upload";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 
@@ -76,6 +78,8 @@ interface ZoneStep2DetailsProps {
   setServices: React.Dispatch<React.SetStateAction<Service[]>>;
   setProducts: React.Dispatch<React.SetStateAction<HSCode[]>>;
   setIsLoadingProducts: (loading: boolean) => void;
+  image: ImageUpload | null;
+  setImage: (image: ImageUpload | null) => void;
 }
 
 export function ZoneStep2Details({
@@ -113,6 +117,8 @@ export function ZoneStep2Details({
   setServices,
   setProducts,
   setIsLoadingProducts,
+  image,
+  setImage,
 }: ZoneStep2DetailsProps) {
   const type = form.watch("type");
   const [localSearchValue, setLocalSearchValue] = useState("");
@@ -126,7 +132,9 @@ export function ZoneStep2Details({
     const search = categorySearchValue.toLowerCase().trim();
     if (!search) return true;
     const matchesName = category.name.toLowerCase().includes(search);
-    const matchesDescription = category.description?.toLowerCase().includes(search);
+    const matchesDescription = category.description
+      ?.toLowerCase()
+      .includes(search);
     return matchesName || matchesDescription;
   });
 
@@ -134,8 +142,12 @@ export function ZoneStep2Details({
     const search = subcategorySearchValue.toLowerCase().trim();
     if (!search) return true;
     const matchesName = subcategory.name.toLowerCase().includes(search);
-    const matchesExample = subcategory.example_items?.toLowerCase().includes(search);
-    const matchesReference = subcategory.reference?.toLowerCase().includes(search);
+    const matchesExample = subcategory.example_items
+      ?.toLowerCase()
+      .includes(search);
+    const matchesReference = subcategory.reference
+      ?.toLowerCase()
+      .includes(search);
     return matchesName || matchesExample || matchesReference;
   });
 
@@ -263,13 +275,13 @@ export function ZoneStep2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedCategory?.name ||
                             categories.find(
-                              (c) => c.id.toString() === field.value
+                              (c) => c.id.toString() === field.value,
                             )?.name ||
                             "Select a category"
                           : "Select category..."}
@@ -307,7 +319,7 @@ export function ZoneStep2Details({
                                 "mr-2 h-4 w-4",
                                 category.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">{category.name}</span>
@@ -346,13 +358,13 @@ export function ZoneStep2Details({
                           role="combobox"
                           className={cn(
                             "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
                             ? selectedSubcategory?.name ||
                               subcategories.find(
-                                (sc) => sc.id.toString() === field.value
+                                (sc) => sc.id.toString() === field.value,
                               )?.name ||
                               "Select a subcategory"
                             : "Select subcategory..."}
@@ -385,7 +397,7 @@ export function ZoneStep2Details({
                               onSelect={() => {
                                 form.setValue(
                                   "subcategory",
-                                  subcategory.id.toString()
+                                  subcategory.id.toString(),
                                 );
                                 setSelectedSubcategory(subcategory);
                                 setSubcategorySearchOpen(false);
@@ -396,7 +408,7 @@ export function ZoneStep2Details({
                                   "mr-2 h-4 w-4",
                                   subcategory.id.toString() === field.value
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex flex-col">
@@ -444,13 +456,13 @@ export function ZoneStep2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedProduct?.description ||
                             products.find(
-                              (p) => p.id.toString() === field.value
+                              (p) => p.id.toString() === field.value,
                             )?.description ||
                             "Select a product"
                           : "Search products..."}
@@ -499,7 +511,7 @@ export function ZoneStep2Details({
                                 "mr-2 h-4 w-4",
                                 product.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">
@@ -538,13 +550,13 @@ export function ZoneStep2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedCategory?.name ||
                             categories.find(
-                              (c) => c.id.toString() === field.value
+                              (c) => c.id.toString() === field.value,
                             )?.name ||
                             "Select a category"
                           : "Select category..."}
@@ -582,7 +594,7 @@ export function ZoneStep2Details({
                                 "mr-2 h-4 w-4",
                                 category.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <span className="font-medium">{category.name}</span>
@@ -620,13 +632,13 @@ export function ZoneStep2Details({
                           role="combobox"
                           className={cn(
                             "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value
                             ? selectedSubcategory?.name ||
                               subcategories.find(
-                                (sc) => sc.id.toString() === field.value
+                                (sc) => sc.id.toString() === field.value,
                               )?.name ||
                               "Select a subcategory"
                             : "Select subcategory..."}
@@ -659,7 +671,7 @@ export function ZoneStep2Details({
                               onSelect={() => {
                                 form.setValue(
                                   "subcategory",
-                                  subcategory.id.toString()
+                                  subcategory.id.toString(),
                                 );
                                 setSelectedSubcategory(subcategory);
                                 setSubcategorySearchOpen(false);
@@ -670,7 +682,7 @@ export function ZoneStep2Details({
                                   "mr-2 h-4 w-4",
                                   subcategory.id.toString() === field.value
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex flex-col">
@@ -718,13 +730,13 @@ export function ZoneStep2Details({
                         role="combobox"
                         className={cn(
                           "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value
                           ? selectedService?.name ||
                             services.find(
-                              (s) => s.id.toString() === field.value
+                              (s) => s.id.toString() === field.value,
                             )?.name ||
                             "Select a service"
                           : "Select a service"}
@@ -776,7 +788,7 @@ export function ZoneStep2Details({
                                 "mr-2 h-4 w-4",
                                 service.id.toString() === field.value
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <div className="flex flex-col">
@@ -815,6 +827,11 @@ export function ZoneStep2Details({
           </Dialog>
         </>
       )}
+
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold mb-4">Product Image (Optional)</h3>
+        <ImageUploadSection image={image} setImage={setImage} />
+      </div>
     </div>
   );
 }

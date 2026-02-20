@@ -13,6 +13,7 @@ import type {
   Service,
   Category,
   SubCategory,
+  ImageUpload,
 } from "@/types/experience-zone-booking-type";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ function ThankYouSection({ message }: SuccessPayload) {
                 asChild
                 className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
               >
-                <Link href="/events">Return to Events</Link>
+                <Link href="/cim-zone">Return to CIM Zone</Link>
               </Button>
             </motion.div>
           </div>
@@ -153,6 +154,7 @@ export function ExperienceZoneBookingForm() {
     useState<SubCategory | null>(null);
   const [subcategorySearchOpen, setSubcategorySearchOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [image, setImage] = useState<ImageUpload | null>(null);
 
   const form = useForm<ExperienceZoneBookingFormValues>({
     resolver: zodResolver(experienceZoneBookingSchema),
@@ -339,12 +341,14 @@ export function ExperienceZoneBookingForm() {
           type: data.type,
         },
         token,
+        image?.file ?? null,
       );
 
       const message = "Your booking request has been submitted successfully.";
 
       toast.success("Booking request submitted!");
       form.reset();
+      setImage(null);
       setSelectedProduct(null);
       setSelectedService(null);
       setSelectedCategory(null);
@@ -528,6 +532,8 @@ export function ExperienceZoneBookingForm() {
             setServices={setServices}
             setProducts={setProducts}
             setIsLoadingProducts={setIsLoadingProducts}
+            image={image}
+            setImage={setImage}
           />
         );
       case 3:
@@ -540,6 +546,7 @@ export function ExperienceZoneBookingForm() {
             form={form}
             selectedProduct={selectedProduct}
             selectedService={selectedService}
+            image={image}
           />
         );
       default:
