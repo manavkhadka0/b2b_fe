@@ -6,6 +6,7 @@ export interface Job {
   slug: string;
   title: string;
   company_name?: string | null;
+  email_to?: string | null;
   unit_group: UnitGroup;
   required_skill_level: string;
   required_education: string;

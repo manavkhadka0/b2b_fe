@@ -11,9 +11,6 @@ import {
   Edit,
   CheckCircle2,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { usePathname, useRouter } from "next/navigation";
-
 interface JobCardProps {
   job: Job;
   onApply?: (job: Job) => void;
@@ -33,23 +30,12 @@ export const JobCard: React.FC<JobCardProps> = ({
   showEditButton = false,
   compact = false,
 }) => {
-  const { user } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
-
   const handleCardClick = () => {
     if (onClick) onClick(job);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (!user) {
-      const returnTo = encodeURIComponent(pathname);
-      router.push(`/login?returnTo=${returnTo}`);
-      return;
-    }
-
     if (onApply) onApply(job);
   };
 

@@ -58,6 +58,9 @@ const postJobSchema = z
   .object({
     title: z.string().min(2, "Job title is required"),
     company_name: z.string().optional(),
+    email_to: z
+      .union([z.string().email("Valid email is required"), z.literal("")])
+      .optional(),
     unit_group: z.string().min(1, "Unit group is required"),
     required_skill_level: z.enum([
       "RPL",
@@ -208,7 +211,9 @@ export function PostJobForm({
   useEffect(() => {
     if (initialData?.unit_group) {
       const ug = initialData.unit_group as UnitGroup;
-      setMajorGroupCode(ug.minor_group?.sub_major_group?.major_group?.code ?? "");
+      setMajorGroupCode(
+        ug.minor_group?.sub_major_group?.major_group?.code ?? "",
+      );
       setSubMajorGroupCode(ug.minor_group?.sub_major_group?.code ?? "");
       setMinorGroupCode(ug.minor_group?.code ?? "");
     }
@@ -249,6 +254,7 @@ export function PostJobForm({
     defaultValues: {
       title: initialData?.title || "",
       company_name: initialData?.company_name || "",
+      email_to: initialData?.email_to || "",
       unit_group: initialData?.unit_group?.code || "",
       employment_type: getEmploymentType(initialData?.employment_type),
       required_skill_level: getSkillLevel(initialData?.required_skill_level),
@@ -260,7 +266,9 @@ export function PostJobForm({
         initialData?.salary_range_max?.toString() || "0",
       ),
       location: Array.isArray(initialData?.location)
-        ? initialData.location.map((l) => (typeof l === "object" && l?.name ? l.name : String(l))).join(", ")
+        ? initialData.location
+            .map((l) => (typeof l === "object" && l?.name ? l.name : String(l)))
+            .join(", ")
         : initialData?.location
           ? String(initialData.location)
           : "",
@@ -281,6 +289,7 @@ export function PostJobForm({
       const payload = {
         ...data,
         deadline: data.deadline.toISOString(),
+        email_to: data.email_to?.trim() || undefined,
       };
 
       if (isEditing && initialData) {
@@ -348,7 +357,10 @@ export function PostJobForm({
     const fetch = async () => {
       setIsLoadingSubMajor(true);
       try {
-        const data = await getSubMajorGroups(majorGroupCode, debouncedSubMajorSearch || undefined);
+        const data = await getSubMajorGroups(
+          majorGroupCode,
+          debouncedSubMajorSearch || undefined,
+        );
         setSubMajorGroups(data);
       } catch {
         setSubMajorGroups([]);
@@ -365,7 +377,10 @@ export function PostJobForm({
     const fetch = async () => {
       setIsLoadingMinor(true);
       try {
-        const data = await getMinorGroups(subMajorGroupCode, debouncedMinorSearch || undefined);
+        const data = await getMinorGroups(
+          subMajorGroupCode,
+          debouncedMinorSearch || undefined,
+        );
         setMinorGroups(data);
       } catch {
         setMinorGroups([]);
@@ -382,7 +397,10 @@ export function PostJobForm({
     const fetch = async () => {
       setIsLoadingUnit(true);
       try {
-        const data = await getUnitGroups(debouncedUnitSearch || undefined, minorGroupCode);
+        const data = await getUnitGroups(
+          debouncedUnitSearch || undefined,
+          minorGroupCode,
+        );
         setUnitGroupsForForm(data);
       } catch {
         setUnitGroupsForForm([]);
@@ -394,10 +412,19 @@ export function PostJobForm({
   }, [unitOpen, minorGroupCode, debouncedUnitSearch]);
 
   // Derived display values
-  const selectedMajor = majorGroups.find((g) => g.code === majorGroupCode) ?? initialUnitGroup?.minor_group?.sub_major_group?.major_group;
-  const selectedSubMajor = subMajorGroups.find((g) => g.code === subMajorGroupCode) ?? initialUnitGroup?.minor_group?.sub_major_group;
-  const selectedMinor = minorGroups.find((g) => g.code === minorGroupCode) ?? initialUnitGroup?.minor_group;
-  const selectedUnit = unitGroupsForForm.find((g) => g.code === form.watch("unit_group")) ?? initialUnitGroup ?? initialUnitGroups.find((g) => g.code === form.watch("unit_group"));
+  const selectedMajor =
+    majorGroups.find((g) => g.code === majorGroupCode) ??
+    initialUnitGroup?.minor_group?.sub_major_group?.major_group;
+  const selectedSubMajor =
+    subMajorGroups.find((g) => g.code === subMajorGroupCode) ??
+    initialUnitGroup?.minor_group?.sub_major_group;
+  const selectedMinor =
+    minorGroups.find((g) => g.code === minorGroupCode) ??
+    initialUnitGroup?.minor_group;
+  const selectedUnit =
+    unitGroupsForForm.find((g) => g.code === form.watch("unit_group")) ??
+    initialUnitGroup ??
+    initialUnitGroups.find((g) => g.code === form.watch("unit_group"));
 
   const handleMajorSelect = (code: string) => {
     setMajorGroupCode(code);
@@ -424,7 +451,7 @@ export function PostJobForm({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Section Title Component */}
@@ -483,6 +510,30 @@ export function PostJobForm({
                     )}
                   />
 
+                  {/* Email To */}
+                  <FormField
+                    control={form.control}
+                    name="email_to"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email for applications</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="e.g., hr@company.com"
+                            {...field}
+                            className="border-slate-200"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Optional - Other personnel to receive application
+                          emails (e.g., HR, hiring manager)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   {/* Occupation hierarchy - 2x2 grid */}
                   <div className="col-span-full">
                     <FormLabel className="mb-3 block">
@@ -533,7 +584,9 @@ export function PostJobForm({
                                       </div>
                                     ) : (
                                       <>
-                                        <CommandEmpty>No major group found.</CommandEmpty>
+                                        <CommandEmpty>
+                                          No major group found.
+                                        </CommandEmpty>
                                         <CommandGroup>
                                           {majorGroups.map((g) => (
                                             <CommandItem
@@ -548,7 +601,9 @@ export function PostJobForm({
                                               <Check
                                                 className={cn(
                                                   "ml-auto h-4 w-4",
-                                                  g.code === majorGroupCode ? "opacity-100" : "opacity-0",
+                                                  g.code === majorGroupCode
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
                                                 )}
                                               />
                                             </CommandItem>
@@ -585,10 +640,12 @@ export function PostJobForm({
                                   disabled={!majorGroupCode}
                                   className={cn(
                                     "w-full justify-between border-slate-200",
-                                    !subMajorGroupCode && "text-muted-foreground",
+                                    !subMajorGroupCode &&
+                                      "text-muted-foreground",
                                   )}
                                 >
-                                  {selectedSubMajor?.title ?? "Select sub-major group"}
+                                  {selectedSubMajor?.title ??
+                                    "Select sub-major group"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
@@ -606,7 +663,9 @@ export function PostJobForm({
                                       </div>
                                     ) : (
                                       <>
-                                        <CommandEmpty>No sub-major group found.</CommandEmpty>
+                                        <CommandEmpty>
+                                          No sub-major group found.
+                                        </CommandEmpty>
                                         <CommandGroup>
                                           {subMajorGroups.map((g) => (
                                             <CommandItem
@@ -621,7 +680,9 @@ export function PostJobForm({
                                               <Check
                                                 className={cn(
                                                   "ml-auto h-4 w-4",
-                                                  g.code === subMajorGroupCode ? "opacity-100" : "opacity-0",
+                                                  g.code === subMajorGroupCode
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
                                                 )}
                                               />
                                             </CommandItem>
@@ -679,7 +740,9 @@ export function PostJobForm({
                                       </div>
                                     ) : (
                                       <>
-                                        <CommandEmpty>No minor group found.</CommandEmpty>
+                                        <CommandEmpty>
+                                          No minor group found.
+                                        </CommandEmpty>
                                         <CommandGroup>
                                           {minorGroups.map((g) => (
                                             <CommandItem
@@ -694,7 +757,9 @@ export function PostJobForm({
                                               <Check
                                                 className={cn(
                                                   "ml-auto h-4 w-4",
-                                                  g.code === minorGroupCode ? "opacity-100" : "opacity-0",
+                                                  g.code === minorGroupCode
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
                                                 )}
                                               />
                                             </CommandItem>
@@ -754,14 +819,19 @@ export function PostJobForm({
                                       </div>
                                     ) : (
                                       <>
-                                        <CommandEmpty>No unit group found.</CommandEmpty>
+                                        <CommandEmpty>
+                                          No unit group found.
+                                        </CommandEmpty>
                                         <CommandGroup>
                                           {unitGroupsForForm.map((g) => (
                                             <CommandItem
                                               key={g.code}
                                               value={g.code}
                                               onSelect={() => {
-                                                form.setValue("unit_group", g.code);
+                                                form.setValue(
+                                                  "unit_group",
+                                                  g.code,
+                                                );
                                                 setUnitOpen(false);
                                               }}
                                             >
@@ -769,7 +839,9 @@ export function PostJobForm({
                                               <Check
                                                 className={cn(
                                                   "ml-auto h-4 w-4",
-                                                  g.code === field.value ? "opacity-100" : "opacity-0",
+                                                  g.code === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
                                                 )}
                                               />
                                             </CommandItem>
