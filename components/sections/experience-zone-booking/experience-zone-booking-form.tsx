@@ -107,7 +107,7 @@ function ThankYouSection({ message }: SuccessPayload) {
                 asChild
                 className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
               >
-                <Link href="/cim-zone">Return to CIM Zone</Link>
+                <Link href="/display-zone">Return to Display Zone</Link>
               </Button>
             </motion.div>
           </div>

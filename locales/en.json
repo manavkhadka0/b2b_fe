@@ -107,12 +107,19 @@
     "title": "Connect. Collaborate. Grow.",
     "subtitle": "Birat Bazaar",
     "description": "Your digital hub for business connections. Connect wishes with offers, match job seekers with employers, discover B2B events — all in one place. Powered by Chamber of Industries Morang (CIM).",
-    "exploreWishOffer": "Explore Wish and Offers",
-    "exploreJobs": "Explore Jobs",
+    "exploreWishOffer": "Wish & Offer",
+    "exploreJobs": "Jobbriz",
+    "exploreEvents": "B2B Events",
+    "exploreCoWorkingSpace": "Book Co-working Space",
+    "exploreDisplayZone": "Book Display Zone",
+    "exploreMdmu": "MDMU",
     "pillWish": "Wishes",
     "pillOffer": "Offers",
     "pillJobs": "Jobs",
-    "pillEvents": "Events"
+    "pillEvents": "Events",
+    "pillCoWorkingSpace": "Co-working Space",
+    "pillDisplayZone": "Display Zone",
+    "pillMdmu": "MDMU"
   },
   "objectives": {
     "title": "Platform Objectives",

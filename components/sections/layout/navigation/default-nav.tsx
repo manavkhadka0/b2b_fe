@@ -92,14 +92,14 @@ export function DefaultNav() {
 
   const navItems = [
     { label: t("navigation.home"), href: "/" },
-    { label: t("navigation.b2bEvents"), href: "/events" },
     { label: t("navigation.wishOffer"), href: "/wishOffer" },
+    { label: t("navigation.b2bEvents"), href: "/events" },
     { label: "Jobbriz", href: "/jobs" },
+    { label: "Display Zone", href: "/display-zone" },
     { label: "Co-working Space", href: "/co-working-space" },
   ];
 
   const moreNavItems = [
-    { label: "CIM Zone", href: "/cim-zone" },
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
   ];
@@ -312,31 +312,20 @@ export function DefaultNav() {
           {/* Right: Language, Auth, Create */}
           <div className="flex shrink-0 items-center gap-4 lg:gap-5">
             {/* Language Switcher - compact in nav */}
-            <LanguageSwitcher compact />
+            {/* <LanguageSwitcher compact /> */}
 
             {/* Login / Register when not logged in */}
             {!currentUser && (
-              <div className="hidden lg:flex items-center gap-2 shrink-0">
+              <div className="hidden lg:flex items-center shrink-0">
                 <Button
-                  variant="ghost"
                   size="sm"
-                  className="h-10 px-4"
+                  className="h-10 px-4 bg-blue-800 hover:bg-blue-900 shrink-0"
                   onClick={() => {
                     setAuthDialogMode("login");
                     setAuthDialogOpen(true);
                   }}
                 >
                   {t("auth.login")}
-                </Button>
-                <Button
-                  size="sm"
-                  className="h-10 px-4 bg-blue-800 hover:bg-blue-900 shrink-0"
-                  onClick={() => {
-                    setAuthDialogMode("register");
-                    setAuthDialogOpen(true);
-                  }}
-                >
-                  {t("auth.signup")}
                 </Button>
               </div>
             )}
@@ -401,7 +390,6 @@ export function DefaultNav() {
                     className="h-10 px-4 gap-2 bg-blue-800 hover:bg-blue-900"
                   >
                     <PlusCircle className="h-4 w-4" />
-                    <span>{t("common.create")}</span>
                     <ChevronDown className="h-4 w-4 opacity-80" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -527,8 +515,7 @@ export function DefaultNav() {
                   {!currentUser && (
                     <div className="flex flex-col gap-2 pt-4 mt-4 border-t border-gray-100">
                       <Button
-                        variant="outline"
-                        className="h-11 text-blue-800 border-blue-800"
+                        className="h-11 bg-blue-800 hover:bg-blue-900"
                         onClick={() => {
                           setMobileOpen(false);
                           setAuthDialogMode("login");
@@ -536,16 +523,6 @@ export function DefaultNav() {
                         }}
                       >
                         {t("auth.login")}
-                      </Button>
-                      <Button
-                        className="h-11 bg-blue-800 hover:bg-blue-900"
-                        onClick={() => {
-                          setMobileOpen(false);
-                          setAuthDialogMode("register");
-                          setAuthDialogOpen(true);
-                        }}
-                      >
-                        {t("auth.signup")}
                       </Button>
                     </div>
                   )}

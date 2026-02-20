@@ -15,8 +15,8 @@ export default function WishOfferSection() {
   const router = useRouter();
 
   // Determine which data to display and limit to 10 items
-  const wishes = allWishes.slice(0, 10);
-  const offers = allOffers.slice(0, 10);
+  const wishes = allWishes.slice(0, 15);
+  const offers = allOffers.slice(0, 15);
 
   if (wishLoading || offerLoading)
     return (
