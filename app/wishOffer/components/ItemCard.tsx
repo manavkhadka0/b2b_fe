@@ -11,6 +11,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
+import { RichTextContent } from "@/components/ui/rich-text-content";
 
 // Derive wish vs offer from model_type (combined API) or _source (search/tagged)
 function getIsWish(item: ItemWithSource | Wish | Offer): boolean {
@@ -119,9 +120,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         </h3>
 
         {(item.description ?? "").trim() && (
-          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-            {item.description}
-          </p>
+          <RichTextContent
+            content={item.description}
+            className="text-xs text-slate-600 leading-relaxed"
+            lineClamp={2}
+            plainText
+          />
         )}
         {!(item.description ?? "").trim() &&
           ((item as any).product?.description ||

@@ -102,7 +102,8 @@ export default function WishOfferSection() {
                     image={wish.image || undefined}
                     type={wish.type}
                     time={wish.created_at}
-                    onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
+                    item={wish}
+                    isWish
                   />
                 ))}
               </div>
@@ -141,7 +142,8 @@ export default function WishOfferSection() {
                     image={offer.image || undefined}
                     type={offer.type}
                     time={offer.created_at}
-                    onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
+                    item={offer}
+                    isWish={false}
                   />
                 ))}
               </div>
@@ -168,7 +170,8 @@ export default function WishOfferSection() {
                     image={wish.image || undefined}
                     type={wish.type}
                     time={wish.created_at}
-                    onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
+                    item={wish}
+                    isWish
                   />
                 ))}
               </div>
@@ -198,7 +201,8 @@ export default function WishOfferSection() {
                     image={offer.image || undefined}
                     type={offer.type}
                     time={offer.created_at}
-                    onClick={() => router.push(`/wishOffer/offer/${offer.id}`)}
+                    item={offer}
+                    isWish={false}
                   />
                 ))}
               </div>

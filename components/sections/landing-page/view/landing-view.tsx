@@ -12,7 +12,7 @@ export default function LandingView() {
       <HeroSection />
       <ObjectivesSection />
       <PlatformFeatures />
-      <WishOfferDescription />
+      {/* <WishOfferDescription />  */}
       <HowItWorks />
     </>
   );

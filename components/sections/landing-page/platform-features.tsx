@@ -5,19 +5,49 @@ import { useTranslation } from "react-i18next";
 import { Heart, Package, Briefcase, Users, Target, Rocket } from "lucide-react";
 
 const features = [
-  { key: "businessWishes", icon: Heart, bgColor: "bg-blue-50", iconColor: "text-blue-600" },
-  { key: "businessOffers", icon: Package, bgColor: "bg-violet-50", iconColor: "text-violet-600" },
-  { key: "jobMatching", icon: Briefcase, bgColor: "bg-emerald-50", iconColor: "text-emerald-600" },
-  { key: "inclusiveGrowth", icon: Users, bgColor: "bg-blue-50", iconColor: "text-blue-600" },
-  { key: "smartMatching", icon: Target, bgColor: "bg-violet-50", iconColor: "text-violet-600" },
-  { key: "localToGlobal", icon: Rocket, bgColor: "bg-amber-50", iconColor: "text-amber-600" },
+  {
+    key: "businessWishes",
+    icon: Heart,
+    bgColor: "bg-blue-50",
+    iconColor: "text-blue-600",
+  },
+  {
+    key: "businessOffers",
+    icon: Package,
+    bgColor: "bg-violet-50",
+    iconColor: "text-violet-600",
+  },
+  {
+    key: "jobMatching",
+    icon: Briefcase,
+    bgColor: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+  },
+  {
+    key: "inclusiveGrowth",
+    icon: Users,
+    bgColor: "bg-blue-50",
+    iconColor: "text-blue-600",
+  },
+  {
+    key: "smartMatching",
+    icon: Target,
+    bgColor: "bg-violet-50",
+    iconColor: "text-violet-600",
+  },
+  {
+    key: "localToGlobal",
+    icon: Rocket,
+    bgColor: "bg-amber-50",
+    iconColor: "text-amber-600",
+  },
 ];
 
 export default function PlatformFeatures() {
   const { t } = useTranslation();
 
   return (
-    <section className="py-16 md:py-24 bg-slate-50">
+    <section className="py-16 md:py-24">
       <ResponsiveContainer>
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">

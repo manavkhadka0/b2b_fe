@@ -2,7 +2,6 @@
 import { HeaderSubtitle } from "../../common/header-subtitle";
 import { useEventWishes } from "@/app/utils/wishOffer";
 import WishOfferCard from "@/components/wish-offer-card";
-import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 interface EventWishesSectionProps {
@@ -10,8 +9,7 @@ interface EventWishesSectionProps {
 }
 
 const EventWishesSection = ({ eventSlug }: EventWishesSectionProps) => {
-  const { wishes, isLoading: wishLoading, error: wishError } = useEventWishes(eventSlug);
-  const router = useRouter();
+  const { wishes, isLoading: wishLoading } = useEventWishes(eventSlug);
 
   if (wishLoading) {
     return (
@@ -43,7 +41,8 @@ const EventWishesSection = ({ eventSlug }: EventWishesSectionProps) => {
               image={wish.image || undefined}
               type={wish.type}
               time={wish.created_at}
-              onClick={() => router.push(`/wishOffer/wishes/${wish.id}`)}
+              item={wish}
+              isWish
             />
           ))}
         </div>

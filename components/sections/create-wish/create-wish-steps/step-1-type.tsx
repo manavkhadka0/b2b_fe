@@ -1,20 +1,17 @@
 "use client";
 
 import { Package2, Wrench } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { UseFormReturn } from "react-hook-form";
 import type { CreateWishFormValues } from "@/types/create-wish-type";
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { FloatingInput } from "@/components/ui/floatingInput";
 import { FloatingLabel } from "@/components/ui/floatingInput";
+import { MinimalTiptapEditor } from "@/components/minimal-tiptap";
 
 interface Step1TypeProps {
   form: UseFormReturn<CreateWishFormValues>;
@@ -48,10 +45,15 @@ export function Step1Type({ form, is_wish_or_offer }: Step1TypeProps) {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Textarea
+              <MinimalTiptapEditor
+                value={field.value || ""}
+                onChange={(content) => {
+                  field.onChange(typeof content === "string" ? content : "");
+                }}
                 placeholder="Description (optional)"
-                className="min-h-[100px] resize-none"
-                {...field}
+                output="html"
+                className="min-h-[190px]"
+                editorContentClassName="p-4"
               />
             </FormControl>
             <FormMessage />

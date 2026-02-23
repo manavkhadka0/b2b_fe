@@ -60,7 +60,7 @@ export default function HeroSection() {
             </motion.p>
 
             <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2 md:gap-3"
+              className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-3"
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -71,7 +71,7 @@ export default function HeroSection() {
               >
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreWishOffer")}
@@ -82,7 +82,7 @@ export default function HeroSection() {
               <Link href="/events" className="min-w-0">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreEvents")}
@@ -93,7 +93,7 @@ export default function HeroSection() {
               <Link href="/jobs" className="min-w-0">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreJobs")}
@@ -104,7 +104,7 @@ export default function HeroSection() {
               <Link href="/display-zone" className="min-w-0">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreDisplayZone")}
@@ -115,7 +115,7 @@ export default function HeroSection() {
               <Link href="/co-working-space" className="min-w-0">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreCoWorkingSpace")}
@@ -127,7 +127,7 @@ export default function HeroSection() {
               <Link href="/mdmu" className="col-span-2 sm:col-span-1 min-w-0">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center gap-1 sm:gap-2 w-full min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
+                  className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
                 >
                   <span className="truncate min-w-0">
                     {t("hero.exploreMdmu")}
@@ -138,7 +138,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Trust pills */}
-            <motion.div
+            {/* <motion.div
               className="mt-6 sm:mt-10 md:mt-12 flex flex-wrap gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-2 text-xs sm:text-sm text-slate-500"
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
@@ -157,7 +157,7 @@ export default function HeroSection() {
               <span>{t("hero.pillCoWorkingSpace")}</span>
               <span className="text-slate-300">•</span>
               <span>{t("hero.pillMdmu")}</span>
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Hero visual - desktop */}

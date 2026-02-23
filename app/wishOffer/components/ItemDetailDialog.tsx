@@ -14,6 +14,7 @@ import {
   Mail,
 } from "lucide-react";
 import type { ItemWithSource } from "@/types/wish";
+import { RichTextContent } from "@/components/ui/rich-text-content";
 
 export type ItemDetailDialogProps = {
   item: ItemWithSource;
@@ -29,8 +30,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
   onCreateWish,
 }) => {
   const isWish =
-    (item as { model_type?: string; _source?: string }).model_type ===
-      "wish" ||
+    (item as { model_type?: string; _source?: string }).model_type === "wish" ||
     (item as { model_type?: string; _source?: string })._source === "wish";
   const imageUrl = item.image || (isWish ? item.product?.image : null) || null;
   const postedBy = item.company_name || item.full_name || "Unknown";
@@ -92,7 +92,9 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
             src={imageUrl || "/no-image.png"}
             alt={item.title}
             fill
-            className={imageUrl ? "" : "object-contain p-24 bg-white"}
+            className={
+              imageUrl ? "object-contain p-12" : "object-contain p-24 bg-white"
+            }
           />
           <span className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-md bg-white/95 text-slate-700 shadow-sm">
             {isWish ? "Wish" : "Offer"}
@@ -108,11 +110,11 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
         </div>
         {/* Scrollable content below image */}
         <div className="overflow-y-auto flex-1 min-h-0">
-          <div className="p-4 sm:p-5 space-y-5">
+          <div className="p-4 sm:p-5 space-y-8">
             <div>
               <h2
                 id="item-detail-title"
-                className="text-lg font-bold text-slate-900 leading-snug"
+                className="text-xl font-bold text-black leading-snug"
               >
                 {item.title}
               </h2>
@@ -123,18 +125,19 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
 
             {(item.description ?? "").trim() && (
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5">
                   Description
                 </h3>
-                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-                  {item.description}
-                </p>
+                <RichTextContent
+                  content={item.description}
+                  className="text-sm leading-relaxed"
+                />
               </div>
             )}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5" />
                   Posted by
                 </h3>
@@ -148,7 +151,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
                 )}
               </div>
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   Posted on
                 </h3>
@@ -157,7 +160,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
             </div>
 
             <div>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5" />
                 Location
               </h3>
@@ -166,7 +169,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
 
             {(hasPhone || hasEmail || hasWebsite) && (
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5">
                   Contact
                 </h3>
                 <ul className="space-y-1.5 text-sm text-slate-700">
@@ -211,7 +214,7 @@ export const ItemDetailDialog: React.FC<ItemDetailDialogProps> = ({
 
             {(item.product || item.service) && (
               <div>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-black uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                   <Package className="w-3.5 h-3.5" />
                   {item.product ? "Product" : "Service"}
                 </h3>
