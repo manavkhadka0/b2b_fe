@@ -8,7 +8,6 @@ import {
 } from "@/components/mdmu/mdmu/components/types";
 import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mdmu-form/constants";
 import axios from "axios";
-import Image from "next/image";
 
 export default function LogosPage() {
   const [logos, setLogos] = useState<LogoItem[]>([]);
@@ -99,12 +98,10 @@ export default function LogosPage() {
       {/* Hero Section */}
       <section className="py-16 md:py-10">
         <div className="container mx-auto ">
-          <Image
+          <img
             src="/mdmu-logo.png"
             alt=""
-            width={200}
-            height={200}
-            className="mx-auto"
+            className="mx-auto w-[200px] h-[200px] object-contain"
           />
           <div className="max-w-6xl mx-auto">
             <div className="text-center">

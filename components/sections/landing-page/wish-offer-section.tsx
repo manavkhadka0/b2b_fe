@@ -6,7 +6,6 @@ import { useWishes, useOffers } from "@/app/utils/wishOffer";
 import { useRouter } from "next/navigation";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { Loader2, ArrowRight } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export default function WishOfferSection() {
@@ -44,11 +43,9 @@ export default function WishOfferSection() {
             className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
             aria-label="View wishes"
           >
-            <Image
+            <img
               src="/wishes1.svg"
               alt="Wisher"
-              width={136}
-              height={108}
               className="w-auto h-28 md:h-32 lg:h-[200px]"
             />
           </button>
@@ -58,11 +55,9 @@ export default function WishOfferSection() {
             className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
             aria-label="View offers"
           >
-            <Image
+            <img
               src="/offers1.svg"
               alt="Offers"
-              width={454}
-              height={316}
               className="w-auto h-28 md:h-32 lg:h-[200px]"
             />
           </button>
@@ -80,11 +75,9 @@ export default function WishOfferSection() {
                 className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
                 aria-label="View wishes"
               >
-                <Image
+                <img
                   src="/wishes1.svg"
                   alt="Wisher"
-                  width={136}
-                  height={108}
                   className="w-auto h-16 sm:h-20 max-w-[35%] sm:max-w-[40%]"
                 />
               </button>
@@ -120,11 +113,9 @@ export default function WishOfferSection() {
                 className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
                 aria-label="View offers"
               >
-                <Image
+                <img
                   src="/offers1.svg"
                   alt="Offers"
-                  width={454}
-                  height={316}
                   className="w-auto h-16 sm:h-20 max-w-[35%] sm:max-w-[40%]"
                 />
               </button>

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import {
   X,
   User,
@@ -52,13 +51,10 @@ export function BookingDetailDialog({
       >
         <div className="relative w-full aspect-[16/9] bg-slate-100 shrink-0">
           {booking.logo ? (
-            <Image
+            <img
               src={booking.logo}
               alt={`${booking.company_name} logo`}
-              fill
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 672px"
-              unoptimized
+              className="absolute inset-0 w-full h-full object-contain"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-100">

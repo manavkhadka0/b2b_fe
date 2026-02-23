@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { ResponsiveContainer } from "../common/responsive-container";
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
@@ -12,13 +11,10 @@ export default function CTASection() {
   return (
     <section className="relative min-h-[280px] py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0">
-        <Image
+        <img
           src="/dhankuta.jpg"
           alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority={false}
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-slate-900/60" />
       </div>

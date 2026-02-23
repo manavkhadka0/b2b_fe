@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, AlertCircle, Compass } from "lucide-react";
 
@@ -80,13 +79,10 @@ export default function CareerGuidanceView() {
           </h2>
           <div className="flex justify-center">
             <div className="relative w-full max-w-4xl overflow-hidden rounded-xl border border-slate-200">
-              <Image
+              <img
                 src="/guidance.png"
                 alt="Career Guidance Contact Information"
-                width={1200}
-                height={600}
                 className="w-full h-auto object-contain"
-                priority
               />
             </div>
           </div>

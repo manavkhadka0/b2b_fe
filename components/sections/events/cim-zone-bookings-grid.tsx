@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { toast } from "sonner";
 import {
   CalendarDays,
@@ -61,13 +60,10 @@ export function CimZoneBookingsGrid({ bookings }: CimZoneBookingsGridProps) {
           >
             <div className="w-full aspect-[16/9] flex-shrink-0 overflow-hidden bg-slate-50 relative">
               {booking.logo ? (
-                <Image
+                <img
                   src={booking.logo}
                   alt={`${booking.company_name} logo`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  unoptimized
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-100">

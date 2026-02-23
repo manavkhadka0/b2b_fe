@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export const ImageWithFallback = ({ alt, src, ...props }) => {
@@ -11,7 +10,7 @@ export const ImageWithFallback = ({ alt, src, ...props }) => {
   }, [src]);
 
   return (
-    <Image
+    <img
       alt={alt}
       onError={() => setError(true)}
       src={error ? "/placeholder.jpg" : src}

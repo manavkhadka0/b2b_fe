@@ -1,5 +1,4 @@
 import { EventResponse } from "@/types/events";
-import Image from "next/image";
 
 interface ViewSectionProps {
   sideEvents: EventResponse["results"];
@@ -11,13 +10,9 @@ const ViewSection = ({ sideEvents }: ViewSectionProps) => {
       {sideEvents.map((event) => (
         <div key={event.id} className="relative rounded-xl overflow-hidden">
           <div className="relative w-full h-[230px] rounded-xl">
-            <Image
+            <img
               src={event.thumbnail}
               alt={event.title || "Event Image"}
-              blurDataURL={"/blur.png"}
-              placeholder="blur"
-              width={400}
-              height={250}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>

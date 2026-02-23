@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import {
   MapPin,
   Phone,
@@ -158,12 +157,10 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         )}
 
         <div className="absolute inset-0 flex items-center justify-center z-0 bg-gray-50">
-          <Image
+          <img
             src={imageUrl || "/no-image.png"}
             alt={item.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 400px"
-            className={`object-contain ${!imageUrl ? "p-10" : ""}`}
+            className={`absolute inset-0 w-full h-full object-contain ${!imageUrl ? "p-10" : ""}`}
           />
         </div>
       </div>

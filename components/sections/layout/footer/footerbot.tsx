@@ -5,7 +5,6 @@ import {
   LinkedinIcon,
   TwitterIcon,
 } from "lucide-react";
-import Image from "next/image";
 import { ResponsiveContainer } from "../../common/responsive-container";
 
 const Footerbot = () => {
@@ -17,11 +16,10 @@ const Footerbot = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start gap-8 lg:gap-12 text-gray-200">
             {/* Left Section - Logo and Description */}
             <div className="flex-1 space-y-4">
-              <Image
+              <img
                 src="/b2blogo-footer.png"
                 alt="B2B Birat Bazaar Logo"
-                width={200}
-                height={150}
+                className="w-[200px] h-[150px] object-contain"
               />
               <p className="leading-relaxed text-gray-300 mt-5">
                 Connecting businesses, fostering growth, and promoting

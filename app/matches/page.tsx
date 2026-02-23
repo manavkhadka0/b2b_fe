@@ -5,9 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useOffers, useWishAndOffer } from "../utils/wishOffer";
 import { useWishes } from "../utils/wishOffer";
 import { Loader2 } from "lucide-react";
-import WishSvg from "@/public/wishes.svg";
-import OfferSvg from "@/public/offers.svg";
-import Image from "next/image";
 import useSound from "use-sound";
 
 import { Offer, Wish } from "@/types/wish";
@@ -192,12 +189,9 @@ export default function WishesOffers() {
           <div className="space-y-8">
             <motion.div className="relative">
               <div className="relative w-[488px]">
-                <Image
-                  src={WishSvg}
+                <img
+                  src="/wishes.svg"
                   alt="Wishes"
-                  width={488}
-                  height={163}
-                  priority
                   className="w-auto h-auto"
                 />
               </div>
@@ -260,12 +254,9 @@ export default function WishesOffers() {
           <div className="space-y-8">
             <motion.div className="relative flex justify-end">
               <div className="relative w-[488px]">
-                <Image
-                  src={OfferSvg}
+                <img
+                  src="/offers.svg"
                   alt="Offers"
-                  width={488}
-                  height={163}
-                  priority
                   className="w-auto h-auto"
                 />
               </div>

@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import { MapPin } from "lucide-react";
 import type { Event } from "@/types/events";
 import { Avatar, AvatarFallback } from "../../../ui/avatar";

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { FileCheck, Shield, Clock, Award } from "lucide-react";
 import Link from "next/link";
 

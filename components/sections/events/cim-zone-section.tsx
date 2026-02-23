@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ResponsiveContainer } from "../common/responsive-container";
 import { HeaderSubtitle } from "../common/header-subtitle";
@@ -59,13 +58,10 @@ export function CimZoneSection() {
 
           {/* Hero Image with Overlay */}
           <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl">
-            <Image
+            <img
               src="/zone/cim-zone.jpeg"
               alt="CIM Industry Experience Zone at CIM Secretariat"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-              priority
+              className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">

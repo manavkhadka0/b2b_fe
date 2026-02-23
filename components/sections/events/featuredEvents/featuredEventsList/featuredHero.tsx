@@ -1,5 +1,4 @@
 import { EventResponse } from "@/types/events";
-import Image from "next/image";
 
 interface HeroSectionProps {
   mainEvent: EventResponse["results"][0];
@@ -18,15 +17,10 @@ const HeroSection = ({ mainEvent, hasSideEvents }: HeroSectionProps) => {
           hasSideEvents ? "h-[400px] lg:h-[500px]" : "h-[600px]"
         } rounded-xl overflow-hidden`}
       >
-        <Image
+        <img
           src={mainEvent.thumbnail || "/placeholder.jpg"}
           alt={mainEvent.title || "Event Image"}
-          width={800}
-          placeholder="blur"
-          blurDataURL={"/blur.png"}
-          height={600}
           className="w-full h-full object-cover"
-          priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
       </div>
