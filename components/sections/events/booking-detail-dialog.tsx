@@ -47,7 +47,7 @@ export function BookingDetailDialog({
       aria-labelledby="booking-detail-title"
     >
       <div
-        className="bg-white rounded-xl max-w-2xl w-full my-8 shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-gray-100 rounded-xl max-w-2xl w-full my-8 shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative w-full aspect-[16/9] bg-slate-100 shrink-0">
@@ -56,7 +56,7 @@ export function BookingDetailDialog({
               src={booking.logo}
               alt={`${booking.company_name} logo`}
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="(max-width: 768px) 100vw, 672px"
               unoptimized
             />

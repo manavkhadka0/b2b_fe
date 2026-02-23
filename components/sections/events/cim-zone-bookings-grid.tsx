@@ -25,9 +25,8 @@ type CimZoneBookingsGridProps = {
 
 export function CimZoneBookingsGrid({ bookings }: CimZoneBookingsGridProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [detailBooking, setDetailBooking] = useState<ExperienceZoneBooking | null>(
-    null,
-  );
+  const [detailBooking, setDetailBooking] =
+    useState<ExperienceZoneBooking | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCardClick = async (id: number) => {
@@ -66,7 +65,7 @@ export function CimZoneBookingsGrid({ bookings }: CimZoneBookingsGridProps) {
                   src={booking.logo}
                   alt={`${booking.company_name} logo`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   unoptimized
                 />
