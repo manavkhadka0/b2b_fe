@@ -319,7 +319,7 @@ export function DefaultNav() {
               <div className="hidden lg:flex items-center shrink-0">
                 <Button
                   size="sm"
-                  className="h-10 px-4 bg-blue-800 hover:bg-blue-900 shrink-0"
+                  className="h-10 px-4 border bg-white border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white shrink-0"
                   onClick={() => {
                     setAuthDialogMode("login");
                     setAuthDialogOpen(true);
@@ -389,7 +389,7 @@ export function DefaultNav() {
                     size="sm"
                     className="h-10 px-4 gap-2 bg-blue-800 hover:bg-blue-900"
                   >
-                    <PlusCircle className="h-4 w-4" />
+                    New
                     <ChevronDown className="h-4 w-4 opacity-80" />
                   </Button>
                 </DropdownMenuTrigger>
