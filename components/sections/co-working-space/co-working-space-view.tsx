@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
-import { HeaderSubtitle } from "@/components/sections/common/header-subtitle";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import CoWorkingHeroSection from "./co-working-hero-section";
 
 const ROOMS = [
   {
@@ -53,29 +53,9 @@ const ROOMS = [
 export default function CoWorkingSpaceView() {
   return (
     <div className="min-h-screen bg-white">
-      <ResponsiveContainer className="py-10 md:py-16 space-y-12">
-        {/* Hero Section */}
-        <div className="space-y-6">
-          <HeaderSubtitle
-            title="Co-Working Space / Incubation Center"
-            subtitle="Biratnagar Incubation Center (BIC) – Co-Working & Room Booking"
-          />
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <p className="text-gray-600 max-w-2xl">
-              Biratnagar Incubation Center (BIC) is a co-working and
-              collaboration space at the CIM Secretariat, Biratnagar-02,
-              Morang—built to support startups from idea to creation.
-            </p>
-            <Button
-              size="lg"
-              className="bg-blue-800 hover:bg-blue-900 text-white shrink-0 px-8"
-              asChild
-            >
-              <Link href="/co-working-space/booking">Book Now</Link>
-            </Button>
-          </div>
-        </div>
+      <CoWorkingHeroSection />
 
+      <ResponsiveContainer className="py-10 md:py-16 space-y-12">
         {/* Main About Section */}
         <Card className="border border-gray-200 shadow-sm bg-white overflow-hidden">
           <CardHeader className="border-b border-gray-100 bg-gray-50/50">
@@ -210,8 +190,8 @@ export default function CoWorkingSpaceView() {
                   </div>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="border-blue-800 text-blue-800 hover:bg-blue-50 w-fit mt-auto shrink-0 self-center"
+                    size="default"
+                    className="border-blue-800 text-blue-800 hover:bg-blue-50 w-fit shrink-0"
                     asChild
                   >
                     <Link href={`/co-working-space/booking?room=${room.id}`}>
@@ -239,14 +219,18 @@ export default function CoWorkingSpaceView() {
         </div>
 
         {/* CTA Section */}
-        <div className="flex flex-col items-center justify-center py-8 px-6 bg-gradient-to-b from-gray-50 to-white rounded-xl border border-gray-200">
-          <p className="text-gray-700 text-center mb-6 max-w-xl">
-            Ready to book your workspace or meeting room? Get in touch or book
-            directly.
+        <div className="flex flex-col items-center justify-center py-12 px-8 bg-blue-800 rounded-xl shadow-sm">
+          <h3 className="text-xl md:text-2xl font-bold text-white text-center mb-3">
+            Ready to book your workspace?
+          </h3>
+          <p className="text-blue-100 text-center mb-8 max-w-lg leading-relaxed">
+            Reserve a meeting room or dedicated workspace at Biratnagar
+            Incubation Center. Get in touch or book directly—we&apos;re here to
+            help.
           </p>
           <Button
             size="lg"
-            className="bg-blue-800 hover:bg-blue-900 text-white px-8"
+            className="bg-white hover:bg-white/90 text-blue-800 shadow-sm border-2 border-blue-800 px-8 font-semibold transition-colors"
             asChild
           >
             <Link href="/co-working-space/booking">Book Now</Link>

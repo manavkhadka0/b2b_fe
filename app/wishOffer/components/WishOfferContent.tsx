@@ -219,7 +219,8 @@ export function WishOfferContent() {
       // API already filters by model_type when WISH/OFFER selected - no frontend filtering.
       items = (combinedResults || []).map((r) => ({
         ...r,
-        _source: r.model_type === "wish" ? ("wish" as const) : ("offer" as const),
+        _source:
+          r.model_type === "wish" ? ("wish" as const) : ("offer" as const),
         model_type: r.model_type,
       }));
     }
@@ -548,13 +549,14 @@ export function WishOfferContent() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredItems.map((item) => {
+              {filteredItems.map((item, idx) => {
                 const isWish =
                   item.model_type === "wish" || item._source === "wish";
                 return (
                   <ItemCard
                     key={`${item.model_type ?? item._source}-${item.id}`}
                     item={item}
+                    index={idx}
                     onOpen={() => setSelectedItem(item)}
                     onCreateOffer={
                       isWish ? () => handleCreateOffer(item as Wish) : undefined

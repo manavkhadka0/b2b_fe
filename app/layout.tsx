@@ -4,6 +4,7 @@ import { Bricolage_Grotesque } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/contexts/I18nContext";
 import { HtmlLang } from "@/components/sections/layout/html-lang";
+import { GoogleAnalytics } from "@/components/sections/layout/google-analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from "nextjs-toploader";
@@ -29,6 +30,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${bricolage.className}  antialiased`}>
+        <GoogleAnalytics />
         <NextTopLoader height={3} color="#002B49" />
         <I18nProvider>
           <HtmlLang />
