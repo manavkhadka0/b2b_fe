@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Loader2, CheckCircle, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
@@ -18,7 +18,6 @@ import type { Institute } from "@/types/institute";
 import type { GraduateRoster } from "@/types/graduate-roster";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
-import { CreateInstituteDialog } from "./CreateInstituteDialog";
 import { RosterHeader } from "./RosterHeader";
 import { RosterControls } from "./RosterControls";
 import { RosterCards } from "./RosterCards";
@@ -28,15 +27,14 @@ import { RosterFiltersSidebar } from "./RosterFiltersSidebar";
 import { useRosterFilters } from "@/contexts/roster-filters";
 
 export default function RosterView() {
+  const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [instituteCheck, setInstituteCheck] = useState<boolean | null>(null);
   const [institute, setInstitute] = useState<Institute | null>(null);
   const [instituteCheckLoading, setInstituteCheckLoading] = useState(false);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [pendingCreateInstitute, setPendingCreateInstitute] = useState(false);
   const [graduates, setGraduates] = useState<GraduateRoster[]>([]);
   const [graduatesLoading, setGraduatesLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -178,39 +176,18 @@ export default function RosterView() {
     institutionName,
   ]);
 
-  useEffect(() => {
-    if (user?.username && pendingCreateInstitute && !instituteCheckLoading) {
-      setCreateDialogOpen(true);
-      setPendingCreateInstitute(false);
-    }
-  }, [user?.username, pendingCreateInstitute, instituteCheckLoading]);
-
-  const handleCreateInstituteClick = () => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("accessToken")
-        : null;
-    if (!user && !token && !authLoading) {
-      setPendingCreateInstitute(true);
-      setAuthDialogOpen(true);
-      return;
-    }
-    setCreateDialogOpen(true);
-  };
-
-  const handleCreateInstituteSuccess = () => {
-    fetchInstituteStatus();
-  };
-
-  const handleAuthDialogChange = (open: boolean) => {
-    setAuthDialogOpen(open);
-    if (!open) setPendingCreateInstitute(false);
-  };
-
   const isContentLoading =
     authLoading || (!!user?.username && instituteCheck === null);
 
   const hasSearch = searchQuery.trim().length > 0;
+
+  const handleCreateRosterClick = () => {
+    if (!user && !authLoading) {
+      setAuthDialogOpen(true);
+      return;
+    }
+    router.push("/jobs/roster/create");
+  };
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen">
@@ -238,21 +215,12 @@ export default function RosterView() {
             <div className="overflow-hidden">
               <div className="py-6 space-y-4">
                 <div className="flex justify-end">
-                  {instituteCheck === false ? (
-                    <Button
-                      onClick={handleCreateInstituteClick}
-                      className="bg-blue-800 text-white hover:bg-blue-900"
-                    >
-                      Create institute
-                    </Button>
-                  ) : institute ? (
-                    <RosterCreateButton
-                      isVerified={institute.is_verified ?? false}
-                      variant="default"
-                      size="sm"
-                      className="bg-blue-800 hover:bg-blue-900"
-                    />
-                  ) : null}
+                  <RosterCreateButton
+                    onClick={handleCreateRosterClick}
+                    variant="default"
+                    size="sm"
+                    className="bg-blue-800 hover:bg-blue-900"
+                  />
                 </div>
                 {/* {institute && (
                   <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -298,15 +266,10 @@ export default function RosterView() {
 
       <AuthDialog
         open={authDialogOpen}
-        onOpenChange={handleAuthDialogChange}
+        onOpenChange={setAuthDialogOpen}
         initialMode="login"
-        onAuthenticated={() => {}}
-      />
-
-      <CreateInstituteDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSuccess={handleCreateInstituteSuccess}
+        returnTo="/jobs/roster/create"
+        onAuthenticated={() => router.push("/jobs/roster/create")}
       />
 
       <GraduateDetailsDialog

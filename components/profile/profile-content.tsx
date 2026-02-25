@@ -10,6 +10,7 @@ import { ProfileOffersTable } from "./profile-offers-table";
 import { ProfileJobsTable } from "./profile-jobs-table";
 import { CvSections } from "./cv/CvSections";
 import { ProfileInstituteSection } from "./profile-institute-section";
+import { ProfileRosterSection } from "./profile-roster-section";
 
 interface ProfileContentProps {
   activeTab: string;
@@ -40,6 +41,7 @@ interface ProfileContentProps {
   onConvertOffer: (offer: Offer) => void;
   institute: Institute | null;
   instituteLoading: boolean;
+  onInstituteCreated?: () => void;
 }
 
 export function ProfileContent({
@@ -71,6 +73,7 @@ export function ProfileContent({
   onConvertOffer,
   institute,
   instituteLoading,
+  onInstituteCreated,
 }: ProfileContentProps) {
   const renderContent = () => {
     switch (activeTab) {
@@ -176,7 +179,15 @@ export function ProfileContent({
           <ProfileInstituteSection
             institute={institute}
             loading={instituteLoading}
+            onInstituteCreated={onInstituteCreated}
           />
+        );
+
+      case "roster":
+        return (
+          <div className="py-4">
+            <ProfileRosterSection />
+          </div>
         );
 
       case "cv":

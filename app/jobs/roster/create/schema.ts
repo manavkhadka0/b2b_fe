@@ -1,8 +1,12 @@
 import { z } from "zod";
 
+export const ROSTER_TYPE_CHOICES = ["Roster-Graduates", "Individual"] as const;
+
 export const rosterFormSchema = z.object({
   // Step 1: Basic info
+  roster_type: z.enum(ROSTER_TYPE_CHOICES),
   institute: z.union([z.number(), z.string()]).optional().nullable(),
+  institute_name: z.string().optional().nullable(),
   name: z.string().min(1, "Name is required"),
   phone_number: z
     .string()
@@ -42,4 +46,15 @@ export const rosterFormSchema = z.object({
   declaration: z.boolean().refine((val) => val === true, {
     message: "You must agree to the declaration",
   }),
+}).superRefine((data, ctx) => {
+  if (data.roster_type === "Roster-Graduates") {
+    const hasInstitute = data.institute != null && data.institute !== "";
+    if (!hasInstitute) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please register an institute first to add roster graduates.",
+        path: ["institute"],
+      });
+    }
+  }
 });

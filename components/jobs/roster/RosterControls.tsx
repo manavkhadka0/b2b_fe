@@ -56,7 +56,6 @@ export function RosterControls({
           )}
         </div>
         <RosterCreateButton
-          isVerified={institute?.is_verified ?? false}
           variant="default"
           size="sm"
           className="order-1 sm:order-2 bg-blue-800 hover:bg-blue-900"

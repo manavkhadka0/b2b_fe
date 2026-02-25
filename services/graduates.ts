@@ -84,6 +84,30 @@ export async function getGraduates(
 }
 
 /**
+ * Fetch my graduates from /api/my-graduates/ (authenticated).
+ * Token is sent via api interceptor. Handles paginated or flat response.
+ */
+export async function getMyGraduates(): Promise<GraduateRoster[]> {
+  const { data } = await api.get<GraduatesListResponse | GraduateRoster[]>(
+    "/api/my-graduates/"
+  );
+  if (Array.isArray(data)) return data;
+  const results = data?.results ?? [];
+  if (!data?.next) return results;
+  let page = parsePageFromUrl(data.next);
+  const all = [...results];
+  while (page != null) {
+    const res = await api.get<GraduatesListResponse>(
+      `/api/my-graduates/?page=${page}`
+    );
+    const nextData = res.data;
+    all.push(...(nextData?.results ?? []));
+    page = parsePageFromUrl(nextData?.next ?? null);
+  }
+  return all;
+}
+
+/**
  * Convenience helper to fetch all graduates for a given institution name.
  * This will follow DRF pagination under the hood and return a flat list.
  */

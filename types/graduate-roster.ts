@@ -50,6 +50,8 @@ export interface GraduateRosterInstitute {
 
 export interface GraduateRoster {
   id: number;
+  roster_type?: RosterType | null;
+  institute_name?: string | null;
   institute: number | GraduateRosterInstitute | null;
   name: string;
   phone_number: string;
@@ -77,8 +79,17 @@ export interface GraduateRoster {
   updated_at: string;
 }
 
+export const ROSTER_TYPE_CHOICES = [
+  "Roster-Graduates",
+  "Individual",
+] as const;
+
+export type RosterType = (typeof ROSTER_TYPE_CHOICES)[number];
+
 /** Payload for POST /api/graduates/ */
 export interface CreateGraduateRosterPayload {
+  roster_type?: RosterType | null;
+  institute_name?: string | null;
   institute?: number | null;
   name: string;
   phone_number: string;

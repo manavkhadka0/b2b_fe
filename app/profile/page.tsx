@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { ResponsiveContainer } from "@/components/sections/common/responsive-container";
 import { Loader2 } from "lucide-react";
@@ -32,8 +32,16 @@ import {
 } from "@/services/institute";
 import type { Institute } from "@/types/institute";
 
+const VALID_TABS = ["wishes", "offers", "my-jobs", "applied-jobs", "cv", "roster", "institute"] as const;
+type TabId = (typeof VALID_TABS)[number];
+
+function isValidTab(tab: string | null): tab is TabId {
+  return tab !== null && VALID_TABS.includes(tab as TabId);
+}
+
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const {
     wishes,
@@ -52,8 +60,28 @@ export default function ProfilePage() {
   const [myJobsLoading, setMyJobsLoading] = useState(true);
   const [appliedJobsLoading, setAppliedJobsLoading] = useState(true);
 
-  // Active tab state
-  const [activeTab, setActiveTab] = useState("wishes");
+  // Active tab state - sync with URL ?tab= for persistence on refresh
+  const tabFromUrl = searchParams.get("tab");
+  const initialTab = isValidTab(tabFromUrl) ? tabFromUrl : "wishes";
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  // Sync activeTab with URL when tabFromUrl changes (e.g. browser back/forward)
+  useEffect(() => {
+    if (isValidTab(tabFromUrl) && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl, activeTab]);
+
+  const handleTabChange = useCallback(
+    (tab: string) => {
+      if (!isValidTab(tab)) return;
+      setActiveTab(tab);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tab);
+      router.replace(`/profile?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   // Institute (for Jobbriz section)
   const [institute, setInstitute] = useState<Institute | null>(null);
@@ -299,7 +327,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row">
               <ProfileSidebar
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
               />
 
               <ProfileContent
@@ -331,6 +359,7 @@ export default function ProfilePage() {
                 onConvertOffer={handleConvertOffer}
                 institute={institute}
                 instituteLoading={instituteLoading}
+                onInstituteCreated={fetchInstitute}
               />
             </div>
           </div>

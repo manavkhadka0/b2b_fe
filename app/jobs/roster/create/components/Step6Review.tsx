@@ -30,6 +30,16 @@ export function Step6Review({ form }: Step6ReviewProps) {
         <p className="font-medium text-slate-900">Review your information</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
           <div>
+            <span className="text-slate-500">Roster type:</span>{" "}
+            {values.roster_type ?? "Individual"}
+          </div>
+          {values.roster_type === "Roster-Graduates" && values.institute_name && (
+            <div>
+              <span className="text-slate-500">Institute:</span>{" "}
+              {values.institute_name}
+            </div>
+          )}
+          <div>
             <span className="text-slate-500">Name:</span> {values.name}
           </div>
           <div>

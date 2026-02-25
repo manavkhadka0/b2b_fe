@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -41,6 +41,7 @@ import {
   getInstituteDetail,
   isInstituteNotFoundError,
 } from "@/services/institute";
+import { CreateInstituteDialog } from "@/components/jobs/roster/CreateInstituteDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import type {
   CreateGraduateRosterPayload,
@@ -73,12 +74,20 @@ const STEPS = [
 ];
 
 function toPayload(values: RosterFormValues): CreateGraduateRosterPayload {
+  const isRosterGraduates = values.roster_type === "Roster-Graduates";
   const instituteId =
-    values.institute != null && values.institute !== ""
+    isRosterGraduates &&
+    values.institute != null &&
+    values.institute !== ""
       ? Number(values.institute)
-      : null;
-  return {
-    institute: instituteId,
+      : undefined;
+  const instituteName =
+    isRosterGraduates && values.institute_name?.trim()
+      ? values.institute_name.trim()
+      : undefined;
+
+  const payload: CreateGraduateRosterPayload = {
+    roster_type: values.roster_type,
     name: values.name,
     phone_number: values.phone_number,
     email: values.email,
@@ -106,6 +115,18 @@ function toPayload(values: RosterFormValues): CreateGraduateRosterPayload {
     job_status: values.job_status as CreateGraduateRosterPayload["job_status"],
     available_from: values.available_from?.trim() || null,
   };
+
+  // Roster-Graduates: send institute id and name
+  // Individual: explicitly send null so backend does not default to user's institute
+  if (isRosterGraduates && (instituteId != null || instituteName)) {
+    payload.institute = instituteId ?? null;
+    payload.institute_name = instituteName ?? null;
+  } else {
+    payload.institute = null;
+    payload.institute_name = null;
+  }
+
+  return payload;
 }
 
 function graduateToFormValues(graduate: GraduateRoster): RosterFormValues {
@@ -113,9 +134,15 @@ function graduateToFormValues(graduate: GraduateRoster): RosterFormValues {
     typeof graduate.institute === "object" && graduate.institute
       ? graduate.institute.id
       : (graduate.institute ?? null);
+  const instituteName =
+    typeof graduate.institute === "object" && graduate.institute
+      ? graduate.institute.institute_name
+      : "";
 
   return {
+    roster_type: "Roster-Graduates",
     institute: instituteId,
+    institute_name: instituteName,
     name: graduate.name,
     phone_number: graduate.phone_number,
     email: graduate.email,
@@ -150,6 +177,15 @@ export default function RosterCreatePage() {
   const editId = editIdParam ? Number(editIdParam) : null;
   const isEditing = !!editIdParam && !Number.isNaN(editId);
 
+  const sourceParam = searchParams.get("source");
+  const instituteIdParam = searchParams.get("instituteId");
+  const instituteIdFromUrl = instituteIdParam
+    ? Number(instituteIdParam)
+    : null;
+  const fromInstitute = sourceParam === "institute" && instituteIdFromUrl;
+  const fromRoster = sourceParam === "roster";
+  const hideRosterType = !!(fromInstitute || fromRoster);
+
   const { user, isLoading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [institute, setInstitute] = useState<Institute | null>(null);
@@ -158,16 +194,23 @@ export default function RosterCreatePage() {
   const [editingGraduate, setEditingGraduate] = useState<GraduateRoster | null>(
     null,
   );
+  const [createInstituteDialogOpen, setCreateInstituteDialogOpen] =
+    useState(false);
+
+  const fetchInstitute = useCallback(async () => {
+    if (!user?.username) return;
+    try {
+      const data = await getInstituteDetail();
+      setInstitute(data);
+    } catch (err) {
+      if (!isInstituteNotFoundError(err)) console.error(err);
+      setInstitute(null);
+    }
+  }, [user?.username]);
 
   useEffect(() => {
-    if (!user?.username) return;
-    getInstituteDetail()
-      .then(setInstitute)
-      .catch((err) => {
-        if (!isInstituteNotFoundError(err)) console.error(err);
-        setInstitute(null);
-      });
-  }, [user?.username]);
+    fetchInstitute();
+  }, [fetchInstitute]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -181,7 +224,9 @@ export default function RosterCreatePage() {
   const form = useForm<RosterFormValues>({
     resolver: zodResolver(rosterFormSchema),
     defaultValues: {
+      roster_type: "Individual",
       institute: null,
+      institute_name: "",
       name: "",
       phone_number: "",
       email: "",
@@ -225,17 +270,56 @@ export default function RosterCreatePage() {
       .finally(() => setLoadingGraduate(false));
   }, [isEditing, editId, form]);
 
+  // Only auto-set institute when NOT from profile section (hideRosterType)
+  useEffect(() => {
+    if (isEditing || hideRosterType) return;
+    const rosterType = form.getValues("roster_type");
+    if (rosterType === "Roster-Graduates" && institute?.is_verified) {
+      form.setValue("institute", institute.id);
+      form.setValue("institute_name", institute.institute_name ?? "");
+    }
+  }, [
+    institute?.id,
+    institute?.institute_name,
+    institute?.is_verified,
+    form,
+    isEditing,
+    hideRosterType,
+  ]);
+
+  // Pre-fill from profile section links - must run after institute loads for fromInstitute
   useEffect(() => {
     if (isEditing) return;
-    if (institute?.id) {
+    if (fromInstitute && institute && institute.id === instituteIdFromUrl) {
+      form.setValue("roster_type", "Roster-Graduates");
       form.setValue("institute", institute.id);
+      form.setValue("institute_name", institute.institute_name ?? "");
+    } else if (fromRoster) {
+      form.setValue("roster_type", "Individual");
+      form.setValue("institute", null);
+      form.setValue("institute_name", "");
     }
-  }, [institute?.id, form, isEditing]);
+  }, [
+    fromInstitute,
+    fromRoster,
+    institute,
+    instituteIdFromUrl,
+    form,
+    isEditing,
+  ]);
 
   const getFieldsForStep = (step: number): (keyof RosterFormValues)[] => {
     switch (step) {
       case 1:
-        return ["name", "phone_number", "email", "gender", "date_of_birth"];
+        return [
+          "roster_type",
+          "institute",
+          "name",
+          "phone_number",
+          "email",
+          "gender",
+          "date_of_birth",
+        ];
       case 2:
         return [
           "permanent_province",
@@ -278,16 +362,12 @@ export default function RosterCreatePage() {
     setIsSubmitting(true);
     try {
       const payload = toPayload(data);
-      const finalPayload =
-        !isEditing && institute
-          ? { ...payload, institute: institute.id }
-          : payload;
 
       if (isEditing && editId) {
-        await updateGraduate(editId, finalPayload);
+        await updateGraduate(editId, payload);
         toast.success("Graduate updated.");
       } else {
-        await createGraduate(finalPayload);
+        await createGraduate(payload);
         toast.success("Graduate added to roster.");
       }
       router.push("/jobs/roster");
@@ -449,7 +529,16 @@ export default function RosterCreatePage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4 sm:space-y-6"
               >
-                {currentStep === 1 && <Step1BasicInfo form={form} />}
+                {currentStep === 1 && (
+                  <Step1BasicInfo
+                    form={form}
+                    institute={institute}
+                    onOpenCreateInstitute={() =>
+                      setCreateInstituteDialogOpen(true)
+                    }
+                    hideRosterType={hideRosterType}
+                  />
+                )}
                 {currentStep === 2 && <Step2Address form={form} />}
                 {currentStep === 3 && <Step4Education form={form} />}
                 {currentStep === 4 && <Step5JobAvailability form={form} />}
@@ -509,6 +598,14 @@ export default function RosterCreatePage() {
             </Form>
           </CardContent>
         </Card>
+
+        <CreateInstituteDialog
+          open={createInstituteDialogOpen}
+          onOpenChange={setCreateInstituteDialogOpen}
+          onSuccess={() => {
+            fetchInstitute();
+          }}
+        />
       </div>
     </div>
   );

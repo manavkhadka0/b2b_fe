@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { GraduateRosterForm } from "@/components/jobs/roster/GraduateRosterForm";
+import { CreateInstituteDialog } from "@/components/jobs/roster/CreateInstituteDialog";
 import {
   deleteGraduate,
   getAllGraduatesForInstitution,
@@ -38,11 +39,13 @@ import { toast } from "sonner";
 interface ProfileInstituteSectionProps {
   institute: Institute | null;
   loading: boolean;
+  onInstituteCreated?: () => void;
 }
 
 export function ProfileInstituteSection({
   institute,
   loading,
+  onInstituteCreated,
 }: ProfileInstituteSectionProps) {
   const [graduates, setGraduates] = useState<GraduateRoster[]>([]);
   const [graduatesLoading, setGraduatesLoading] = useState(false);
@@ -52,8 +55,9 @@ export function ProfileInstituteSection({
   );
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-   const [resendVerificationLoading, setResendVerificationLoading] =
+  const [resendVerificationLoading, setResendVerificationLoading] =
     useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!institute || !institute.institute_name) return;
@@ -147,17 +151,31 @@ export function ProfileInstituteSection({
 
   if (!institute) {
     return (
-      <div className="py-12 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-        <div className="rounded-full bg-gray-100 p-4 mb-4">
-          <Building2 className="w-10 h-10 text-gray-400" />
+      <div className="py-4 space-y-6">
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="p-5 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+            <div className="rounded-full bg-gray-100 p-4 mb-4">
+              <Building2 className="w-10 h-10 text-gray-400" />
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              You have not registered an institute yet. Register to manage the
+              skilled workforce roster.
+            </p>
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              Create institute
+            </Button>
+          </div>
         </div>
-        <p className="text-sm text-gray-600 mb-4">
-          You have not registered an institute yet. Register to manage the
-          skilled workforce roster.
-        </p>
-        <Button asChild>
-          <Link href="/jobs/roster">Go to Roster</Link>
-        </Button>
+        <CreateInstituteDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSuccess={() => {
+            onInstituteCreated?.();
+          }}
+        />
       </div>
     );
   }
@@ -257,7 +275,11 @@ export function ProfileInstituteSection({
         <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-2">
           {institute.is_verified && (
             <Button size="sm" asChild>
-              <Link href="/jobs/roster/create">Add graduate</Link>
+              <Link
+                href={`/jobs/roster/create?source=institute&instituteId=${institute.id}`}
+              >
+                Add graduate
+              </Link>
             </Button>
           )}
         </div>
