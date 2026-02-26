@@ -387,6 +387,27 @@ export function useSearchWishesOffers(search: string) {
   };
 }
 
+// Fire-and-forget POST to record view (no payload, no toast)
+export function postWishView(wishId: number): void {
+  axios
+    .post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/${wishId}/view/`,
+      {},
+      { headers: { Accept: "application/json" } }
+    )
+    .catch(() => {});
+}
+
+export function postOfferView(offerId: number): void {
+  axios
+    .post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/${offerId}/view/`,
+      {},
+      { headers: { Accept: "application/json" } }
+    )
+    .catch(() => {});
+}
+
 // Custom Hook for Event-specific Wishes
 export function useEventWishes(eventSlug: string | null) {
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(

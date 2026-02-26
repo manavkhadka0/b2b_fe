@@ -6,6 +6,8 @@ import {
   useCombinedWishesOffers,
   useWishOfferCategories,
   useSearchWishesOffers,
+  postWishView,
+  postOfferView,
 } from "@/app/utils/wishOffer";
 import {
   Wish,
@@ -557,7 +559,11 @@ export function WishOfferContent() {
                     key={`${item.model_type ?? item._source}-${item.id}`}
                     item={item}
                     index={idx}
-                    onOpen={() => setSelectedItem(item)}
+                    onOpen={() => {
+                      if (isWish) postWishView(item.id);
+                      else postOfferView(item.id);
+                      setSelectedItem(item);
+                    }}
                     onCreateOffer={
                       isWish ? () => handleCreateOffer(item as Wish) : undefined
                     }
