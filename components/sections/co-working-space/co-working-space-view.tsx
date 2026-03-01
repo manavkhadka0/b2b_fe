@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import CoWorkingHeroSection from "./co-working-hero-section";
+import ResourceLinksSection from "./resource-links-section";
 
 const ROOMS = [
   {
@@ -217,6 +218,9 @@ export default function CoWorkingSpaceView() {
             />
           </div>
         </div>
+
+        {/* Resources & Support Section */}
+        <ResourceLinksSection />
 
         {/* CTA Section */}
         <div className="flex flex-col items-center justify-center py-12 px-8 bg-blue-800 rounded-xl shadow-sm">
