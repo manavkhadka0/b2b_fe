@@ -449,11 +449,13 @@ export function WorkInterestForm({
                   variant="outline"
                   role="combobox"
                   className={cn(
-                    "w-full justify-between border-slate-200",
+                    "w-full justify-between border-slate-200 min-w-0",
                     !majorGroupCode && "text-muted-foreground",
                   )}
                 >
-                  {selectedMajor?.title ?? "Select major group"}
+                  <span className="min-w-0 truncate">
+                    {selectedMajor?.title ?? "Select major group"}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -482,7 +484,7 @@ export function WorkInterestForm({
                                 setMajorOpen(false);
                               }}
                             >
-                              <span>{g.title}</span>
+                              <span className="min-w-0 truncate">{g.title}</span>
                               <Check
                                 className={cn(
                                   "ml-auto h-4 w-4",
@@ -520,11 +522,13 @@ export function WorkInterestForm({
                   role="combobox"
                   disabled={!majorGroupCode}
                   className={cn(
-                    "w-full justify-between border-slate-200",
+                    "w-full justify-between border-slate-200 min-w-0",
                     !subMajorGroupCode && "text-muted-foreground",
                   )}
                 >
-                  {selectedSubMajor?.title ?? "Select sub-major group"}
+                  <span className="min-w-0 truncate">
+                    {selectedSubMajor?.title ?? "Select sub-major group"}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -553,7 +557,7 @@ export function WorkInterestForm({
                                 setSubMajorOpen(false);
                               }}
                             >
-                              <span>{g.title}</span>
+                              <span className="min-w-0 truncate">{g.title}</span>
                               <Check
                                 className={cn(
                                   "ml-auto h-4 w-4",
@@ -591,11 +595,13 @@ export function WorkInterestForm({
                   role="combobox"
                   disabled={!subMajorGroupCode}
                   className={cn(
-                    "w-full justify-between border-slate-200",
+                    "w-full justify-between border-slate-200 min-w-0",
                     !minorGroupCode && "text-muted-foreground",
                   )}
                 >
-                  {selectedMinor?.title ?? "Select minor group"}
+                  <span className="min-w-0 truncate">
+                    {selectedMinor?.title ?? "Select minor group"}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -624,7 +630,7 @@ export function WorkInterestForm({
                                 setMinorOpen(false);
                               }}
                             >
-                              <span>{g.title}</span>
+                              <span className="min-w-0 truncate">{g.title}</span>
                               <Check
                                 className={cn(
                                   "ml-auto h-4 w-4",
@@ -662,11 +668,13 @@ export function WorkInterestForm({
                   role="combobox"
                   disabled={!minorGroupCode}
                   className={cn(
-                    "w-full justify-between border-slate-200",
+                    "w-full justify-between border-slate-200 min-w-0",
                     !formData.unit_group && "text-muted-foreground",
                   )}
                 >
-                  {selectedUnit?.title ?? "Select unit group"}
+                  <span className="min-w-0 truncate">
+                    {selectedUnit?.title ?? "Select unit group"}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -698,7 +706,7 @@ export function WorkInterestForm({
                                 setUnitOpen(false);
                               }}
                             >
-                              <span>{g.title}</span>
+                              <span className="min-w-0 truncate">{g.title}</span>
                               <Check
                                 className={cn(
                                   "ml-auto h-4 w-4",
