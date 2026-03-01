@@ -23,6 +23,15 @@ import { ApplyDialog, JobsHeader } from "@/components/jobs";
 import type { JobsViewMode } from "@/components/jobs/ModeToggle";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { hasJobseekerProfile } from "@/services/jobseeker";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface JobDetailResponse {
   id: number;
@@ -105,7 +114,38 @@ export default function JobDetailPage() {
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [pendingApplyAfterAuth, setPendingApplyAfterAuth] = useState(false);
+  const [createCvDialogOpen, setCreateCvDialogOpen] = useState(false);
+  const [cvCheckLoading, setCvCheckLoading] = useState(false);
   const fetchingSlugRef = useRef<string | null>(null);
+
+  const checkCvAndOpenApply = React.useCallback(async () => {
+    if (!user?.username) return;
+    setCvCheckLoading(true);
+    try {
+      const has = await hasJobseekerProfile();
+      if (has) {
+        setApplyDialogOpen(true);
+      } else {
+        setCreateCvDialogOpen(true);
+      }
+    } catch (err) {
+      console.error("Error checking CV profile:", err);
+      setCreateCvDialogOpen(true);
+    } finally {
+      setCvCheckLoading(false);
+    }
+  }, [user?.username]);
+
+  useEffect(() => {
+    if (
+      user?.username &&
+      pendingApplyAfterAuth &&
+      !cvCheckLoading
+    ) {
+      checkCvAndOpenApply();
+      setPendingApplyAfterAuth(false);
+    }
+  }, [user?.username, pendingApplyAfterAuth, cvCheckLoading, checkCvAndOpenApply]);
 
   useEffect(() => {
     if (!slug) {
@@ -357,18 +397,31 @@ export default function JobDetailPage() {
               <div className="mt-6">
                 <Button
                   onClick={() => {
-                    // Check if user is logged in
-                    if (!user && !authLoading) {
+                    const token =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem("accessToken")
+                        : null;
+                    if (!user && !token && !authLoading) {
                       setPendingApplyAfterAuth(true);
                       setAuthDialogOpen(true);
                       return;
                     }
-                    setApplyDialogOpen(true);
+                    checkCvAndOpenApply();
                   }}
+                  disabled={cvCheckLoading}
                   className="gap-2"
                 >
-                  Apply Now
-                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                  {cvCheckLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      Apply Now
+                      <ArrowLeft className="w-4 h-4 rotate-180" />
+                    </>
+                  )}
                 </Button>
               </div>
             )}
@@ -498,12 +551,26 @@ export default function JobDetailPage() {
         initialMode="login"
         returnTo={pathname}
         onAuthenticated={() => {
-          if (pendingApplyAfterAuth) {
-            setApplyDialogOpen(true);
-            setPendingApplyAfterAuth(false);
-          }
+          // useEffect will run checkCvAndOpenApply when user is set and pendingApplyAfterAuth is true
         }}
       />
+
+      <Dialog open={createCvDialogOpen} onOpenChange={setCreateCvDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>CV required</DialogTitle>
+            <DialogDescription>
+              You need a CV to apply for jobs. Create one in your profile to
+              continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => router.push("/profile")}>
+              Go to profile
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
