@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,8 +15,6 @@ import {
   getSkills,
   type WorkInterestSkill,
 } from "@/services/workInterests";
-import { getUnitGroups } from "@/services/jobs";
-import type { UnitGroup } from "@/types/unit-groups";
 import type { CreateWorkInterestPayload } from "@/services/workInterests";
 import { toast } from "@/hooks/use-toast";
 
@@ -37,7 +35,6 @@ export default function CreateWorkInterestPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
-  const [unitGroups, setUnitGroups] = useState<UnitGroup[]>([]);
   const [formData, setFormData] =
     useState<WorkInterestFormData>(initialFormData);
   const [skillSuggestions, setSkillSuggestions] = useState<WorkInterestSkill[]>(
@@ -46,23 +43,14 @@ export default function CreateWorkInterestPage() {
   const [skillIdToName, setSkillIdToName] = useState<Map<number, string>>(
     new Map(),
   );
-  const [unitGroupsForForm, setUnitGroupsForForm] = useState<UnitGroup[]>([]);
-  const [groupedUnitGroupsForForm, setGroupedUnitGroupsForForm] = useState<
-    Record<string, UnitGroup[]>
-  >({});
-
-  const [unitGroupSearchInput, setUnitGroupSearchInput] = useState("");
-  const [unitGroupComboboxOpen, setUnitGroupComboboxOpen] = useState(false);
   const [skillInput, setSkillInput] = useState("");
   const [skillsComboboxOpen, setSkillsComboboxOpen] = useState(false);
 
-  const [isLoadingUnitGroups, setIsLoadingUnitGroups] = useState(false);
   const [isLoadingSkills, setIsLoadingSkills] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreatingSkill, setIsCreatingSkill] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
-  const debouncedUnitGroupSearch = useDebounce(unitGroupSearchInput, 300);
   const debouncedSkillSearch = useDebounce(skillInput, 300);
 
   // Require authentication similar to /jobs/create
@@ -76,55 +64,6 @@ export default function CreateWorkInterestPage() {
       setAuthDialogOpen(true);
     }
   }, [user, authLoading]);
-
-  // Load initial unit groups
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const groups = await getUnitGroups();
-        setUnitGroups(groups);
-        setUnitGroupsForForm(groups);
-
-        const grouped: Record<string, UnitGroup[]> = {};
-        groups.forEach((ug) => {
-          const major = ug.minor_group?.sub_major_group?.major_group;
-          if (!major) return;
-          if (!grouped[major.title]) grouped[major.title] = [];
-          grouped[major.title].push(ug);
-        });
-        setGroupedUnitGroupsForForm(grouped);
-      } catch (err) {
-        console.warn("Failed to load unit groups", err);
-      }
-    };
-    void fetchData();
-  }, []);
-
-  // Fetch unit groups for combobox search
-  useEffect(() => {
-    if (!unitGroupComboboxOpen) return;
-    const fetchUnitGroups = async () => {
-      setIsLoadingUnitGroups(true);
-      try {
-        const data = await getUnitGroups(debouncedUnitGroupSearch || undefined);
-        setUnitGroupsForForm(data);
-        const grouped: Record<string, UnitGroup[]> = {};
-        data.forEach((ug) => {
-          const major = ug.minor_group?.sub_major_group?.major_group;
-          if (!major) return;
-          if (!grouped[major.title]) grouped[major.title] = [];
-          grouped[major.title].push(ug);
-        });
-        setGroupedUnitGroupsForForm(grouped);
-      } catch (err) {
-        console.warn("Failed to fetch unit groups", err);
-        setUnitGroupsForForm([]);
-      } finally {
-        setIsLoadingUnitGroups(false);
-      }
-    };
-    void fetchUnitGroups();
-  }, [unitGroupComboboxOpen, debouncedUnitGroupSearch]);
 
   // Fetch skills for combobox search
   useEffect(() => {
@@ -215,20 +154,12 @@ export default function CreateWorkInterestPage() {
         <WorkInterestForm
           formData={formData}
           setFormData={setFormData}
-          unitGroups={unitGroups}
-          unitGroupsForForm={unitGroupsForForm}
-          groupedUnitGroupsForForm={groupedUnitGroupsForForm}
           skillSuggestions={skillSuggestions}
           skillNameById={skillIdToName}
-          unitGroupSearchInput={unitGroupSearchInput}
-          setUnitGroupSearchInput={setUnitGroupSearchInput}
-          unitGroupComboboxOpen={unitGroupComboboxOpen}
-          setUnitGroupComboboxOpen={setUnitGroupComboboxOpen}
           skillInput={skillInput}
           setSkillInput={setSkillInput}
           skillsComboboxOpen={skillsComboboxOpen}
           setSkillsComboboxOpen={setSkillsComboboxOpen}
-          isLoadingUnitGroups={isLoadingUnitGroups}
           isLoadingSkills={isLoadingSkills}
           isSubmitting={isSubmitting}
           isCreatingSkill={isCreatingSkill}
