@@ -182,7 +182,7 @@ export function AuthDialog({
     const { handleSubmit, control } = loginForm;
 
     return (
-      <div className="w-full max-w-md mx-auto">
+      <div key="login-form" className="w-full max-w-md mx-auto">
         <div className="space-y-4 text-center pb-8">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Welcome Back
@@ -316,7 +316,7 @@ export function AuthDialog({
     const { handleSubmit, control } = registerForm;
 
     return (
-      <div className="w-full max-w-md mx-auto">
+      <div key="register-form" className="w-full max-w-md mx-auto">
         <div className="space-y-2 text-center pb-4">
           <h2 className="text-2xl font-semibold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Create your B2B account
@@ -388,10 +388,7 @@ export function AuthDialog({
                         <Input
                           className="pl-10 h-10 border-gray-200 bg-white focus:border-purple-400 focus:ring-purple-400 transition-all text-sm"
                           placeholder="you@example.com"
-                          name={field.name}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          onChange={(e) => field.onChange(e.target.value)}
+                          {...field}
                         />
                       </div>
                     </FormControl>
