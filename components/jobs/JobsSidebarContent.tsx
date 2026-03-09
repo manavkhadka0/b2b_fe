@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronsUpDown,
   Check,
+  Search,
 } from "lucide-react";
 import { JOBS_QUICK_LINKS } from "./jobs-quick-links";
 import { FilterOption } from "@/app/wishOffer/components/FilterOption";
@@ -23,6 +24,7 @@ import {
   getSubMajorGroups,
   getMinorGroups,
   getUnitGroups,
+  searchGroups,
 } from "@/services/jobs";
 import type {
   MajorGroup,
@@ -162,6 +164,18 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
   const [minorOpen, setMinorOpen] = useState(false);
   const [unitOpen, setUnitOpen] = useState(false);
 
+  // Search groups (unified search across all levels)
+  const [groupSearchQuery, setGroupSearchQuery] = useState("");
+  const [groupSearchOpen, setGroupSearchOpen] = useState(false);
+  const [groupSearchResults, setGroupSearchResults] = useState<{
+    major_groups: Array<{ code: string; title: string }>;
+    sub_major_groups: Array<{ code: string; title: string }>;
+    minor_groups: Array<{ code: string; title: string }>;
+    unit_groups: Array<{ code: string; title: string }>;
+  } | null>(null);
+  const [loadingGroupSearch, setLoadingGroupSearch] = useState(false);
+  const debouncedGroupSearch = useDebounce(groupSearchQuery, 300);
+
   useEffect(() => {
     if (!majorOpen) return;
     let cancelled = false;
@@ -225,6 +239,29 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
       cancelled = true;
     };
   }, [unitOpen, minorCode, debouncedUnit]);
+
+  useEffect(() => {
+    if (!groupSearchOpen || !debouncedGroupSearch?.trim()) {
+      setGroupSearchResults(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingGroupSearch(true);
+    searchGroups(debouncedGroupSearch)
+      .then((data) => {
+        if (!cancelled && data) setGroupSearchResults(data.results);
+        else if (!cancelled) setGroupSearchResults(null);
+      })
+      .catch(() => {
+        if (!cancelled) setGroupSearchResults(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingGroupSearch(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [groupSearchOpen, debouncedGroupSearch]);
 
   const selectedMajor = majorGroups.find((g) => g.code === majorCode);
   const selectedSubMajor = subMajorGroups.find((g) => g.code === subMajorCode);
@@ -300,6 +337,117 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
     wrap(() => {})();
   };
 
+  const handleGroupSearchSelect = async (
+    type: "major" | "sub_major" | "minor" | "unit",
+    code: string,
+    title: string,
+  ) => {
+    if (type === "major") {
+      setMajorCode(code);
+      setSubMajorCode("");
+      setMinorCode("");
+      setSubMajorGroups([]);
+      setMinorGroups([]);
+      setUnitGroups([]);
+      setMajorGroups((prev) => {
+        if (prev.some((g) => g.code === code)) return prev;
+        return [
+          ...prev,
+          { id: 0, code, title, slug: "", description: "" } as MajorGroup,
+        ];
+      });
+      setSelectedMajorGroupCodes(toggleCode(selectedMajorGroupCodes, code));
+      setSelectedSubMajorGroupCodes([]);
+      setSelectedMinorGroupCodes([]);
+      setSelectedUnitGroupCodes([]);
+    } else if (type === "unit") {
+      try {
+        const units = await getUnitGroups(code);
+        const unit = units.find((u) => u.code === code);
+        if (unit?.minor_group) {
+          const major = unit.minor_group.sub_major_group.major_group;
+          const subMajor = unit.minor_group.sub_major_group;
+          const minor = unit.minor_group;
+          setMajorCode(major.code);
+          setSubMajorCode(subMajor.code);
+          setMinorCode(minor.code);
+          setMajorGroups((prev) =>
+            prev.some((g) => g.code === major.code)
+              ? prev
+              : [...prev, major],
+          );
+          setSubMajorGroups([subMajor]);
+          setMinorGroups([minor]);
+          setUnitGroups([unit]);
+        }
+        setSelectedUnitGroupCodes(toggleCode(selectedUnitGroupCodes, code));
+        setSelectedMajorGroupCodes([]);
+        setSelectedSubMajorGroupCodes([]);
+        setSelectedMinorGroupCodes([]);
+      } catch {
+        setSelectedUnitGroupCodes(toggleCode(selectedUnitGroupCodes, code));
+      }
+    } else if (type === "sub_major" || type === "minor") {
+      try {
+        const units = await getUnitGroups(code);
+        const unit = units.find((u) => {
+          if (type === "sub_major")
+            return u.minor_group?.sub_major_group?.code === code;
+          return u.minor_group?.code === code;
+        });
+        if (unit?.minor_group) {
+          const major = unit.minor_group.sub_major_group.major_group;
+          const subMajor = unit.minor_group.sub_major_group;
+          const minor = unit.minor_group;
+          setMajorCode(major.code);
+          setSubMajorCode(subMajor.code);
+          setMinorCode(minor.code);
+          setMajorGroups((prev) =>
+            prev.some((g) => g.code === major.code)
+              ? prev
+              : [...prev, major],
+          );
+          setSubMajorGroups([subMajor]);
+          setMinorGroups([minor]);
+          if (type === "minor") {
+            const minorUnits = await getUnitGroups(undefined, minor.code);
+            setUnitGroups(minorUnits);
+          } else {
+            setUnitGroups([]);
+          }
+        }
+        if (type === "sub_major") {
+          setSelectedSubMajorGroupCodes(
+            toggleCode(selectedSubMajorGroupCodes, code),
+          );
+          setSelectedMajorGroupCodes([]);
+          setSelectedMinorGroupCodes([]);
+          setSelectedUnitGroupCodes([]);
+        } else {
+          setSelectedMinorGroupCodes(toggleCode(selectedMinorGroupCodes, code));
+          setSelectedMajorGroupCodes([]);
+          setSelectedSubMajorGroupCodes([]);
+          setSelectedUnitGroupCodes([]);
+        }
+      } catch {
+        if (type === "sub_major") {
+          setSelectedSubMajorGroupCodes(
+            toggleCode(selectedSubMajorGroupCodes, code),
+          );
+          setSelectedMinorGroupCodes([]);
+          setSelectedUnitGroupCodes([]);
+        } else {
+          setSelectedMinorGroupCodes(toggleCode(selectedMinorGroupCodes, code));
+          setSelectedUnitGroupCodes([]);
+        }
+      }
+    }
+    wrap(() => {})();
+    setGroupSearchOpen(false);
+    setGroupSearchQuery("");
+    setGroupSearchResults(null);
+  };
+
   const hasGroupsSelected =
     selectedMajorGroupCodes.length > 0 ||
     selectedSubMajorGroupCodes.length > 0 ||
@@ -333,6 +481,169 @@ export const JobsSidebarContent: React.FC<JobsSidebarContentProps> = ({
             <h3 className="text-slate-900 font-semibold text-sm">Groups</h3>
           </div>
           <div className="space-y-3">
+            {/* Search groups - unified search across all levels */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Search groups
+              </label>
+              <Popover
+                open={groupSearchOpen}
+                onOpenChange={(o) => {
+                  setGroupSearchOpen(o);
+                  if (!o) {
+                    setGroupSearchQuery("");
+                    setGroupSearchResults(null);
+                  }
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start font-normal h-9 border-slate-200 text-sm text-left"
+                  >
+                    <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-slate-500" />
+                    <span className="truncate text-slate-500">
+                      {groupSearchQuery || "Search by occupation or code..."}
+                    </span>
+                    <ChevronsUpDown className="ml-auto h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] p-0"
+                  align="start"
+                >
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search by occupation or code..."
+                      value={groupSearchQuery}
+                      onValueChange={setGroupSearchQuery}
+                    />
+                    <CommandList>
+                      {loadingGroupSearch && (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                        </div>
+                      )}
+                      {!loadingGroupSearch && groupSearchResults && (
+                        <>
+                          {groupSearchResults.major_groups.length === 0 &&
+                            groupSearchResults.sub_major_groups.length === 0 &&
+                            groupSearchResults.minor_groups.length === 0 &&
+                            groupSearchResults.unit_groups.length === 0 && (
+                              <div className="py-4 text-center text-sm text-slate-500">
+                                No groups found.
+                              </div>
+                            )}
+                          {groupSearchResults.major_groups.length > 0 && (
+                            <CommandGroup heading="Major groups">
+                              {groupSearchResults.major_groups.map((g) => (
+                                <CommandItem
+                                  key={`major-${g.code}`}
+                                  value={g.code}
+                                  onSelect={() =>
+                                    handleGroupSearchSelect("major", g.code, g.title)
+                                  }
+                                >
+                                  <span className="truncate">{g.title}</span>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4 shrink-0",
+                                      selectedMajorGroupCodes.includes(g.code)
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                          {groupSearchResults.sub_major_groups.length > 0 && (
+                            <CommandGroup heading="Sub-major groups">
+                              {groupSearchResults.sub_major_groups.map((g) => (
+                                <CommandItem
+                                  key={`sub-${g.code}`}
+                                  value={g.code}
+                                  onSelect={() =>
+                                    handleGroupSearchSelect("sub_major", g.code, g.title)
+                                  }
+                                >
+                                  <span className="truncate">{g.title}</span>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4 shrink-0",
+                                      selectedSubMajorGroupCodes.includes(
+                                        g.code,
+                                      )
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                          {groupSearchResults.minor_groups.length > 0 && (
+                            <CommandGroup heading="Minor groups">
+                              {groupSearchResults.minor_groups.map((g) => (
+                                <CommandItem
+                                  key={`minor-${g.code}`}
+                                  value={g.code}
+                                  onSelect={() =>
+                                    handleGroupSearchSelect("minor", g.code, g.title)
+                                  }
+                                >
+                                  <span className="truncate">{g.title}</span>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4 shrink-0",
+                                      selectedMinorGroupCodes.includes(g.code)
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                          {groupSearchResults.unit_groups.length > 0 && (
+                            <CommandGroup heading="Unit groups">
+                              {groupSearchResults.unit_groups.map((g) => (
+                                <CommandItem
+                                  key={`unit-${g.code}`}
+                                  value={g.code}
+                                  onSelect={() =>
+                                    handleGroupSearchSelect("unit", g.code, g.title)
+                                  }
+                                >
+                                  <span className="truncate">{g.title}</span>
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4 shrink-0",
+                                      selectedUnitGroupCodes.includes(g.code)
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                        </>
+                      )}
+                      {!loadingGroupSearch &&
+                        !groupSearchResults &&
+                        debouncedGroupSearch?.trim() && (
+                          <div className="py-4 text-center text-sm text-slate-500">
+                            Type to search groups...
+                          </div>
+                        )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             <FilterOption
               label="All"
               isActive={!hasGroupsSelected}
