@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,7 @@ import {
   getSubMajorGroups,
   getMinorGroups,
   getUnitGroups,
+  searchGroups,
 } from "@/services/jobs";
 import { useDebounce } from "@/hooks/use-debounce";
 import { SkillsSelect } from "./SkillsSelect";
@@ -161,6 +162,18 @@ export function WorkInterestForm({
   const [minorOpen, setMinorOpen] = useState(false);
   const [unitOpen, setUnitOpen] = useState(false);
 
+  // Search groups (unified search across all levels)
+  const [groupSearchQuery, setGroupSearchQuery] = useState("");
+  const [groupSearchOpen, setGroupSearchOpen] = useState(false);
+  const [groupSearchResults, setGroupSearchResults] = useState<{
+    major_groups: Array<{ code: string; title: string }>;
+    sub_major_groups: Array<{ code: string; title: string }>;
+    minor_groups: Array<{ code: string; title: string }>;
+    unit_groups: Array<{ code: string; title: string }>;
+  } | null>(null);
+  const [loadingGroupSearch, setLoadingGroupSearch] = useState(false);
+  const debouncedGroupSearch = useDebounce(groupSearchQuery, 300);
+
   // Fetch major groups when dropdown opens
   useEffect(() => {
     if (!majorOpen) return;
@@ -238,6 +251,30 @@ export function WorkInterestForm({
     void fetch();
   }, [unitOpen, minorGroupCode, debouncedUnitSearch]);
 
+  // Search groups when dropdown opens and user types
+  useEffect(() => {
+    if (!groupSearchOpen || !debouncedGroupSearch?.trim()) {
+      setGroupSearchResults(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingGroupSearch(true);
+    searchGroups(debouncedGroupSearch)
+      .then((data) => {
+        if (!cancelled && data) setGroupSearchResults(data.results);
+        else if (!cancelled) setGroupSearchResults(null);
+      })
+      .catch(() => {
+        if (!cancelled) setGroupSearchResults(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingGroupSearch(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [groupSearchOpen, debouncedGroupSearch]);
+
   const selectedMajor = majorGroups.find((g) => g.code === majorGroupCode);
   const selectedSubMajor = subMajorGroups.find(
     (g) => g.code === subMajorGroupCode,
@@ -269,6 +306,89 @@ export function WorkInterestForm({
     setMinorGroupCode(code);
     setFormData((prev) => ({ ...prev, unit_group: "" }));
     setUnitGroupSearch("");
+  };
+
+  const handleGroupSearchSelect = async (
+    type: "major" | "sub_major" | "minor" | "unit",
+    code: string,
+    title: string,
+  ) => {
+    if (type === "major") {
+      setMajorGroupCode(code);
+      setSubMajorGroupCode("");
+      setMinorGroupCode("");
+      setFormData((prev) => ({ ...prev, unit_group: "" }));
+      setSubMajorGroupSearch("");
+      setMinorGroupSearch("");
+      setUnitGroupSearch("");
+      setMajorGroups((prev) => {
+        if (prev.some((g) => g.code === code)) return prev;
+        return [
+          ...prev,
+          { id: 0, code, title, slug: "", description: "" } as MajorGroup,
+        ];
+      });
+    } else if (type === "unit") {
+      try {
+        const units = await getUnitGroups(code);
+        const unit = units.find((u) => u.code === code);
+        if (unit?.minor_group) {
+          const major = unit.minor_group.sub_major_group.major_group;
+          const subMajor = unit.minor_group.sub_major_group;
+          const minor = unit.minor_group;
+          setMajorGroupCode(major.code);
+          setSubMajorGroupCode(subMajor.code);
+          setMinorGroupCode(minor.code);
+          setFormData((prev) => ({ ...prev, unit_group: String(unit.id) }));
+          setMajorGroups((prev) =>
+            prev.some((g) => g.code === major.code)
+              ? prev
+              : [...prev, major],
+          );
+          setSubMajorGroups([subMajor]);
+          setMinorGroups([minor]);
+          setUnitGroupsForForm([unit]);
+        }
+      } catch {
+        // Fallback: cannot resolve hierarchy
+      }
+    } else if (type === "sub_major" || type === "minor") {
+      try {
+        const units = await getUnitGroups(code);
+        const unit = units.find((u) => {
+          if (type === "sub_major")
+            return u.minor_group?.sub_major_group?.code === code;
+          return u.minor_group?.code === code;
+        });
+        if (unit?.minor_group) {
+          const major = unit.minor_group.sub_major_group.major_group;
+          const subMajor = unit.minor_group.sub_major_group;
+          const minor = unit.minor_group;
+          setMajorGroupCode(major.code);
+          setSubMajorGroupCode(subMajor.code);
+          setMinorGroupCode(minor.code);
+          setFormData((prev) => ({ ...prev, unit_group: "" }));
+          setMajorGroups((prev) =>
+            prev.some((g) => g.code === major.code)
+              ? prev
+              : [...prev, major],
+          );
+          setSubMajorGroups([subMajor]);
+          setMinorGroups([minor]);
+          if (type === "minor") {
+            const minorUnits = await getUnitGroups(undefined, minor.code);
+            setUnitGroupsForForm(minorUnits);
+          } else {
+            setUnitGroupsForForm([]);
+          }
+        }
+      } catch {
+        // Can't resolve hierarchy
+      }
+    }
+    setGroupSearchOpen(false);
+    setGroupSearchQuery("");
+    setGroupSearchResults(null);
   };
 
   const removeSkill = (id: number) => {
@@ -429,8 +549,146 @@ export function WorkInterestForm({
           Occupation Classification *
         </label>
         <p className="text-xs text-slate-500 mb-3">
-          Select from Major Group → Sub-Major → Minor → Unit Group
+          Search by occupation or code, or select from Major Group → Sub-Major
+          → Minor → Unit Group
         </p>
+        {/* Search groups - unified search with auto-fill */}
+        <div className="mb-4">
+          <Popover
+            open={groupSearchOpen}
+            onOpenChange={(o) => {
+              setGroupSearchOpen(o);
+              if (!o) {
+                setGroupSearchQuery("");
+                setGroupSearchResults(null);
+              }
+            }}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-start font-normal h-9 border-slate-200 text-sm text-left"
+              >
+                <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-slate-500" />
+                <span className="truncate text-slate-500">
+                  {groupSearchQuery || "Search by occupation or code..."}
+                </span>
+                <ChevronsUpDown className="ml-auto h-3.5 w-3.5 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[var(--radix-popover-trigger-width)] p-0"
+              align="start"
+            >
+              <Command shouldFilter={false}>
+                <CommandInput
+                  placeholder="Search by occupation or code..."
+                  value={groupSearchQuery}
+                  onValueChange={setGroupSearchQuery}
+                />
+                <CommandList>
+                  {loadingGroupSearch && (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                    </div>
+                  )}
+                  {!loadingGroupSearch && groupSearchResults && (
+                    <>
+                      {groupSearchResults.major_groups.length === 0 &&
+                        groupSearchResults.sub_major_groups.length === 0 &&
+                        groupSearchResults.minor_groups.length === 0 &&
+                        groupSearchResults.unit_groups.length === 0 && (
+                          <div className="py-4 text-center text-sm text-slate-500">
+                            No groups found.
+                          </div>
+                        )}
+                      {groupSearchResults.major_groups.length > 0 && (
+                        <CommandGroup heading="Major groups">
+                          {groupSearchResults.major_groups.map((g) => (
+                            <CommandItem
+                              key={`major-${g.code}`}
+                              value={g.code}
+                              onSelect={() =>
+                                handleGroupSearchSelect("major", g.code, g.title)
+                              }
+                            >
+                              <span className="truncate">{g.title}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                      {groupSearchResults.sub_major_groups.length > 0 && (
+                        <CommandGroup heading="Sub-major groups">
+                          {groupSearchResults.sub_major_groups.map((g) => (
+                            <CommandItem
+                              key={`sub-${g.code}`}
+                              value={g.code}
+                              onSelect={() =>
+                                handleGroupSearchSelect(
+                                  "sub_major",
+                                  g.code,
+                                  g.title,
+                                )
+                              }
+                            >
+                              <span className="truncate">{g.title}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                      {groupSearchResults.minor_groups.length > 0 && (
+                        <CommandGroup heading="Minor groups">
+                          {groupSearchResults.minor_groups.map((g) => (
+                            <CommandItem
+                              key={`minor-${g.code}`}
+                              value={g.code}
+                              onSelect={() =>
+                                handleGroupSearchSelect(
+                                  "minor",
+                                  g.code,
+                                  g.title,
+                                )
+                              }
+                            >
+                              <span className="truncate">{g.title}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                      {groupSearchResults.unit_groups.length > 0 && (
+                        <CommandGroup heading="Unit groups">
+                          {groupSearchResults.unit_groups.map((g) => (
+                            <CommandItem
+                              key={`unit-${g.code}`}
+                              value={g.code}
+                              onSelect={() =>
+                                handleGroupSearchSelect(
+                                  "unit",
+                                  g.code,
+                                  g.title,
+                                )
+                              }
+                            >
+                              <span className="truncate">{g.title}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </>
+                  )}
+                  {!loadingGroupSearch &&
+                    !groupSearchResults &&
+                    debouncedGroupSearch?.trim() && (
+                      <div className="py-4 text-center text-sm text-slate-500">
+                        Type to search groups...
+                      </div>
+                    )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Major Group */}
           <div className="space-y-2">
