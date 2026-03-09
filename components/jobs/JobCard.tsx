@@ -36,8 +36,11 @@ export const JobCard: React.FC<JobCardProps> = ({
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (job.isDeadlinePassed) return;
     if (onApply) onApply(job);
   };
+
+  const isClosed = job.isDeadlinePassed;
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,11 +56,11 @@ export const JobCard: React.FC<JobCardProps> = ({
         onKeyDown={
           onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined
         }
-        className={`px-4 py-3 hover:bg-gray-50/50 transition-colors group ${onClick ? "cursor-pointer" : ""}`}
+        className={`px-4 py-3 hover:bg-gray-50/50 transition-colors group ${onClick ? "cursor-pointer" : ""} ${isClosed ? "opacity-75" : ""}`}
       >
         <div className="flex justify-between items-start gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+            <h3 className={`text-sm font-semibold line-clamp-1 transition-colors ${isClosed ? "text-slate-500" : "text-slate-900 group-hover:text-blue-600"}`}>
               {job.title}
             </h3>
             <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
@@ -65,9 +68,16 @@ export const JobCard: React.FC<JobCardProps> = ({
               <span className="truncate">{job.company}</span>
             </div>
           </div>
-          <span className="bg-slate-50 border border-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-semibold uppercase shrink-0">
-            {job.type}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isClosed && (
+              <span className="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded font-semibold uppercase">
+                Closed
+              </span>
+            )}
+            <span className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${isClosed ? "bg-slate-100 border border-slate-200 text-slate-500" : "bg-slate-50 border border-slate-100 text-slate-600"}`}>
+              {job.type}
+            </span>
+          </div>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5 text-[11px] text-slate-500">
           <span className="flex items-center gap-1">
@@ -102,12 +112,19 @@ export const JobCard: React.FC<JobCardProps> = ({
       onKeyDown={
         onClick ? (e) => e.key === "Enter" && handleCardClick() : undefined
       }
-      className={`bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:border-blue-600/30 hover:shadow-md transition-all group ${onClick ? "cursor-pointer" : ""}`}
+      className={`bg-white rounded-xl p-6 shadow-sm border transition-all group ${onClick ? "cursor-pointer" : ""} ${isClosed ? "opacity-75 border-slate-200 grayscale hover:grayscale-0 hover:opacity-90" : "border-slate-200 hover:border-blue-600/30 hover:shadow-md"}`}
     >
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-          {job.title}
-        </h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className={`text-lg font-bold transition-colors ${isClosed ? "text-slate-600" : "text-slate-900 group-hover:text-blue-600"}`}>
+            {job.title}
+          </h3>
+          {isClosed && (
+            <span className="bg-slate-200 text-slate-600 text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide shrink-0">
+              Job Closed
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2 text-sm text-slate-600 mt-1 font-medium">
           <Building2 className="w-4 h-4" />
           <span>{job.company}</span>
@@ -127,7 +144,7 @@ export const JobCard: React.FC<JobCardProps> = ({
       </div>
 
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 border-t border-slate-50 pt-4">
-        <span className="bg-slate-50 border border-slate-100 text-slate-600 text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide shrink-0">
+        <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide shrink-0 ${isClosed ? "bg-slate-100 border border-slate-200 text-slate-500" : "bg-slate-50 border border-slate-100 text-slate-600"}`}>
           {job.type}
         </span>
         <div className="flex gap-2 flex-wrap min-w-0 flex-1 justify-center">
@@ -155,6 +172,10 @@ export const JobCard: React.FC<JobCardProps> = ({
               {job.isApplied ? (
                 <div className="text-xs font-bold text-green-600 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Already Applied
+                </div>
+              ) : isClosed ? (
+                <div className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                  Job Closed
                 </div>
               ) : onApply ? (
                 <button

@@ -1,5 +1,15 @@
 import { Job, JobApiResponse, JobApplication } from "@/types/types";
 
+function isDeadlinePassed(deadline: string): boolean {
+  if (!deadline) return false;
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  // Compare at start of day (ignore time)
+  deadlineDate.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+  return now > deadlineDate;
+}
+
 export const transformJobs = (apiJobs: JobApiResponse[]): Job[] => {
   return apiJobs.map((apiJob) => {
     // Get company name from company_name or user's name
@@ -68,6 +78,7 @@ export const transformJobs = (apiJobs: JobApiResponse[]): Job[] => {
       postedDate: formatPostedDate(apiJob.posted_date),
       requirements: [], // API doesn't provide requirements, using empty array
       isApplied: apiJob.is_applied || false,
+      isDeadlinePassed: isDeadlinePassed(apiJob.deadline),
     };
   });
 };
@@ -142,6 +153,7 @@ export const transformAppliedJobs = (applications: JobApplication[]): Job[] => {
       postedDate: formatPostedDate(apiJob.posted_date),
       requirements: [], // API doesn't provide requirements, using empty array
       isApplied: true, // Always true for applied jobs
+      isDeadlinePassed: isDeadlinePassed(apiJob.deadline),
     };
   });
 };

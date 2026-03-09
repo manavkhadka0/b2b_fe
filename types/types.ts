@@ -27,6 +27,8 @@ export interface Job {
   postedDate: string;
   requirements: string[];
   isApplied?: boolean;
+  /** True when the application deadline has passed */
+  isDeadlinePassed?: boolean;
 }
 
 // API Response Types

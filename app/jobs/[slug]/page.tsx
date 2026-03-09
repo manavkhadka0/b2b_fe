@@ -82,6 +82,15 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function isDeadlinePassed(deadline: string): boolean {
+  if (!deadline) return false;
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  deadlineDate.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+  return now > deadlineDate;
+}
+
 function formatPostedDate(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
@@ -231,6 +240,8 @@ export default function JobDetailPage() {
         ).toLocaleString()}`
       : null;
 
+  const deadlinePassed = job ? isDeadlinePassed(job.deadline) : false;
+
   const categoryPath = job?.unit_group?.minor_group?.sub_major_group
     ?.major_group
     ? [
@@ -337,12 +348,12 @@ export default function JobDetailPage() {
           </button>
         </div>
 
-        <article className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <article className={`bg-white rounded-xl border shadow-sm overflow-hidden ${deadlinePassed ? "opacity-90 border-slate-200" : "border-slate-200"}`}>
           {/* Header */}
-          <div className="p-6 sm:p-8 border-b border-slate-100">
+          <div className={`p-6 sm:p-8 border-b border-slate-100 ${deadlinePassed ? "bg-slate-50/50" : ""}`}>
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                <h1 className={`text-2xl font-bold mb-2 ${deadlinePassed ? "text-slate-600" : "text-slate-900"}`}>
                   {job.title}
                 </h1>
                 <div className="flex items-center gap-2 text-slate-600 font-medium">
@@ -354,7 +365,12 @@ export default function JobDetailPage() {
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold uppercase tracking-wide">
                   {job.employment_type}
                 </span>
-                {job.has_already_applied && (
+                {deadlinePassed && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-sm font-medium">
+                    Job Closed
+                  </span>
+                )}
+                {job.has_already_applied && !deadlinePassed && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
                     <CheckCircle2 className="w-4 h-4" />
                     Already Applied
@@ -393,7 +409,7 @@ export default function JobDetailPage() {
               )} */}
             </div>
 
-            {!job.has_already_applied && (
+            {!job.has_already_applied && !deadlinePassed && (
               <div className="mt-6">
                 <Button
                   onClick={() => {
@@ -464,14 +480,17 @@ export default function JobDetailPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
-                <Calendar className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+              <div className={`flex items-start gap-3 p-4 rounded-lg border ${deadlinePassed ? "bg-slate-100 border-slate-200" : "bg-slate-50 border-slate-100"}`}>
+                <Calendar className={`w-5 h-5 shrink-0 mt-0.5 ${deadlinePassed ? "text-slate-400" : "text-slate-500"}`} />
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Application Deadline
                   </p>
-                  <p className="text-slate-900 font-medium mt-0.5">
+                  <p className={`font-medium mt-0.5 ${deadlinePassed ? "text-slate-500" : "text-slate-900"}`}>
                     {formatDate(job.deadline)}
+                    {deadlinePassed && (
+                      <span className="ml-1.5 text-xs text-slate-500">(Closed)</span>
+                    )}
                   </p>
                 </div>
               </div>
