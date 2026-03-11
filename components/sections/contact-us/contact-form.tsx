@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 
 type FormValues = {
   name: string;
@@ -26,7 +28,10 @@ type FormValues = {
 
 export default function ContactForm() {
   const { t } = useTranslation();
+  const { user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<FormValues | null>(null);
   
   const formSchema = z.object({
     name: z.string().min(2, t("contact.name") + " " + t("common.error")),
@@ -48,16 +53,27 @@ export default function ContactForm() {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const submitContact = async (data: FormValues) => {
     setLoading(true); // Start loading
     try {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/contact/`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify(data),
         }
       );
@@ -83,6 +99,21 @@ export default function ContactForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSubmit = async (data: FormValues) => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+
+    if (!user && !token && !authLoading) {
+      setPendingData(data);
+      setAuthDialogOpen(true);
+      return;
+    }
+
+    await submitContact(data);
   };
 
   return (
@@ -172,6 +203,22 @@ export default function ContactForm() {
           </div>
         </form>
       </Form>
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) {
+            setPendingData(null);
+          }
+        }}
+        initialMode="login"
+        onAuthenticated={async () => {
+          if (!pendingData) return;
+          const dataToSubmit = pendingData;
+          setPendingData(null);
+          await submitContact(dataToSubmit);
+        }}
+      />
     </div>
   );
 }
