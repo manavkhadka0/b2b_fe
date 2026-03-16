@@ -36,7 +36,15 @@ import { Event } from "@/types/events";
 import { getEvents } from "@/services/events";
 import useSWR from "swr";
 
-export function WishOfferContent() {
+export function WishOfferContent({
+  initialCategoryId = null,
+  initialSubcategoryId = null,
+  initialCategoryName = null,
+}: {
+  initialCategoryId?: number | null;
+  initialSubcategoryId?: number | null;
+  initialCategoryName?: string | null;
+}) {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -73,10 +81,35 @@ export function WishOfferContent() {
   );
   const [selectedCategoryType, setSelectedCategoryType] =
     useState<CategoryType>("ALL");
-  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
-  const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(
-    null,
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(
+    initialCategoryId,
   );
+  const [activeSubcategoryId, setActiveSubcategoryId] = useState<
+    number | null
+  >(initialSubcategoryId);
+
+  const { productCategories, serviceCategories } = useWishOfferCategories();
+
+  // If initialCategoryName is provided, try to find the category ID once categories are loaded
+  useEffect(() => {
+    if (initialCategoryName && !activeCategoryId) {
+      const slugify = (text: string) =>
+        text
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w-]+/g, "")
+          .replace(/--+/g, "-");
+
+      const allCats = [...productCategories, ...serviceCategories];
+      const match = allCats.find((c) => slugify(c.name) === initialCategoryName);
+      if (match) {
+        setActiveCategoryId(match.id);
+      }
+    }
+  }, [initialCategoryName, productCategories, serviceCategories, activeCategoryId]);
+
   const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,8 +122,6 @@ export function WishOfferContent() {
   const isLoggedIn =
     !!user ||
     (typeof window !== "undefined" && !!localStorage.getItem("accessToken"));
-
-  const { productCategories, serviceCategories } = useWishOfferCategories();
 
   // Fetch events
   const eventFetcher = async () => {
@@ -124,6 +155,7 @@ export function WishOfferContent() {
     activeSubcategoryId,
     activeEventSlug,
     modelTypeParam,
+    activeCategoryId ? null : initialCategoryName,
   );
 
   // Intersection Observer

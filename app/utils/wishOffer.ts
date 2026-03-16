@@ -95,7 +95,8 @@ const getGetKeyCombined =
     categoryId?: number | null,
     subcategoryId?: number | null,
     eventSlug?: string | null,
-    modelType?: "wish" | "offer" | null
+    modelType?: "wish" | "offer" | null,
+    categoryName?: string | null
   ) =>
   (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
     if (previousPageData && !previousPageData.next) return null;
@@ -106,6 +107,8 @@ const getGetKeyCombined =
         params.append("subcategory_id", subcategoryId.toString());
       } else if (categoryId) {
         params.append("category_id", categoryId.toString());
+      } else if (categoryName) {
+        params.append("category", categoryName);
       }
       if (eventSlug) {
         params.append("event_slug", eventSlug);
@@ -124,6 +127,8 @@ const getGetKeyCombined =
         if (modelType) {
           params.set("model_type", modelType);
         }
+        // Preserve category filter on pagination if it was part of initial call
+        // although usually 'next' URL from API already contains it.
         const queryString = params.toString();
         return queryString ? `${baseUrl}?${queryString}` : baseUrl;
       } catch (e) {
@@ -208,13 +213,21 @@ export function useCombinedWishesOffers(
   categoryId?: number | null,
   subcategoryId?: number | null,
   eventSlug?: string | null,
-  modelType?: "wish" | "offer" | null
+  modelType?: "wish" | "offer" | null,
+  categoryName?: string | null
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/combined/`;
 
   const { data, error, isLoading, size, setSize, mutate } =
     useSWRInfinite<CombinedResponse>(
-      getGetKeyCombined(baseUrl, categoryId, subcategoryId, eventSlug, modelType),
+      getGetKeyCombined(
+        baseUrl,
+        categoryId,
+        subcategoryId,
+        eventSlug,
+        modelType,
+        categoryName
+      ),
       fetcher,
       {
         revalidateFirstPage: false,
