@@ -5,10 +5,10 @@ import { FileCheck } from "lucide-react";
 export const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 export const API_ENDPOINTS = {
-  categories: `${API_BASE_URL}/mero-desh-merai-udpadan/nature-of-industry-category/`,
-  subCategories: `${API_BASE_URL}/mero-desh-merai-udpadan/nature-of-industry-sub-category/`,
-  register: `${API_BASE_URL}/mero-desh-merai-udpadan/mero-desh-merai-utpadan/`,
-  companyLogo: `${API_BASE_URL}/mero-desh-merai-udpadan/company-logo/`,
+  categories: `${API_BASE_URL}/mdmu/nature-of-industry-category/`,
+  subCategories: `${API_BASE_URL}/mdmu/nature-of-industry-sub-category/`,
+  register: `${API_BASE_URL}/mdmu/mero-desh-merai-utpadan/`,
+  companyLogo: `${API_BASE_URL}/mdmu/company-logo/`,
 };
 
 export const MARKET_CHOICES = [

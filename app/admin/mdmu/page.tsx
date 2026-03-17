@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
-import { MDMUResponse } from "@/components/mdmu/mdmu/components/mero-desh-merai-udpadan-form/types";
-import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mero-desh-merai-udpadan-form/constants";
+import { MDMUResponse } from "@/components/mdmu/mdmu/components/mdmu-form/types";
+import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mdmu-form/constants";
 import {
   fetcher,
   ALL_OPTION,

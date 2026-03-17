@@ -8,7 +8,7 @@ import {
   getOffersPaginated,
   deleteWish,
   deleteOffer,
-} from "@/services/marketplace";
+} from "@/services/wishOffer";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
