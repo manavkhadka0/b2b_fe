@@ -8,6 +8,7 @@ import {
   useSearchWishesOffers,
   postWishView,
   postOfferView,
+  parseMarketplaceSlug,
 } from "@/app/utils/wishOffer";
 import {
   Wish,
@@ -16,6 +17,7 @@ import {
   type ItemType,
   type CategoryType,
 } from "@/types/wish";
+import { Category } from "@/types/create-wish-type";
 import {
   Loader2,
   X,
@@ -40,13 +42,23 @@ export function WishOfferContent({
   initialCategoryId = null,
   initialSubcategoryId = null,
   initialCategoryName = null,
+  initialSubcategoryName = null,
   initialType = "ALL",
+  initialCategoryType = "ALL",
+  initialEventSlug = null,
+  initialProductCategories = [],
+  initialServiceCategories = [],
   slug = [],
 }: {
   initialCategoryId?: number | null;
   initialSubcategoryId?: number | null;
   initialCategoryName?: string | null;
+  initialSubcategoryName?: string | null;
   initialType?: ItemType;
+  initialCategoryType?: CategoryType;
+  initialEventSlug?: string | null;
+  initialProductCategories?: Category[];
+  initialServiceCategories?: Category[];
   slug?: string[];
 }) {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
@@ -64,9 +76,10 @@ export function WishOfferContent({
     return typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL";
   });
 
-  const [selectedCategoryType, setSelectedCategoryType] = useState<CategoryType>("ALL");
+  const [selectedCategoryType, setSelectedCategoryType] = useState<CategoryType>(initialCategoryType);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(initialCategoryId);
   const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(initialSubcategoryId);
+  const [activeEventSlug, setActiveEventSlug] = useState<string | null>(initialEventSlug);
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
 
@@ -78,8 +91,6 @@ export function WishOfferContent({
       .replace(/\s+/g, "-")
       .replace(/[^\w-]+/g, "")
       .replace(/--+/g, "-"), []);
-
-  const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
 
   const updateURL = useCallback((catId: number | null, subId: number | null, type?: ItemType, catType?: CategoryType, eventSlug?: string | null) => {
     const currentType = type ?? selectedType;
@@ -181,65 +192,29 @@ export function WishOfferContent({
 
   // Handle Slug-based category and subcategory matching
   useEffect(() => {
-    // Skip if this is initial mount and we have initial values
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+    const pc = productCategories.length > 0 ? productCategories : initialProductCategories;
+    const sc = serviceCategories.length > 0 ? serviceCategories : initialServiceCategories;
 
-    if ((productCategories.length > 0 || serviceCategories.length > 0)) {
-      isUpdatingFromURL.current = true;
-
-      let currentSlug = slug || [];
-
-      let type: ItemType = "ALL";
-      let catType: CategoryType = "ALL";
-
-      if (pathname.includes("/marketplace/wishes")) {
-        type = "WISH";
-        if (currentSlug[0] === "wishes") {
-          currentSlug = currentSlug.slice(1);
-        }
-      } else if (pathname.includes("/marketplace/offers")) {
-        type = "OFFER";
-        if (currentSlug[0] === "offers") {
-          currentSlug = currentSlug.slice(1);
-        }
-        if (currentSlug[0] === "products") {
-          catType = "Product";
-          currentSlug = currentSlug.slice(1);
-        } else if (currentSlug[0] === "services") {
-          catType = "Service";
-          currentSlug = currentSlug.slice(1);
-        }
+    if (pc.length > 0 || sc.length > 0) {
+      // Don't set isUpdatingFromURL if this is initial mount, 
+      // as we want SWR to trigger with the correct initial states
+      if (!isInitialMount.current) {
+        isUpdatingFromURL.current = true;
       }
 
-      // Extract event from path
-      const eventIdx = currentSlug.indexOf("event");
-      let parsedEventSlug: string | null = null;
-      if (eventIdx !== -1 && eventIdx + 1 < currentSlug.length) {
-        parsedEventSlug = currentSlug[eventIdx + 1];
-        currentSlug = [
-          ...currentSlug.slice(0, eventIdx),
-          ...currentSlug.slice(eventIdx + 2),
-        ];
-      }
+      const { type, catType, eventSlug, categorySlug, subcategorySlug } = parseMarketplaceSlug(slug || []);
 
-      const categorySlug = currentSlug[0] || "";
-      const subcategorySlug = currentSlug[1] || "";
-
-      // Update state based on URL
+      // Batch state updates
       setSelectedType(type);
       setSelectedCategoryType(catType);
-      setActiveEventSlug(parsedEventSlug);
+      setActiveEventSlug(eventSlug);
 
       if (categorySlug) {
-        const allCats = [...productCategories, ...serviceCategories];
+        const allCats = [...pc, ...sc];
         const match = allCats.find((c) => slugify(c.name) === categorySlug);
 
         if (match) {
           setActiveCategoryId(match.id);
-
           if (subcategorySlug) {
             const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === subcategorySlug);
             setActiveSubcategoryId(subMatch ? subMatch.id : null);
@@ -255,23 +230,35 @@ export function WishOfferContent({
         setActiveSubcategoryId(null);
       }
 
-      // Reset the flag after a short delay
-      setTimeout(() => {
-        isUpdatingFromURL.current = false;
-      }, 100);
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+      } else {
+        setTimeout(() => {
+          isUpdatingFromURL.current = false;
+        }, 100);
+      }
     }
-  }, [slug, productCategories, serviceCategories, pathname, slugify]);
+  }, [slug, productCategories, serviceCategories, slugify]);
 
   // If initialCategoryName is provided, try to find the category ID once categories are loaded
   useEffect(() => {
-    if (initialCategoryName && !activeCategoryId && !isUpdatingFromURL.current) {
-      const allCats = [...productCategories, ...serviceCategories];
-      const match = allCats.find((c) => slugify(c.name) === initialCategoryName);
-      if (match) {
-        setActiveCategoryId(match.id);
+    const pc = productCategories.length > 0 ? productCategories : initialProductCategories;
+    const sc = serviceCategories.length > 0 ? serviceCategories : initialServiceCategories;
+
+    if ((initialCategoryName || initialSubcategoryName) && !activeCategoryId && !isUpdatingFromURL.current && (pc.length > 0 || sc.length > 0)) {
+      const allCats = [...pc, ...sc];
+      if (initialCategoryName) {
+        const match = allCats.find((c) => slugify(c.name) === initialCategoryName);
+        if (match) {
+          setActiveCategoryId(match.id);
+          if (initialSubcategoryName) {
+            const subMatch = match.subcategories?.find(s => slugify(s.name) === initialSubcategoryName);
+            if (subMatch) setActiveSubcategoryId(subMatch.id);
+          }
+        }
       }
     }
-  }, [initialCategoryName, productCategories, serviceCategories, activeCategoryId, slugify]);
+  }, [initialCategoryName, initialSubcategoryName, productCategories, serviceCategories, activeCategoryId, slugify]);
 
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -343,10 +330,13 @@ export function WishOfferContent({
     useSearchWishesOffers(debouncedSearch);
 
   const availableCategories = useMemo(() => {
-    if (selectedCategoryType === "Product") return productCategories;
-    if (selectedCategoryType === "Service") return serviceCategories;
-    return [...productCategories, ...serviceCategories];
-  }, [selectedCategoryType, productCategories, serviceCategories]);
+    const pc = productCategories.length > 0 ? productCategories : initialProductCategories;
+    const sc = serviceCategories.length > 0 ? serviceCategories : initialServiceCategories;
+    
+    if (selectedCategoryType === "Product") return pc;
+    if (selectedCategoryType === "Service") return sc;
+    return [...pc, ...sc];
+  }, [selectedCategoryType, productCategories, serviceCategories, initialProductCategories, initialServiceCategories]);
 
   const allSubcategories = useMemo(() => {
     return availableCategories.flatMap((cat) => cat.subcategories || []);

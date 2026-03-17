@@ -456,3 +456,49 @@ export const slugify = (text: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^\w-]+/g, "")
     .replace(/--+/g, "-");
+
+export function parseMarketplaceSlug(slug: string[]) {
+  let currentSlug = [...slug];
+  let type: "WISH" | "OFFER" | "ALL" = "ALL";
+  let catType: "Product" | "Service" | "ALL" = "ALL";
+  let eventSlug: string | null = null;
+
+  if (currentSlug.length > 0) {
+    if (currentSlug[0] === "wishes") {
+      type = "WISH";
+      currentSlug = currentSlug.slice(1);
+    } else if (currentSlug[0] === "offers") {
+      type = "OFFER";
+      currentSlug = currentSlug.slice(1);
+      if (currentSlug.length > 0) {
+        if (currentSlug[0] === "products") {
+          catType = "Product";
+          currentSlug = currentSlug.slice(1);
+        } else if (currentSlug[0] === "services") {
+          catType = "Service";
+          currentSlug = currentSlug.slice(1);
+        }
+      }
+    }
+  }
+
+  const eventIdx = currentSlug.indexOf("event");
+  if (eventIdx !== -1 && eventIdx + 1 < currentSlug.length) {
+    eventSlug = currentSlug[eventIdx + 1];
+    currentSlug = [
+      ...currentSlug.slice(0, eventIdx),
+      ...currentSlug.slice(eventIdx + 2),
+    ];
+  }
+
+  const categorySlug = currentSlug[0] || null;
+  const subcategorySlug = currentSlug[1] || null;
+
+  return {
+    type,
+    catType,
+    eventSlug,
+    categorySlug,
+    subcategorySlug,
+  };
+}
