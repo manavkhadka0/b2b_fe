@@ -279,8 +279,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                             onMouseEnter={() => handleCategoryHover(cat.id)}
                             onMouseLeave={handleCategoryLeave}
                             className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${isCategoryActive
-                                ? "bg-slate-100 text-slate-900"
-                                : "text-slate-600 hover:bg-slate-50"
+                              ? "bg-slate-100 text-slate-900"
+                              : "text-slate-600 hover:bg-slate-50"
                               }`}
                           >
                             <span className="flex-1 text-left">{cat.name}</span>
@@ -304,21 +304,7 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                               </div>
                             ) : (
                               <>
-                                {/* Option to clear subcategory but keep category */}
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    wrap(() => setCategoryAndSubcategory(cat.id, null))();
-                                    setOpenDropdownId(null);
-                                  }}
-                                  className={`cursor-pointer ${activeCategoryId === cat.id && activeSubcategoryId === null
-                                      ? "bg-slate-100 font-semibold"
-                                      : ""
-                                    }`}
-                                >
-                                  All {cat.name}
-                                </DropdownMenuItem>
+
 
                                 {categorySubcategories.map((subcat) => (
                                   <DropdownMenuItem
@@ -329,8 +315,8 @@ export const SidebarContent: React.FC<SidebarContentProps> = ({
                                       wrap(() => handleSubcategoryClick(cat.id, subcat.id))();
                                     }}
                                     className={`cursor-pointer ${activeSubcategoryId === subcat.id
-                                        ? "bg-slate-100"
-                                        : ""
+                                      ? "bg-slate-100"
+                                      : ""
                                       }`}
                                   >
                                     {subcat.name}
