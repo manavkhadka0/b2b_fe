@@ -41,7 +41,7 @@ const Footerbot = () => {
                 </li>
                 <li>
                   <Link
-                    href="/events"
+                    href="/b2b-networking-events"
                     className="text-gray-200 hover:text-white transition-colors"
                   >
                     B2B Events
@@ -49,7 +49,7 @@ const Footerbot = () => {
                 </li>
                 <li>
                   <Link
-                    href="/wishOffer"
+                    href="/marketplace"
                     className="text-gray-200 hover:text-white transition-colors"
                   >
                     Wish & Offer

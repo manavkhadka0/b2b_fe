@@ -425,7 +425,7 @@ export function postOfferView(offerId: number): void {
 export function useEventWishes(eventSlug: string | null) {
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(
     eventSlug
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/wishes/`
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/b2b-networking-events/${eventSlug}/wishes/`
       : null,
     fetcher
   );
@@ -442,7 +442,7 @@ export function useEventWishes(eventSlug: string | null) {
 export function useEventOffers(eventSlug: string | null) {
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     eventSlug
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/offers/`
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/b2b-networking-events/${eventSlug}/offers/`
       : null,
     fetcher
   );

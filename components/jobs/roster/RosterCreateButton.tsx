@@ -35,7 +35,7 @@ export function RosterCreateButton({
   return (
     <Button asChild variant={variant} size={size} className={className}>
       <Link
-        href="/jobs/roster/create"
+        href="/jobs-and-oppourtunities/roster/create"
         className="inline-flex items-center gap-2"
       >
         <Plus className="w-4 h-4" />

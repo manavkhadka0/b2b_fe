@@ -51,7 +51,7 @@ export function ProfileJobsTable({
             <TableRow key={job.id} className="group hover:bg-gray-50/50">
                 <TableCell className="py-3">
                   <Link
-                    href={`/jobs/create?slug=${job.slug}`}
+                    href={`/jobs-and-oppourtunities/create?slug=${job.slug}`}
                     className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
                   >
                     {job.title}
@@ -76,7 +76,7 @@ export function ProfileJobsTable({
               </TableCell>
               <TableCell className="py-3 text-right">
                 <div className="flex items-center justify-end gap-1">
-                  <Link href={`/jobs/create?slug=${job.slug}`}>
+                  <Link href={`/jobs-and-oppourtunities/create?slug=${job.slug}`}>
                     <Button
                       variant="ghost"
                       size="icon"

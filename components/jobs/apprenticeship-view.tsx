@@ -99,7 +99,7 @@ export default function ApprenticeshipView() {
   }, []);
 
   const handleApply = () => {
-    router.push("/jobs/apprenticeship/apply");
+    router.push("/jobs-and-oppourtunities/apprenticeship/apply");
   };
 
   return (

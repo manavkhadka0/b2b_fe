@@ -219,7 +219,7 @@ export function WorkInterestsView() {
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent">
             Work Interests
           </h1>
-          <Link href="/jobs/work-interests/create">
+          <Link href="/jobs-and-oppourtunities/work-interests/create">
             <Button
               size="default"
               className="w-full sm:w-auto bg-blue-800 text-white"

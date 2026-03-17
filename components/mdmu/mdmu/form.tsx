@@ -139,7 +139,7 @@ export const Form = () => {
                   Apply now to join our network of quality domestic producers
                 </p>
                 <Link
-                  href="/mdmu/apply"
+                  href="/mero-desh-merai-udpadan/apply"
                   className="inline-flex items-center justify-center px-8 py-4 
                   bg-blue-600 hover:bg-blue-700 text-white rounded-lg
                   transition-all duration-300 transform hover:translate-y-[-2px]"

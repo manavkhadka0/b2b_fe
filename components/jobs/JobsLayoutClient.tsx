@@ -19,12 +19,12 @@ const SIDEBAR_ROUTES = [
 ] as const;
 
 function shouldShowSidebar(pathname: string): boolean {
-  if (!pathname.startsWith("/jobs")) return false;
+  if (!pathname.startsWith("/jobs-and-oppourtunities")) return false;
   const segments = pathname.split("/").filter(Boolean);
-  // /jobs only -> no layout sidebar (JobsSeekerContent has its own)
+  // /jobs-and-oppourtunities only -> no layout sidebar (JobsSeekerContent has its own)
   if (segments.length === 1) return false;
   const secondSegment = segments[1];
-  // /jobs/[slug] -> no sidebar (job detail page)
+  // /jobs-and-oppourtunities/[slug] -> no sidebar (job detail page)
   if (!SIDEBAR_ROUTES.includes(secondSegment as any)) return false;
   return true;
 }
@@ -43,11 +43,11 @@ export function JobsLayoutClient({ children }: { children: React.ReactNode }) {
 
   const handleModeChange = (nextMode: JobsViewMode) => {
     if (nextMode === "employer") {
-      router.push("/jobs/employer");
+      router.push("/jobs-and-oppourtunities/employer");
     } else if (nextMode === "work-interests") {
-      router.push("/jobs/work-interests");
+      router.push("/jobs-and-oppourtunities/work-interests");
     } else {
-      router.push("/jobs");
+      router.push("/jobs-and-oppourtunities");
     }
   };
 

@@ -97,7 +97,7 @@ export default function InternshipView() {
   }, []);
 
   const handleApply = () => {
-    router.push("/jobs/internship/apply");
+    router.push("/jobs-and-oppourtunities/internship/apply");
   };
 
   return (

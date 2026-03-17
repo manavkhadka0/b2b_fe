@@ -30,7 +30,7 @@ export default function CTASection() {
             </p>
           </div>
           <Link
-            href="/wishOffer/wishes/create-wish"
+            href="/marketplace/wishes/create-wish"
             className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors shrink-0 whitespace-nowrap"
           >
             {t("ctaSection.button")}

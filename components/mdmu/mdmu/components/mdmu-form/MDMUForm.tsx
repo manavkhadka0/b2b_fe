@@ -188,7 +188,7 @@ export function MDMUForm() {
 
         // Reset form and redirect to thank you page
         form.reset();
-        router.push(`/mdmu/thank-you?${searchParams.toString()}`);
+        router.push(`/mero-desh-merai-udpadan/thank-you?${searchParams.toString()}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

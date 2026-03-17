@@ -16,11 +16,11 @@ import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navigationItems = [
-  { href: "/mdmu/about-us", label: "About Us" },
-  { href: "/mdmu/#objectives", label: "Objectives" },
-  { href: "/mdmu/#contact", label: "Contact" },
-  { href: "/mdmu/endorsements", label: "Endorsements" },
-  { href: "/mdmu/newsletter", label: "Newsletter" },
+  { href: "/mero-desh-merai-udpadan/about", label: "About Us" },
+  { href: "/mero-desh-merai-udpadan/#objectives", label: "Objectives" },
+  { href: "/mero-desh-merai-udpadan/#contact", label: "Contact" },
+  { href: "/mero-desh-merai-udpadan/endorsements", label: "Endorsements" },
+  { href: "/mero-desh-merai-udpadan/newsletter", label: "Newsletter" },
 ];
 
 const MDMUHeader = () => {
@@ -49,7 +49,7 @@ const MDMUHeader = () => {
   return (
     <nav className="bg-white py-2 sticky top-0 z-50 h-[80px]">
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link href="/mdmu">
+        <Link href="/mero-desh-merai-udpadan">
           <div className="flex items-center gap-4">
             <img src="/cim-logo.webp" alt="CIM Logo" className="w-14 h-14" />
             <img src="/mdmu-logo.png" alt="MDMU Logo" className="w-16 h-16" />
@@ -71,7 +71,7 @@ const MDMUHeader = () => {
           </nav>
           <Button
             className="bg-[#0A1E4B] hover:bg-blue-900"
-            onClick={() => navigateWithAuthCheck("/mdmu/apply")}
+            onClick={() => navigateWithAuthCheck("/mero-desh-merai-udpadan/apply")}
           >
             Register Now
           </Button>
@@ -104,7 +104,7 @@ const MDMUHeader = () => {
                   className="bg-[#0A1E4B] hover:bg-blue-900"
                   onClick={() => {
                     setOpen(false);
-                    navigateWithAuthCheck("/mdmu/apply");
+                    navigateWithAuthCheck("/mero-desh-merai-udpadan/apply");
                   }}
                 >
                   Register Now

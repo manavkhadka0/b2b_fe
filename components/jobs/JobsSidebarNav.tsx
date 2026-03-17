@@ -19,7 +19,7 @@ export type JobsSidebarNavProps = {
 
 export function JobsSidebarNav({ mode, onModeChange }: JobsSidebarNavProps) {
   const pathname = usePathname();
-  const isRosterPage = pathname?.startsWith("/jobs/roster") ?? false;
+  const isRosterPage = pathname?.startsWith("/jobs-and-oppourtunities/roster") ?? false;
   const { availability, setAvailability, proficiency, setProficiency } =
     useWorkInterestsFilters();
   const {
@@ -45,7 +45,7 @@ export function JobsSidebarNav({ mode, onModeChange }: JobsSidebarNavProps) {
 
   return (
     <div className="space-y-6">
-      {/* Mode Toggle - matches JobsSidebarContent / View Mode section on /jobs */}
+      {/* Mode Toggle - matches JobsSidebarContent / View Mode section on /jobs-and-oppourtunities */}
       <div className={JOBS_SIDEBAR.sectionBordered}>
         <h2 className={JOBS_SIDEBAR.sectionHeadingTight}>View Mode</h2>
         <ModeToggle mode={mode} onModeChange={onModeChange} />

@@ -93,7 +93,7 @@ const EventDetailOrganizer = ({ event }: { event: Event }) => {
           Share This Event
         </h3>
         <ShareButtons
-          url={`${process.env.NEXT_PUBLIC_APP_URL}/events/${event.slug}`}
+          url={`${process.env.NEXT_PUBLIC_APP_URL}/b2b-networking-events/${event.slug}`}
           title={event.title}
           description={event.description}
         />

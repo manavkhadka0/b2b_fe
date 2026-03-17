@@ -2,9 +2,13 @@
 
 import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { WishOfferContent } from "./components/WishOfferContent";
+import { WishOfferContent } from "../components/WishOfferContent";
+import { useParams } from "next/navigation";
 
-export default function WishOfferPage() {
+export default function MarketplaceCategoryPage() {
+  const params = useParams();
+  const slug = params.slug as string[] | undefined;
+
   return (
     <Suspense
       fallback={
@@ -13,7 +17,9 @@ export default function WishOfferPage() {
         </div>
       }
     >
-      <WishOfferContent />
+      <WishOfferContent 
+        slug={slug}
+      />
     </Suspense>
   );
 }

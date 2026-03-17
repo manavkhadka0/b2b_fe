@@ -69,7 +69,7 @@ export function WishCard({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 mt-1.5">
-        <Link href={`/wishOffer/wishes/${wish.id}`}>
+        <Link href={`/marketplace/wishes/${wish.id}`}>
           <Button
             variant="ghost"
             size="sm"

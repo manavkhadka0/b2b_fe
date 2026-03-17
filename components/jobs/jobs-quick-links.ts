@@ -7,22 +7,22 @@ export const JOBS_QUICK_LINKS: {
   icon: LucideIcon;
 }[] = [
   {
-    href: "/jobs/career-guidance",
+    href: "/jobs-and-oppourtunities/career-guidance",
     label: "Career Guidance",
     icon: Briefcase,
   },
   {
-    href: "/jobs/internship",
+    href: "/jobs-and-oppourtunities/internship",
     label: "Internship Opportunities",
     icon: GraduationCap,
   },
   {
-    href: "/jobs/apprenticeship",
+    href: "/jobs-and-oppourtunities/apprenticeship",
     label: "Apprenticeship Opportunities",
     icon: GraduationCap,
   },
   {
-    href: "/jobs/roster",
+    href: "/jobs-and-oppourtunities/roster",
     label: "Skilled Workforce Roster",
     icon: List,
   },

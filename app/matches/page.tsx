@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useOffers, useWishAndOffer } from "../utils/wishOffer";
-import { useWishes } from "../utils/wishOffer";
+import { useOffers, useWishAndOffer } from "../utils/marketplace";
+import { useWishes } from "../utils/marketplace";
 import { Loader2 } from "lucide-react";
 import useSound from "use-sound";
 

@@ -39,7 +39,7 @@ export default function WishOfferSection() {
         <div className="hidden md:flex justify-between items-center gap-4 mb-6 lg:mb-8 xl:mb-10">
           <button
             type="button"
-            onClick={() => router.push("/wishOffer?type=WISH")}
+            onClick={() => router.push("/marketplace?type=WISH")}
             className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
             aria-label="View wishes"
           >
@@ -51,7 +51,7 @@ export default function WishOfferSection() {
           </button>
           <button
             type="button"
-            onClick={() => router.push("/wishOffer?type=OFFER")}
+            onClick={() => router.push("/marketplace?type=OFFER")}
             className="cursor-pointer hover:opacity-90 transition-opacity focus:outline-none rounded-lg"
             aria-label="View offers"
           >
@@ -71,7 +71,7 @@ export default function WishOfferSection() {
               {/* Wishes SVG at Top */}
               <button
                 type="button"
-                onClick={() => router.push("/wishOffer?type=WISH")}
+                onClick={() => router.push("/marketplace?type=WISH")}
                 className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
                 aria-label="View wishes"
               >
@@ -109,7 +109,7 @@ export default function WishOfferSection() {
               {/* Offers SVG at Top */}
               <button
                 type="button"
-                onClick={() => router.push("/wishOffer?type=OFFER")}
+                onClick={() => router.push("/marketplace?type=OFFER")}
                 className="flex justify-center mb-3 sm:mb-4 w-full cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
                 aria-label="View offers"
               >
@@ -211,7 +211,7 @@ export default function WishOfferSection() {
       {/* View More Button */}
       <div className="mt-6 sm:mt-8 md:mt-10 flex justify-center">
         <Button
-          onClick={() => router.push("/wishOffer")}
+          onClick={() => router.push("/marketplace")}
           variant="outline"
           className="gap-2"
         >

@@ -69,7 +69,7 @@ export function OfferCard({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 mt-1.5">
-        <Link href={`/wishOffer/offer/${offer.id}`}>
+        <Link href={`/marketplace/offer/${offer.id}`}>
           <Button
             variant="ghost"
             size="sm"

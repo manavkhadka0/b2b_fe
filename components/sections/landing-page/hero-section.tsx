@@ -66,7 +66,7 @@ export default function HeroSection() {
               transition={{ duration: 0.3 }}
             >
               <Link
-                href="/wishOffer"
+                href="/marketplace"
                 className="col-span-2 sm:col-span-1 order-first min-w-0"
               >
                 <button
@@ -79,7 +79,7 @@ export default function HeroSection() {
                   <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                 </button>
               </Link>
-              <Link href="/events" className="min-w-0">
+              <Link href="/b2b-networking-events" className="min-w-0">
                 <button
                   type="button"
                   className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
@@ -90,7 +90,7 @@ export default function HeroSection() {
                   <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                 </button>
               </Link>
-              <Link href="/jobs" className="min-w-0">
+              <Link href="/jobs-and-oppourtunities" className="min-w-0">
                 <button
                   type="button"
                   className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"
@@ -124,7 +124,7 @@ export default function HeroSection() {
                 </button>
               </Link>
 
-              <Link href="/mdmu" className="col-span-2 sm:col-span-1 min-w-0">
+              <Link href="/mero-desh-merai-udpadan" className="col-span-2 sm:col-span-1 min-w-0">
                 <button
                   type="button"
                   className="inline-flex items-center justify-start gap-1 sm:gap-2 w-fit min-h-[44px] px-2.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 bg-white text-slate-700 text-[11px] sm:text-xs font-semibold rounded-lg border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors leading-tight text-center overflow-hidden min-w-0"

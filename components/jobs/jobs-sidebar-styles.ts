@@ -1,6 +1,6 @@
 /**
  * Shared sidebar container classes for consistent styling across all jobs pages.
- * Matches the /jobs page sidebar (JobsSeekerContent) exactly.
+ * Matches the /jobs-and-oppourtunities page sidebar (JobsSeekerContent) exactly.
  */
 export const JOBS_SIDEBAR = {
   /** Desktop sidebar - fixed width, sticky */

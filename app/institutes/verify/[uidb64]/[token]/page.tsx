@@ -80,7 +80,7 @@ export default function InstituteVerifyPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild>
-                <Link href="/jobs/roster">Go to Roster</Link>
+                <Link href="/jobs-and-oppourtunities/roster">Go to Roster</Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link href="/profile">Profile</Link>
@@ -98,7 +98,7 @@ export default function InstituteVerifyPage() {
               {message || "This link may be invalid or expired."}
             </p>
             <Button asChild>
-              <Link href="/jobs/roster">Go to Roster</Link>
+              <Link href="/jobs-and-oppourtunities/roster">Go to Roster</Link>
             </Button>
           </>
         )}

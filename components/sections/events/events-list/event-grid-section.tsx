@@ -84,7 +84,7 @@ export const EventGridSection = ({
             {/* Previous button */}
             <PaginationItem>
               <PaginationPrevious
-                href={`/events?page=${currentPage - 1}`}
+                href={`/b2b-networking-events?page=${currentPage - 1}`}
                 aria-disabled={!hasPrevious}
                 className={
                   !hasPrevious
@@ -99,7 +99,7 @@ export const EventGridSection = ({
               <>
                 <PaginationItem>
                   <PaginationLink
-                    href="/events?page=1"
+                    href="/b2b-networking-events?page=1"
                     isActive={currentPage === 1}
                   >
                     1
@@ -117,7 +117,7 @@ export const EventGridSection = ({
             {pageNumbers.map((pageNum) => (
               <PaginationItem key={pageNum}>
                 <PaginationLink
-                  href={`/events?page=${pageNum}`}
+                  href={`/b2b-networking-events?page=${pageNum}`}
                   className={
                     pageNum === currentPage
                       ? "pointer-events-none rounded-full bg-blue-500 text-white"
@@ -139,7 +139,7 @@ export const EventGridSection = ({
                 )}
                 <PaginationItem>
                   <PaginationLink
-                    href={`/events?page=${totalPages}`}
+                    href={`/b2b-networking-events?page=${totalPages}`}
                     isActive={currentPage === totalPages}
                   >
                     {totalPages}
@@ -151,7 +151,7 @@ export const EventGridSection = ({
             {/* Next button */}
             <PaginationItem>
               <PaginationNext
-                href={`/events?page=${currentPage + 1}`}
+                href={`/b2b-networking-events?page=${currentPage + 1}`}
                 aria-disabled={!hasNext}
                 className={
                   !hasNext

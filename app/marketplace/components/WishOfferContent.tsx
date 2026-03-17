@@ -40,37 +40,60 @@ export function WishOfferContent({
   initialCategoryId = null,
   initialSubcategoryId = null,
   initialCategoryName = null,
+  initialType = "ALL",
+  slug = [],
 }: {
   initialCategoryId?: number | null;
   initialSubcategoryId?: number | null;
   initialCategoryName?: string | null;
+  initialType?: ItemType;
+  slug?: string[];
 }) {
   const { user, isLoading: authLoading, requireAuth } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const typeParam = searchParams.get("type");
-  const [selectedType, setSelectedType] = useState<ItemType>(() =>
-    typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL",
-  );
+  const [selectedType, setSelectedType] = useState<ItemType>(() => {
+    if (initialType !== "ALL") return initialType;
+    return typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL";
+  });
 
   // Sync selectedType when URL changes (e.g. navigation from landing, back/forward)
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "WISH" || type === "OFFER") {
       setSelectedType(type);
-    } else {
+    } else if (initialType === "ALL") {
       setSelectedType("ALL");
     }
-  }, [searchParams]);
+  }, [searchParams, initialType]);
 
-  // Update URL when type filter changes (triggers API with model_type - no frontend filter)
+  // Update URL when type filter changes
   const handleSetSelectedType = useCallback(
     (type: ItemType) => {
       setSelectedType(type);
       const params = new URLSearchParams(searchParams?.toString() || "");
+      
+      // If we are on a specific catch-all route, we might want to switch the base path
+      if (type === "WISH" && pathname.includes("/marketplace/offers")) {
+        const newPath = pathname.replace("/marketplace/offers", "/marketplace/wishes");
+        router.push(newPath);
+        return;
+      }
+      if (type === "OFFER" && pathname.includes("/marketplace/wishes")) {
+        const newPath = pathname.replace("/marketplace/wishes", "/marketplace/offers");
+        router.push(newPath);
+        return;
+      }
+
       if (type === "ALL") {
         params.delete("type");
+        // If we are on /marketplace/wishes/..., maybe we should go back to /marketplace?
+        if (pathname.includes("/marketplace/wishes") || pathname.includes("/marketplace/offers")) {
+           router.push("/marketplace");
+           return;
+        }
       } else {
         params.set("type", type);
       }
@@ -89,6 +112,80 @@ export function WishOfferContent({
   >(initialSubcategoryId);
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
+
+  const slugify = useCallback((text: string) =>
+    text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "")
+      .replace(/--+/g, "-"), []);
+
+  const updateURL = useCallback((catId: number | null, subId: number | null) => {
+    let newPath = "/marketplace";
+    if (selectedType === "WISH") newPath = "/marketplace/wishes";
+    else if (selectedType === "OFFER") newPath = "/marketplace/offers";
+
+    if (catId) {
+      const allCats = [...productCategories, ...serviceCategories];
+      const cat = allCats.find(c => c.id === catId);
+      if (cat) {
+        newPath += `/${slugify(cat.name)}`;
+        if (subId) {
+          const sub = cat.subcategories?.find(s => s.id === subId);
+          if (sub) {
+            newPath += `/${slugify(sub.name)}`;
+          }
+        }
+      }
+    }
+    
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    const query = params.toString();
+    router.push(query ? `${newPath}?${query}` : newPath);
+  }, [selectedType, productCategories, serviceCategories, slugify, router, searchParams]);
+
+  const handleSetActiveCategoryId = useCallback((id: number | null) => {
+    setActiveCategoryId(id);
+    if (id === null) setActiveSubcategoryId(null);
+    updateURL(id, id === null ? null : activeSubcategoryId);
+  }, [activeSubcategoryId, updateURL]);
+
+  const handleSetActiveSubcategoryId = useCallback((id: number | null) => {
+    setActiveSubcategoryId(id);
+    updateURL(activeCategoryId, id);
+  }, [activeCategoryId, updateURL]);
+
+  // Handle Slug-based category and subcategory matching
+  useEffect(() => {
+    if (slug && slug.length > 0 && (productCategories.length > 0 || serviceCategories.length > 0)) {
+      const slugify = (text: string) =>
+        text
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w-]+/g, "")
+          .replace(/--+/g, "-");
+
+      const allCats = [...productCategories, ...serviceCategories];
+      const categorySlug = slug[0];
+      const match = allCats.find((c) => slugify(c.name) === categorySlug);
+      
+      if (match) {
+        setActiveCategoryId(match.id);
+        
+        if (slug.length > 1) {
+          const subcategorySlug = slug[1];
+          const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === subcategorySlug);
+          if (subMatch) {
+            setActiveSubcategoryId(subMatch.id);
+          }
+        }
+      }
+    }
+  }, [slug, productCategories, serviceCategories]);
 
   // If initialCategoryName is provided, try to find the category ID once categories are loaded
   useEffect(() => {
@@ -448,9 +545,9 @@ export function WishOfferContent({
           selectedCategoryType={selectedCategoryType}
           setSelectedCategoryType={setSelectedCategoryType}
           activeCategoryId={activeCategoryId}
-          setActiveCategoryId={setActiveCategoryId}
+          setActiveCategoryId={handleSetActiveCategoryId}
           activeSubcategoryId={activeSubcategoryId}
-          setActiveSubcategoryId={setActiveSubcategoryId}
+          setActiveSubcategoryId={handleSetActiveSubcategoryId}
           activeEventSlug={activeEventSlug}
           setActiveEventSlug={setActiveEventSlug}
           availableCategories={availableCategories}
@@ -467,9 +564,9 @@ export function WishOfferContent({
             selectedCategoryType={selectedCategoryType}
             setSelectedCategoryType={setSelectedCategoryType}
             activeCategoryId={activeCategoryId}
-            setActiveCategoryId={setActiveCategoryId}
+            setActiveCategoryId={handleSetActiveCategoryId}
             activeSubcategoryId={activeSubcategoryId}
-            setActiveSubcategoryId={setActiveSubcategoryId}
+            setActiveSubcategoryId={handleSetActiveSubcategoryId}
             activeEventSlug={activeEventSlug}
             setActiveEventSlug={setActiveEventSlug}
             availableCategories={availableCategories}

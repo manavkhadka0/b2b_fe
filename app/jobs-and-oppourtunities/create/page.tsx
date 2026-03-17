@@ -80,7 +80,7 @@ export default function CreateJobPage() {
   }
 
   const handleSuccess = () => {
-    router.push("/jobs");
+    router.push("/jobs-and-oppourtunities");
   };
 
   return (
@@ -94,7 +94,7 @@ export default function CreateJobPage() {
         open={authDialogOpen}
         onOpenChange={setAuthDialogOpen}
         initialMode="login"
-        returnTo={`/jobs/create${slug ? `?slug=${slug}` : ""}`}
+        returnTo={`/jobs-and-oppourtunities/create${slug ? `?slug=${slug}` : ""}`}
       />
     </>
   );

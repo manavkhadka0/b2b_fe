@@ -44,7 +44,7 @@ const districts = [
   {
     name: "Bhojpur",
     image: "/sunsari.jpg", // Bhojpur Village
-    link: "/events/bhojpur-b2b-event",
+    link: "/b2b-networking-events/bhojpur-b2b-event",
   },
   {
     name: "Solukhumbu",
@@ -57,12 +57,12 @@ const districts = [
   {
     name: "Khotang",
     image: "/dhankuta.jpg", // Khotang
-    link: "/events/khotang-b2b-event",
+    link: "/b2b-networking-events/khotang-b2b-event",
   },
   {
     name: "Udayapur",
     image: "/panchthar.jpg", // Udayapur
-    link: "/events/udayapur-b2b-event",
+    link: "/b2b-networking-events/udayapur-b2b-event",
   },
 ];
 

@@ -99,7 +99,7 @@ export function RosterTable({
                 <div className="flex items-center justify-end gap-1">
                   <Button variant="ghost" size="icon" asChild>
                     <Link
-                      href={`/jobs/roster/create/${g.id}`}
+                      href={`/jobs-and-oppourtunities/roster/create/${g.id}`}
                       aria-label="Edit"
                     >
                       <Pencil className="w-4 h-4" />

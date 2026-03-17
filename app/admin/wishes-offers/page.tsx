@@ -8,11 +8,11 @@ import {
   getOffersPaginated,
   deleteWish,
   deleteOffer,
-} from "@/services/wishOffer";
+} from "@/services/marketplace";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
-import { ItemDetailDialog } from "@/app/wishOffer/components/ItemDetailDialog";
+import { ItemDetailDialog } from "@/app/marketplace/components/ItemDetailDialog";
 
 export default function AdminWishesOffersPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();

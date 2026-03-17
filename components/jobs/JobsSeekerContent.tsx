@@ -397,7 +397,7 @@ export function JobsSeekerContent({
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-800 to-purple-600 bg-clip-text text-transparent py-2">
                 यहाँ काम र कामदार पाइन्छ
               </h1>
-              <Link href="/jobs/employer">
+              <Link href="/jobs-and-oppourtunities/employer">
                 <Button
                   size="default"
                   className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white"
@@ -518,7 +518,7 @@ export function JobsSeekerContent({
                     key={job.id}
                     job={job}
                     onApply={onApply}
-                    onClick={(j) => router.push(`/jobs/${j.slug}`)}
+                    onClick={(j) => router.push(`/jobs-and-oppourtunities/${j.slug}`)}
                     showApplyButton={true}
                   />
                 ))}

@@ -261,11 +261,11 @@ export default function JobDetailPage() {
           mode="jobs"
           onModeChange={(mode: JobsViewMode) => {
             if (mode === "employer") {
-              router.push("/jobs/employer");
+              router.push("/jobs-and-oppourtunities/employer");
             } else if (mode === "work-interests") {
-              router.push("/jobs/work-interests");
+              router.push("/jobs-and-oppourtunities/work-interests");
             } else {
-              router.push("/jobs");
+              router.push("/jobs-and-oppourtunities");
             }
           }}
         />
@@ -283,11 +283,11 @@ export default function JobDetailPage() {
           mode="jobs"
           onModeChange={(mode: JobsViewMode) => {
             if (mode === "employer") {
-              router.push("/jobs/employer");
+              router.push("/jobs-and-oppourtunities/employer");
             } else if (mode === "work-interests") {
-              router.push("/jobs/work-interests");
+              router.push("/jobs-and-oppourtunities/work-interests");
             } else {
-              router.push("/jobs");
+              router.push("/jobs-and-oppourtunities");
             }
           }}
         />
@@ -295,7 +295,7 @@ export default function JobDetailPage() {
           <p className="text-slate-600 mb-4">{error || "Job not found"}</p>
           <Button
             variant="outline"
-            onClick={() => router.push("/jobs")}
+            onClick={() => router.push("/jobs-and-oppourtunities")}
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -340,7 +340,7 @@ export default function JobDetailPage() {
         <div className="mb-6">
           <button
             type="button"
-            onClick={() => router.push("/jobs")}
+            onClick={() => router.push("/jobs-and-oppourtunities")}
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

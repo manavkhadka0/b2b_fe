@@ -70,7 +70,7 @@ export function ProfileOffersTable({
                 </TableCell>
                 <TableCell className="py-3">
                   <Link
-                    href={`/wishOffer/offer/${offer.id}`}
+                    href={`/marketplace/offer/${offer.id}`}
                     className="text-sm font-medium text-gray-900 hover:text-green-600 transition-colors line-clamp-1"
                   >
                     {offer.title}
@@ -89,7 +89,7 @@ export function ProfileOffersTable({
                 </TableCell>
                 <TableCell className="py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <Link href={`/wishOffer/offer/${offer.id}`}>
+                    <Link href={`/marketplace/offer/${offer.id}`}>
                       <Button
                         variant="ghost"
                         size="icon"

@@ -215,8 +215,8 @@ export default function RosterCreatePage() {
   useEffect(() => {
     if (!authLoading && !user) {
       const returnTo = isEditing
-        ? `/jobs/roster/create?editId=${editIdParam}`
-        : "/jobs/roster/create";
+        ? `/jobs-and-oppourtunities/roster/create?editId=${editIdParam}`
+        : "/jobs-and-oppourtunities/roster/create";
       router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`);
     }
   }, [authLoading, user, router, isEditing, editIdParam]);
@@ -370,7 +370,7 @@ export default function RosterCreatePage() {
         await createGraduate(payload);
         toast.success("Graduate added to roster.");
       }
-      router.push("/jobs/roster");
+      router.push("/jobs-and-oppourtunities/roster");
     } catch (err) {
       console.error("Create graduate error:", err);
       const data = (err as { response?: { data?: Record<string, unknown> } })
@@ -422,7 +422,7 @@ export default function RosterCreatePage() {
         {/* Header */}
         <div className="mb-4 sm:mb-6 lg:mb-8 text-center">
           {/* <Link
-            href="/jobs/roster"
+            href="/jobs-and-oppourtunities/roster"
             className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />

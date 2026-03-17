@@ -276,7 +276,7 @@ export default function ProfilePage() {
   };
 
   const handleEditJob = (job: Job) => {
-    router.push(`/jobs/create?slug=${job.slug}`);
+    router.push(`/jobs-and-oppourtunities/create?slug=${job.slug}`);
   };
 
   if (authLoading) {

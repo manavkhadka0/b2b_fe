@@ -276,7 +276,7 @@ export function ProfileInstituteSection({
           {institute.is_verified && (
             <Button size="sm" asChild>
               <Link
-                href={`/jobs/roster/create?source=institute&instituteId=${institute.id}`}
+                href={`/jobs-and-oppourtunities/roster/create?source=institute&instituteId=${institute.id}`}
               >
                 Add graduate
               </Link>

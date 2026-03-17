@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ItemDetailDialog } from "@/app/wishOffer/components/ItemDetailDialog";
+import { ItemDetailDialog } from "@/app/marketplace/components/ItemDetailDialog";
 import type { Wish, Offer, ItemWithSource } from "@/types/wish";
 import { RichTextContent } from "@/components/ui/rich-text-content";
 import { postWishView, postOfferView } from "@/app/utils/wishOffer";

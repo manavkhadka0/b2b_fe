@@ -16,7 +16,7 @@ import {
   Search,
 } from "lucide-react";
 import { JOBS_QUICK_LINKS } from "./jobs-quick-links";
-import { FilterOption } from "@/app/wishOffer/components/FilterOption";
+import { FilterOption } from "@/app/marketplace/components/FilterOption";
 import {
   type EmploymentTypeFilter,
   type ListingTimeFilter,

@@ -151,7 +151,7 @@ const ShareSection = ({ event }: { event: Event }) => (
   <div className="flex flex-col items-start md:items-center space-y-2">
     <p className="text-sm text-gray-600">Share with Friends</p>
     <ShareButtons
-      url={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/events/${event.slug}`}
+      url={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/b2b-networking-events/${event.slug}`}
       title={event.title || "Amazing Event"}
       description={event.description || "Join us for an amazing event!"}
     />

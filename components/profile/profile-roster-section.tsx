@@ -118,7 +118,7 @@ export function ProfileRosterSection() {
               <p className="text-sm text-gray-600 mb-4">
                 You have not added any graduates to your roster yet.
               </p>
-              <Link href="/jobs/roster/create?source=roster">
+              <Link href="/jobs-and-oppourtunities/roster/create?source=roster">
                 <Button className="inline-flex gap-2 bg-indigo-600 hover:bg-indigo-700">
                   <Plus className="w-4 h-4" />
                   Add graduate

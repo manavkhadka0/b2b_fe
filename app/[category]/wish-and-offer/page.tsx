@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Metadata } from "next";
 import { Loader2 } from "lucide-react";
-import { WishOfferContent } from "../../wishOffer/components/WishOfferContent";
+import { WishOfferContent } from "../../marketplace/components/WishOfferContent";
 
 interface Category {
   id: number;

@@ -11,7 +11,7 @@ export default function RosterEditRedirectPage() {
     const rawId = params?.id;
     if (!rawId) return;
     const id = Array.isArray(rawId) ? rawId[0] : rawId;
-    router.replace(`/jobs/roster/create?editId=${id}`);
+    router.replace(`/jobs-and-oppourtunities/roster/create?editId=${id}`);
   }, [params, router]);
 
   return null;

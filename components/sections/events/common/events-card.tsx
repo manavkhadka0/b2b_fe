@@ -17,7 +17,7 @@ interface EventCardProps {
 const EventCard = ({ event, hideAttendButton = false }: EventCardProps) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden border border-gray-100 transition hover:scale-[1.01] duration-400">
-      <Link href={`/events/${event.slug}`} className="flex flex-col h-full">
+      <Link href={`/b2b-networking-events/${event.slug}`} className="flex flex-col h-full">
         {/* Image Section - full width */}
         <div className="relative w-full h-48">
           <img
@@ -85,7 +85,7 @@ const EventCard = ({ event, hideAttendButton = false }: EventCardProps) => {
             </div>
 
             {!hideAttendButton && (
-              <Link href={`/events/${event.slug}`} className="w-full">
+              <Link href={`/b2b-networking-events/${event.slug}`} className="w-full">
                 <button className="w-full bg-blue-600 text-white py-3 px-4 text-sm rounded-lg hover:bg-blue-700 transition-colors">
                   Attend This Event
                 </button>

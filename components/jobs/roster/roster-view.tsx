@@ -186,7 +186,7 @@ export default function RosterView() {
       setAuthDialogOpen(true);
       return;
     }
-    router.push("/jobs/roster/create");
+    router.push("/jobs-and-oppourtunities/roster/create");
   };
 
   return (
@@ -268,8 +268,8 @@ export default function RosterView() {
         open={authDialogOpen}
         onOpenChange={setAuthDialogOpen}
         initialMode="login"
-        returnTo="/jobs/roster/create"
-        onAuthenticated={() => router.push("/jobs/roster/create")}
+        returnTo="/jobs-and-oppourtunities/roster/create"
+        onAuthenticated={() => router.push("/jobs-and-oppourtunities/roster/create")}
       />
 
       <GraduateDetailsDialog

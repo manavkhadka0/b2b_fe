@@ -38,7 +38,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Link href="/wishOffer/wishes/create-wish">
+          <Link href="/marketplace/wishes/create-wish">
             <Button
               variant="outline"
               size="sm"
@@ -48,7 +48,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               Create Wish
             </Button>
           </Link>
-          <Link href="/wishOffer/offer/create-offer">
+          <Link href="/marketplace/offer/create-offer">
             <Button
               variant="outline"
               size="sm"

@@ -126,7 +126,7 @@ function ThankYouSection({ message, fileUrl }: SuccessPayload) {
                 asChild
                 className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300"
               >
-                <Link href="/wishOffer">Return to Wish/Offer</Link>
+                <Link href="/marketplace">Return to Wish/Offer</Link>
               </Button>
             </motion.div>
           </div>

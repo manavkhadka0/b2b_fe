@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { MDMUForm } from "@/components/mdmu/mdmu/components/mdmu-form";
+import { MDMUForm } from "@/components/mdmu/mdmu/components/mero-desh-merai-udpadan-form";
 
 export default function ApplyPage() {
   return (

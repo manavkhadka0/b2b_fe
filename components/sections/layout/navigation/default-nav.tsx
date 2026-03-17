@@ -92,9 +92,9 @@ export function DefaultNav() {
 
   const navItems = [
     { label: t("navigation.home"), href: "/" },
-    { label: t("navigation.wishOffer"), href: "/wishOffer" },
-    { label: t("navigation.b2bEvents"), href: "/events" },
-    { label: "Jobbriz", href: "/jobs" },
+    { label: t("navigation.wishOffer"), href: "/marketplace" },
+    { label: t("navigation.b2bEvents"), href: "/b2b-networking-events" },
+    { label: "Jobbriz", href: "/jobs-and-oppourtunities" },
     { label: "Display Zone", href: "/display-zone" },
     { label: "Co-working Space", href: "/co-working-space" },
   ];
@@ -102,16 +102,19 @@ export function DefaultNav() {
   const moreNavItems = [
     { label: t("navigation.contact"), href: "/contacts" },
     { label: t("navigation.howToApply"), href: "/howtoapply" },
+    { label: "Newsletter", href: "/newsletter" },
   ];
 
   const mdmuNavItems = [
-    { label: "MDMU", href: "/mdmu" },
-    { label: "About Us", href: "/mdmu/about-us" },
-    { label: "Endorsements", href: "/mdmu/endorsements" },
-    { label: "Newsletter", href: "/mdmu/newsletter" },
+    { label: "MDMU", href: "/mero-desh-merai-udpadan" },
+    { label: "About Us", href: "/mero-desh-merai-udpadan/about" },
+    { label: "Endorsements", href: "/mero-desh-merai-udpadan/endorsements" },
   ];
-  const isMdmuActive = pathname.startsWith("/mdmu");
-  const isMoreActive = pathname === "/contacts" || pathname === "/howtoapply";
+  const isMdmuActive = pathname.startsWith("/mero-desh-merai-udpadan");
+  const isMoreActive =
+    pathname === "/contacts" ||
+    pathname === "/howtoapply" ||
+    pathname === "/newsletter";
 
   const NavLink = ({
     href,
@@ -197,7 +200,7 @@ export function DefaultNav() {
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    onClick={() => router.push("/mdmu")}
+                    onClick={() => router.push("/mero-desh-merai-udpadan")}
                     className={`
                       text-sm font-medium transition-colors relative whitespace-nowrap flex items-center gap-0.5
                       after:absolute after:left-0 after:bottom-[-3px] after:h-[2px] after:w-full
@@ -395,14 +398,14 @@ export function DefaultNav() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem
-                    onClick={() => router.push("/wishOffer/wishes/create-wish")}
+                    onClick={() => router.push("/marketplace/wishes/create-wish")}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     {t("navigation.makeAWish")} (क्रेता)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => router.push("/wishOffer/offer/create-offer")}
+                    onClick={() => router.push("/marketplace/offer/create-offer")}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -432,7 +435,7 @@ export function DefaultNav() {
                   {navItems.map((item) => (
                     <NavLink key={item.href} {...item} mobile />
                   ))}
-                  <NavLink href="/jobs" label="Jobbriz" mobile />
+                  <NavLink href="/jobs-and-oppourtunities" label="Jobbriz" mobile />
                   <div className="flex flex-col gap-1 pt-2 mt-2 border-t border-gray-100">
                     <span className="text-xs font-medium text-gray-500 uppercase tracking-wide px-1 mb-1">
                       MDMU
@@ -533,7 +536,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 text-blue-800 border-blue-800"
                       onClick={() => {
                         setMobileOpen(false);
-                        router.push("/wishOffer/wishes/create-wish");
+                        router.push("/marketplace/wishes/create-wish");
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />
@@ -543,7 +546,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 bg-blue-800 hover:bg-blue-900"
                       onClick={() => {
                         setMobileOpen(false);
-                        router.push("/wishOffer/offer/create-offer");
+                        router.push("/marketplace/offer/create-offer");
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />

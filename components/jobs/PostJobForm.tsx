@@ -318,7 +318,7 @@ export function PostJobForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push("/jobs");
+        router.push("/jobs-and-oppourtunities");
       }
     } catch (error: any) {
       console.error("Error saving job:", error);

@@ -125,11 +125,11 @@ const JobsView: React.FC = () => {
 
   const handleModeChange = (mode: JobsViewMode) => {
     if (mode === "employer") {
-      router.push("/jobs/employer");
+      router.push("/jobs-and-oppourtunities/employer");
     } else if (mode === "work-interests") {
-      router.push("/jobs/work-interests");
+      router.push("/jobs-and-oppourtunities/work-interests");
     } else {
-      router.push("/jobs");
+      router.push("/jobs-and-oppourtunities");
     }
   };
 
@@ -166,7 +166,7 @@ const JobsView: React.FC = () => {
           }
         }}
         initialMode={authDialogMode}
-        returnTo={pendingAction === "create-job" ? "/jobs/create" : undefined}
+        returnTo={pendingAction === "create-job" ? "/jobs-and-oppourtunities/create" : undefined}
         onAuthenticated={handleAuthenticated}
       />
 

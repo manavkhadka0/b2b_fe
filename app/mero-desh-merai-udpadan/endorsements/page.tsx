@@ -6,7 +6,7 @@ import {
   LogoItem,
   CompanyLogoResponse,
 } from "@/components/mdmu/mdmu/components/types";
-import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mdmu-form/constants";
+import { API_ENDPOINTS } from "@/components/mdmu/mdmu/components/mero-desh-merai-udpadan-form/constants";
 import axios from "axios";
 
 export default function LogosPage() {
@@ -99,7 +99,7 @@ export default function LogosPage() {
       <section className="py-16 md:py-10">
         <div className="container mx-auto ">
           <img
-            src="/mdmu-logo.png"
+            src="/mero-desh-merai-udpadan-logo.png"
             alt=""
             className="mx-auto w-[200px] h-[200px] object-contain"
           />

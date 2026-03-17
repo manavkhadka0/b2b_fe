@@ -56,18 +56,18 @@ export default function EmployerView() {
       setAuthDialogOpen(true);
       return;
     }
-    router.push("/jobs/create");
+    router.push("/jobs-and-oppourtunities/create");
   };
 
   const handleEditJob = (job: Job) => {
-    router.push(`/jobs/create?slug=${job.slug}`);
+    router.push(`/jobs-and-oppourtunities/create?slug=${job.slug}`);
   };
 
   const handleModeChange = (mode: JobsViewMode) => {
     if (mode === "jobs") {
-      router.push("/jobs");
+      router.push("/jobs-and-oppourtunities");
     } else if (mode === "work-interests") {
-      router.push("/jobs/work-interests");
+      router.push("/jobs-and-oppourtunities/work-interests");
     }
     // mode === "employer" -> already here, no-op
   };
@@ -101,10 +101,10 @@ export default function EmployerView() {
           if (!open) setPendingAction(null);
         }}
         initialMode={authDialogMode}
-        returnTo={pendingAction === "create-job" ? "/jobs/create" : undefined}
+        returnTo={pendingAction === "create-job" ? "/jobs-and-oppourtunities/create" : undefined}
         onAuthenticated={() => {
           if (pendingAction === "create-job") {
-            router.push("/jobs/create");
+            router.push("/jobs-and-oppourtunities/create");
             setPendingAction(null);
           }
         }}

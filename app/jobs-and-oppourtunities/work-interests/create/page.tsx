@@ -53,7 +53,7 @@ export default function CreateWorkInterestPage() {
 
   const debouncedSkillSearch = useDebounce(skillInput, 300);
 
-  // Require authentication similar to /jobs/create
+  // Require authentication similar to /jobs-and-oppourtunities/create
   useEffect(() => {
     if (authLoading) return;
     const token =
@@ -135,7 +135,7 @@ export default function CreateWorkInterestPage() {
         description:
           "Your work interest has been published for employers to see.",
       });
-      router.push("/jobs/work-interests");
+      router.push("/jobs-and-oppourtunities/work-interests");
     } catch (err) {
       console.error("Failed to create work interest", err);
       toast({
@@ -171,7 +171,7 @@ export default function CreateWorkInterestPage() {
         open={authDialogOpen}
         onOpenChange={setAuthDialogOpen}
         initialMode="login"
-        returnTo="/jobs/work-interests/create"
+        returnTo="/jobs-and-oppourtunities/work-interests/create"
       />
     </>
   );
