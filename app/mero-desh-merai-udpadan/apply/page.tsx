@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { MDMUForm } from "@/components/mdmu/mdmu/components/mero-desh-merai-udpadan-form";
+import { MDMUForm } from "@/components/mdmu/mdmu/components/mdmu-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Apply for MDMU | BiratBazar",
+  description:
+    "Apply to become part of the Mero Desh Merai Udpadan initiative and showcase your local products.",
+};
 
 export default function ApplyPage() {
   return (

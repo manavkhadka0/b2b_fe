@@ -28,9 +28,7 @@ export const metadata: Metadata = {
     description:
       "Explore Birat Bazaar, a dedicated B2B marketplace and networking platform for businesses in Nepal.",
   },
-  alternates: {
-    canonical: "/",
-  },
+  
 };
 
 export default function LandingPage() {

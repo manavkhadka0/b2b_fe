@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   useCombinedWishesOffers,
@@ -30,7 +30,7 @@ import { SidebarContent } from "./SidebarContent";
 import { ItemCard } from "./ItemCard";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { CreateFormModal } from "./CreateFormModal";
-import { useInView } from "react-intersection-observer"; // Ensure this package is installed or use native
+import { useInView } from "react-intersection-observer";
 import { SkeletonCard } from "./SkeletonCard";
 import { Event } from "@/types/events";
 import { getEvents } from "@/services/events";
@@ -53,63 +53,20 @@ export function WishOfferContent({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Add ref to track if this is initial mount
+  const isInitialMount = useRef(true);
+  const isUpdatingFromURL = useRef(false);
+
   const typeParam = searchParams.get("type");
   const [selectedType, setSelectedType] = useState<ItemType>(() => {
     if (initialType !== "ALL") return initialType;
     return typeParam === "WISH" || typeParam === "OFFER" ? typeParam : "ALL";
   });
 
-  // Sync selectedType when URL changes (e.g. navigation from landing, back/forward)
-  useEffect(() => {
-    const type = searchParams.get("type");
-    if (type === "WISH" || type === "OFFER") {
-      setSelectedType(type);
-    } else if (initialType === "ALL") {
-      setSelectedType("ALL");
-    }
-  }, [searchParams, initialType]);
-
-  // Update URL when type filter changes
-  const handleSetSelectedType = useCallback(
-    (type: ItemType) => {
-      setSelectedType(type);
-      const params = new URLSearchParams(searchParams?.toString() || "");
-      
-      // If we are on a specific catch-all route, we might want to switch the base path
-      if (type === "WISH" && pathname.includes("/marketplace/offers")) {
-        const newPath = pathname.replace("/marketplace/offers", "/marketplace/wishes");
-        router.push(newPath);
-        return;
-      }
-      if (type === "OFFER" && pathname.includes("/marketplace/wishes")) {
-        const newPath = pathname.replace("/marketplace/wishes", "/marketplace/offers");
-        router.push(newPath);
-        return;
-      }
-
-      if (type === "ALL") {
-        params.delete("type");
-        // If we are on /marketplace/wishes/..., maybe we should go back to /marketplace?
-        if (pathname.includes("/marketplace/wishes") || pathname.includes("/marketplace/offers")) {
-           router.push("/marketplace");
-           return;
-        }
-      } else {
-        params.set("type", type);
-      }
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname);
-    },
-    [searchParams, router, pathname],
-  );
-  const [selectedCategoryType, setSelectedCategoryType] =
-    useState<CategoryType>("ALL");
-  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(
-    initialCategoryId,
-  );
-  const [activeSubcategoryId, setActiveSubcategoryId] = useState<
-    number | null
-  >(initialSubcategoryId);
+  const [selectedCategoryType, setSelectedCategoryType] = useState<CategoryType>("ALL");
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(initialCategoryId);
+  const [activeSubcategoryId, setActiveSubcategoryId] = useState<number | null>(initialSubcategoryId);
 
   const { productCategories, serviceCategories } = useWishOfferCategories();
 
@@ -122,10 +79,24 @@ export function WishOfferContent({
       .replace(/[^\w-]+/g, "")
       .replace(/--+/g, "-"), []);
 
-  const updateURL = useCallback((catId: number | null, subId: number | null) => {
+  const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
+
+  const updateURL = useCallback((catId: number | null, subId: number | null, type?: ItemType, catType?: CategoryType, eventSlug?: string | null) => {
+    const currentType = type ?? selectedType;
+    const currentCatType = catType ?? selectedCategoryType;
+    const currentEventSlug = eventSlug !== undefined ? eventSlug : activeEventSlug;
+
     let newPath = "/marketplace";
-    if (selectedType === "WISH") newPath = "/marketplace/wishes";
-    else if (selectedType === "OFFER") newPath = "/marketplace/offers";
+    if (currentType === "WISH") {
+      newPath = "/marketplace/wishes";
+    } else if (currentType === "OFFER") {
+      newPath = "/marketplace/offers";
+      if (currentCatType === "Product") {
+        newPath += "/products";
+      } else if (currentCatType === "Service") {
+        newPath += "/services";
+      }
+    }
 
     if (catId) {
       const allCats = [...productCategories, ...serviceCategories];
@@ -140,74 +111,168 @@ export function WishOfferContent({
         }
       }
     }
-    
-    const params = new URLSearchParams(searchParams?.toString() || "");
-    const query = params.toString();
-    router.push(query ? `${newPath}?${query}` : newPath);
-  }, [selectedType, productCategories, serviceCategories, slugify, router, searchParams]);
+
+    if (currentEventSlug) {
+      newPath += `/event/${currentEventSlug}`;
+    }
+
+    // Use replace instead of push and add scroll: false to prevent page jump
+    if (window.location.pathname !== newPath) {
+      router.replace(newPath, { scroll: false });
+    }
+  }, [selectedType, selectedCategoryType, activeEventSlug, productCategories, serviceCategories, slugify, router]);
+
+  const handleSetActiveEventSlug = useCallback((slug: string | null) => {
+    setActiveEventSlug(slug);
+    updateURL(activeCategoryId, activeSubcategoryId, undefined, undefined, slug);
+  }, [activeCategoryId, activeSubcategoryId, updateURL]);
+
+  const handleSetSelectedType = useCallback(
+    (type: ItemType) => {
+      isUpdatingFromURL.current = true;
+      setSelectedType(type);
+      updateURL(activeCategoryId, activeSubcategoryId, type);
+      setTimeout(() => { isUpdatingFromURL.current = false; }, 500);
+    },
+    [activeCategoryId, activeSubcategoryId, updateURL],
+  );
+
+  const handleSetSelectedCategoryType = useCallback(
+    (catType: CategoryType) => {
+      isUpdatingFromURL.current = true;
+      setSelectedCategoryType(catType);
+      setActiveCategoryId(null);
+      setActiveSubcategoryId(null);
+      updateURL(null, null, selectedType, catType);
+      setTimeout(() => { isUpdatingFromURL.current = false; }, 500);
+    },
+    [selectedType, updateURL],
+  );
 
   const handleSetActiveCategoryId = useCallback((id: number | null) => {
+    isUpdatingFromURL.current = true;
     setActiveCategoryId(id);
-    if (id === null) setActiveSubcategoryId(null);
-    updateURL(id, id === null ? null : activeSubcategoryId);
+    if (id === null) {
+      setActiveSubcategoryId(null);
+      updateURL(null, null);
+    } else {
+      updateURL(id, activeSubcategoryId);
+    }
+    setTimeout(() => { isUpdatingFromURL.current = false; }, 500);
   }, [activeSubcategoryId, updateURL]);
 
   const handleSetActiveSubcategoryId = useCallback((id: number | null) => {
+    isUpdatingFromURL.current = true;
     setActiveSubcategoryId(id);
     updateURL(activeCategoryId, id);
+    setTimeout(() => { isUpdatingFromURL.current = false; }, 500);
   }, [activeCategoryId, updateURL]);
+
+  const handleSetCategoryAndSubcategory = useCallback(
+    (catId: number | null, subId: number | null) => {
+      isUpdatingFromURL.current = true;
+      setActiveCategoryId(catId);
+      setActiveSubcategoryId(subId);
+      updateURL(catId, subId);
+      setTimeout(() => { isUpdatingFromURL.current = false; }, 500);
+    },
+    [updateURL],
+  );
 
   // Handle Slug-based category and subcategory matching
   useEffect(() => {
-    if (slug && slug.length > 0 && (productCategories.length > 0 || serviceCategories.length > 0)) {
-      const slugify = (text: string) =>
-        text
-          .toString()
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, "-")
-          .replace(/[^\w-]+/g, "")
-          .replace(/--+/g, "-");
+    // Skip if this is initial mount and we have initial values
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
 
-      const allCats = [...productCategories, ...serviceCategories];
-      const categorySlug = slug[0];
-      const match = allCats.find((c) => slugify(c.name) === categorySlug);
-      
-      if (match) {
-        setActiveCategoryId(match.id);
-        
-        if (slug.length > 1) {
-          const subcategorySlug = slug[1];
-          const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === subcategorySlug);
-          if (subMatch) {
-            setActiveSubcategoryId(subMatch.id);
-          }
+    if ((productCategories.length > 0 || serviceCategories.length > 0)) {
+      isUpdatingFromURL.current = true;
+
+      let currentSlug = slug || [];
+
+      let type: ItemType = "ALL";
+      let catType: CategoryType = "ALL";
+
+      if (pathname.includes("/marketplace/wishes")) {
+        type = "WISH";
+        if (currentSlug[0] === "wishes") {
+          currentSlug = currentSlug.slice(1);
+        }
+      } else if (pathname.includes("/marketplace/offers")) {
+        type = "OFFER";
+        if (currentSlug[0] === "offers") {
+          currentSlug = currentSlug.slice(1);
+        }
+        if (currentSlug[0] === "products") {
+          catType = "Product";
+          currentSlug = currentSlug.slice(1);
+        } else if (currentSlug[0] === "services") {
+          catType = "Service";
+          currentSlug = currentSlug.slice(1);
         }
       }
+
+      // Extract event from path
+      const eventIdx = currentSlug.indexOf("event");
+      let parsedEventSlug: string | null = null;
+      if (eventIdx !== -1 && eventIdx + 1 < currentSlug.length) {
+        parsedEventSlug = currentSlug[eventIdx + 1];
+        currentSlug = [
+          ...currentSlug.slice(0, eventIdx),
+          ...currentSlug.slice(eventIdx + 2),
+        ];
+      }
+
+      const categorySlug = currentSlug[0] || "";
+      const subcategorySlug = currentSlug[1] || "";
+
+      // Update state based on URL
+      setSelectedType(type);
+      setSelectedCategoryType(catType);
+      setActiveEventSlug(parsedEventSlug);
+
+      if (categorySlug) {
+        const allCats = [...productCategories, ...serviceCategories];
+        const match = allCats.find((c) => slugify(c.name) === categorySlug);
+
+        if (match) {
+          setActiveCategoryId(match.id);
+
+          if (subcategorySlug) {
+            const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === subcategorySlug);
+            setActiveSubcategoryId(subMatch ? subMatch.id : null);
+          } else {
+            setActiveSubcategoryId(null);
+          }
+        } else {
+          setActiveCategoryId(null);
+          setActiveSubcategoryId(null);
+        }
+      } else {
+        setActiveCategoryId(null);
+        setActiveSubcategoryId(null);
+      }
+
+      // Reset the flag after a short delay
+      setTimeout(() => {
+        isUpdatingFromURL.current = false;
+      }, 100);
     }
-  }, [slug, productCategories, serviceCategories]);
+  }, [slug, productCategories, serviceCategories, pathname, slugify]);
 
   // If initialCategoryName is provided, try to find the category ID once categories are loaded
   useEffect(() => {
-    if (initialCategoryName && !activeCategoryId) {
-      const slugify = (text: string) =>
-        text
-          .toString()
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, "-")
-          .replace(/[^\w-]+/g, "")
-          .replace(/--+/g, "-");
-
+    if (initialCategoryName && !activeCategoryId && !isUpdatingFromURL.current) {
       const allCats = [...productCategories, ...serviceCategories];
       const match = allCats.find((c) => slugify(c.name) === initialCategoryName);
       if (match) {
         setActiveCategoryId(match.id);
       }
     }
-  }, [initialCategoryName, productCategories, serviceCategories, activeCategoryId]);
+  }, [initialCategoryName, productCategories, serviceCategories, activeCategoryId, slugify]);
 
-  const [activeEventSlug, setActiveEventSlug] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemWithSource | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFormModal, setShowFormModal] = useState(false);
@@ -231,7 +296,6 @@ export function WishOfferContent({
     eventFetcher,
   );
 
-  // Map selectedType to API model_type param (API filtering, not frontend)
   const modelTypeParam =
     selectedType === "WISH"
       ? ("wish" as const)
@@ -239,7 +303,6 @@ export function WishOfferContent({
         ? ("offer" as const)
         : null;
 
-  // Combined API - single call for wishes and offers (model_type sent to API)
   const {
     allResults: combinedResults,
     isLoading: combinedLoading,
@@ -255,10 +318,8 @@ export function WishOfferContent({
     activeCategoryId ? null : initialCategoryName,
   );
 
-  // Intersection Observer
   const { ref, inView } = useInView();
 
-  // Load more when scrolled to bottom (combined API - single pagination)
   React.useEffect(() => {
     if (
       inView &&
@@ -287,34 +348,29 @@ export function WishOfferContent({
     return [...productCategories, ...serviceCategories];
   }, [selectedCategoryType, productCategories, serviceCategories]);
 
-  // Get all subcategories from available categories
   const allSubcategories = useMemo(() => {
     return availableCategories.flatMap((cat) => cat.subcategories || []);
   }, [availableCategories]);
 
-  // Reset subcategory when category changes to a different category
-  // But don't reset if the category matches the subcategory's parent category
   const prevCategoryIdRef = React.useRef<number | null>(null);
   useEffect(() => {
-    // If category is null, clear subcategory
+    // Skip if we're updating from URL
+    if (isUpdatingFromURL.current) return;
+
     if (activeCategoryId === null) {
       setActiveSubcategoryId(null);
       prevCategoryIdRef.current = null;
       return;
     }
 
-    // Only clear subcategory if category changed to a different category
-    // (not when setting category to match subcategory's parent)
     if (
       prevCategoryIdRef.current !== null &&
       prevCategoryIdRef.current !== activeCategoryId &&
       activeSubcategoryId !== null
     ) {
-      // Category changed to a different category, check if subcategory belongs to new category
       const parentCategory = availableCategories.find((cat) =>
         cat.subcategories?.some((sub) => sub.id === activeSubcategoryId),
       );
-      // Only clear if the subcategory doesn't belong to the new category
       if (!parentCategory || parentCategory.id !== activeCategoryId) {
         setActiveSubcategoryId(null);
       }
@@ -323,16 +379,12 @@ export function WishOfferContent({
   }, [activeCategoryId, availableCategories, activeSubcategoryId]);
 
   const filteredItems = useMemo(() => {
-    // 1. Determine Source & Initial List
     const searchResults = swrSearchResults;
     const isSearching = searchQuery.trim().length > 0;
 
     let items: ItemWithSource[] = [];
 
     if (isSearching) {
-      // If Searching: Use search results.
-      // NOTE: Search results are NOT pre-filtered by category from the API,
-      // so we MUST filter them client-side if a category is selected.
       const wishes = searchResults?.wishes || [];
       const offers = searchResults?.offers || [];
 
@@ -346,8 +398,6 @@ export function WishOfferContent({
       }));
       items = [...taggedWishes, ...taggedOffers];
     } else {
-      // If NOT Searching: Use combined results in original API order.
-      // API already filters by model_type when WISH/OFFER selected - no frontend filtering.
       items = (combinedResults || []).map((r) => ({
         ...r,
         _source:
@@ -356,7 +406,6 @@ export function WishOfferContent({
       }));
     }
 
-    // 2. Filter by Type - only when Searching (search API returns both; combined API filters server-side)
     if (isSearching) {
       if (selectedType === "WISH") {
         items = items.filter((i) => i._source === "wish");
@@ -365,15 +414,11 @@ export function WishOfferContent({
       }
     }
 
-    // 3. Filter by Category/Subcategory/Event (Only needed if Searching)
-    // - If not searching, the API hooks already filtered by `activeCategoryId`, `activeSubcategoryId`, or `activeEventSlug`.
-    // - If searching, the search API ignores these filters, so we filter here.
     if (
       isSearching &&
       (activeCategoryId || activeSubcategoryId || activeEventSlug)
     ) {
       items = items.filter((item) => {
-        // If event is selected, filter by event slug
         if (activeEventSlug) {
           const eventSlug =
             (item as any).event_slug || (item as any).event?.slug;
@@ -383,7 +428,6 @@ export function WishOfferContent({
           return false;
         }
 
-        // If subcategory is selected, filter by subcategory ID
         if (activeSubcategoryId) {
           const subId = (item as any).subcategory;
           if (typeof subId === "number") {
@@ -392,18 +436,12 @@ export function WishOfferContent({
           return false;
         }
 
-        // Otherwise filter by category ID
         if (activeCategoryId) {
-          // Handle new API structure: `subcategory` ID (but we're filtering by category)
           const subId = (item as any).subcategory;
           if (typeof subId === "number") {
-            // If item has subcategory, check if it belongs to the active category
-            // We need to check if the subcategory's category matches
-            // For now, we'll rely on the API structure
-            return true; // Let API handle this
+            return true;
           }
 
-          // Fallback for legacy nested structure
           if (
             "product" in item &&
             item.product?.category?.id === activeCategoryId
@@ -438,12 +476,13 @@ export function WishOfferContent({
   const clearSearch = () => setSearchQuery("");
 
   const clearAllFilters = () => {
-    handleSetSelectedType("ALL");
+    setSelectedType("ALL");
     setSelectedCategoryType("ALL");
     setActiveCategoryId(null);
     setActiveSubcategoryId(null);
     setActiveEventSlug(null);
     setSearchQuery("");
+    router.replace("/marketplace", { scroll: false });
   };
 
   const activeCategory = useMemo(
@@ -522,9 +561,8 @@ export function WishOfferContent({
         />
       )}
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 overflow-y-auto overflow-x-hidden py-4 px-4 transition-transform duration-200 ease-out lg:hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 overflow-y-auto overflow-x-hidden py-4 px-4 transition-transform duration-200 ease-out lg:hidden [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         style={{ msOverflowStyle: "none" } as React.CSSProperties}
         aria-hidden={!sidebarOpen}
       >
@@ -543,13 +581,14 @@ export function WishOfferContent({
           selectedType={selectedType}
           setSelectedType={handleSetSelectedType}
           selectedCategoryType={selectedCategoryType}
-          setSelectedCategoryType={setSelectedCategoryType}
+          setSelectedCategoryType={handleSetSelectedCategoryType}
           activeCategoryId={activeCategoryId}
           setActiveCategoryId={handleSetActiveCategoryId}
           activeSubcategoryId={activeSubcategoryId}
           setActiveSubcategoryId={handleSetActiveSubcategoryId}
+          setCategoryAndSubcategory={handleSetCategoryAndSubcategory}
           activeEventSlug={activeEventSlug}
-          setActiveEventSlug={setActiveEventSlug}
+          setActiveEventSlug={handleSetActiveEventSlug}
           availableCategories={availableCategories}
           events={events || []}
           isLoadingEvents={isLoadingEvents}
@@ -562,13 +601,14 @@ export function WishOfferContent({
             selectedType={selectedType}
             setSelectedType={handleSetSelectedType}
             selectedCategoryType={selectedCategoryType}
-            setSelectedCategoryType={setSelectedCategoryType}
+            setSelectedCategoryType={handleSetSelectedCategoryType}
             activeCategoryId={activeCategoryId}
             setActiveCategoryId={handleSetActiveCategoryId}
             activeSubcategoryId={activeSubcategoryId}
             setActiveSubcategoryId={handleSetActiveSubcategoryId}
+            setCategoryAndSubcategory={handleSetCategoryAndSubcategory}
             activeEventSlug={activeEventSlug}
-            setActiveEventSlug={setActiveEventSlug}
+            setActiveEventSlug={handleSetActiveEventSlug}
             availableCategories={availableCategories}
             events={events || []}
             isLoadingEvents={isLoadingEvents}
@@ -705,21 +745,16 @@ export function WishOfferContent({
                 );
               })}
 
-              {/* Skeleton Loaders for Infinite Scroll */}
               {isCombinedLoadingMore &&
                 Array.from({ length: 3 }).map((_, i) => (
                   <SkeletonCard key={`skeleton-${i}`} />
                 ))}
 
-              {/* Intersection Observer Target */}
-              {/* Only show if we have more data to load and are not currently loading/searching */}
               {!searchQuery.trim() && (
                 <div
                   ref={ref}
                   className="col-span-1 sm:col-span-2 lg:col-span-3 h-10 flex justify-center items-center"
-                >
-                  {/* Optional: Add a spinner or message here if needed, but skeletons cover loading state */}
-                </div>
+                />
               )}
             </div>
           )}

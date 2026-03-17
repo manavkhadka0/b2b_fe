@@ -20,12 +20,14 @@ const refreshApi = axios.create({
 
 // Request interceptor to add auth token
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    if (!config.headers) {
-      config.headers = {} as InternalAxiosRequestConfig["headers"];
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      if (!config.headers) {
+        config.headers = {} as InternalAxiosRequestConfig["headers"];
+      }
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -38,6 +40,7 @@ api.interceptors.response.use(
 
     // Check if error is 401 and we haven't retried yet and refresh token exists
     if (
+      typeof window !== "undefined" &&
       error.response?.status === 401 &&
       !originalRequest._retry &&
       localStorage.getItem("refreshToken")

@@ -1,0 +1,614 @@
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  ArrowLeft,
+  MapPin,
+  Clock,
+  Banknote,
+  Building2,
+  Briefcase,
+  GraduationCap,
+  Calendar,
+  Users,
+  Layers,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getJobBySlug } from "@/services/jobs";
+import { ApplyDialog, JobsHeader } from "@/components/jobs";
+import type { JobsViewMode } from "@/components/jobs/ModeToggle";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { hasJobseekerProfile } from "@/services/jobseeker";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+interface JobDetailResponse {
+  id: number;
+  slug: string;
+  title: string;
+  company_name: string | null;
+  company?: { id: number; name: string } | null;
+  location: string | null;
+  unit_group: {
+    id: number;
+    code: string;
+    title: string;
+    slug: string;
+    description?: string;
+    minor_group?: {
+      code: string;
+      title: string;
+      sub_major_group?: {
+        code?: string;
+        title?: string;
+        major_group?: { code: string; title: string };
+      };
+    };
+  };
+  required_skill_level: string;
+  required_education: string;
+  description: string;
+  responsibilities?: string;
+  requirements?: string;
+  show_salary: boolean;
+  salary_range_min?: string;
+  salary_range_max?: string;
+  posted_date: string;
+  deadline: string;
+  employment_type: string;
+  applications_count?: number;
+  views_count?: number;
+  has_already_applied?: boolean;
+  status?: string;
+}
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function isDeadlinePassed(deadline: string): boolean {
+  if (!deadline) return false;
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  deadlineDate.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+  return now > deadlineDate;
+}
+
+function formatPostedDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+  }
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `${months} ${months === 1 ? "month" : "months"} ago`;
+  }
+  const years = Math.floor(diffDays / 365);
+  return `${years} ${years === 1 ? "year" : "years"} ago`;
+}
+
+export default function JobDetailClient({
+  initialJob,
+  slug,
+}: {
+  initialJob: JobDetailResponse | null;
+  slug: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, isLoading: authLoading } = useAuth();
+  const [job, setJob] = useState<JobDetailResponse | null>(initialJob);
+  const [isLoading, setIsLoading] = useState(!initialJob);
+  const [error, setError] = useState<string | null>(null);
+  const [applyDialogOpen, setApplyDialogOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [pendingApplyAfterAuth, setPendingApplyAfterAuth] = useState(false);
+  const [createCvDialogOpen, setCreateCvDialogOpen] = useState(false);
+  const [cvCheckLoading, setCvCheckLoading] = useState(false);
+  const fetchingSlugRef = useRef<string | null>(null);
+
+  const checkCvAndOpenApply = React.useCallback(async () => {
+    if (!user?.username) return;
+    setCvCheckLoading(true);
+    try {
+      const has = await hasJobseekerProfile();
+      if (has) {
+        setApplyDialogOpen(true);
+      } else {
+        setCreateCvDialogOpen(true);
+      }
+    } catch (err) {
+      console.error("Error checking CV profile:", err);
+      setCreateCvDialogOpen(true);
+    } finally {
+      setCvCheckLoading(false);
+    }
+  }, [user?.username]);
+
+  useEffect(() => {
+    if (user?.username && pendingApplyAfterAuth && !cvCheckLoading) {
+      checkCvAndOpenApply();
+      setPendingApplyAfterAuth(false);
+    }
+  }, [
+    user?.username,
+    pendingApplyAfterAuth,
+    cvCheckLoading,
+    checkCvAndOpenApply,
+  ]);
+
+  useEffect(() => {
+    if (!slug) {
+      setIsLoading(false);
+      setError("Invalid job slug");
+      setJob(null);
+      fetchingSlugRef.current = null;
+      return;
+    }
+
+    // If we have initialJob and it matches the slug, we don't need a fresh fetch on mount
+    if (initialJob && initialJob.slug === slug && !job) {
+      setJob(initialJob);
+      setIsLoading(false);
+      return;
+    }
+
+    // Prevent duplicate fetches for the same slug (React Strict Mode)
+    if (fetchingSlugRef.current === slug) {
+      return;
+    }
+
+    // Reset state when slug changes
+    const previousSlug = fetchingSlugRef.current;
+    if (previousSlug !== null && previousSlug !== slug) {
+      setJob(null);
+      setError(null);
+    }
+
+    // Mark that we're fetching this slug
+    fetchingSlugRef.current = slug;
+    setIsLoading(true);
+    setError(null);
+
+    let isCancelled = false;
+
+    const fetchJob = async () => {
+      try {
+        const data = await getJobBySlug(slug);
+
+        // Only update state if this is still the active slug and not cancelled
+        if (!isCancelled && fetchingSlugRef.current === slug) {
+          setJob(data);
+          setError(null);
+          setIsLoading(false);
+          fetchingSlugRef.current = null;
+        }
+      } catch (err: any) {
+        // Only update state if this is still the active slug and not cancelled
+        if (!isCancelled && fetchingSlugRef.current === slug) {
+          const errorMessage =
+            err?.response?.status === 404
+              ? "Job not found"
+              : err?.message || "Failed to load job";
+          setError(errorMessage);
+          setJob(null);
+          setIsLoading(false);
+          fetchingSlugRef.current = null;
+        }
+      }
+    };
+
+    fetchJob();
+
+    return () => {
+      isCancelled = true;
+      // Only clear ref if this cleanup is for the current fetch
+      if (fetchingSlugRef.current === slug) {
+        fetchingSlugRef.current = null;
+      }
+    };
+  }, [slug, initialJob, job]);
+
+  const companyName =
+    job?.company_name ||
+    (job?.company?.name ? job.company.name : null) ||
+    "Company";
+
+  const locationStr =
+    job?.location && String(job.location).trim()
+      ? String(job.location).trim()
+      : "Not specified";
+
+  const salaryStr =
+    job?.show_salary && job?.salary_range_min && job?.salary_range_max
+      ? `NRs. ${parseFloat(
+          job.salary_range_min,
+        ).toLocaleString()} - ${parseFloat(
+          job.salary_range_max,
+        ).toLocaleString()}`
+      : null;
+
+  const deadlinePassed = job ? isDeadlinePassed(job.deadline) : false;
+
+  const categoryPath = job?.unit_group?.minor_group?.sub_major_group
+    ?.major_group
+    ? [
+        job.unit_group.minor_group.sub_major_group.major_group.title,
+        job.unit_group.minor_group.sub_major_group?.title,
+        job.unit_group.minor_group?.title,
+        job.unit_group.title,
+      ].filter(Boolean)
+    : job?.unit_group?.title
+      ? [job.unit_group.title]
+      : [];
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
+        <JobsHeader
+          mode="jobs"
+          onModeChange={(mode: JobsViewMode) => {
+            if (mode === "employer") {
+              router.push("/jobs-and-oppourtunities/employer");
+            } else if (mode === "work-interests") {
+              router.push("/jobs-and-oppourtunities/work-interests");
+            } else {
+              router.push("/jobs-and-oppourtunities");
+            }
+          }}
+        />
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !job) {
+    return (
+      <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
+        <JobsHeader
+          mode="jobs"
+          onModeChange={(mode: JobsViewMode) => {
+            if (mode === "employer") {
+              router.push("/jobs-and-oppourtunities/employer");
+            } else if (mode === "work-interests") {
+              router.push("/jobs-and-oppourtunities/work-interests");
+            } else {
+              router.push("/jobs-and-oppourtunities");
+            }
+          }}
+        />
+        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+          <p className="text-slate-600 mb-4">{error || "Job not found"}</p>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/jobs-and-oppourtunities")}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Jobs
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .rich-text-content ul.list-node,
+        .rich-text-content ul {
+          list-style-type: disc !important;
+          padding-left: 1.5rem !important;
+          margin-top: 1rem !important;
+          margin-bottom: 1rem !important;
+          display: block !important;
+        }
+        .rich-text-content ul li {
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+          display: list-item !important;
+          list-style-position: outside !important;
+        }
+        .rich-text-content ul li p.text-node,
+        .rich-text-content ul li p {
+          margin-bottom: 0 !important;
+          display: inline !important;
+        }
+        .rich-text-content p.text-node {
+          margin-bottom: 0.75rem;
+        }
+      `,
+        }}
+      />
+      <div className="max-w-7xl mx-auto px-8 py-10 min-h-screen">
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => router.push("/jobs-and-oppourtunities")}
+            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Jobs
+          </button>
+        </div>
+
+        <article
+          className={`bg-white rounded-xl border shadow-sm overflow-hidden ${deadlinePassed ? "opacity-90 border-slate-200" : "border-slate-200"}`}
+        >
+          {/* Header */}
+          <div
+            className={`p-6 sm:p-8 border-b border-slate-100 ${deadlinePassed ? "bg-slate-50/50" : ""}`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div>
+                <h1
+                  className={`text-2xl font-bold mb-2 ${deadlinePassed ? "text-slate-600" : "text-slate-900"}`}
+                >
+                  {job.title}
+                </h1>
+                <div className="flex items-center gap-2 text-slate-600 font-medium">
+                  <Building2 className="w-4 h-4 text-slate-500" />
+                  <span>{companyName}</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold uppercase tracking-wide">
+                  {job.employment_type}
+                </span>
+                {deadlinePassed && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-sm font-medium">
+                    Job Closed
+                  </span>
+                )}
+                {job.has_already_applied && !deadlinePassed && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Already Applied
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-slate-400" />
+                {locationStr}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-slate-400" />
+                Posted {formatPostedDate(job.posted_date)}
+              </span>
+              {salaryStr && (
+                <span className="flex items-center gap-1.5">
+                  <Banknote className="w-4 h-4 text-slate-400" />
+                  {salaryStr}
+                </span>
+              )}
+              {job.applications_count != null && (
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-slate-400" />
+                  {job.applications_count} application
+                  {job.applications_count !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            {!job.has_already_applied && !deadlinePassed && (
+              <div className="mt-6">
+                <Button
+                  onClick={() => {
+                    const token =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem("accessToken")
+                        : null;
+                    if (!user && !token && !authLoading) {
+                      setPendingApplyAfterAuth(true);
+                      setAuthDialogOpen(true);
+                      return;
+                    }
+                    checkCvAndOpenApply();
+                  }}
+                  disabled={cvCheckLoading}
+                  className="gap-2"
+                >
+                  {cvCheckLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      Apply Now
+                      <ArrowLeft className="w-4 h-4 rotate-180" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="p-6 sm:p-8 space-y-8">
+            {/* Key details */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
+                <Briefcase className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Employment Type
+                  </p>
+                  <p className="text-slate-900 font-medium mt-0.5">
+                    {job.employment_type}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
+                <GraduationCap className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Required Education
+                  </p>
+                  <p className="text-slate-900 font-medium mt-0.5">
+                    {job.required_education}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
+                <Layers className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Skill Level
+                  </p>
+                  <p className="text-slate-900 font-medium mt-0.5">
+                    {job.required_skill_level}
+                  </p>
+                </div>
+              </div>
+              <div
+                className={`flex items-start gap-3 p-4 rounded-lg border ${deadlinePassed ? "bg-slate-100 border-slate-200" : "bg-slate-50 border-slate-100"}`}
+              >
+                <Calendar
+                  className={`w-5 h-5 shrink-0 mt-0.5 ${deadlinePassed ? "text-slate-400" : "text-slate-500"}`}
+                />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Application Deadline
+                  </p>
+                  <p
+                    className={`font-medium mt-0.5 ${deadlinePassed ? "text-slate-500" : "text-slate-900"}`}
+                  >
+                    {formatDate(job.deadline)}
+                    {deadlinePassed && (
+                      <span className="ml-1.5 text-xs text-slate-500">
+                        (Closed)
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Category */}
+            {categoryPath.length > 0 && (
+              <section>
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-2">
+                  Job Category
+                </h2>
+                <p className="text-slate-600">{categoryPath.join(" › ")}</p>
+              </section>
+            )}
+
+            {/* Description */}
+            {job.description && (
+              <section>
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">
+                  Description
+                </h2>
+                <div
+                  className="rich-text-content prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed prose-headings:text-slate-900"
+                  dangerouslySetInnerHTML={{ __html: job.description }}
+                />
+              </section>
+            )}
+
+            {/* Responsibilities */}
+            {job.responsibilities && (
+              <section>
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">
+                  Responsibilities
+                </h2>
+                <div
+                  className="rich-text-content prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: job.responsibilities }}
+                />
+              </section>
+            )}
+
+            {/* Requirements */}
+            {job.requirements && (
+              <section>
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">
+                  Requirements
+                </h2>
+                <div
+                  className="rich-text-content prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: job.requirements }}
+                />
+              </section>
+            )}
+          </div>
+        </article>
+
+        <ApplyDialog
+          open={applyDialogOpen}
+          onOpenChange={setApplyDialogOpen}
+          jobSlug={job.slug}
+          jobTitle={job.title}
+          onSuccess={() => {
+            setJob((prev) =>
+              prev ? { ...prev, has_already_applied: true } : prev,
+            );
+          }}
+        />
+      </div>
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) {
+            setPendingApplyAfterAuth(false);
+          }
+        }}
+        initialMode="login"
+        returnTo={pathname}
+        onAuthenticated={() => {
+          // useEffect will run checkCvAndOpenApply when user is set and pendingApplyAfterAuth is true
+        }}
+      />
+
+      <Dialog open={createCvDialogOpen} onOpenChange={setCreateCvDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>CV required</DialogTitle>
+            <DialogDescription>
+              You need a CV to apply for jobs. Create one in your profile to
+              continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => router.push("/profile")}>
+              Go to profile
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

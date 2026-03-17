@@ -13,8 +13,10 @@ import SessionProvider from "@/contexts/SessionProvider";
 import { auth } from "@/app/auth";
 
 export const metadata: Metadata = {
-  title: "B2B Marketplace",
-  description: "B2B Marketplace",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || "https://biratbazar.com"),
+  title: "B2B Marketplace | BiratBazar",
+  description: "BiratBazar is the leading B2B marketplace to buy and sell products and services in Nepal. Connect with farmers, manufacturers and service providers.",
+  keywords: ["B2B", "Marketplace", "Nepal", "Biratnagar", "Agriculture", "Products", "Services"],
 };
 
 const bricolage = Bricolage_Grotesque({

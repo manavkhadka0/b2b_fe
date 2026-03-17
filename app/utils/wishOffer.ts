@@ -329,15 +329,8 @@ export function useWishAndOffer() {
   };
 }
 
-// Add this function alongside existing code
-export async function getWishes() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    { headers: { Accept: "application/json" } }
-  );
-  const data = await response.json();
-  return data.results || [];
-}
+// Note: Server-side fetch functions (fetchWish, fetchOffer, fetchCategories) 
+// have been moved to app/utils/wishOfferServer.ts for use in Server Components.
 
 export async function searchWishesOffers(search: string): Promise<{
   wishes: Wish[];
@@ -454,3 +447,12 @@ export function useEventOffers(eventSlug: string | null) {
     error,
   };
 }
+
+export const slugify = (text: string) =>
+  text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-");
