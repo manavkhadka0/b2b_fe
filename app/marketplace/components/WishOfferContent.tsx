@@ -109,22 +109,28 @@ export function WishOfferContent({
       }
     }
 
+    if (currentEventSlug && !catId) {
+       // Handle /marketplace/event/[slug] or /marketplace/wishes/event/[slug]
+       newPath += `/event/${currentEventSlug}`;
+    }
+
     if (catId) {
       const allCats = [...productCategories, ...serviceCategories];
-      const cat = allCats.find(c => c.id === catId);
+      const cat = allCats.find((c) => c.id === catId);
       if (cat) {
         newPath += `/${slugify(cat.name)}`;
         if (subId) {
-          const sub = cat.subcategories?.find(s => s.id === subId);
+          const sub = cat.subcategories?.find((s) => s.id === subId);
           if (sub) {
             newPath += `/${slugify(sub.name)}`;
           }
         }
       }
-    }
-
-    if (currentEventSlug) {
-      newPath += `/event/${currentEventSlug}`;
+      
+      // If we have an event AND a category, put the event at the end
+      if (currentEventSlug) {
+        newPath += `/event/${currentEventSlug}`;
+      }
     }
 
     // Use replace instead of push and add scroll: false to prevent page jump
@@ -202,32 +208,35 @@ export function WishOfferContent({
         isUpdatingFromURL.current = true;
       }
 
-      const { type, catType, eventSlug, categorySlug, subcategorySlug } = parseMarketplaceSlug(slug || []);
+      const parsed = parseMarketplaceSlug(slug || []);
 
-      // Batch state updates
-      setSelectedType(type);
-      setSelectedCategoryType(catType);
-      setActiveEventSlug(eventSlug);
+      // Batch state updates but check if they've actually changed to avoid cycles
+      setSelectedType(prev => prev !== parsed.type ? parsed.type : prev);
+      setSelectedCategoryType(prev => prev !== parsed.catType ? parsed.catType : prev);
+      setActiveEventSlug(prev => prev !== parsed.eventSlug ? parsed.eventSlug : prev);
 
-      if (categorySlug) {
+      if (parsed.categorySlug) {
         const allCats = [...pc, ...sc];
-        const match = allCats.find((c) => slugify(c.name) === categorySlug);
+        const match = allCats.find((c) => slugify(c.name) === parsed.categorySlug);
 
         if (match) {
-          setActiveCategoryId(match.id);
-          if (subcategorySlug) {
-            const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === subcategorySlug);
-            setActiveSubcategoryId(subMatch ? subMatch.id : null);
+          setActiveCategoryId(prev => prev !== match.id ? match.id : prev);
+          if (parsed.subcategorySlug) {
+            const subMatch = match.subcategories?.find((sc) => slugify(sc.name) === parsed.subcategorySlug);
+            setActiveSubcategoryId(prev => {
+              const targetId = subMatch ? subMatch.id : null;
+              return prev !== targetId ? targetId : prev;
+            });
           } else {
-            setActiveSubcategoryId(null);
+            setActiveSubcategoryId(prev => prev !== null ? null : prev);
           }
         } else {
-          setActiveCategoryId(null);
-          setActiveSubcategoryId(null);
+          setActiveCategoryId(prev => prev !== null ? null : prev);
+          setActiveSubcategoryId(prev => prev !== null ? null : prev);
         }
       } else {
-        setActiveCategoryId(null);
-        setActiveSubcategoryId(null);
+        setActiveCategoryId(prev => prev !== null ? null : prev);
+        setActiveSubcategoryId(prev => prev !== null ? null : prev);
       }
 
       if (isInitialMount.current) {
@@ -238,7 +247,7 @@ export function WishOfferContent({
         }, 100);
       }
     }
-  }, [slug, productCategories, serviceCategories, slugify]);
+  }, [slug, productCategories, serviceCategories, slugify, initialProductCategories, initialServiceCategories]);
 
   // If initialCategoryName is provided, try to find the category ID once categories are loaded
   useEffect(() => {

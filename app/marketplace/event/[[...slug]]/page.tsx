@@ -6,9 +6,9 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  return generateMarketplaceMetadata({ params });
+  return generateMarketplaceMetadata({ params, basePath: ["event"] });
 }
 
-export default async function MarketplacePage({ params }: Props) {
-  return <MarketplaceServerPage params={params} />;
+export default async function EventPage({ params }: Props) {
+  return <MarketplaceServerPage params={params} basePath={["event"]} />;
 }
