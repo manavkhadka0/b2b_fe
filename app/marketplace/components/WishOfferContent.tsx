@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import { SidebarContent } from "./SidebarContent";
 import { ItemCard } from "./ItemCard";
 import { ItemDetailDialog } from "./ItemDetailDialog";
@@ -61,7 +62,7 @@ export function WishOfferContent({
   initialServiceCategories?: Category[];
   slug?: string[];
 }) {
-  const { user, isLoading: authLoading, requireAuth } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -276,10 +277,15 @@ export function WishOfferContent({
   const [relatedItemId, setRelatedItemId] = useState<number | null>(null);
   const [relatedItem, setRelatedItem] = useState<Wish | Offer | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const isLoggedIn =
-    !!user ||
-    (typeof window !== "undefined" && !!localStorage.getItem("accessToken"));
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogMode, setAuthDialogMode] = useState<"login" | "register">(
+    "login",
+  );
+  const [pendingCreate, setPendingCreate] = useState<
+    | { kind: "offer"; item: Wish }
+    | { kind: "wish"; item: Offer }
+    | null
+  >(null);
 
   // Fetch events
   const eventFetcher = async () => {
@@ -528,6 +534,16 @@ export function WishOfferContent({
         : "Services";
 
   const handleCreateOffer = (wish: Wish) => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+    if (!user && !token && !authLoading) {
+      setPendingCreate({ kind: "offer", item: wish });
+      setAuthDialogMode("login");
+      setAuthDialogOpen(true);
+      return;
+    }
     setRelatedItem(wish);
     setRelatedItemId(wish.id);
     setFormType("offers");
@@ -535,11 +551,39 @@ export function WishOfferContent({
   };
 
   const handleCreateWish = (offer: Offer) => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+    if (!user && !token && !authLoading) {
+      setPendingCreate({ kind: "wish", item: offer });
+      setAuthDialogMode("login");
+      setAuthDialogOpen(true);
+      return;
+    }
     setRelatedItem(offer);
     setRelatedItemId(offer.id);
     setFormType("wishes");
     setShowFormModal(true);
   };
+
+  useEffect(() => {
+    if (!user || !pendingCreate) return;
+    if (pendingCreate.kind === "offer") {
+      const w = pendingCreate.item;
+      setRelatedItem(w);
+      setRelatedItemId(w.id);
+      setFormType("offers");
+    } else {
+      const o = pendingCreate.item;
+      setRelatedItem(o);
+      setRelatedItemId(o.id);
+      setFormType("wishes");
+    }
+    setShowFormModal(true);
+    setSelectedItem(null);
+    setPendingCreate(null);
+  }, [user, pendingCreate]);
 
   const handleCloseForm = () => {
     setShowFormModal(false);
@@ -783,6 +827,21 @@ export function WishOfferContent({
           onClose={handleCloseForm}
         />
       )}
+
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open && pendingCreate) {
+            window.setTimeout(() => {
+              const token = localStorage.getItem("accessToken");
+              if (!token) setPendingCreate(null);
+            }, 0);
+          }
+        }}
+        initialMode={authDialogMode}
+        returnTo={pathname || undefined}
+      />
     </div>
   );
 }

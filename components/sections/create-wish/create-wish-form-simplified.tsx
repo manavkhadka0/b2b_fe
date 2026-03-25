@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useRef } from "react";
+import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import {
@@ -24,8 +25,15 @@ import { Step1Type } from "./create-wish-steps/step-1-type";
 import { Step2Details } from "./create-wish-steps/step-2-details";
 import { Step3Company } from "./create-wish-steps/step-3-company";
 import { Step4Personal } from "./create-wish-steps/step-4-personal";
-import { X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CreateWishFormSimplifiedProps {
   onClose?: () => void;
@@ -119,9 +127,14 @@ export function CreateWishOfferFormSimplified({
       description: "",
       images: [],
       type: "Product",
+      public_display_consent: false,
       ...initialValues,
     },
   });
+
+  const publicDisplayConsent = form.watch("public_display_consent");
+  const isReviewStep = currentStep === STEPS.length;
+  const consentBlocksSubmit = isReviewStep && publicDisplayConsent !== true;
 
   // Fetch service details when service ID is provided in initialValues
   useEffect(() => {
@@ -208,7 +221,7 @@ export function CreateWishOfferFormSimplified({
         case 1:
           return ["title", "type"];
         case 2:
-          return ["title", "type"]; // Review Step validation (basically ensure Step 1 is valid)
+          return ["title", "type", "public_display_consent"];
         default:
           return ["title", "type"];
       }
@@ -242,6 +255,7 @@ export function CreateWishOfferFormSimplified({
             "designation",
             "email",
             "mobile_no",
+            "public_display_consent",
           ];
         default:
           return [];
@@ -270,21 +284,43 @@ export function CreateWishOfferFormSimplified({
       return;
     }
 
+    if (!data.public_display_consent) {
+      toast.error("Please accept the public display consent to continue.");
+      void form.trigger("public_display_consent");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
+
+      if (!token) {
+        toast.error("Please sign in to create a wish or offer.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const formData = new FormData();
 
       // Append non-file fields, including product/service if present in initialValues
       Object.entries(data).forEach(([key, value]) => {
-        if (value && key !== "images") {
-          // Only append product/service if they have values (from initialValues)
-          if (key === "product" || key === "service") {
-            if (value && value.toString().trim() !== "") {
-              formData.append(key, value.toString());
-            }
-          } else {
+        if (key === "images") return;
+        if (value === undefined || value === null) return;
+        if (typeof value === "boolean") {
+          formData.append(key, value ? "true" : "false");
+          return;
+        }
+        if (!value) return;
+        // Only append product/service if they have values (from initialValues)
+        if (key === "product" || key === "service") {
+          if (value.toString().trim() !== "") {
             formData.append(key, value.toString());
           }
+        } else {
+          formData.append(key, value.toString());
         }
       });
 
@@ -320,21 +356,14 @@ export function CreateWishOfferFormSimplified({
         formData.append("image", image.file);
       }
 
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
       const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`;
       const url = baseUrl;
 
       const response = await fetch(url, {
         method: "POST",
-        headers: token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : undefined,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -590,12 +619,19 @@ export function CreateWishOfferFormSimplified({
                   className="bg-blue-500 ml-auto hover:bg-blue-600"
                   onClick={async () => {
                     if (currentStep === STEPS.length) {
+                      if (!form.getValues("public_display_consent")) {
+                        toast.error(
+                          "Please accept the public display consent to continue.",
+                        );
+                        await form.trigger("public_display_consent");
+                        return;
+                      }
                       form.handleSubmit(onSubmit)();
                     } else {
                       await nextStep();
                     }
                   }}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || consentBlocksSubmit}
                 >
                   {currentStep === STEPS.length
                     ? isSubmitting
@@ -622,13 +658,14 @@ function Step3ReviewSimplified({
   image,
   is_wish_or_offer,
 }: {
-  form: any;
+  form: UseFormReturn<CreateWishFormValues>;
   selectedProduct: HSCode | null;
   selectedService: Service | null;
   image: { url: string } | null;
   is_wish_or_offer: "wishes" | "offers";
 }) {
   const values = form.getValues();
+  const listingLabel = is_wish_or_offer === "wishes" ? "wish" : "offer";
 
   return (
     <div className="space-y-8">
@@ -684,6 +721,31 @@ function Step3ReviewSimplified({
             </div>
           </div>
         )}
+
+        <FormField
+          control={form.control}
+          name="public_display_consent"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/80 p-4 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
+              </FormControl>
+              <div className="space-y-1 leading-snug">
+                <FormLabel className="text-sm font-normal text-slate-700 cursor-pointer">
+                  I understand and agree that this {listingLabel} and my
+                  contact details may be displayed publicly on the Birat Bazaar
+                  website so other members can respond.
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );

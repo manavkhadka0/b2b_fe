@@ -236,9 +236,14 @@ export function CreateWishOfferForm({
       ward: "",
       type: "Product",
       event_id: event?.id?.toString() || "",
+      public_display_consent: false,
       ...initialValues,
     },
   });
+
+  const publicDisplayConsent = form.watch("public_display_consent");
+  const isReviewStep = currentStep === STEPS.length;
+  const consentBlocksSubmit = isReviewStep && publicDisplayConsent !== true;
 
   const searchProducts = useDebouncedCallback(async (search: string) => {
     if (search.length < 3) return;
@@ -338,13 +343,36 @@ export function CreateWishOfferForm({
       return;
     }
 
+    if (!data.public_display_consent) {
+      toast.error("Please accept the public display consent to continue.");
+      void form.trigger("public_display_consent");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
+
+      if (!token) {
+        toast.error("Please sign in to create or update a wish or offer.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const formData = new FormData();
 
-      // Append non-file fields
+      // Append non-file fields (booleans must be sent explicitly)
       Object.entries(data).forEach(([key, value]) => {
-        if (value && key !== "images") {
+        if (key === "images") return;
+        if (value === undefined || value === null) return;
+        if (typeof value === "boolean") {
+          formData.append(key, value ? "true" : "false");
+          return;
+        }
+        if (value) {
           formData.append(key, value.toString());
         }
       });
@@ -354,22 +382,15 @@ export function CreateWishOfferForm({
         formData.append("image", image.file);
       }
 
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("accessToken")
-          : null;
-
       const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/${is_wish_or_offer}/`;
       const url =
         mode === "edit" && existingId ? `${baseUrl}${existingId}/` : baseUrl;
 
       const response = await fetch(url, {
         method: mode === "edit" ? "PATCH" : "POST",
-        headers: token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : undefined,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -628,6 +649,7 @@ export function CreateWishOfferForm({
             selectedProduct={selectedProduct}
             selectedService={selectedService}
             image={image}
+            is_wish_or_offer={is_wish_or_offer}
           />
         );
       default:
@@ -688,12 +710,19 @@ export function CreateWishOfferForm({
                   className="bg-blue-500 ml-auto hover:bg-blue-600"
                   onClick={async () => {
                     if (currentStep === STEPS.length) {
+                      if (!form.getValues("public_display_consent")) {
+                        toast.error(
+                          "Please accept the public display consent to continue.",
+                        );
+                        await form.trigger("public_display_consent");
+                        return;
+                      }
                       form.handleSubmit(onSubmit)();
                     } else {
                       await nextStep();
                     }
                   }}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || consentBlocksSubmit}
                 >
                   {currentStep === STEPS.length
                     ? isSubmitting

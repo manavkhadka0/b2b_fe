@@ -6,12 +6,21 @@ import type {
   HSCode,
   Service,
 } from "@/types/create-wish-type";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Step5ReviewProps {
   form: UseFormReturn<CreateWishFormValues>;
   selectedProduct: HSCode | null;
   selectedService: Service | null;
   image: { url: string } | null;
+  is_wish_or_offer: "wishes" | "offers";
 }
 
 export function Step5Review({
@@ -19,12 +28,16 @@ export function Step5Review({
   selectedProduct,
   selectedService,
   image,
+  is_wish_or_offer,
 }: Step5ReviewProps) {
   const values = form.getValues();
+  const listingLabel = is_wish_or_offer === "wishes" ? "wish" : "offer";
 
   return (
     <div className="space-y-8">
-      <h2 className="text-lg font-semibold">Review Your Wish</h2>
+      <h2 className="text-lg font-semibold">
+        Review Your {is_wish_or_offer === "wishes" ? "Wish" : "Offer"}
+      </h2>
 
       <div className="space-y-6">
         {/* Wish Details */}
@@ -147,6 +160,31 @@ export function Step5Review({
             </div>
           </div>
         )}
+
+        <FormField
+          control={form.control}
+          name="public_display_consent"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/80 p-4 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
+              </FormControl>
+              <div className="space-y-1 leading-snug">
+                <FormLabel className="text-sm font-normal text-slate-700 cursor-pointer">
+                  I understand and agree that this {listingLabel} and my
+                  contact details may be displayed publicly on the Birat Bazaar
+                  website so other members can respond.
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );

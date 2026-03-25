@@ -30,6 +30,9 @@ export function DefaultNav() {
   const [authDialogMode, setAuthDialogMode] = useState<"login" | "register">(
     "login",
   );
+  const [pendingCreatePath, setPendingCreatePath] = useState<string | null>(
+    null,
+  );
   const mdmuLeaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -80,6 +83,26 @@ export function DefaultNav() {
     } catch (error) {
       console.error("Logout failed:", error);
     }
+  };
+
+  const goToCreateWish = () => {
+    if (currentUser) {
+      router.push("/marketplace/wishes/create-wish");
+      return;
+    }
+    setPendingCreatePath("/marketplace/wishes/create-wish");
+    setAuthDialogMode("login");
+    setAuthDialogOpen(true);
+  };
+
+  const goToCreateOffer = () => {
+    if (currentUser) {
+      router.push("/marketplace/offer/create-offer");
+      return;
+    }
+    setPendingCreatePath("/marketplace/offer/create-offer");
+    setAuthDialogMode("login");
+    setAuthDialogOpen(true);
   };
 
   useEffect(() => {
@@ -398,14 +421,14 @@ export function DefaultNav() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem
-                    onClick={() => router.push("/marketplace/wishes/create-wish")}
+                    onClick={goToCreateWish}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     {t("navigation.makeAWish")} (क्रेता)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => router.push("/marketplace/offer/create-offer")}
+                    onClick={goToCreateOffer}
                     className="cursor-pointer"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -536,7 +559,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 text-blue-800 border-blue-800"
                       onClick={() => {
                         setMobileOpen(false);
-                        router.push("/marketplace/wishes/create-wish");
+                        goToCreateWish();
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />
@@ -546,7 +569,7 @@ export function DefaultNav() {
                       className="flex items-center justify-center gap-2 h-11 bg-blue-800 hover:bg-blue-900"
                       onClick={() => {
                         setMobileOpen(false);
-                        router.push("/marketplace/offer/create-offer");
+                        goToCreateOffer();
                       }}
                     >
                       <PlusCircle className="w-4 h-4 shrink-0" />
@@ -561,8 +584,12 @@ export function DefaultNav() {
       </ResponsiveContainer>
       <AuthDialog
         open={authDialogOpen}
-        onOpenChange={setAuthDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) setPendingCreatePath(null);
+        }}
         initialMode={authDialogMode}
+        returnTo={pendingCreatePath ?? undefined}
       />
     </header>
   );

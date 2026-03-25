@@ -21,9 +21,6 @@ function getCategoryId(item: Wish | Offer): string {
   return "";
 }
 
-import { useAuth } from "@/contexts/AuthContext";
-import { CreateWishOfferForm } from "@/components/sections/create-wish/create-wish-form";
-
 export type CreateFormModalProps = {
   formType: "wishes" | "offers";
   relatedItem: Wish | Offer;
@@ -37,8 +34,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   relatedItemId,
   onClose,
 }) => {
-  const { user } = useAuth();
-
   const initialValues = {
     wish_id:
       formType === "offers" && relatedItemId

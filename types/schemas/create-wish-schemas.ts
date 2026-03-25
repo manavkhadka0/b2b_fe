@@ -47,6 +47,10 @@ export const createWishOfferSchema = z
     event_id: z.string().optional(),
     wish_id: z.string().optional(),
     offer_id: z.string().optional(),
+    public_display_consent: z.boolean().refine((val) => val === true, {
+      message:
+        "You must agree that your listing may be displayed publicly on Birat Bazaar.",
+    }),
   })
   .superRefine((data, ctx) => {
     if (data.country !== "Nepal") return;
@@ -95,4 +99,8 @@ export const createWishOfferSimplifiedSchema = z.object({
   event_id: z.string().optional(),
   wish_id: z.string().optional(),
   offer_id: z.string().optional(),
+  public_display_consent: z.boolean().refine((val) => val === true, {
+    message:
+      "You must agree that your listing may be displayed publicly on Birat Bazaar.",
+  }),
 });
