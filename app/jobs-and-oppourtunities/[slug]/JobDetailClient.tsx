@@ -170,7 +170,7 @@ export default function JobDetailClient({
     }
 
     // If we have initialJob and it matches the slug, we don't need a fresh fetch on mount
-    if (initialJob && initialJob.slug === slug && !job) {
+    if (initialJob && initialJob.slug === slug) {
       setJob(initialJob);
       setIsLoading(false);
       return;
@@ -230,7 +230,8 @@ export default function JobDetailClient({
         fetchingSlugRef.current = null;
       }
     };
-  }, [slug, initialJob, job]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, initialJob]);
 
   const companyName =
     job?.company_name ||
