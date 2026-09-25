@@ -53,7 +53,16 @@ function CountUp({ target, duration = 1200 }: { target: number; duration?: numbe
   return <>{count.toLocaleString()}</>;
 }
 
-const STAT_CONFIG = [
+interface StatItem {
+  key: string;
+  label: string;
+  icon: any;
+  color: string;
+  getValue: (s: StatsData) => number;
+  subText?: (s: StatsData) => string;
+}
+
+const STAT_CONFIG: StatItem[] = [
   {
     key: "wishes_count",
     label: "Wishes",
@@ -113,7 +122,7 @@ const STAT_CONFIG = [
     color: "text-orange-600 bg-orange-50 border-orange-100",
     getValue: (s: StatsData) => s.mdmu_registration_count ?? 0,
   },
-] as const;
+];
 
 export default function StatsSection() {
   const [stats, setStats] = useState<StatsData | null>(null);

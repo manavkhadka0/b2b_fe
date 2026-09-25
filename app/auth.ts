@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import type { JWT as JWTType } from "@auth/core/jwt";
+import type { JWT as JWTType } from "next-auth/jwt";
 import { jwtDecode, type JwtPayload } from "jwt-decode";
 import Credentials from "next-auth/providers/credentials";
 
@@ -34,7 +34,7 @@ declare module "next-auth" {
   }
 }
 
-declare module "@auth/core/jwt" {
+declare module "next-auth/jwt" {
   interface JWT {
     token_type?: string;
     exp?: number;
