@@ -49,7 +49,7 @@ const getGetKey =
     baseUrl: string,
     categoryId?: number | null,
     subcategoryId?: number | null,
-    eventSlug?: string | null
+    eventSlug?: string | null,
   ) =>
   (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
     // Reached the end
@@ -96,7 +96,7 @@ const getGetKeyCombined =
     subcategoryId?: number | null,
     eventSlug?: string | null,
     modelType?: "wish" | "offer" | null,
-    categoryName?: string | null
+    categoryName?: string | null,
   ) =>
   (pageIndex: number, previousPageData: PaginatedResponse<any> | null) => {
     if (previousPageData && !previousPageData.next) return null;
@@ -143,7 +143,7 @@ const getGetKeyCombined =
 export function useWishes(
   categoryId?: number | null,
   subcategoryId?: number | null,
-  eventSlug?: string | null
+  eventSlug?: string | null,
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`;
 
@@ -153,7 +153,7 @@ export function useWishes(
       fetcher,
       {
         revalidateFirstPage: false,
-      }
+      },
     );
 
   // Flatten results
@@ -178,7 +178,7 @@ export function useWishes(
 export function useOffers(
   categoryId?: number | null,
   subcategoryId?: number | null,
-  eventSlug?: string | null
+  eventSlug?: string | null,
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`;
 
@@ -188,7 +188,7 @@ export function useOffers(
       fetcher,
       {
         revalidateFirstPage: false,
-      }
+      },
     );
 
   const offers = data ? data.flatMap((page) => page.results) : [];
@@ -214,7 +214,7 @@ export function useCombinedWishesOffers(
   subcategoryId?: number | null,
   eventSlug?: string | null,
   modelType?: "wish" | "offer" | null,
-  categoryName?: string | null
+  categoryName?: string | null,
 ) {
   const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/combined/`;
 
@@ -226,21 +226,21 @@ export function useCombinedWishesOffers(
         subcategoryId,
         eventSlug,
         modelType,
-        categoryName
+        categoryName,
       ),
       fetcher,
       {
         revalidateFirstPage: false,
-      }
+      },
     );
 
   // Flatten - preserve API order (allResults); split for backwards compatibility
   const allResults = data ? data.flatMap((page) => page.results) : [];
   const wishes = allResults.filter(
-    (r): r is CombinedItem & Wish => r.model_type === "wish"
+    (r): r is CombinedItem & Wish => r.model_type === "wish",
   ) as Wish[];
   const offers = allResults.filter(
-    (r): r is CombinedItem & Offer => r.model_type === "offer"
+    (r): r is CombinedItem & Offer => r.model_type === "offer",
   ) as Offer[];
 
   const isEmpty = data?.[0]?.results.length === 0;
@@ -291,7 +291,7 @@ export function useWishOfferCategories() {
 export function useMyWishes() {
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/`,
-    authFetcher
+    authFetcher,
   );
 
   return {
@@ -305,7 +305,7 @@ export function useMyWishes() {
 export function useMyOffers() {
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/`,
-    authFetcher
+    authFetcher,
   );
 
   return {
@@ -319,7 +319,7 @@ export function useMyOffers() {
 export function useWishAndOffer() {
   const { data, isLoading, error, mutate } = useSWR<WishAndOffer>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wish-offers/`,
-    fetcher
+    fetcher,
   );
   return {
     wish_and_offers: data,
@@ -329,7 +329,7 @@ export function useWishAndOffer() {
   };
 }
 
-// Note: Server-side fetch functions (fetchWish, fetchOffer, fetchCategories) 
+// Note: Server-side fetch functions (fetchWish, fetchOffer, fetchCategories)
 // have been moved to app/utils/wishOfferServer.ts for use in Server Components.
 
 export async function searchWishesOffers(search: string): Promise<{
@@ -343,13 +343,13 @@ export async function searchWishesOffers(search: string): Promise<{
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/wishes/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
       fetch(
         `${
           process.env.NEXT_PUBLIC_API_URL
         }/api/wish_and_offers/offers/?search=${encodeURIComponent(search)}`,
-        { headers: { Accept: "application/json" } }
+        { headers: { Accept: "application/json" } },
       ),
     ]);
 
@@ -383,7 +383,7 @@ export function useSearchWishesOffers(search: string) {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   return {
@@ -399,7 +399,7 @@ export function postWishView(wishId: number): void {
     .post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/wishes/${wishId}/view/`,
       {},
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" } },
     )
     .catch(() => {});
 }
@@ -409,7 +409,7 @@ export function postOfferView(offerId: number): void {
     .post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/offers/${offerId}/view/`,
       {},
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" } },
     )
     .catch(() => {});
 }
@@ -418,9 +418,9 @@ export function postOfferView(offerId: number): void {
 export function useEventWishes(eventSlug: string | null) {
   const { data, error, isLoading, mutate } = useSWR<WishResponse>(
     eventSlug
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/b2b-networking-events/${eventSlug}/wishes/`
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/wishes/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {
@@ -435,9 +435,9 @@ export function useEventWishes(eventSlug: string | null) {
 export function useEventOffers(eventSlug: string | null) {
   const { data, error, isLoading, mutate } = useSWR<OfferResponse>(
     eventSlug
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/b2b-networking-events/${eventSlug}/offers/`
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/wish_and_offers/events/${eventSlug}/offers/`
       : null,
-    fetcher
+    fetcher,
   );
 
   return {
