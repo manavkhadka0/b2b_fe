@@ -528,14 +528,16 @@ export function JobsSeekerContent({
                   <p className="text-sm text-slate-500">
                     {pagination.count > 0 && (
                       <span>
-                        Showing page {page}
-                        {pagination.count > 0 && (
-                          <span>
-                            {" "}
-                            · {pagination.count} total job
-                            {pagination.count !== 1 ? "s" : ""}
-                          </span>
-                        )}
+                        Showing{" "}
+                        <span className="font-medium text-slate-700">
+                          {(page - 1) * jobs.length + 1}–
+                          {(page - 1) * jobs.length + jobs.length}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-medium text-slate-700">
+                          {pagination.count}
+                        </span>{" "}
+                        job{pagination.count !== 1 ? "s" : ""}
                       </span>
                     )}
                   </p>
@@ -544,7 +546,10 @@ export function JobsSeekerContent({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      onClick={() => {
+                        setPage((p) => Math.max(1, p - 1));
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                       disabled={!hasPreviousPage || isLoading}
                       className="gap-1.5"
                     >
@@ -555,7 +560,10 @@ export function JobsSeekerContent({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage((p) => p + 1)}
+                      onClick={() => {
+                        setPage((p) => p + 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                       disabled={!hasNextPage || isLoading}
                       className="gap-1.5"
                     >

@@ -530,7 +530,7 @@ export default function JobDetailClient({
             {job.description && (
               <section>
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">
-                  Description
+                  No. of Vaccancies
                 </h2>
                 <div
                   className="rich-text-content prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed prose-headings:text-slate-900"
