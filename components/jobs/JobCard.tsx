@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Edit,
   CheckCircle2,
+  Users,
 } from "lucide-react";
 interface JobCardProps {
   job: Job;
@@ -86,6 +87,11 @@ export const JobCard: React.FC<JobCardProps> = ({
           <span className="flex items-center gap-1">
             <Banknote className="w-3 h-3 shrink-0" /> {job.salaryRange}
           </span>
+          {job.no_of_vacancy != null && (
+            <span className="flex items-center gap-1">
+              <Users className="w-3 h-3 shrink-0" /> {job.no_of_vacancy} {job.no_of_vacancy === 1 ? "vacancy" : "vacancies"}
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 shrink-0" /> {job.postedDate}
           </span>
@@ -138,6 +144,11 @@ export const JobCard: React.FC<JobCardProps> = ({
         <span className="flex items-center gap-1.5">
           <Banknote className="w-3.5 h-3.5" /> {job.salaryRange}
         </span>
+        {job.no_of_vacancy != null && (
+          <span className="flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5" /> {job.no_of_vacancy} {job.no_of_vacancy === 1 ? "vacancy" : "vacancies"}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" /> {job.postedDate}
         </span>

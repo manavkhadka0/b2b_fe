@@ -79,6 +79,7 @@ export const transformJobs = (apiJobs: JobApiResponse[]): Job[] => {
       requirements: [], // API doesn't provide requirements, using empty array
       isApplied: apiJob.is_applied || false,
       isDeadlinePassed: isDeadlinePassed(apiJob.deadline),
+      no_of_vacancy: apiJob.no_of_vacancy ?? 1,
     };
   });
 };
@@ -154,6 +155,7 @@ export const transformAppliedJobs = (applications: JobApplication[]): Job[] => {
       requirements: [], // API doesn't provide requirements, using empty array
       isApplied: true, // Always true for applied jobs
       isDeadlinePassed: isDeadlinePassed(apiJob.deadline),
+      no_of_vacancy: apiJob.no_of_vacancy ?? 1,
     };
   });
 };

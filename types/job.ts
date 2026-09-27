@@ -19,4 +19,5 @@ export interface Job {
   location: Location[];
   deadline: string;
   employment_type: string;
+  no_of_vacancy?: number;
 }

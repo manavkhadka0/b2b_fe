@@ -162,6 +162,10 @@ export default function AdminJobDetailPage() {
           <InfoRow label="Company" value={companyName} />
           <InfoRow label="Employment type" value={job.employment_type} />
           <InfoRow
+            label="No. of vacancies"
+            value={job.no_of_vacancy ?? 1}
+          />
+          <InfoRow
             label="Location"
             value={formatLocation(job.location)}
           />

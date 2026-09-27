@@ -70,6 +70,7 @@ interface JobDetailResponse {
   views_count?: number;
   has_already_applied?: boolean;
   status?: string;
+  no_of_vacancy?: number;
 }
 
 function formatDate(dateStr: string): string {
@@ -419,6 +420,12 @@ export default function JobDetailClient({
                   {job.applications_count !== 1 ? "s" : ""}
                 </span>
               )}
+              {job.no_of_vacancy != null && (
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-slate-400" />
+                  {job.no_of_vacancy} {job.no_of_vacancy === 1 ? "vacancy" : "vacancies"}
+                </span>
+              )}
             </div>
 
             {!job.has_already_applied && !deadlinePassed && (
@@ -470,6 +477,19 @@ export default function JobDetailClient({
                   </p>
                 </div>
               </div>
+              {job.no_of_vacancy != null && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
+                  <Users className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      No. of Vacancies
+                    </p>
+                    <p className="text-slate-900 font-medium mt-0.5">
+                      {job.no_of_vacancy} {job.no_of_vacancy === 1 ? "Opening" : "Openings"}
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
                 <GraduationCap className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
                 <div>
@@ -530,7 +550,7 @@ export default function JobDetailClient({
             {job.description && (
               <section>
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">
-                  No. of Vaccancies
+                  Description
                 </h2>
                 <div
                   className="rich-text-content prose prose-slate max-w-none text-slate-700 prose-p:leading-relaxed prose-headings:text-slate-900"

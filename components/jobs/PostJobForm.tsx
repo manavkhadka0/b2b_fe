@@ -105,6 +105,11 @@ const postJobSchema = z
       "Internship",
       "All",
     ]),
+    no_of_vacancy: z
+      .number({ invalid_type_error: "Number of vacancies must be a valid number" })
+      .int("Number of vacancies must be a whole number")
+      .min(1, "Number of vacancies must be at least 1")
+      .optional(),
   })
   .refine(
     (data) => {
@@ -270,6 +275,12 @@ export function PostJobForm({
       email_to: initialData?.email_to || "",
       unit_group: initialData?.unit_group?.code || "",
       employment_type: getEmploymentType(initialData?.employment_type),
+      no_of_vacancy:
+        initialData?.no_of_vacancy !== undefined &&
+        initialData?.no_of_vacancy !== null &&
+        !isNaN(Number(initialData.no_of_vacancy))
+          ? Number(initialData.no_of_vacancy)
+          : 1,
       required_skill_level: getSkillLevel(initialData?.required_skill_level),
       required_education: getEducation(initialData?.required_education),
       salary_range_min: parseInt(
@@ -303,6 +314,12 @@ export function PostJobForm({
         ...data,
         deadline: data.deadline.toISOString(),
         email_to: data.email_to?.trim() || undefined,
+        no_of_vacancy:
+          data.no_of_vacancy !== undefined &&
+          data.no_of_vacancy !== null &&
+          !isNaN(Number(data.no_of_vacancy))
+            ? Number(data.no_of_vacancy)
+            : 1,
       };
 
       if (isEditing && initialData) {
@@ -1215,6 +1232,40 @@ export function PostJobForm({
                             </Command>
                           </PopoverContent>
                         </Popover>
+                        <FormDescription>
+                          Select work arrangement for this role
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Number of Vacancies */}
+                  <FormField
+                    control={form.control}
+                    name="no_of_vacancy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>No. of Vacancies</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            placeholder="e.g., 1"
+                            {...field}
+                            value={field.value ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === "" ? undefined : Number(val),
+                              );
+                            }}
+                            className="border-slate-200"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Number of openings for this role (e.g., 1)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

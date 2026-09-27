@@ -29,6 +29,7 @@ export interface Job {
   isApplied?: boolean;
   /** True when the application deadline has passed */
   isDeadlinePassed?: boolean;
+  no_of_vacancy?: number;
 }
 
 // API Response Types
@@ -108,6 +109,7 @@ export interface JobApiResponse {
   total_applicant_count: number;
   job_post_count?: number;
   is_applied?: boolean;
+  no_of_vacancy?: number;
 }
 
 export interface JobsApiResponse {
