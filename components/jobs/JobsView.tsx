@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import JobsStatsSection from "./JobsStatsSection";
 
 const JobsView: React.FC = () => {
   const router = useRouter();
@@ -148,6 +149,8 @@ const JobsView: React.FC = () => {
         />
       </Suspense>
 
+      <JobsStatsSection />
+
       {selectedJob && (
         <ApplyDialog
           open={applyDialogOpen}
@@ -166,7 +169,11 @@ const JobsView: React.FC = () => {
           }
         }}
         initialMode={authDialogMode}
-        returnTo={pendingAction === "create-job" ? "/jobs-and-oppourtunities/create" : undefined}
+        returnTo={
+          pendingAction === "create-job"
+            ? "/jobs-and-oppourtunities/create"
+            : undefined
+        }
         onAuthenticated={handleAuthenticated}
       />
 
