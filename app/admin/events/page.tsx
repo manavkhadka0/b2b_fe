@@ -34,12 +34,14 @@ import { Label } from "@/components/ui/label";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import { formatToNepaliMonthDayYear } from "@/lib/nepali-date";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 export default function AdminEventsPage() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [page, setPage] = useState(1);
+  const [ordering, setOrdering] = useState<string>("-start_date");
   const [count, setCount] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [hasNext, setHasNext] = useState(false);
@@ -67,7 +69,7 @@ export default function AdminEventsPage() {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        const data = await getAdminEvents(String(page));
+        const data = await getAdminEvents(String(page), ordering);
         setEvents(data.results ?? []);
         setCount(data.count ?? 0);
         setHasNext(!!data.next);
@@ -88,7 +90,7 @@ export default function AdminEventsPage() {
     if (isAuthenticated) {
       fetchEvents();
     }
-  }, [isAuthenticated, page]);
+  }, [isAuthenticated, page, ordering]);
 
   if (!isAuthenticated && !isChecking) {
     return null;
@@ -205,7 +207,26 @@ export default function AdminEventsPage() {
                 Title
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Start date
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPage(1);
+                    setOrdering((prev) =>
+                      prev === "-start_date" ? "start_date" : "-start_date",
+                    );
+                  }}
+                  className="inline-flex items-center gap-1.5 transition-colors hover:text-slate-900 focus:outline-none"
+                  title="Toggle Start Date sort order"
+                >
+                  <span>Start date</span>
+                  {ordering === "-start_date" ? (
+                    <ArrowDown className="h-3.5 w-3.5 text-sky-600" />
+                  ) : ordering === "start_date" ? (
+                    <ArrowUp className="h-3.5 w-3.5 text-sky-600" />
+                  ) : (
+                    <ArrowUpDown className="h-3.5 w-3.5 text-slate-400 opacity-60" />
+                  )}
+                </button>
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Location

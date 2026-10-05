@@ -8,6 +8,7 @@ interface BasicInfoSectionProps {
     setTitle: (value: string) => void;
     description: string;
     setDescription: (value: string) => void;
+    errors?: Record<string, string[]>;
 }
 
 export default function BasicInfoSection({
@@ -15,6 +16,7 @@ export default function BasicInfoSection({
     setTitle,
     description,
     setDescription,
+    errors,
 }: BasicInfoSectionProps) {
     return (
         <div className="space-y-6">
@@ -30,6 +32,9 @@ export default function BasicInfoSection({
                     required
                     className="mt-1"
                 />
+                {errors?.title && (
+                    <p className="mt-1 text-xs text-rose-600">{errors.title.join(", ")}</p>
+                )}
             </div>
 
             <div>
@@ -44,6 +49,9 @@ export default function BasicInfoSection({
                     minHeight="350px"
                     className="border border-slate-200"
                 />
+                {errors?.description && (
+                    <p className="mt-1 text-xs text-rose-600">{errors.description.join(", ")}</p>
+                )}
             </div>
         </div>
     );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, AlertCircle } from "lucide-react";
 import { Event, EventImage, EventOrganizer, Tag } from "@/types/events";
 import {
   createEvent,
@@ -13,6 +13,75 @@ import {
   deleteEventImage,
 } from "@/services/events";
 import { convertAdToBs } from "@/lib/nepali-date";
+
+function parseApiErrorMessages(err: any): string[] {
+  const data = err?.response?.data;
+  if (!data) {
+    if (err?.message) return [err.message];
+    return ["An unexpected error occurred. Please try again."];
+  }
+
+  if (typeof data === "string") {
+    return [data];
+  }
+
+  if (typeof data === "object") {
+    if (typeof data.detail === "string") {
+      return [data.detail];
+    }
+    if (typeof data.error === "string") {
+      return [data.error];
+    }
+
+    const messages: string[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (key === "non_field_errors" || key === "detail" || key === "error") {
+        if (Array.isArray(value)) {
+          value.forEach((msg) => messages.push(String(msg)));
+        } else if (typeof value === "string") {
+          messages.push(value);
+        }
+        continue;
+      }
+
+      const label = key
+        .replace(/_/g, " ")
+        .replace(/^\w/, (c) => c.toUpperCase());
+
+      if (Array.isArray(value)) {
+        value.forEach((msg) => {
+          messages.push(`${label}: ${msg}`);
+        });
+      } else if (typeof value === "string") {
+        messages.push(`${label}: ${value}`);
+      } else if (typeof value === "object" && value !== null) {
+        messages.push(`${label}: ${JSON.stringify(value)}`);
+      }
+    }
+
+    if (messages.length > 0) {
+      return messages;
+    }
+  }
+
+  return ["Failed to process request. Please check your input."];
+}
+
+function parseApiFieldErrors(err: any): Record<string, string[]> {
+  const data = err?.response?.data;
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return {};
+  }
+  const result: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (Array.isArray(value)) {
+      result[key] = value.map((v) => String(v));
+    } else if (typeof value === "string") {
+      result[key] = [value];
+    }
+  }
+  return result;
+}
 
 // Sub-components
 import BasicInfoSection from "./form/BasicInfoSection";
@@ -81,6 +150,8 @@ export default function AdminEventForm({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const [isImagesDialogOpen, setIsImagesDialogOpen] = useState(false);
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -276,12 +347,8 @@ export default function AdminEventForm({
       setNewOrganizerLogo(null);
     } catch (err: any) {
       console.error("Failed to create organizer:", err);
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Failed to create organizer. Please try again.";
-      setError(message);
+      const parsedMsgs = parseApiErrorMessages(err);
+      setError(parsedMsgs[0] || "Failed to create organizer. Please try again.");
     } finally {
       setCreatingOrganizer(false);
     }
@@ -291,6 +358,8 @@ export default function AdminEventForm({
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setErrors([]);
+    setFieldErrors({});
 
     try {
       const formData = new FormData();
@@ -337,12 +406,13 @@ export default function AdminEventForm({
       router.refresh();
     } catch (err: any) {
       console.error("Failed to submit event:", err);
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Failed to save event. Please try again.";
-      setError(message);
+      const parsedMsgs = parseApiErrorMessages(err);
+      const parsedFields = parseApiFieldErrors(err);
+      setErrors(parsedMsgs);
+      setFieldErrors(parsedFields);
+      setError(parsedMsgs[0] || "Failed to save event.");
+
+
     } finally {
       setSubmitting(false);
     }
@@ -381,6 +451,7 @@ export default function AdminEventForm({
         </p>
       </div>
 
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
         <BasicInfoSection
@@ -388,6 +459,7 @@ export default function AdminEventForm({
           setTitle={setTitle}
           description={description}
           setDescription={setDescription}
+          errors={fieldErrors}
         />
 
         {/* Date & Location */}
@@ -407,6 +479,7 @@ export default function AdminEventForm({
           setContactPerson={setContactPerson}
           contactNumber={contactNumber}
           setContactNumber={setContactNumber}
+          errors={fieldErrors}
         />
 
         {/* Organizer */}
@@ -464,7 +537,19 @@ export default function AdminEventForm({
           handleAddImages={handleAddImages}
         />
 
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {errors.length > 0 && (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 shadow-sm">
+            <div className="flex items-center gap-2 font-semibold text-rose-900">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+              <span>Please fix the following error{errors.length > 1 ? "s" : ""}:</span>
+            </div>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-rose-700">
+              {errors.map((msg, idx) => (
+                <li key={idx}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end pt-2">

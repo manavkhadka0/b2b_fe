@@ -26,16 +26,20 @@ export async function getEvents(page: string = "1"): Promise<EventResponse> {
 }
 export async function getAdminEvents(
   page: string = "1",
+  ordering: string = "-start_date",
 ): Promise<EventResponse> {
   try {
-    const response = await axios.get<EventResponse>(
-      `${API_BASE}/api/events/events/?page=${page ? page : 1}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
+    const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    if (ordering) params.append("ordering", ordering);
+
+    const queryString = params.toString();
+    const url = `${API_BASE}/api/events/events/${queryString ? `?${queryString}` : ""}`;
+    const response = await axios.get<EventResponse>(url, {
+      headers: {
+        Accept: "application/json",
       },
-    );
+    });
     return response.data;
   } catch (error) {
     console.error("Failed to fetch events:", error);

@@ -20,6 +20,7 @@ interface DateLocationSectionProps {
     setContactPerson: (value: string) => void;
     contactNumber: string;
     setContactNumber: (value: string) => void;
+    errors?: Record<string, string[]>;
 }
 
 export default function DateLocationSection({
@@ -38,6 +39,7 @@ export default function DateLocationSection({
     setContactPerson,
     contactNumber,
     setContactNumber,
+    errors,
 }: DateLocationSectionProps) {
     return (
         <div className="space-y-6">
@@ -68,6 +70,9 @@ export default function DateLocationSection({
                     <p className="mt-1 text-xs text-slate-500">
                         BS: {startDateBs || "Not set"} | AD: {startDateAd || "Not set"}
                     </p>
+                    {errors?.start_date && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.start_date.join(", ")}</p>
+                    )}
                 </div>
                 <div>
                     <label
@@ -94,6 +99,9 @@ export default function DateLocationSection({
                     <p className="mt-1 text-xs text-slate-500">
                         BS: {endDateBs || "Not set"} | AD: {endDateAd || "Not set"}
                     </p>
+                    {errors?.end_date && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.end_date.join(", ")}</p>
+                    )}
                 </div>
             </div>
 
@@ -114,6 +122,9 @@ export default function DateLocationSection({
                         placeholder="Enter location"
                         className="mt-1"
                     />
+                    {errors?.location && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.location.join(", ")}</p>
+                    )}
                 </div>
                 <div>
                     <label
@@ -130,6 +141,9 @@ export default function DateLocationSection({
                         placeholder="0"
                         className="mt-1"
                     />
+                    {errors?.order && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.order.join(", ")}</p>
+                    )}
                 </div>
             </div>
 
@@ -150,6 +164,9 @@ export default function DateLocationSection({
                         placeholder="Enter contact person name"
                         className="mt-1"
                     />
+                    {errors?.contact_person && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.contact_person.join(", ")}</p>
+                    )}
                 </div>
                 <div>
                     <label
@@ -166,6 +183,9 @@ export default function DateLocationSection({
                         placeholder="Enter contact number"
                         className="mt-1"
                     />
+                    {errors?.contact_number && (
+                        <p className="mt-1 text-xs text-rose-600">{errors.contact_number.join(", ")}</p>
+                    )}
                 </div>
             </div>
         </div>
