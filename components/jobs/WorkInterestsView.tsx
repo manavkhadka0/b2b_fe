@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronRight, Loader2, Search, X, FilterX } from "lucide-react";
+import {
+  ChevronRight,
+  Loader2,
+  Search,
+  X,
+  FilterX,
+  Briefcase,
+} from "lucide-react";
 import * as z from "zod";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -12,9 +19,18 @@ import {
   getWorkInterests,
   hireWorkInterest,
 } from "@/services/workInterests";
+import {
+  getAvailableGraduates,
+  hireGraduate,
+} from "@/services/graduates";
+import type { GraduateRoster } from "@/types/graduate-roster";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { WorkInterestCard } from "@/components/jobs/work-interests";
+import {
+  WorkInterestCard,
+  AvailableGraduateCard,
+  GraduateInterestDetailsDialog,
+} from "@/components/jobs/work-interests";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +43,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkInterestsFilters } from "@/contexts/work-interests-filters";
 
+export type MixedCandidate =
+  | {
+      id: string;
+      kind: "work_interest";
+      date: string;
+      data: WorkInterest;
+    }
+  | {
+      id: string;
+      kind: "graduate";
+      date: string;
+      data: GraduateRoster;
+    };
+
 export function WorkInterestsView() {
   // Filters / list state (shared with sidebar via context)
   const {
@@ -37,17 +67,24 @@ export function WorkInterestsView() {
     proficiency,
     setProficiency,
   } = useWorkInterestsFilters();
+
   const [workInterests, setWorkInterests] = useState<WorkInterest[]>([]);
-  const [selectedInterest, setSelectedInterest] = useState<WorkInterest | null>(
-    null,
-  );
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [graduates, setGraduates] = useState<GraduateRoster[]>([]);
+
+  const [selectedCandidate, setSelectedCandidate] =
+    useState<MixedCandidate | null>(null);
+
+  const [workInterestDetailsOpen, setWorkInterestDetailsOpen] = useState(false);
+  const [graduateDetailsOpen, setGraduateDetailsOpen] = useState(false);
+
+  // Hire modal states
   const [hireOpen, setHireOpen] = useState(false);
   const [hireName, setHireName] = useState("");
   const [hireEmail, setHireEmail] = useState("");
   const [hirePhone, setHirePhone] = useState("");
   const [hireMessage, setHireMessage] = useState("");
   const [isSubmittingHire, setIsSubmittingHire] = useState(false);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 500);
@@ -81,6 +118,7 @@ export function WorkInterestsView() {
         path: ["email"],
       },
     );
+
   const [hireErrors, setHireErrors] = useState<{
     name?: string;
     email?: string;
@@ -88,16 +126,40 @@ export function WorkInterestsView() {
     message?: string;
   }>({});
 
-  const fetchWorkInterests = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getWorkInterests({
-        search: debouncedSearch || undefined,
-        availability: availability || undefined,
-        proficiency_level: proficiency || undefined,
-      });
-      setWorkInterests(data);
+      const [wiResult, gradResult] = await Promise.allSettled([
+        getWorkInterests({
+          search: debouncedSearch || undefined,
+          availability: availability || undefined,
+          proficiency_level: proficiency || undefined,
+        }),
+        getAvailableGraduates({
+          search: debouncedSearch || undefined,
+        }),
+      ]);
+
+      let hasSuccess = false;
+
+      if (wiResult.status === "fulfilled") {
+        setWorkInterests(wiResult.value);
+        hasSuccess = true;
+      } else {
+        console.error("Failed to load work interests", wiResult.reason);
+      }
+
+      if (gradResult.status === "fulfilled") {
+        setGraduates(gradResult.value);
+        hasSuccess = true;
+      } else {
+        console.error("Failed to load available graduates", gradResult.reason);
+      }
+
+      if (!hasSuccess) {
+        setError("Could not load work interests. Please try again.");
+      }
     } catch (err) {
       console.error("Failed to load work interests", err);
       setError("Could not load work interests. Please try again.");
@@ -107,44 +169,82 @@ export function WorkInterestsView() {
   }, [debouncedSearch, availability, proficiency]);
 
   useEffect(() => {
-    fetchWorkInterests();
-  }, [fetchWorkInterests]);
+    fetchData();
+  }, [fetchData]);
+
+  // Combined candidates list (Work Interests + Available Graduates mixed together)
+  const mixedCandidates = useMemo(() => {
+    const list: MixedCandidate[] = [];
+
+    workInterests.forEach((wi) => {
+      list.push({
+        id: `wi-${wi.id}`,
+        kind: "work_interest",
+        date: wi.updated_at || wi.created_at || "",
+        data: wi,
+      });
+    });
+
+    graduates.forEach((grad) => {
+      list.push({
+        id: `grad-${grad.id}`,
+        kind: "graduate",
+        date: grad.updated_at || grad.created_at || "",
+        data: grad,
+      });
+    });
+
+    // Sort by latest date descending
+    list.sort((a, b) => {
+      const timeA = a.date ? new Date(a.date).getTime() : 0;
+      const timeB = b.date ? new Date(b.date).getTime() : 0;
+      return timeB - timeA;
+    });
+
+    return list;
+  }, [workInterests, graduates]);
 
   const activeFilters = useMemo(
     () => availability || proficiency || debouncedSearch,
     [availability, proficiency, debouncedSearch],
   );
 
-  const handleCardClick = (interest: WorkInterest) => {
-    setSelectedInterest(interest);
-    setDetailsOpen(true);
+  const handleWorkInterestClick = (interest: WorkInterest) => {
+    setSelectedCandidate({
+      id: `wi-${interest.id}`,
+      kind: "work_interest",
+      date: interest.updated_at || interest.created_at || "",
+      data: interest,
+    });
+    setWorkInterestDetailsOpen(true);
   };
 
-  const handleHireClick = (interest: WorkInterest) => {
-    setSelectedInterest(interest);
+  const handleGraduateClick = (graduate: GraduateRoster) => {
+    setSelectedCandidate({
+      id: `grad-${graduate.id}`,
+      kind: "graduate",
+      date: graduate.updated_at || graduate.created_at || "",
+      data: graduate,
+    });
+    setGraduateDetailsOpen(true);
+  };
+
+  const openHireModalForCandidate = (candidate: MixedCandidate) => {
+    setSelectedCandidate(candidate);
     setHireName("");
     setHireEmail("");
     setHirePhone("");
     setHireMessage("");
     setHireErrors({});
-    setDetailsOpen(false);
-    setHireOpen(true);
-  };
-
-  const openHireForm = () => {
-    if (!selectedInterest) return;
-    setHireName("");
-    setHireEmail("");
-    setHirePhone("");
-    setHireMessage("");
-    setHireErrors({});
-    setDetailsOpen(false);
+    setWorkInterestDetailsOpen(false);
+    setGraduateDetailsOpen(false);
     setHireOpen(true);
   };
 
   const handleHireSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedInterest) return;
+    if (!selectedCandidate) return;
+
     try {
       setHireErrors({});
       const validated = hireSchema.parse({
@@ -153,19 +253,29 @@ export function WorkInterestsView() {
         phone: hirePhone,
         message: hireMessage,
       });
+
       setIsSubmittingHire(true);
-      await hireWorkInterest(selectedInterest.id, {
+
+      const payload = {
         name: validated.name,
         email: validated.email || undefined,
         phone: validated.phone || undefined,
         message: validated.message,
-      });
+      };
+
+      if (selectedCandidate.kind === "work_interest") {
+        await hireWorkInterest(selectedCandidate.data.id, payload);
+      } else {
+        await hireGraduate(selectedCandidate.data.id, payload);
+      }
+
       toast({
         title: "Hire request sent",
         description: "We have shared your interest with this candidate.",
       });
+
       setHireOpen(false);
-      setSelectedInterest(null);
+      setSelectedCandidate(null);
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: {
@@ -211,6 +321,18 @@ export function WorkInterestsView() {
     setProficiency("");
   };
 
+  const candidateDisplayName = useMemo(() => {
+    if (!selectedCandidate) return "candidate";
+    if (selectedCandidate.kind === "work_interest") {
+      return (
+        selectedCandidate.data.name ||
+        selectedCandidate.data.title ||
+        "candidate"
+      );
+    }
+    return selectedCandidate.data.name || "candidate";
+  }, [selectedCandidate]);
+
   return (
     <div className="max-w-7xl mx-auto min-h-screen">
       {/* Header */}
@@ -222,22 +344,21 @@ export function WorkInterestsView() {
           <Link href="/jobs-and-oppourtunities/work-interests/create">
             <Button
               size="default"
-              className="w-full sm:w-auto bg-blue-800 text-white"
+              className="w-full sm:w-auto bg-blue-800 text-white shrink-0"
             >
               Post Your Interest
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>
         </div>
         <p className="text-slate-600 text-sm sm:text-base max-w-3xl">
-          Browse interests shared by job seekers, or post your own so employers
-          can discover and connect with you.
+          Browse interests shared by job seekers and available graduates, or post your own so employers can discover and connect with you.
         </p>
       </div>
 
       {/* Search Bar */}
       <div className="mb-4">
-        <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white min-w-[200px] max-w-[280px] flex-1 sm:flex-initial">
+        <div className="rounded-md border border-slate-200 flex items-center gap-1.5 px-2.5 py-1.5 bg-white min-w-[200px] max-w-[280px]">
           <Search className="w-4 h-4 text-slate-400 shrink-0" />
           <input
             type="text"
@@ -261,6 +382,7 @@ export function WorkInterestsView() {
         </div>
       </div>
 
+      {/* Active Filters Bar */}
       {activeFilters && (
         <div className="flex flex-wrap items-center gap-2 mb-4 py-2 px-3 rounded-lg bg-slate-50 border border-slate-200">
           <span className="text-xs font-medium text-slate-500 uppercase tracking-wide mr-1">
@@ -293,6 +415,7 @@ export function WorkInterestsView() {
         </div>
       )}
 
+      {/* Content Grid - All items mixed and shown together */}
       {error ? (
         <div className="bg-white rounded-xl p-6 border border-amber-200 text-amber-800">
           {error}
@@ -301,7 +424,7 @@ export function WorkInterestsView() {
         <div className="flex items-center justify-center min-h-[320px]">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
         </div>
-      ) : workInterests.length === 0 ? (
+      ) : mixedCandidates.length === 0 ? (
         <div className="bg-white rounded-xl p-8 text-center border border-slate-200 shadow-sm">
           <p className="text-slate-600">
             No work interests found. Be the first to post yours!
@@ -309,40 +432,59 @@ export function WorkInterestsView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {workInterests.map((interest) => (
-            <WorkInterestCard
-              key={interest.id}
-              interest={interest}
-              onClick={handleCardClick}
-              onHire={handleHireClick}
-            />
-          ))}
+          {mixedCandidates.map((candidate) => {
+            if (candidate.kind === "work_interest") {
+              return (
+                <WorkInterestCard
+                  key={candidate.id}
+                  interest={candidate.data}
+                  onClick={handleWorkInterestClick}
+                  onHire={() => openHireModalForCandidate(candidate)}
+                />
+              );
+            }
+            return (
+              <AvailableGraduateCard
+                key={candidate.id}
+                graduate={candidate.data}
+                onClick={handleGraduateClick}
+                onHire={() => openHireModalForCandidate(candidate)}
+              />
+            );
+          })}
         </div>
       )}
 
-      {selectedInterest && (
+      {/* Work Interest Details Dialog */}
+      {selectedCandidate?.kind === "work_interest" && (
         <Dialog
-          open={detailsOpen}
+          open={workInterestDetailsOpen}
           onOpenChange={(open) => {
-            setDetailsOpen(open);
+            setWorkInterestDetailsOpen(open);
             if (!open && !hireOpen) {
-              setSelectedInterest(null);
+              setSelectedCandidate(null);
             }
           }}
         >
           <DialogContent className="max-w-3xl">
             <DialogHeader className="space-y-2 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                  <Briefcase className="w-3 h-3" />
+                  Work Interest
+                </span>
+              </div>
               <DialogTitle className="text-xl font-semibold text-slate-900">
-                {selectedInterest.title || "Work Interest"}
+                {selectedCandidate.data.title || "Work Interest"}
               </DialogTitle>
               <DialogDescription className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                {selectedInterest.unit_group ? (
+                {selectedCandidate.data.unit_group ? (
                   <>
                     <span className="inline-flex items-center rounded-full bg-slate-50 px-2 py-1 font-medium uppercase tracking-wide">
-                      {selectedInterest.unit_group.code}
+                      {selectedCandidate.data.unit_group.code}
                     </span>
                     <span className="truncate">
-                      {selectedInterest.unit_group.title}
+                      {selectedCandidate.data.unit_group.title}
                     </span>
                   </>
                 ) : (
@@ -355,14 +497,14 @@ export function WorkInterestsView() {
               {/* Top row: Skills, Details, Locations */}
               <div className="flex flex-wrap gap-4">
                 {/* Skills */}
-                {selectedInterest.skills &&
-                  selectedInterest.skills.length > 0 && (
+                {selectedCandidate.data.skills &&
+                  selectedCandidate.data.skills.length > 0 && (
                     <div className="flex-1 min-w-0 rounded-lg border border-slate-100 bg-slate-50/50 px-4 py-3">
                       <p className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase mb-2">
                         Skills
                       </p>
                       <div className="flex flex-wrap gap-1.5">
-                        {selectedInterest.skills.map((skill) => (
+                        {selectedCandidate.data.skills.map((skill) => (
                           <Badge
                             key={skill.id ?? skill.name}
                             variant="outline"
@@ -385,20 +527,20 @@ export function WorkInterestsView() {
                       variant="outline"
                       className="bg-white text-slate-700 border-slate-200 text-[11px]"
                     >
-                      {selectedInterest.availability}
+                      {selectedCandidate.data.availability}
                     </Badge>
                     <Badge
                       variant="outline"
                       className="bg-white text-slate-700 border-slate-200 text-[11px]"
                     >
-                      {selectedInterest.proficiency_level}
+                      {selectedCandidate.data.proficiency_level}
                     </Badge>
                   </div>
                 </div>
 
                 {/* Preferred locations */}
                 {(() => {
-                  const loc = selectedInterest.preferred_locations;
+                  const loc = selectedCandidate.data.preferred_locations;
                   const hasString =
                     typeof loc === "string" && loc.trim().length > 0;
                   const hasArray = Array.isArray(loc) && loc.length > 0;
@@ -453,8 +595,7 @@ export function WorkInterestsView() {
 
               {/* Summary (left) | Person details (right) */}
               <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)]">
-                {/* Summary - scrollable */}
-                {selectedInterest.summary && (
+                {selectedCandidate.data.summary && (
                   <div className="rounded-lg border border-slate-100 bg-slate-50/30 overflow-hidden">
                     <p className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase px-4 pt-3 pb-2">
                       Summary
@@ -462,43 +603,42 @@ export function WorkInterestsView() {
                     <div
                       className="prose prose-sm max-w-none text-slate-700 px-4 pb-4 max-h-[280px] overflow-y-auto"
                       dangerouslySetInnerHTML={{
-                        __html: selectedInterest.summary,
+                        __html: selectedCandidate.data.summary,
                       }}
                     />
                   </div>
                 )}
 
-                {/* Person details - right of summary */}
-                {(selectedInterest.name ||
-                  selectedInterest.email ||
-                  selectedInterest.phone) && (
+                {(selectedCandidate.data.name ||
+                  selectedCandidate.data.email ||
+                  selectedCandidate.data.phone) && (
                   <div className="space-y-4 rounded-xl border border-slate-100 bg-slate-50/60 p-4 text-sm text-slate-700 self-start">
                     <section className="space-y-1">
                       <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
                         Person details
                       </p>
-                      {selectedInterest.name && (
+                      {selectedCandidate.data.name && (
                         <p>
                           <span className="font-medium text-slate-800">
                             Name:
                           </span>{" "}
-                          {selectedInterest.name}
+                          {selectedCandidate.data.name}
                         </p>
                       )}
-                      {selectedInterest.email && (
+                      {selectedCandidate.data.email && (
                         <p>
                           <span className="font-medium text-slate-800">
                             Email:
                           </span>{" "}
-                          {selectedInterest.email}
+                          {selectedCandidate.data.email}
                         </p>
                       )}
-                      {selectedInterest.phone && (
+                      {selectedCandidate.data.phone && (
                         <p>
                           <span className="font-medium text-slate-800">
                             Phone:
                           </span>{" "}
-                          {selectedInterest.phone}
+                          {selectedCandidate.data.phone}
                         </p>
                       )}
                     </section>
@@ -513,8 +653,8 @@ export function WorkInterestsView() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setDetailsOpen(false);
-                  setSelectedInterest(null);
+                  setWorkInterestDetailsOpen(false);
+                  setSelectedCandidate(null);
                 }}
               >
                 Close
@@ -522,7 +662,7 @@ export function WorkInterestsView() {
               <Button
                 className="bg-blue-800 text-white hover:bg-blue-900"
                 type="button"
-                onClick={openHireForm}
+                onClick={() => openHireModalForCandidate(selectedCandidate)}
               >
                 Hire
               </Button>
@@ -531,21 +671,37 @@ export function WorkInterestsView() {
         </Dialog>
       )}
 
-      {selectedInterest && (
+      {/* Graduate Details Dialog */}
+      {selectedCandidate?.kind === "graduate" && (
+        <GraduateInterestDetailsDialog
+          graduate={selectedCandidate.data}
+          open={graduateDetailsOpen}
+          onOpenChange={(open) => {
+            setGraduateDetailsOpen(open);
+            if (!open && !hireOpen) {
+              setSelectedCandidate(null);
+            }
+          }}
+          onHire={() => openHireModalForCandidate(selectedCandidate)}
+        />
+      )}
+
+      {/* Hire Modal for Both Candidate Types */}
+      {selectedCandidate && (
         <Dialog
           open={hireOpen}
           onOpenChange={(open) => {
             setHireOpen(open);
-            if (!open && !detailsOpen) {
-              setSelectedInterest(null);
+            if (!open && !workInterestDetailsOpen && !graduateDetailsOpen) {
+              setSelectedCandidate(null);
             }
           }}
         >
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Hire this candidate</DialogTitle>
+              <DialogTitle>Hire {candidateDisplayName}</DialogTitle>
               <DialogDescription>
-                We’ll share your contact details and message with this person.
+                We’ll share your contact details and message with this candidate.
               </DialogDescription>
             </DialogHeader>
 

@@ -170,3 +170,41 @@ export async function updateGraduate(
 export async function deleteGraduate(id: number): Promise<void> {
   await api.delete(`/api/graduates/${id}/`);
 }
+
+export interface AvailableGraduatesParams {
+  page?: number;
+  search?: string;
+}
+
+export interface HireGraduatePayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
+}
+
+export async function getAvailableGraduates(
+  params?: AvailableGraduatesParams,
+): Promise<GraduateRoster[]> {
+  const searchParams = new URLSearchParams();
+  if (params?.page != null) searchParams.set("page", String(params.page));
+  if (params?.search?.trim()) searchParams.set("search", params.search.trim());
+
+  const qs = searchParams.toString();
+  const url = qs ? `/api/available-graduates/?${qs}` : "/api/available-graduates/";
+
+  const { data } = await api.get<GraduatesListResponse | GraduateRoster[]>(url);
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data?.results ?? [];
+}
+
+export async function hireGraduate(
+  id: number,
+  payload: HireGraduatePayload,
+): Promise<void> {
+  await api.post(`/api/graduates/${id}/hire/`, payload);
+}
+
