@@ -81,10 +81,7 @@ export function AvailableGraduateCard({
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <GraduationCap className="w-3 h-3" />
-                Graduate
-              </span>
+             
               {graduate.roster_type && (
                 <span className="text-[11px] font-medium text-slate-400">
                   {graduate.roster_type}
