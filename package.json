@@ -45,6 +45,7 @@
     "@react-spring/web": "^9.7.5",
     "@sbmdkl/nepali-date-converter": "^2.0.4",
     "@sbmdkl/nepali-datepicker-reactjs": "^1.2.3",
+    "@tanstack/react-query": "^5.104.5",
     "@tiptap/extension-blockquote": "^2.26.1",
     "@tiptap/extension-bubble-menu": "^3.3.0",
     "@tiptap/extension-code-block": "^2.26.1",

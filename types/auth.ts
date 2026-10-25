@@ -59,3 +59,40 @@ export interface Location {
   slug: string;
   description?: string;
 }
+
+export interface RequestResetCodePayload {
+  email: string;
+}
+
+export interface ResendResetCodePayload {
+  email: string;
+}
+
+export interface VerifyResetCodePayload {
+  email: string;
+  code: string;
+}
+
+export interface ConfirmResetPasswordPayload {
+  email: string;
+  code: string;
+  new_password: string;
+}
+
+export interface ApiResponse<T = unknown> {
+  detail: string;
+  data?: T;
+}
+
+export interface VerifyCodeResponse {
+  detail: string;
+  valid: boolean;
+}
+
+export interface ApiErrorResponse {
+  detail?: string;
+  email?: string[];
+  code?: string[];
+  new_password?: string[];
+  [key: string]: unknown;
+}

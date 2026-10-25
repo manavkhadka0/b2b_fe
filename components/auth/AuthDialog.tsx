@@ -262,6 +262,7 @@ export function AuthDialog({
               <div className="flex items-center justify-between text-sm">
                 <Link
                   href="/forgot-password"
+                  onClick={() => onOpenChange(false)}
                   className="text-blue-800 hover:text-purple-600 hover:underline font-medium transition-colors"
                 >
                   Forgot password?
