@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Users } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { getJobBySlug } from "@/services/jobs";
 import { format } from "date-fns";
@@ -148,6 +148,21 @@ export default function AdminJobDetailPage() {
           <p className="text-sm text-slate-500">{companyName}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/admin/jobs/${slug}/applicants`}
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900"
+          >
+            <Users className="h-4 w-4 text-blue-600" />
+            <span>Applicants</span>
+            {((job as { applications_count?: number }).applications_count ??
+              (job as { total_applicant_count?: number }).total_applicant_count ??
+              0) > 0 && (
+              <span className="ml-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
+                {(job as { applications_count?: number }).applications_count ??
+                  (job as { total_applicant_count?: number }).total_applicant_count}
+              </span>
+            )}
+          </Link>
           <Link
             href={`/admin/jobs/${slug}/edit`}
             className="inline-flex items-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
